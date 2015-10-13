@@ -1,0 +1,243 @@
+/* styles using by icontent */
+.path-mod-icontent .block_icontent_toc .action-list {
+	float: right;
+}
+.dir-rtl.path-mod-icontent .block_icontent_toc .action-list {
+	float: left;
+}
+.path-mod-icontent .block_icontent_toc .action-list img.smallicon {
+	margin: 0 3px;
+}
+
+.path-mod-icontent .icontent_toc{
+    font-size: 0.8em;
+}
+.block_icontent_toc .icontent_toc li {
+    list-style: outside none none;
+}
+.block_icontent_toc .icontent_toc ul {
+    margin: 0 0 0 5px;
+    padding-left: 0;
+    padding-right: 0;
+}
+.block_icontent_toc .icontent_toc li {
+    clear: both;
+    list-style: none;
+    margin-top: 0.5em;
+}
+.block_icontent_toc .icontent_toc ul li .active{
+	font-weight: bolder;
+}
+.icontent-page .row {
+	margin-left: 0;
+}
+.icontent-page .previous{
+	text-align: right;
+}
+.icontent-page .pagenum{
+	text-align: right;
+}
+.btn_pages{
+	text-align: center;
+}
+.icontent-page .pagenum span{
+	margin-right: 5px;
+	border: 1px solid #E3E3E3;
+	padding: 5px 10px;
+	font-weight: bold;
+	font-size: 12px;
+}
+.icontent-page .pagenum span em{
+	font-style: normal;
+	font-size: 16px;
+}
+
+.icontent-page .fulltextpage{
+	letter-spacing: 0.1px;
+    line-height: 1.66em;
+    padding: 10px 15px;
+    word-spacing: 0.3px;
+}
+
+.icontent-page .fulltextpage .toolbarpage{
+	text-align: right;
+}
+.icontent-page .fulltextpage h3.pagetitle{
+	
+}
+.icontent-page .fulltextpage p{
+	font-size: 15px;
+	text-indent: 1.25em;
+}
+.icontent-page .fulltextpage .toolbarpage a{
+	margin-right: 5px;
+}
+.icontent-page .fulltextpage .formcomment{
+	margin-top: 15px;
+	text-align: right;
+}
+.icontent-page .fulltextpage img{
+	margin-right: 10px;
+}
+.icontent-page .fulltextpage .loading{
+	margin-left: 27%;
+    margin-top: 25%;
+    position: absolute;
+}
+/*Resolucao menor que 990*/
+@media (max-width: 990px) {
+	.icontent-page .fulltextpage .loading{
+		margin-left: 0%;
+	    margin-top: 0%;
+	    position: absolute;
+	}
+}
+.icontent-page .fulltextpage .loading .img-loading{
+	
+}
+/** BOOTSTRAP IMGs*/
+.img-thumbnail {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+    height: auto;
+    line-height: 1.42857;
+    max-width: 100%;
+    padding: 4px;
+    transition: all 0.2s ease-in-out 0s;
+}
+.img-circle {
+    border-radius: 50%;
+}
+
+.img-rounded {
+    border-radius: 6px;
+}
+
+/** AREA DE ANOTACOES */
+.notesarea #note .fields span{
+	margin-right: 15px;
+}
+.notesarea #tabnav #messagenotes{
+ 	background: #6DB143 none repeat scroll 0 0;
+    border-radius: 10px;
+    font-size: 0.7em;
+    line-height: 1.2em;
+    text-align: center;
+    color: #FFFFFF;
+    float: right;
+    margin-left: 3px;
+    margin-top: -5px;
+    padding: 4px 5px 2px;
+}
+.notesarea #tabnav #messagedoubt{
+ 	background: #238BC7 none repeat scroll 0 0;
+    border-radius: 10px;
+    font-size: 0.7em;
+    line-height: 1.2em;
+    text-align: center;
+    color: #FFFFFF;
+    float: right;
+    margin-left: 3px;
+    margin-top: -5px;
+    padding: 4px 5px 2px;
+}
+.notesarea #tabnav #messagedoubt:hover,
+.notesarea #tabnav #messagenotes:hover{
+	text-decoration: none;
+}
+.notesarea .titlenotes{
+	text-transform: uppercase;
+}
+/** Lista de Anotacoes **/
+.icontent-page .notesarea .notelist .noterowicontent{
+	margin-left: 45px;
+	font-size: 13px;
+}
+.icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon{
+	color: #aaa;
+}
+.icontent-page .notesarea .notelist .noterowicontent .notefooter .notedate, 
+.icontent-page .notesarea .notelist .noterowicontent .notefooter a{
+	color: #aaa;
+	font-size: 12px;
+}
+.icontent-page .notesarea .notelist .noterowicontent .notefooter a{
+	cursor: pointer;
+}
+.icontent-page .notesarea .notelist .noterowicontent .notefooter a:hover{
+	text-decoration: none;
+	color: #555;
+}
+.icontent-page .notesarea .notelist .pagenoterow{
+	background-color: #fff;
+    border-bottom: 1px solid #eee;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 5px;
+}
+/*Organizacao das anotacoes em em niveis*/
+.icontent-page .notelist .level-2{
+	margin-left: 4%;
+}
+.icontent-page .notelist .level-3{
+	margin-left: 8%;
+}
+.icontent-page .notelist .level-4{
+	margin-left: 12%;
+}
+.icontent-page .notelist .level-5{
+	margin-left: 16%;
+}
+.icontent-page .notelist .level-6{
+	margin-left: 20%;
+}
+.icontent-page .notelist .level-7{
+	margin-left: 24%;
+}
+.icontent-page .notelist .level-8{
+	margin-left: 28%;
+}
+.icontent-page .notelist .level-9{
+	margin-left: 32%;
+}
+.icontent-page .notelist .level-10{
+	margin-left: 35%;
+}
+.icontent-page .notelist .level-11{
+	margin-left: 38%;
+}
+.icontent-page .notelist .level-12{
+	margin-left: 40%;
+}
+
+@media (max-width: 990px) {
+	.icontent-page .previous{
+		text-align: center;
+	}
+	.icontent-page .next{
+		text-align: center;
+	}
+	.icontent-page .notesarea .userpicture{
+		display: none;
+	}
+}
+
+.pull-right{
+	float: right !important;
+}
+.pull-left{
+	float: left;
+}
+
+/*ALTERANDO A COR DO TEXTO SELECIONADO */
+::-moz-selection{
+	background:#036;
+	color:#FFF;
+}
+::selection {
+	background:#036;
+	color:#FFF;
+}

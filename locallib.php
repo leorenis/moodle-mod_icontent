@@ -304,6 +304,36 @@ function icontent_get_minpagenum($icontent){
 }
 
 /**
+ * Add visualizacao em uma pagina e ela ainda nao foi vizualizada.
+ *
+ * Returns object of pagedisplayed
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @param  string $userid
+ * @return object $pagedisplayed
+ */
+function icontent_add_pagedisplayed($pageid, $cmid){
+	global $DB, $USER;
+	
+	$pagedisplayed = $DB->get_record('icontent_pages_displayed', array('pageid'=>$pageid, 'cmid'=>$cmid, 'userid'=>$USER->id), 'id, timecreated');
+	
+	if(empty($pagedisplayed)){
+		
+		$pagedisplayed = new stdClass;
+		$pagedisplayed->pageid 		= $pageid;
+		$pagedisplayed->cmid 		= $cmid;
+		$pagedisplayed->userid 		= $USER->id;
+		$pagedisplayed->timecreated	= time();
+		
+		return $DB->insert_record('icontent_pages_displayed', $pagedisplayed);
+	}
+	
+	return $pagedisplayed;
+}
+
+
+/**
  * Consulta lista anotacoes de uma pagina.
  *
  * Returns array of pagenotes 
@@ -610,6 +640,9 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
 	
+	// Registra acesso do usuario na pagina
+	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
+	
 	// Elementos toolbar
 	$comments = html_writer::link('#notesarea', '<i class="fa fa-comments fa-lg"></i>', array('title' => s(get_string('comments', 'icontent')), 'class'=>'icon-comments','data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $objpage->pagenum, 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
 	$toolbarpage = html_writer::tag('div', $comments.' <i class="fa fa-square-o fa-lg"></i> <i class="fa fa-adjust fa-lg"> </i>', array('class'=>'toolbarpage '));
@@ -631,11 +664,14 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	$previous = html_writer::link('#', "<i class='fa fa-angle-left'></i> ".get_string('previous', 'icontent'), array('title' => s(get_string('pageprevious', 'icontent')), 'class'=>'previous span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum - 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
 	$next = html_writer::link('#', get_string('next', 'icontent')." <i class='fa fa-angle-right'></i>", array('title' => s(get_string('nextpage', 'icontent')), 'class'=>'next span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum + 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
 	
-	$objpage->navbar = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
+	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
 	
 	// Preparando conteudo da pagina para retorno
-	$fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $notesarea. $scriptsjs, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
-	$objpage->fullpageicontent = $fullpageicontent;
+	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $notesarea. $scriptsjs, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	
+	// Destruindo propriedade, pois ela foi passada para a propriedade fullpageicontent na linha acima.
+	unset($objpage->pageicontent);
+	
+	// retornando objeto
 	return $objpage;
  }

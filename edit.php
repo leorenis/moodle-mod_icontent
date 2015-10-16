@@ -29,7 +29,6 @@ require_once(dirname(__FILE__).'/edit_form.php');
 $cmid       = required_param('cmid', PARAM_INT);  // Content Course Module ID
 $pageid  	= optional_param('id', 0, PARAM_INT); // Page ID
 $pagenum    = optional_param('pagenum', 0, PARAM_INT);
-$subpage 	= optional_param('subpage', 0, PARAM_BOOL);
 
 $cm = get_coursemodule_from_id('icontent', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
@@ -49,7 +48,7 @@ $event->add_record_snapshot('course', $PAGE->course);
 $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
-$PAGE->set_url('/mod/icontent/edit.php', array('cmid'=>$cmid, 'id'=>$pageid, 'pagenum'=>$pagenum, 'subpage'=>$subpage));
+$PAGE->set_url('/mod/icontent/edit.php', array('cmid'=>$cmid, 'id'=>$pageid, 'pagenum'=>$pagenum));
 $PAGE->set_pagelayout('admin'); // TODO: Something. This is a bloody hack!
 
 if ($pageid) {
@@ -57,7 +56,7 @@ if ($pageid) {
 } else {
     $page = new stdClass();
     $page->id    		= null;
-    $page->pagenum		= icontent_count_pagenum($icontent->id) + 1;
+    $page->pagenum		= $pagenum;
 }
 $page->icontentid	= $icontent->id;
 $page->cmid			= $cm->id;
@@ -77,7 +76,7 @@ if ($mform->is_cancelled()) {
 
 } else if ($data = $mform->get_data()){
 	
-	// codifica aqui
+	// update
 	if ($data->id) {
 		// store the files
         $data->timemodified = time();
@@ -106,8 +105,8 @@ if ($mform->is_cancelled()) {
 		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage',
                    $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 				   
-		// redirect
-		redirect("view.php?id=$cm->id&pageid=$data->id", get_string('msgsucess','icontent'));
+		icontent_preload_pages($icontent); // fix structure
+		redirect("view.php?id=$cm->id&pageid=$data->id", get_string('msgsucess','icontent'));	// redirect
 	}
 }
 // Otherwise fill and print the form.

@@ -32,16 +32,8 @@ class icontent_pages_edit_form extends moodleform {
     function definition() {
         global $CFG, $COURSE;
 
-        $page 		= $this->_customdata['page'];
-        $pageicontentoptions	= $this->_customdata['pageicontentoptions'];
-		
-        // Disabled subchapter option when editing first node.
-        $disabledmsg = null;
-        $disabled	 = null;
-        if ($page->pagenum == 1) {
-            $disabledmsg	= get_string('subpagenotice', 'icontent');
-			$disabled		= array('disabled'=>'disabled');
-        }
+        $page = $this->_customdata['page'];
+        $pageicontentoptions = $this->_customdata['pageicontentoptions'];
 		
         $mform = $this->_form;
 
@@ -83,10 +75,10 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('title', PARAM_RAW);
         $mform->addRule('title', null, 'required', null, 'client');
 		
-        $mform->addElement('checkbox', 'subpage', get_string('subpage', 'icontent'), $disabledmsg, $disabled);
-		$mform->addHelpButton('subpage', 'subpage', 'icontent');
-		$mform->setType('subpage', PARAM_INT);
-        $mform->setDefault('subpage', 0);
+        $mform->addElement('advcheckbox', 'coverpage', get_string('coverpage', 'icontent'));
+		$mform->addHelpButton('coverpage', 'coverpage', 'icontent');
+		$mform->setType('coverpage', PARAM_INT);
+        $mform->setDefault('coverpage', 0);
 		
 		$mform->addElement('editor', 'pageicontent_editor', get_string('icontent', 'mod_icontent'), null, $pageicontentoptions);
         $mform->setType('pageicontent_editor', PARAM_RAW);

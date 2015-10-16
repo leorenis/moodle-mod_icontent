@@ -69,38 +69,46 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
 function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
     global $USER, $OUTPUT;
 	
-	$first = 1;
-	$toc = '';
-	
 	$context = context_module::instance($cm->id);
 	
+	$toc = '';
 	$toc .= html_writer::start_tag('div', array('class' => 'icontent_toc clearfix'));
 	
 	// // Teacher's TOC
 	if($edit){
 
 		$toc .= html_writer::start_tag('ul');
+		$i = 0;
 		foreach ($pages as $pg) {
+			$i ++;
 			$title = trim(format_string($pg->title, true, array('context'=>$context)));
 			$toc .= html_writer::start_tag('li', array('class' => 'clearfix')); // Inicio <li>
-				$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->id, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey()));
+				$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey()));
 				
 				// Actions
 				$toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
-					$toc .= html_writer::link(new moodle_url('edit.php', array('cmid' => $pg->cmid, 'id' => $pg->id)),
-	                                        $OUTPUT->pix_icon('t/edit', get_string('edit')), array('title' => get_string('edit')));
+					if ($i != 1) {
+		                $toc .= html_writer::link(new moodle_url('move.php', array('id' => $cm->id, 'pageid' => $pg->id, 'up' => '1', 'sesskey' => $USER->sesskey)),
+		                		$OUTPUT->pix_icon('t/up', get_string('up')), array('title' => get_string('up')));
+		            }
+		            if ($i != count($pages)) {
+		                $toc .= html_writer::link(new moodle_url('move.php', array('id' => $cm->id, 'pageid' => $pg->id, 'up' => '0', 'sesskey' => $USER->sesskey)),
+		                		$OUTPUT->pix_icon('t/down', get_string('down')), array('title' => get_string('down')));
+		            }
+					$toc .= html_writer::link(new moodle_url('edit.php', array('cmid' => $pg->cmid, 'id' => $pg->id, 'sesskey' => $USER->sesskey)),
+	                		$OUTPUT->pix_icon('t/edit', get_string('edit')), array('title' => get_string('edit')));
 	            	$toc .= html_writer::link(new moodle_url('delete.php', array('id' => $pg->cmid, 'pageid' => $pg->id, 'sesskey' => $USER->sesskey)),
-	                                        $OUTPUT->pix_icon('t/delete', get_string('delete')), array('title' => get_string('delete')));
+	                		$OUTPUT->pix_icon('t/delete', get_string('delete')), array('title' => get_string('delete')));
 				
 					if ($pg->hidden) {
-	                	$toc .= html_writer::link(new moodle_url('show.php', array('id' => $pg->cmid, 'chapterid' => $pg->id, 'sesskey' => $USER->sesskey)),
-	                                            $OUTPUT->pix_icon('t/show', get_string('show')), array('title' => get_string('show')));
+	                	$toc .= html_writer::link(new moodle_url('show.php', array('id' => $pg->cmid, 'pageid' => $pg->id, 'sesskey' => $USER->sesskey)),
+	                    		$OUTPUT->pix_icon('t/show', get_string('show')), array('title' => get_string('show')));
 		            } else {
-		                $toc .= html_writer::link(new moodle_url('show.php', array('id' => $pg->cmid, 'chapterid' => $pg->id, 'sesskey' => $USER->sesskey)),
+		                $toc .= html_writer::link(new moodle_url('show.php', array('id' => $pg->cmid, 'pageid' => $pg->id, 'sesskey' => $USER->sesskey)),
 		                                         $OUTPUT->pix_icon('t/hide', get_string('hide')), array('title' => get_string('hide')));
 		            }
-					$toc .= html_writer::link(new moodle_url('edit.php', array('cmid' => $pg->cmid, 'pagenum' => $pg->pagenum, 'subpage' => $pg->subpage)),
-	                                        $OUTPUT->pix_icon('add', get_string('addafter', 'mod_icontent'), 'mod_icontent'), array('title' => get_string('addafter', 'mod_icontent')));
+					$toc .= html_writer::link(new moodle_url('edit.php', array('cmid' => $pg->cmid, 'pagenum' => $pg->pagenum, 'sesskey' => $USER->sesskey)),
+	                		$OUTPUT->pix_icon('add', get_string('addafter', 'mod_icontent'), 'mod_icontent'), array('title' => get_string('addafter', 'mod_icontent')));
 				$toc .= html_writer::end_tag('div'); 	// Fim </div>
 			$toc .= html_writer::end_tag('li'); // Fim </li>
 		}
@@ -109,10 +117,12 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 	}else{	// Normal students view
 		$toc .= html_writer::start_tag('ul');
 		foreach ($pages as $pg) {
-			$title = trim(format_string($pg->title, true, array('context'=>$context)));
-			$toc .= html_writer::start_tag('li', array('class' => 'clearfix'));
-				$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey()));
-			$toc .= html_writer::end_tag('li');
+			if(!$pg->hidden){
+				$title = trim(format_string($pg->title, true, array('context'=>$context)));
+				$toc .= html_writer::start_tag('li', array('class' => 'clearfix'));
+					$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey()));
+				$toc .= html_writer::end_tag('li');
+			}
 		}
 		
 		$toc .= html_writer::end_tag('ul');
@@ -231,12 +241,69 @@ function icontent_get_page_bgimage($context, $page){
  */
 function icontent_preload_pages($icontent){
 	global $DB;
-	$pages = $DB->get_records('icontent_pages', array('icontentid'=>$icontent->id), 'pagenum', 'id, icontentid, cmid, pagenum, subpage, title, hidden');
+	$pages = $DB->get_records('icontent_pages', array('icontentid'=>$icontent->id), 'pagenum', 'id, icontentid, cmid, pagenum, coverpage, title, hidden');
     if (!$pages) {
         return array();
     }
-	// Source here!
+	
+	$first = true;
+    $pagenum = 0; // page sort
+    foreach ($pages as $id => $pg) {
+        $oldpg = clone($pg);
+        $pagenum++;
+        $pg->pagenum = $pagenum;
+        if ($first) {
+            $first = false;
+        }
+		
+        if ($oldpg->pagenum != $pg->pagenum or $oldpg->hidden != $pg->hidden) {
+            // update only if something changed
+            $DB->update_record('icontent_pages', $pg);
+        }
+        $pages[$id] = $pg;
+    }
+	
 	return $pages;
+}
+/**
+ * Remove anotacoes de uma pagina.
+ *
+ * Returns boolean true or false
+ *
+ * @param  int $pageid
+ * @param  int $noteid
+ * @return boolean true or false
+ */
+function icontent_remove_notes($pageid, $pagenoteid = null){
+	global $DB;
+	if($pagenoteid){
+		icontent_remove_note_likes($pagenoteid);
+		$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pagenoteid));
+		return $rs ? true : false;
+	}
+	// get notes
+	$pagenotes = $DB->get_records('icontent_pages_notes', array('pageid'=>$pageid));
+	
+	foreach ($pagenotes as $pagenote) {
+		icontent_remove_note_likes($pagenote->id);
+		$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pagenote->id));
+	}
+	return $rs ? true : false;
+}
+
+/**
+ * Remove likes de anotacoes de uma pagina.
+ *
+ * Returns boolean true or false
+ *
+ * @param  int $noteid
+ * @return boolean true or false
+ */
+function icontent_remove_note_likes($pagenoteid){
+	global $DB;
+	$rs = $DB->delete_records('icontent_pages_notes_like', array('pagenoteid'=>$pagenoteid));
+	
+	return $rs ? true : false;
 }
 
 /**
@@ -253,10 +320,12 @@ function icontent_buttons($pages){
 	}
 	// Source here! 
 	$pgbuttons = html_writer::start_div('btn_pages', array('id'=> 'fitem_id_submitbutton'));
-	$npage = 1;
+	$npage = 0;
 	foreach ($pages as $page) {
-		$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
-		$npage ++;
+		if(!$page->hidden){
+			$npage ++;
+			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
+		}
 	}
 	$pgbuttons .= html_writer::end_div();
 	
@@ -651,7 +720,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	$title = html_writer::tag('h3', '<i class="fa fa-hand-o-right"></i> '.$objpage->title, array('class'=>'pagetitle'));
 	
 	// Tratando arquivos da pagina e preparando conteudo
-	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $pagenum);
+	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $objpage->id);
 	$objpage->pageicontent = format_text($objpage->pageicontent, $objpage->pageicontentformat, array('noclean'=>true, 'overflowdiv'=>true, 'context'=>$context));
 	
 	// Adicionando elemento que contera a numero da pagina

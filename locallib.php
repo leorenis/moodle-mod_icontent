@@ -518,7 +518,17 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 /*****************************************************************\  
 \************* METODOS QUE CRIAM E RETORNAM HTML *****************/
 /*****************************************************************\
-  
+ /**
+ * Metodo responsavel por criar barra de progresso
+ * Return $progressbar
+ * @param  object $objpage
+ * @param  object $icontent
+ * @param  object $context
+ * @return string $progressbar
+ */
+ function icontent_make_progessbar($objpage, $icontent, $context){
+  	return false;
+  }
  /**
  * Metodo responsavel por criar area de comentarios das paginas
  * Returns notesarea
@@ -726,6 +736,9 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	
 	// Adicionando elemento que contera a numero da pagina
 	$npage = html_writer::tag('div', get_string('page', 'icontent', $objpage->pagenum), array('class'=>'pagenum'));
+	
+	// Progress bar
+	$progbar = icontent_make_progessbar($objpage, $icontent, $context);
 	
 	// form notes
 	$notesarea = icontent_make_notesarea($objpage, $icontent);

@@ -19,7 +19,7 @@ $(document).ready(function() {
 			$("#idcommentnote").focus().val("");
 			return false;
 		}
-		
+		var $this = $(this);
 		var data = {
 			"action" : "savereturnpagenotes",
 			"id" : $(this).attr('data-cmid'),
@@ -31,7 +31,7 @@ $(document).ready(function() {
 			"featured" : $("#idfeatured").is(":checked") ? 1 : 0,
 			"doubttutor" : 0,
 		};
-
+		showIconLoad($this);
 		data = "&" + $.param(data);
 
 		$.ajax({
@@ -43,6 +43,7 @@ $(document).ready(function() {
 				$("#idpagenotesnote").html(data.notes);
 				$("#idcommentnote").val("");
 				$("#messagenotes").text(data.totalnotes);
+				removeIconLoad($this);
 			}
 		});	// fim ajax
 	}// chamada da funcao
@@ -54,7 +55,7 @@ $(document).ready(function() {
 			$("#idcommentdoubt").focus().val("");
 			return false;
 		}
-
+		var $this = $(this);
 		var data = {
 			"action" : "savereturnpagenotes",
 			"id" : $(this).attr('data-cmid'),
@@ -66,7 +67,7 @@ $(document).ready(function() {
 			"private" : 0,
 			"featured" : 0,
 		};
-
+		showIconLoad($this);
 		data = "&" + $.param(data);
 
 		$.ajax({
@@ -78,8 +79,33 @@ $(document).ready(function() {
 				$("#idpagenotesdoubt").html(data.notes);
 				$("#idcommentdoubt").val("");
 				$("#messagedoubt").text(data.totalnotes);
+				removeIconLoad($this);
 			}
 		});	// fim ajax
+	}
+	
+	// carregamento
+	function showIconLoad($this){
+		$this.hide();
+		// Carregando
+		$(".icontent-page")
+			.children('.fulltextpage')
+			.prepend(
+				$('<div />')
+					.addClass('loading')
+					.html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
+			)
+			.css('opacity', '0.5');
+	}
+	// Remove icone carregamento
+	function removeIconLoad($this){
+		$this.show();
+		// Carregando
+		$(".icontent-page")
+			.children('.fulltextpage')
+			.css('opacity', '1')
+			.children('.loading').remove();
+			$this.removeAttr('disabled');
 	}
 	
 	// Curtir anotacoes

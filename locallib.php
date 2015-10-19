@@ -595,6 +595,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  function icontent_make_listnotespage($pagenotes, $icontent, $page){
  	global $OUTPUT, $CFG;
  	if(!empty($pagenotes)){
+ 		//$scriptsjs = html_writer::script(false, new moodle_url('js/src/actions.js'));
  		$divnote = '';
  		foreach ($pagenotes as $pagenote) {
  			// Object user

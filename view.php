@@ -90,9 +90,13 @@ if ($allowedit and !$pages) {
 $PAGE->set_url('/mod/icontent/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
+// JS
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery-1.11.3.min.js'), true);
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/bootstrap/bootstrap.min.js'));
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/module.js'));
+
+// CSS
+$PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.4.0/css/font-awesome.min.css'));
 
 // Recupera primeira pagina a ser apresentada
 $startpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);

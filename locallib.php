@@ -527,7 +527,14 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  * @return string $progressbar
  */
  function icontent_make_progessbar($objpage, $icontent, $context){
-  	return false;
+ 	if(!$icontent->progressbar){
+  		return false;
+ 	}
+
+ 	$percent = html_writer::span('60% Complete', 'sr-only');
+ 	$progressbar = html_writer::div($percent, 'progress-bar', array('role'=>'progressbar', 'aria-valuenow'=>'60', 'aria-valuemin'=>'0', 'aria-valuemax'=>'100', 'style'=>'width: 60%;'));
+ 	$progress = html_writer::div($progressbar, 'progress');
+ 	return $progress;
   }
  /**
  * Metodo responsavel por criar area de comentarios das paginas
@@ -750,7 +757,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
 	
 	// Preparando conteudo da pagina para retorno
-	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $notesarea. $scriptsjs, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $notesarea. $scriptsjs, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	
 	// Destruindo propriedade, pois ela foi passada para a propriedade fullpageicontent na linha acima.
 	unset($objpage->pageicontent);

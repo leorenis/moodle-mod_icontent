@@ -49,7 +49,7 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
 	$toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit, 0);
 	
     $bc = new block_contents();
-    $bc->title = get_string('summary', 'icontent');
+    $bc->title = get_string('icontentmenu', 'icontent');
     $bc->attributes['class'] = 'block block_icontent_toc';
     $bc->content = $toc;
     $defaultregion = $PAGE->blocks->get_default_region();
@@ -435,20 +435,30 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 }
 
 /**
- * Gera numero de uma nova pagina.
+ * Retorna numero de paginas de conteudo interativo.
  *
  * Returns pagenum
  *
  * @param  int $icontentid
  * @return int pagenum
  */
- function icontent_count_pagenum($icontentid){
+ function icontent_count_pages($icontentid){
  	global $DB;
- 	$sql = "SELECT Count(pagenum) AS countpagenum FROM {icontent_pages} WHERE icontentid = ?;";
-	
- 	$obj = $DB->get_record_sql($sql, array($icontentid));
-	
-	return $obj->countpagenum;
+ 	return $DB->count_records('icontent_pages', array('icontentid'=>$icontentid));
+ }
+ 
+ /**
+ * Retorna numero de paginas visualizadas por determinado usuario.
+ *
+ * Returns page viewed by user
+ *
+ * @param  int $userid
+ * @param  int $cmid
+ * @return int $pageviewedbyuser
+ */
+ function icontent_count_pageviewedbyuser($userid, $cmid){
+ 	global $DB;
+ 	return $DB->count_records('icontent_pages_displayed', array('userid'=>$userid, 'cmid'=>$cmid));
  }
  
  /**
@@ -527,13 +537,19 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  * @return string $progressbar
  */
  function icontent_make_progessbar($objpage, $icontent, $context){
+ 	
  	if(!$icontent->progressbar){
   		return false;
  	}
+	global $USER;
+	$npages = icontent_count_pages($icontent->id);
+	$npagesviewd = icontent_count_pageviewedbyuser($USER->id, $objpage->cmid);
+	$percentage = ($npagesviewd * 100) / $npages;
 
- 	$percent = html_writer::span('60% Complete', 'sr-only');
- 	$progressbar = html_writer::div($percent, 'progress-bar', array('role'=>'progressbar', 'aria-valuenow'=>'60', 'aria-valuemin'=>'0', 'aria-valuemax'=>'100', 'style'=>'width: 60%;'));
+ 	$percent = html_writer::span(get_string('labelprogressbar', 'icontent', $percentage), 'sr-only');
+ 	$progressbar = html_writer::div($percent, 'progress-bar', array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'aria-valuemin'=>'0', 'aria-valuemax'=>'100', 'style'=>"width: {$percentage}%;"));
  	$progress = html_writer::div($progressbar, 'progress');
+	
  	return $progress;
   }
  /**
@@ -739,7 +755,8 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	
 	// Tratando arquivos da pagina e preparando conteudo
 	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $objpage->id);
-	$objpage->pageicontent = format_text($objpage->pageicontent, $objpage->pageicontentformat, array('noclean'=>true, 'overflowdiv'=>true, 'context'=>$context));
+	$objpage->pageicontent = format_text($objpage->pageicontent, $objpage->pageicontentformat, array('noclean'=>true, 'overflowdiv'=>false, 'context'=>$context));
+	$objpage->pageicontent = html_writer::div($objpage->pageicontent, 'page-layout columns-'.$objpage->layout);
 	
 	// Adicionando elemento que contera a numero da pagina
 	$npage = html_writer::tag('div', get_string('page', 'icontent', $objpage->pagenum), array('class'=>'pagenum'));

@@ -213,6 +213,53 @@
 	margin-left: 40%;
 }
 
+/*Layout Page*/
+.icontent-page .fulltextpage .columns-2{
+  -webkit-columns: 2 200px;
+     -moz-columns: 2 200px;
+          columns: 2 200px;
+  -webkit-column-gap: 4em;
+     -moz-column-gap: 4em;
+          column-gap: 4em;
+  -webkit-column-rule: 1px dotted #ddd;
+     -moz-column-rule: 1px dotted #ddd;
+          column-rule: 1px dotted #ddd;
+}
+.icontent-page .fulltextpage .columns-3{
+  -webkit-columns: 3 200px;
+     -moz-columns: 3 200px;
+          columns: 3 200px;
+  -webkit-column-gap: 4em;
+     -moz-column-gap: 4em;
+          column-gap: 4em;
+  -webkit-column-rule: 1px dotted #ddd;
+     -moz-column-rule: 1px dotted #ddd;
+          column-rule: 1px dotted #ddd;
+}
+.icontent-page .fulltextpage .columns-4{
+  -webkit-columns: 4 165px;
+     -moz-columns: 4 165px;
+          columns: 4 165px;
+  -webkit-column-gap: 4em;
+     -moz-column-gap: 4em;
+          column-gap: 4em;
+  -webkit-column-rule: 1px dotted #ddd;
+     -moz-column-rule: 1px dotted #ddd;
+          column-rule: 1px dotted #ddd;
+}
+
+.icontent-page .fulltextpage .columns-5{
+  -webkit-columns: 5 120px;
+     -moz-columns: 5 120px;
+          columns: 5 120px;
+  -webkit-column-gap: 4em;
+     -moz-column-gap: 4em;
+          column-gap: 4em;
+  -webkit-column-rule: 1px dotted #ddd;
+     -moz-column-rule: 1px dotted #ddd;
+          column-rule: 1px dotted #ddd;
+}
+
 @media (max-width: 990px) {
 	.icontent-page .previous{
 		text-align: center;
@@ -309,7 +356,7 @@
 }
 
 /*ALTERANDO A COR DO TEXTO SELECIONADO */
-::-moz-selection{
+::-moz-selection {
 	background:#036;
 	color:#FFF;
 }

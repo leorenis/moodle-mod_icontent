@@ -45,6 +45,7 @@
         <FIELD NAME="showbgimage" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Diz se apresenta ou nao a imagem de plano de fundo da pagina." />
         <FIELD NAME="bgimage" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="bgcolor" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+        <FIELD NAME="layout" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Layout da pagina" />
         <FIELD NAME="nexttransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="prevtransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="texttransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />

@@ -85,6 +85,16 @@ class icontent_pages_edit_form extends moodleform {
         $mform->addRule('pageicontent_editor', get_string('required'), 'required', null, 'client');
 		
 		$mform->addElement('header', 'appearance', get_string('appearance'));
+
+		$layouts = array(
+			'1' => get_string('fluid','icontent'),
+			'2' => get_string('collumns2','icontent'),
+			'3' => get_string('collumns3','icontent'),
+			'4' => get_string('collumns4','icontent'),
+			'5' => get_string('collumns5','icontent'),
+		);
+		$mform->addElement('select', 'layout', get_string('layout','icontent'), $layouts);
+		$mform->addHelpButton('layout', 'layouthelp', 'icontent');
 		
 		$mform->addElement('advcheckbox', 'showtitle', get_string('showtitle', 'icontent'));
         $mform->addHelpButton('showtitle', 'showtitle', 'icontent');

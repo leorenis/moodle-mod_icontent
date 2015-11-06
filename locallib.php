@@ -547,7 +547,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	$percentage = ($npagesviewd * 100) / $npages;
 
  	$percent = html_writer::span(get_string('labelprogressbar', 'icontent', $percentage), 'sr-only');
- 	$progressbar = html_writer::div($percent, 'progress-bar', array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'aria-valuemin'=>'0', 'aria-valuemax'=>'100', 'style'=>"width: {$percentage}%;"));
+ 	$progressbar = html_writer::div($percent, 'progress-bar progress-bar-striped active', array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'aria-valuemin'=>'0', 'aria-valuemax'=>'100', 'style'=>"width: {$percentage}%;"));
  	$progress = html_writer::div($progressbar, 'progress');
 	
  	return $progress;

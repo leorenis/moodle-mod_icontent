@@ -105,8 +105,13 @@ class mod_icontent_mod_form extends moodleform_mod {
 		
 		$mform->addElement('selectyesno', 'progressbar', get_string('progressbar', 'icontent'));
         $mform->addHelpButton('progressbar', 'progressbar', 'icontent');
-		$mform->setType('progressbar', PARAM_INT);
+        $mform->setType('progressbar', PARAM_INT);
         $mform->setDefault('progressbar', 1);
+
+        $mform->addElement('selectyesno', 'shownotesarea', get_string('shownotesarea', 'icontent'));
+        $mform->addHelpButton('shownotesarea', 'shownotesarea', 'icontent');
+        $mform->setType('shownotesarea', PARAM_INT);
+        $mform->setDefault('shownotesarea', 1);
 		
 		// Grade.
     	$this->standard_grading_coursemodule_elements();

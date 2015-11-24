@@ -560,6 +560,10 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  * @return string $notesarea
  */
  function icontent_make_notesarea($objpage, $icontent){
+
+ 	if(!$icontent->shownotesarea){
+ 		return false;
+ 	}
  	global $OUTPUT, $USER;
 	
 	// Divisor page / notes

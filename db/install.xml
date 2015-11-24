@@ -22,6 +22,7 @@
         <FIELD NAME="evaluative" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Diz se o icontent sera avaliativo." />
         <FIELD NAME="maxpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
       	<FIELD NAME="progressbar" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Porcentagem das paginas visualizadas." />
+        <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mostrar area de anotacoes." />
 	  	<FIELD NAME="copyright" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Direitos reservados"/>
 	  </FIELDS>
       <KEYS>

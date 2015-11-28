@@ -139,6 +139,8 @@ $string['like'] = ' Favoritar ({$a}) ';
 $string['unlike'] = ' Desfavoritar ({$a}) ';
 $string['reply'] = ' Responder ';
 $string['respond'] = ' Respondeu ';
+$string['statusview'] = 'Status de visualização';
+$string['contrast'] = 'Alto contraste';
 $string['labelprogressbar'] = '{$a}% completo';
 
 $string['icontent:grade'] = 'Visualizar Relatório de notas';

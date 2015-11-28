@@ -70,7 +70,10 @@
 	text-indent: 1.25em;
 }
 .icontent-page .fulltextpage .toolbarpage a{
-	margin-right: 5px;
+	margin: 0;
+}
+.icontent-page .fulltextpage .toolbarpage .icon{
+  margin-left: 10px;
 }
 .icontent-page .fulltextpage .formcomment{
 	margin-top: 15px;

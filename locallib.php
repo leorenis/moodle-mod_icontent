@@ -385,8 +385,8 @@ function icontent_get_minpagenum($icontent){
 function icontent_add_pagedisplayed($pageid, $cmid){
 	global $DB, $USER;
 	
-	$pagedisplayed = $DB->get_record('icontent_pages_displayed', array('pageid'=>$pageid, 'cmid'=>$cmid, 'userid'=>$USER->id), 'id, timecreated');
-	
+	$pagedisplayed = icontent_get_pagedisplayed($pageid, $cmid);
+
 	if(empty($pagedisplayed)){
 		
 		$pagedisplayed = new stdClass;
@@ -401,6 +401,21 @@ function icontent_add_pagedisplayed($pageid, $cmid){
 	return $pagedisplayed;
 }
 
+
+/**
+ * Consulta visualizacao de pagina.
+ *
+ * Returns string of pagedisplayed 
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return object $pagedisplayed
+ */
+function icontent_get_pagedisplayed($pageid, $cmid){
+	global $DB, $USER;
+	
+	return $DB->get_record('icontent_pages_displayed', array('pageid'=>$pageid, 'cmid'=>$cmid, 'userid'=>$USER->id), 'id, timecreated');
+}
 
 /**
  * Consulta lista anotacoes de uma pagina.
@@ -731,12 +746,56 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 		)
 	);
  }
+
+ /**
+ * Gera html da barra de ferramentas.
+ *
+ * @param  object $page
+ * @param  object $icontent
+ * @return string $toolbar
+ */
+
+ function icontent_make_toolbar($page, $icontent){
+
+ 	// icones
+ 	$comments = html_writer::link('#notesarea', '<i class="fa fa-comments fa-lg"></i>',
+ 		array(
+ 			'title' => s(get_string('comments', 'icontent')),
+ 			'class'=>'icon icon-comments',
+ 			'data-toggle'=> 'tooltip',
+ 			'data-placement'=> 'top'
+ 			)
+ 		);
+ 	$icondisplayed = icontent_get_pagedisplayed($page->id, $page->cmid) ? '<i class="fa fa-check-square-o fa-lg"></i>': '<i class="fa fa-square-o fa-lg"></i>';
+ 	$displayed = html_writer::link('#', $icondisplayed,
+ 		array(
+ 			'title' => s(get_string('statusview', 'icontent')),
+ 			'class'=>'icon icon-displayed',
+ 			'data-toggle'=> 'tooltip',
+ 			'data-placement'=> 'top'
+ 		)
+ 	);
+
+ 	$contrast = html_writer::link('#', '<i class="fa fa-adjust fa-lg"></i>',
+ 		array(
+ 			'title' => s(get_string('contrast', 'icontent')),
+ 			'class'=>'icon icon-contrast',
+ 			'data-toggle'=> 'tooltip',
+ 			'data-placement'=> 'top'
+ 		)
+ 	);
+
+	$toolbar = html_writer::tag('div', $comments. $displayed. $contrast, array('class'=>'toolbarpage '));
+
+ 	return $toolbar;
+ }
+
 /**
  * Gera conteudo de uma pagina e retorna objeto.
  *
  * @param  int 		$pagenum || $startpage
- * @param  object $icontent
- * @param  object $context
+ * @param  object 	$icontent
+ * @param  object 	$context
  * @return object	$fullpage
  */
  function icontent_get_fullpageicontent($pagenum, $icontent, $context){
@@ -746,13 +805,12 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	$scriptsjs = html_writer::script(false, new moodle_url('js/src/actions.js'));
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
-	
+		
+	// Elementos toolbar
+	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
+
 	// Registra acesso do usuario na pagina
 	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
-	
-	// Elementos toolbar
-	$comments = html_writer::link('#notesarea', '<i class="fa fa-comments fa-lg"></i>', array('title' => s(get_string('comments', 'icontent')), 'class'=>'icon-comments','data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $objpage->pagenum, 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
-	$toolbarpage = html_writer::tag('div', $comments.' <i class="fa fa-square-o fa-lg"></i> <i class="fa fa-adjust fa-lg"> </i>', array('class'=>'toolbarpage '));
 	
 	// Adicionando elemento titulo da pagina
 	$title = html_writer::tag('h3', '<i class="fa fa-hand-o-right"></i> '.$objpage->title, array('class'=>'pagetitle'));

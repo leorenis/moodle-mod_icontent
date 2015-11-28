@@ -136,6 +136,8 @@ $string['like'] = ' Like ({$a}) ';
 $string['unlike'] = ' unlike ({$a}) ';
 $string['reply'] = ' Reply ';
 $string['respond'] = ' Respond ';
+$string['statusview'] = 'Status view';
+$string['contrast'] = 'High contrast';
 $string['labelprogressbar'] = '{$a} complete';
 
 $string['icontent:grade'] = 'View grade report';

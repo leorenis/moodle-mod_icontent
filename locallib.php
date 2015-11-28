@@ -756,8 +756,10 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  */
 
  function icontent_make_toolbar($page, $icontent){
+ 	// Edit mode (view.php)
+ 	global $USER;
 
- 	// icones
+ 	// icones all users
  	$comments = html_writer::link('#notesarea', '<i class="fa fa-comments fa-lg"></i>',
  		array(
  			'title' => s(get_string('comments', 'icontent')),
@@ -766,6 +768,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  			'data-placement'=> 'top'
  			)
  		);
+
  	$icondisplayed = icontent_get_pagedisplayed($page->id, $page->cmid) ? '<i class="fa fa-check-square-o fa-lg"></i>': '<i class="fa fa-square-o fa-lg"></i>';
  	$displayed = html_writer::link('#', $icondisplayed,
  		array(
@@ -785,7 +788,47 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  		)
  	);
 
-	$toolbar = html_writer::tag('div', $comments. $displayed. $contrast, array('class'=>'toolbarpage '));
+ 	$update = false;
+ 	$new = false;
+
+	// icones teachers
+ 	if($USER->editing){
+	 	$update = html_writer::link(
+	 		new moodle_url('edit.php',
+	 			array(
+		 			'cmid' => $page->cmid,
+		 			'id' => $page->id,
+		 			'sesskey' => $USER->sesskey
+		 			)
+	 			)
+	 		, '<i class="fa fa-pencil-square-o fa-lg"></i>',
+	 		array(
+	 			'title' => s(get_string('edit')),
+	 			'class'=>'icon icon-update',
+	 			'data-toggle'=> 'tooltip',
+	 			'data-placement'=> 'top'
+	 			)
+	 		);
+
+	 	$new = html_writer::link(
+	 		new moodle_url('edit.php', 
+	 			array(
+	 				'cmid' => $page->cmid,
+	 				'pagenum' => $page->pagenum,
+	 				'sesskey' => $USER->sesskey
+	 			)
+	 		),
+	 		'<i class="fa fa-plus-circle fa-lg"></i>',
+	 		array(
+	 			'title' => s(get_string('new')),
+	 			'class'=>'icon icon-new',
+	 			'data-toggle'=> 'tooltip',
+	 			'data-placement'=> 'top'
+	 			)
+	 		);
+	 }
+
+	$toolbar = html_writer::tag('div', $comments. $displayed. $contrast. $update. $new, array('class'=>'toolbarpage '));
 
  	return $toolbar;
  }

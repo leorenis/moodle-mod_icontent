@@ -782,7 +782,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  	$highcontrast = html_writer::link('#!', '<i class="fa fa-adjust fa-lg"></i>',
  		array(
  			'title' => s(get_string('highcontrast', 'icontent')),
- 			'class'=>'icon icon-highcontrast addhighcontrast',
+ 			'class'=>'icon icon-highcontrast togglehighcontrast',
  			'data-toggle'=> 'tooltip',
  			'data-placement'=> 'top'
  		)

@@ -54,11 +54,33 @@
 
 .icontent-page .fulltextpage{
 	letter-spacing: 0.1px;
-    line-height: 1.66em;
-    padding: 10px 15px;
-    word-spacing: 0.3px;
+  line-height: 1.66em;
+  padding: 10px 15px;
+  word-spacing: 0.3px;
 }
-
+/*Hightcontrast */
+.icontent-page .highcontrast h1,
+.icontent-page .highcontrast h2,
+.icontent-page .highcontrast h3,
+.icontent-page .highcontrast h4,
+.icontent-page .highcontrast h5,
+.icontent-page .highcontrast h6,
+.icontent-page .highcontrast a
+{
+  color: #ff0;
+}
+.icontent-page .highcontrast p, 
+.icontent-page .highcontrast b,
+.icontent-page .highcontrast strong,
+.icontent-page .highcontrast span,
+.icontent-page .highcontrast{
+  color: #fff;
+}
+.icontent-page .highcontrast .notesarea .notelist .pagenoterow{
+  background-color: #222;
+  border-bottom: 1px solid #555;
+}
+/*Fim Hightcontrast */
 .icontent-page .fulltextpage .toolbarpage{
 	text-align: right;
 }

@@ -12,7 +12,7 @@ $(document).ready(function() {
 
 	// Check (onLoad) if the cookie is there and set the class if it is
     if ($.cookie('highcontrast') == "yes") {
-        $(".fulltextpage").addClass("highcontrast").css('background-color', '#000000');
+        $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
     }
 	
 	// Funcoes nomeadas //
@@ -297,39 +297,21 @@ $(document).ready(function() {
 		$(".btnnotereplysave").click(onReplyNoteSaveClick);
 	}
 
-	// Adicionar Alto contraste
-	function onAddHightContrastClick(){
-		if ($.cookie('highcontrast') == "undefined" || $.cookie('highcontrast') == "no") {
-            $.cookie('highcontrast', 'yes', {
-                expires: 7,
+	// Alternar Alto contraste
+	function onToggleHightContrastClick(){
+		// Remove hightcontrast
+		if ($.cookie('highcontrast') == "yes") {
+            $.cookie("highcontrast", null, {
                 path: '/'
             });
-            $(".fulltextpage").addClass("highcontrast").css('background-color', '#000000');
-            $(this).addClass("removehighcontrast");
-            $(this).removeClass("addhighcontrast");
+            $('.fulltextpage').removeClass('highcontrast').css('background-color', '#FCFCFC');
         } else {
             $.cookie('highcontrast', 'yes', {
                 expires: 7,
                 path: '/'
             });
-            $(".fulltextpage").addClass("highcontrast").css('background-color', '#000000');
-            $(this).addClass("removehighcontrast");
-            $(this).removeClass("addhighcontrast");
+            $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
         }
-	}
-
-	// Remover Alto contraste
-	function onRemoveHightContrastClick(){
-		
-        if ($.cookie('highcontrast') == "yes") {
-            $.cookie("highcontrast", null, {
-                path: '/'
-            });
-        }
-
-        $('.fulltextpage').removeClass('highcontrast').css('background-color', '#FCFCFC');
-		$(this).addClass("addhighcontrast");
-        $(this).removeClass("removehighcontrast");
 	}
 	
 	// Chamada das funcoes nomeadas
@@ -339,8 +321,7 @@ $(document).ready(function() {
 	$(".likenote").click(onLikeNoteClick);
 	$(".editnote").click(onEditNoteClick);
 	$(".replynote").click(onReplyNoteClick);
-	$(".addhighcontrast").click(onAddHightContrastClick);
-	$(".removehighcontrast").click(onRemoveHightContrastClick);
+	$(".togglehighcontrast").click(onToggleHightContrastClick);
 
 });
 // End ready

@@ -121,7 +121,7 @@ $string['collumns3'] = 'Até três colunas';
 $string['collumns4'] = 'Até quatro colunas';
 $string['collumns5'] = 'Até cinco colunas';
 $string['page'] = '<span>Página <em>{$a}</em></span>';
-$string['contrast'] = 'Contraste';
+$string['highcontrast'] = 'Alto contraste';
 $string['comments'] = 'Anotações';
 $string['writenotes'] = 'Escrever anotações';
 $string['writedoubt'] = 'Escrever dúvida';
@@ -140,7 +140,6 @@ $string['unlike'] = ' Desfavoritar ({$a}) ';
 $string['reply'] = ' Responder ';
 $string['respond'] = ' Respondeu ';
 $string['statusview'] = 'Status de visualização';
-$string['contrast'] = 'Alto contraste';
 $string['labelprogressbar'] = '{$a}% completo';
 
 $string['icontent:grade'] = 'Visualizar Relatório de notas';

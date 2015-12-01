@@ -92,6 +92,7 @@ $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
 // JS
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery-1.11.3.min.js'), true);
+$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery.cookie.min.js'));
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/bootstrap/bootstrap.min.js'));
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/module.js'));
 

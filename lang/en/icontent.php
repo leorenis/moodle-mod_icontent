@@ -118,7 +118,7 @@ $string['collumns4'] = 'Until four collumns';
 $string['collumns5'] = 'Until five collumns';
 $string['msgsucess'] = 'Successfully recorded data!';
 $string['page'] = '<span>Page <em>{$a}</em></span>';
-$string['contrast'] = 'Contrast';
+$string['highcontrast'] = 'highcontrast';
 $string['comments'] = 'Comments';
 $string['writenotes'] = 'Write notes';
 $string['writedoubt'] = 'Write doubt';
@@ -137,7 +137,6 @@ $string['unlike'] = ' unlike ({$a}) ';
 $string['reply'] = ' Reply ';
 $string['respond'] = ' Respond ';
 $string['statusview'] = 'Status view';
-$string['contrast'] = 'High contrast';
 $string['labelprogressbar'] = '{$a} complete';
 
 $string['icontent:grade'] = 'View grade report';

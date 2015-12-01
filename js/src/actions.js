@@ -9,6 +9,11 @@ $(document).ready(function() {
 	
 	// Habilita toltip
 	$('[data-toggle="tooltip"]').tooltip();
+
+	// Check (onLoad) if the cookie is there and set the class if it is
+    if ($.cookie('highcontrast') == "yes") {
+        $(".fulltextpage").addClass("highcontrast").css('background-color', '#000000');
+    }
 	
 	// Funcoes nomeadas //
 	
@@ -291,6 +296,41 @@ $(document).ready(function() {
 		// Salva resposta
 		$(".btnnotereplysave").click(onReplyNoteSaveClick);
 	}
+
+	// Adicionar Alto contraste
+	function onAddHightContrastClick(){
+		if ($.cookie('highcontrast') == "undefined" || $.cookie('highcontrast') == "no") {
+            $.cookie('highcontrast', 'yes', {
+                expires: 7,
+                path: '/'
+            });
+            $(".fulltextpage").addClass("highcontrast").css('background-color', '#000000');
+            $(this).addClass("removehighcontrast");
+            $(this).removeClass("addhighcontrast");
+        } else {
+            $.cookie('highcontrast', 'yes', {
+                expires: 7,
+                path: '/'
+            });
+            $(".fulltextpage").addClass("highcontrast").css('background-color', '#000000');
+            $(this).addClass("removehighcontrast");
+            $(this).removeClass("addhighcontrast");
+        }
+	}
+
+	// Remover Alto contraste
+	function onRemoveHightContrastClick(){
+		
+        if ($.cookie('highcontrast') == "yes") {
+            $.cookie("highcontrast", null, {
+                path: '/'
+            });
+        }
+
+        $('.fulltextpage').removeClass('highcontrast').css('background-color', '#FCFCFC');
+		$(this).addClass("addhighcontrast");
+        $(this).removeClass("removehighcontrast");
+	}
 	
 	// Chamada das funcoes nomeadas
 	
@@ -299,6 +339,8 @@ $(document).ready(function() {
 	$(".likenote").click(onLikeNoteClick);
 	$(".editnote").click(onEditNoteClick);
 	$(".replynote").click(onReplyNoteClick);
+	$(".addhighcontrast").click(onAddHightContrastClick);
+	$(".removehighcontrast").click(onRemoveHightContrastClick);
 
 });
 // End ready

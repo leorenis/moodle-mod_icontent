@@ -779,10 +779,10 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  		)
  	);
 
- 	$contrast = html_writer::link('#', '<i class="fa fa-adjust fa-lg"></i>',
+ 	$highcontrast = html_writer::link('#!', '<i class="fa fa-adjust fa-lg"></i>',
  		array(
- 			'title' => s(get_string('contrast', 'icontent')),
- 			'class'=>'icon icon-contrast',
+ 			'title' => s(get_string('highcontrast', 'icontent')),
+ 			'class'=>'icon icon-highcontrast addhighcontrast',
  			'data-toggle'=> 'tooltip',
  			'data-placement'=> 'top'
  		)
@@ -828,7 +828,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	 		);
 	 }
 
-	$toolbar = html_writer::tag('div', $comments. $displayed. $contrast. $update. $new, array('class'=>'toolbarpage '));
+	$toolbar = html_writer::tag('div', $comments. $displayed. $highcontrast. $update. $new, array('class'=>'toolbarpage '));
 
  	return $toolbar;
  }

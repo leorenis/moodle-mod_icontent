@@ -526,7 +526,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 		return $countpath;
  }
  
-  /**
+ /**
  * Recupera usuario atraves de um ID.
  *
  * Returns object $user
@@ -539,7 +539,30 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	
 	return $DB->get_record('user', array('id'=>$userid), 'id, firstname, lastname, email, picture, firstnamephonetic, lastnamephonetic, middlename, alternatename, imagealt');
  }
-  
+ 
+ /**
+  * Funcao recursiva que obtem anotacoes filhas.
+  *
+  * Returns object $notesdaughters
+  *
+  * @param  int $pagenoteid
+  * @return object $notesdaughters
+  */ 
+ function icontent_get_notes_daughters($pagenoteid){
+ 	global $DB;
+ 	$pagenotes = $DB->get_records('icontent_pages_notes', array('parent'=>$pagenoteid));
+ 	$notes = array();
+ 	if ($pagenotes){
+ 		foreach ($pagenotes as $pagenote){
+ 			echo "passei ".$pagenote->id;
+ 			$notes[$pagenote->id] = $pagenote->comment;
+ 			icontent_get_notes_daughters($pagenote->id);
+ 		}
+ 		return $notes;
+ 	}
+ 	return false;
+ } 
+ 
 /*****************************************************************\  
 \************* METODOS QUE CRIAM E RETORNAM HTML *****************/
 /*****************************************************************\
@@ -663,7 +686,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 			$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 			// Note footer
 			$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
-			$noteremove = html_writer::link("deletenote.php?id=".$page->cmid."&pnid=".$pagenote->id, "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
+			$noteremove = html_writer::link("deletenote.php?id=".$pagenote->cmid."&pnid=".$pagenote->id."&sesskey=".sesskey(), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
 			$notelike = icontent_make_likeunlike($page, $pagenote);
 			$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
  			$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));

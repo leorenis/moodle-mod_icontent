@@ -59,14 +59,13 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name." : ".get_string('removenotes', 'mod_icontent'));
 
 // The operation has not been confirmed yet so ask the user to do so.
-$strconfirm = get_string('confpagenotedelete', 'mod_icontent', $replies = 1);
-
 $notes = icontent_get_notes_daughters($pagenote->id);
-var_dump($notes);
+$strconfirm = get_string('confpagenotedelete', 'mod_icontent', count($notes));
 
-echo '<br />';
 $continue = new moodle_url('/mod/icontent/deletenote.php', array('id'=>$cm->id, 'pnid'=>$pagenote->id, 'confirm'=>1));
-$cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->id));
-echo $OUTPUT->confirm("<strong>".substr($pagenote->comment, 0, 100)."...</strong><p>$strconfirm</p>", $continue, $cancel);
+$cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
+$listreplies = icontent_make_list_group_notesdaughters($notes);
 
+echo $OUTPUT->confirm("<blockquote>$pagenote->comment</blockquote><p>$strconfirm</p>". $listreplies, $continue, $cancel);
+//var_dump($notes);
 echo $OUTPUT->footer();

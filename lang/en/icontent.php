@@ -108,7 +108,7 @@ $string['showtitle_help'] = 'Show / Hide the page title.';
 $string['copyright'] = 'Copyright';
 $string['copyright_help'] = 'Reserved space to add the credits related to copyright.';
 $string['confpagedelete'] = 'Do you want to delete this page along with all files and records related to it?';
-$string['confpagenotedelete'] = 'Are you sure you want to delete this note and all replies? ({$a} replies)?';
+$string['confpagenotedelete'] = 'Are you sure you want to delete this note and all replies? <span class="label label-warning">{$a} reply(ies)</span>';
 $string['layout'] = 'Page layout';
 $string['layouthelp'] = 'Layout of page';
 $string['layouthelp_help'] = 'Choose a layout.';

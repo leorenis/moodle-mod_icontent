@@ -543,29 +543,50 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  /**
   * Funcao recursiva que obtem anotacoes filhas.
   *
-  * Returns object $notesdaughters
+  * Returns array $notesdaughters
   *
   * @param  int $pagenoteid
-  * @return object $notesdaughters
+  * @return array $notesdaughters
   */ 
  function icontent_get_notes_daughters($pagenoteid){
  	global $DB;
  	$pagenotes = $DB->get_records('icontent_pages_notes', array('parent'=>$pagenoteid));
- 	$notes = array();
  	if ($pagenotes){
- 		foreach ($pagenotes as $pagenote){
- 			echo "passei ".$pagenote->id;
- 			$notes[$pagenote->id] = $pagenote->comment;
- 			icontent_get_notes_daughters($pagenote->id);
+ 		$notesdaughters = [];
+ 		foreach ($pagenotes as $pagenote) {
+ 			$notesdaughters[$pagenote->id] = $pagenote->comment;
+ 			$tree = icontent_get_notes_daughters($pagenote->id);
+ 			if($tree){
+ 				$notesdaughters = $notesdaughters + $tree;
+ 			}
  		}
- 		return $notes;
+ 		return $notesdaughters;
  	}
- 	return false;
- } 
+ 	return $pagenotes;
+ }
  
 /*****************************************************************\  
 \************* METODOS QUE CRIAM E RETORNAM HTML *****************/
 /*****************************************************************\
+ */
+ 
+ /**
+  * Funcao responsavel por criar list group de respostas das anotacoes a serem removidas
+  * Return $listgroup
+  * @param  array $notesdaughters
+  * @return string $listgroup
+  */
+function icontent_make_list_group_notesdaughters($notesdaughters){
+ 	if($notesdaughters){
+ 		$listgroup = html_writer::start_tag('ul');
+ 		foreach ($notesdaughters as $note){
+ 			$listgroup .= html_writer::tag('li', $note, array('class'=>'list-group-item'));
+ 		}
+ 		$listgroup .= html_writer::end_tag('ul');
+ 		return $listgroup;
+ 	}
+ 	return false;
+ }
  /**
  * Metodo responsavel por criar barra de progresso
  * Return $progressbar

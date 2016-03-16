@@ -50,8 +50,10 @@ $PAGE->set_heading($course->fullname);
 
 // Form processing.
 if ($confirm) {  // the operation was confirmed.
-   
-
+	
+	$notes = icontent_get_notes_daughters($pagenote->id);
+	var_dump($notes);
+	die();
   //  redirect('view.php?id='.$cm->id);
 }
 
@@ -66,6 +68,5 @@ $continue = new moodle_url('/mod/icontent/deletenote.php', array('id'=>$cm->id, 
 $cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
 $listreplies = icontent_make_list_group_notesdaughters($notes);
 
-echo $OUTPUT->confirm("<blockquote>$pagenote->comment</blockquote><p>$strconfirm</p>". $listreplies, $continue, $cancel);
-//var_dump($notes);
+echo $OUTPUT->confirm("<p>$strconfirm</p><blockquote>$pagenote->comment</blockquote>". $listreplies, $continue, $cancel);
 echo $OUTPUT->footer();

@@ -579,8 +579,10 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 function icontent_make_list_group_notesdaughters($notesdaughters){
  	if($notesdaughters){
  		$listgroup = html_writer::start_tag('ul');
- 		foreach ($notesdaughters as $note){
- 			$listgroup .= html_writer::tag('li', $note, array('class'=>'list-group-item'));
+ 		$likes = '';
+ 		foreach ($notesdaughters as $key => $note){
+ 			$likes = html_writer::span(icontent_count_pagenotelike($key), 'badge');
+ 			$listgroup .= html_writer::tag('li', $note. $likes, array('class'=>'list-group-item'));
  		}
  		$listgroup .= html_writer::end_tag('ul');
  		return $listgroup;

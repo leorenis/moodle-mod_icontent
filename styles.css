@@ -216,6 +216,9 @@
     padding: 10px 15px;
     position: relative;
 }
+.list-group-item > .badge {
+    float: right;
+}
 
 /*Organizacao das anotacoes em em niveis*/
 .icontent-page .notelist .level-2{

@@ -52,9 +52,10 @@ $PAGE->set_heading($course->fullname);
 if ($confirm) {  // the operation was confirmed.
 	
 	$notes = icontent_get_notes_daughters($pagenote->id);
-	var_dump($notes);
-	die();
-  //  redirect('view.php?id='.$cm->id);
+	icontent_remove_notes($pagenote->pageid, $pagenote->id);
+	// NOTA: Colocar mensagem
+	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
+ 	redirect($url, "Excluido");
 }
 
 echo $OUTPUT->header();

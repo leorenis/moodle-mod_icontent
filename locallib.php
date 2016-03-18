@@ -266,7 +266,7 @@ function icontent_preload_pages($icontent){
 	return $pages;
 }
 /**
- * Remove anotacoes de uma pagina.
+ * Remove anotacoes de uma pagina. Se a o parametro $pagenoteid for passado, a removera a anotacao atual e suas anotacoes filhas.
  *
  * Returns boolean true or false
  *
@@ -277,13 +277,21 @@ function icontent_preload_pages($icontent){
 function icontent_remove_notes($pageid, $pagenoteid = null){
 	global $DB;
 	if($pagenoteid){
+		// Verifies that note have daughters
+		$notesdaughters = icontent_get_notes_daughters($pagenoteid);
+		if($notesdaughters){
+			foreach ($notesdaughters as $pnid => $comment){
+				icontent_remove_note_likes($pnid);
+				$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pnid));
+			}
+		}
+		// Remove atual note
 		icontent_remove_note_likes($pagenoteid);
 		$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pagenoteid));
 		return $rs ? true : false;
 	}
-	// get notes
+	// Get notes
 	$pagenotes = $DB->get_records('icontent_pages_notes', array('pageid'=>$pageid));
-	
 	foreach ($pagenotes as $pagenote) {
 		icontent_remove_note_likes($pagenote->id);
 		$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pagenote->id));
@@ -564,7 +572,6 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  	}
  	return $pagenotes;
  }
- 
 /*****************************************************************\  
 \************* METODOS QUE CRIAM E RETORNAM HTML *****************/
 /*****************************************************************\

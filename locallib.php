@@ -1,4 +1,6 @@
 <?php
+use core\progress\null;
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -326,15 +328,17 @@ function icontent_buttons($pages){
 	if(empty($pages)){
 		return false;
 	}
-	// Source here! 
-	$pgbuttons = html_writer::start_div('btn_pages', array('id'=> 'fitem_id_submitbutton'));
+	// Create buttons! 
 	$npage = 0;
+	$pgbuttons = html_writer::start_div('btn_pages');
+	$pgbuttons .= html_writer::tag('button', get_string('previous', 'mod_icontent'), array('title' => get_string('pageprevious', 'mod_icontent'), 'class'=>'load-page previous' , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => '', 'data-cmid' => '', 'data-sesskey' => sesskey()));
 	foreach ($pages as $page) {
 		if(!$page->hidden){
 			$npage ++;
 			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
 		}
 	}
+	$pgbuttons .= html_writer::tag('button', get_string('next', 'mod_icontent'), array('title' => get_string('nextpage', 'mod_icontent'), 'class'=>'load-page next' , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => '', 'data-cmid' => '', 'data-sesskey' => sesskey()));
 	$pgbuttons .= html_writer::end_div();
 	
 	return $pgbuttons;

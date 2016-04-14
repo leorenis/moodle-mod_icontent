@@ -119,11 +119,10 @@ if ($icontent->intro) {
     echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
 }
 // Caixa de conteudo
+echo icontent_buttons($pages);
 echo $OUTPUT->box_start('icontent-page', 'pages');
 echo $showpage->fullpageicontent;
 echo $OUTPUT->box_end();
 
-echo icontent_buttons($pages);
 // Finish the page.
 echo $OUTPUT->footer();
-?>

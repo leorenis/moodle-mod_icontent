@@ -61,22 +61,9 @@ $event->add_record_snapshot('course', $PAGE->course);
 $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
-
+// check permissions
 $allowedit  = has_capability('mod/icontent:edit', $context);
-
-if ($allowedit) {
-    if ($edit != -1 and confirm_sesskey()) {
-        $USER->editing = $edit;
-    } else {
-        if (isset($USER->editing)) {
-            $edit = $USER->editing;
-        } else {
-            $edit = 0;
-        }
-    }
-} else {
-    $edit = 0;
-}
+$edit = icontent_has_permission_edition($allowedit, $edit);
 
 // read pages
 $pages = icontent_preload_pages($icontent);
@@ -86,7 +73,6 @@ if ($allowedit and !$pages) {
 }
 
 // Print the page header.
-
 $PAGE->set_url('/mod/icontent/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
@@ -100,10 +86,11 @@ $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/module.js'));
 $PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.4.0/css/font-awesome.min.css'));
 
 // Recupera primeira pagina a ser apresentada
-$startpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);
-$showpage = icontent_get_fullpageicontent($startpage, $icontent, $context);
+$startwithpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);
+$showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context);
 
-icontent_add_fake_block($pages, $startpage, $icontent, $cm, $edit); //ADICIONA BLOCO SUMARIO
+icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //ADICIONA BLOCO SUMARIO
+
 // =====================================================
 // Content display HTML code
 // =====================================================
@@ -119,10 +106,11 @@ if ($icontent->intro) {
     echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
 }
 // Caixa de conteudo
-echo icontent_buttons($pages);
+echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
 echo $OUTPUT->box_start('icontent-page', 'pages');
 echo $showpage->fullpageicontent;
 echo $OUTPUT->box_end();
+echo icontent_simple_paging_button_bar($cm->id, $startwithpage);
 
 // Finish the page.
 echo $OUTPUT->footer();

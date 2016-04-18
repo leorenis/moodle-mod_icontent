@@ -37,8 +37,14 @@
 .icontent-page .pagenum{
 	text-align: right;
 }
-.btn_pages{
+.full-paging-buttonbar{
 	text-align: center;
+}
+.simple-paging-buttonbar{
+	text-align: center;
+}
+.simple-paging-buttonbar button{
+	min-width: 120px;
 }
 .icontent-page .pagenum span{
 	margin-right: 5px;

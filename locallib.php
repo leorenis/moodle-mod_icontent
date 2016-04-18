@@ -182,6 +182,32 @@ function icontent_add_borderwidth_options(){
 	}
 	return $arr;
 }
+
+/**
+ * Check if has permission for edition
+ * @param boolean $allowedit
+ * @param boolean option_param $dit received by parameter in the URL.
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_has_permission_edition($allowedit, $edit = 0){
+	global $USER;
+	
+	if ($allowedit) {
+		if ($edit != -1 and confirm_sesskey()) {
+			$USER->editing = $edit;
+		} else {
+			if (isset($USER->editing)) {
+				$edit = $USER->editing;
+			} else {
+				$edit = 0;
+			}
+		}
+	} else {
+		$edit = 0;
+	}
+	
+	return $edit;
+}
 /**
  * Recupera bgimage do plugin icontent
  * @param object $context 
@@ -317,31 +343,73 @@ function icontent_remove_note_likes($pagenoteid){
 }
 
 /**
- * Carrega botoes do conteudo.
+ * Load full paging button bar.
  *
- * Returns buttons of pages 
+ * Returns buttons related pages
  *
  * @param  object $pages
- * @return array of id=>icontent
+ * @param  int $startwithpage
+ * @return string with $pgbuttons
  */
-function icontent_buttons($pages){
+function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
+	
 	if(empty($pages)){
 		return false;
 	}
-	// Create buttons! 
+	// Object button
+	$objbutton = new stdClass();
+	$objbutton->name = get_string('previous', 'mod_icontent');
+	$objbutton->title = get_string('previouspage', 'mod_icontent');
+	$objbutton->cmid = $cmid;
+	$objbutton->startwithpage = $startwithpage;
+	
+	// Create buttons!
 	$npage = 0;
-	$pgbuttons = html_writer::start_div('btn_pages');
-	$pgbuttons .= html_writer::tag('button', get_string('previous', 'mod_icontent'), array('title' => get_string('pageprevious', 'mod_icontent'), 'class'=>'load-page previous' , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => '', 'data-cmid' => '', 'data-sesskey' => sesskey()));
+	$pgbuttons = html_writer::start_div('full-paging-buttonbar');
+	$pgbuttons .= icontent_make_button_previous_page($objbutton);
 	foreach ($pages as $page) {
 		if(!$page->hidden){
 			$npage ++;
 			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
 		}
 	}
-	$pgbuttons .= html_writer::tag('button', get_string('next', 'mod_icontent'), array('title' => get_string('nextpage', 'mod_icontent'), 'class'=>'load-page next' , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => '', 'data-cmid' => '', 'data-sesskey' => sesskey()));
+	$objbutton->name = get_string('next', 'mod_icontent');
+	$objbutton->title = get_string('nextpage', 'mod_icontent');
+	
+	$pgbuttons .= icontent_make_button_next_page($objbutton);
 	$pgbuttons .= html_writer::end_div();
 	
 	return $pgbuttons;
+}
+
+/**
+ * Load simple paging button bar.
+ *
+ * Returns buttons previous and next
+ *
+ * @param  int $startwithpage
+ * @return string with $controlbuttons
+ */
+function icontent_simple_paging_button_bar($cmid, $startwithpage = 1, $attrid = 'fgroup_id_buttonar'){
+	
+	// Object button
+	$objbutton = new stdClass();
+	
+	$objbutton->name  = get_string('goback', 'mod_icontent');
+	$objbutton->title = get_string('previouspage', 'mod_icontent');
+	$objbutton->cmid  = $cmid;
+	$objbutton->startwithpage = $startwithpage;
+	
+	// Go back
+	$controlbuttons = icontent_make_button_previous_page($objbutton, html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left')));
+	
+	$objbutton->name = get_string('advance', 'mod_icontent');
+	$objbutton->title = get_string('nextpage', 'mod_icontent');
+	
+	// Advance
+	$controlbuttons .= icontent_make_button_next_page($objbutton, html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right')));
+	
+	return html_writer::div($controlbuttons, "simple-paging-buttonbar", array('id' => $attrid));
 }
 
 /**
@@ -580,6 +648,30 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 \************* METODOS QUE CRIAM E RETORNAM HTML *****************/
 /*****************************************************************\
  */
+ 
+ /**
+  * Create button previous page.
+  *
+  * Returns button
+  *
+  * @param  object $button
+  * @return string with $btnprevious
+  */
+ function icontent_make_button_previous_page($button, $icon = null){
+ 	return html_writer::tag('button', $icon. $button->name, array('title' => $button->title, 'class'=>'load-page previous' , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $button->startwithpage - 1, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey()));
+ }
+ 
+ /**
+  * Create button next page.
+  *
+  * Returns button
+  *
+  * @param  object $button
+  * @return string with $btnnext
+  */
+ function icontent_make_button_next_page($button, $icon = null){
+ 	return html_writer::tag('button', $button->name. $icon, array('title' => $button->title, 'class'=>'load-page next' , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $button->startwithpage + 1, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey()));
+ }
  
  /**
   * Funcao responsavel por criar list group de respostas das anotacoes a serem removidas
@@ -848,42 +940,45 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$update = false;
  	$new = false;
 
-	// icones teachers
- 	if($USER->editing){
-	 	$update = html_writer::link(
-	 		new moodle_url('edit.php',
-	 			array(
-		 			'cmid' => $page->cmid,
-		 			'id' => $page->id,
-		 			'sesskey' => $USER->sesskey
+	// check se editing exists for $USER
+	if(property_exists($USER, 'editing')){
+	 	if($USER->editing){
+	 		// icons teachers
+		 	$update = html_writer::link(
+		 		new moodle_url('edit.php',
+		 			array(
+			 			'cmid' => $page->cmid,
+			 			'id' => $page->id,
+			 			'sesskey' => $USER->sesskey
+			 			)
 		 			)
-	 			)
-	 		, '<i class="fa fa-pencil-square-o fa-lg"></i>',
-	 		array(
-	 			'title' => s(get_string('edit')),
-	 			'class'=>'icon icon-update',
-	 			'data-toggle'=> 'tooltip',
-	 			'data-placement'=> 'top'
-	 			)
-	 		);
-
-	 	$new = html_writer::link(
-	 		new moodle_url('edit.php', 
-	 			array(
-	 				'cmid' => $page->cmid,
-	 				'pagenum' => $page->pagenum,
-	 				'sesskey' => $USER->sesskey
-	 			)
-	 		),
-	 		'<i class="fa fa-plus-circle fa-lg"></i>',
-	 		array(
-	 			'title' => s(get_string('new')),
-	 			'class'=>'icon icon-new',
-	 			'data-toggle'=> 'tooltip',
-	 			'data-placement'=> 'top'
-	 			)
-	 		);
-	 }
+		 		, '<i class="fa fa-pencil-square-o fa-lg"></i>',
+		 		array(
+		 			'title' => s(get_string('edit')),
+		 			'class'=>'icon icon-update',
+		 			'data-toggle'=> 'tooltip',
+		 			'data-placement'=> 'top'
+		 			)
+		 		);
+	
+		 	$new = html_writer::link(
+		 		new moodle_url('edit.php', 
+		 			array(
+		 				'cmid' => $page->cmid,
+		 				'pagenum' => $page->pagenum,
+		 				'sesskey' => $USER->sesskey
+		 			)
+		 		),
+		 		'<i class="fa fa-plus-circle fa-lg"></i>',
+		 		array(
+		 			'title' => s(get_string('new')),
+		 			'class'=>'icon icon-new',
+		 			'data-toggle'=> 'tooltip',
+		 			'data-placement'=> 'top'
+		 			)
+		 		);
+		 }
+	}
 
 	$toolbar = html_writer::tag('div', $comments. $displayed. $highcontrast. $update. $new, array('class'=>'toolbarpage '));
 

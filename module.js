@@ -44,16 +44,24 @@ $(document).ready(function(){
 	    
 	} // End onLoad..
 	
-	// Alterando estilo do link ou botoes da pagina ativa
+	function onLoadNextPageClick(){
+		var $btnNext = $(this);
+		
+		var $totalpages = $btnNext.attr('data-totalpages');
+		var $pagenum = $btnNext.attr('data-pagenum');
+		
+		console.log($totalpages);
+	}
+	
 	function onActive(pagenum){
 		var pagenum = pagenum;
 		$(".load-page").removeClass("active");
 		$(".page"+ pagenum).addClass("active");
 	}
 	
-	/*** Chamada de eventos ***/
-	
-	onActive($(".fulltextpage").attr('data-pagenum'));		// Recupera numero da pagina
-  	$(".load-page").click(onLoadPageClick); 				// Captura evento click
+	// Chamada de eventos
+	onActive($(".fulltextpage").attr('data-pagenum'));
+	$(".next").click(onLoadNextPageClick);
+  	$(".load-page").click(onLoadPageClick);
   	
 }); // End ready

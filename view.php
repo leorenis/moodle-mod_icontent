@@ -110,7 +110,7 @@ echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
 echo $OUTPUT->box_start('icontent-page', 'pages');
 echo $showpage->fullpageicontent;
 echo $OUTPUT->box_end();
-echo icontent_simple_paging_button_bar($cm->id, $startwithpage);
+echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
 
 // Finish the page.
 echo $OUTPUT->footer();

@@ -29,7 +29,7 @@ $(document).ready(function(){
 			.css('opacity', '0.5');
 			
 		// Ativa link ou botao da pagina atual
-		onActive(data['pagenum']);
+		onActive(data.pagenum);
 		
 		data = "&" + $.param(data);
 	  	$.ajax({
@@ -41,16 +41,14 @@ $(document).ready(function(){
 	    		$(".icontent-page").html(data.fullpageicontent);
 	    	}
 	    }); // fim ajax
+	  	
+	  	onChangeStateControlButtons($(this));
 	    
 	} // End onLoad..
 	
-	function onLoadNextPageClick(){
-		var $btnNext = $(this);
+	function onChangeStateControlButtons($this){
 		
-		var $totalpages = $btnNext.attr('data-totalpages');
-		var $pagenum = $btnNext.attr('data-pagenum');
-		
-		console.log($totalpages);
+		//console.log($this);
 	}
 	
 	function onActive(pagenum){
@@ -61,7 +59,6 @@ $(document).ready(function(){
 	
 	// Chamada de eventos
 	onActive($(".fulltextpage").attr('data-pagenum'));
-	$(".next").click(onLoadNextPageClick);
   	$(".load-page").click(onLoadPageClick);
   	
 }); // End ready

@@ -677,7 +677,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
   */
  function icontent_make_button_next_page($button, $tpages, $icon = null){
  	$pagenum = $button->startwithpage + 1;
- 	$attributes = array('title' => $button->title, 'class'=>'next' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page next' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
  	if($pagenum > $tpages){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}

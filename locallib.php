@@ -366,12 +366,12 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 	// Create buttons!
 	$npage = 0;
 	$tpages = count($pages);
-	$pgbuttons = html_writer::start_div('full-paging-buttonbar');
-	$pgbuttons .= icontent_make_button_previous_page($objbutton);
+	$pgbuttons = html_writer::start_div('full-paging-buttonbar icontent-buttonbar');
+	$pgbuttons .= icontent_make_button_previous_page($objbutton, $tpages);
 	foreach ($pages as $page) {
 		if(!$page->hidden){
 			$npage ++;
-			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
+			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
 		}
 	}
 	$objbutton->name = get_string('next', 'mod_icontent');
@@ -402,7 +402,7 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
 	$objbutton->startwithpage = $startwithpage;
 	
 	// Go back
-	$controlbuttons = icontent_make_button_previous_page($objbutton, html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left')));
+	$controlbuttons = icontent_make_button_previous_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left')));
 	
 	$objbutton->name = get_string('advance', 'mod_icontent');
 	$objbutton->title = get_string('nextpage', 'mod_icontent');
@@ -410,7 +410,7 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
 	// Advance
 	$controlbuttons .= icontent_make_button_next_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right')));
 	
-	return html_writer::div($controlbuttons, "simple-paging-buttonbar", array('id' => $attrid));
+	return html_writer::div($controlbuttons, "simple-paging-buttonbar icontent-buttonbar", array('id' => $attrid));
 }
 
 /**
@@ -658,9 +658,9 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
   * @param  object $button
   * @return string with $btnprevious
   */
- function icontent_make_button_previous_page($button, $icon = null){
+ function icontent_make_button_previous_page($button, $tpages, $icon = null){
  	$pagenum = $button->startwithpage - 1;
- 	$attributes = array('title' => $button->title, 'class'=>'load-page previous', 'data-toggle'=> 'tooltip', 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-previous-page', 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
  	if($pagenum <= 0){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}
@@ -677,7 +677,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
   */
  function icontent_make_button_next_page($button, $tpages, $icon = null){
  	$pagenum = $button->startwithpage + 1;
- 	$attributes = array('title' => $button->title, 'class'=>'load-page next' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-next-page' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
  	if($pagenum > $tpages){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}

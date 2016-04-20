@@ -47,8 +47,27 @@ $(document).ready(function(){
 	} // End onLoad..
 	
 	function onChangeStateControlButtons($this){
-		
-		//console.log($this);
+		var pagenum = parseInt($this.attr('data-pagenum'));
+		var tpages = parseInt($this.attr('data-totalpages'));
+		var prevpage = pagenum - 1;
+		var nextpage = pagenum + 1;
+		var $btnprev = $('.icontent-buttonbar .btn-previous-page');
+		var $btnnext = $('.icontent-buttonbar .btn-next-page');
+
+		if(pagenum <= 1){
+			$btnprev.prop("disabled", true );
+		}else{
+			$btnprev.removeAttr('disabled');
+		}
+
+		if(pagenum >= tpages){
+			$btnnext.prop("disabled", true);
+		}else{
+			$btnnext.removeAttr('disabled');
+		}
+
+		$btnprev.attr( "data-pagenum", prevpage );
+		$btnnext.attr( "data-pagenum", nextpage );
 	}
 	
 	function onActive(pagenum){

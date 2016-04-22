@@ -113,6 +113,7 @@ $string['showtitle_help'] = 'Exibir/Ocultar o título da página.';
 $string['copyright'] = 'Direitos autorais';
 $string['copyright_help'] = 'Espaço reservados para adição dos créditos referentes aos direitos autorais.';
 $string['msgsucess'] = 'Dados gravados com sucesso!';
+$string['msgsucessexclusion'] = 'Dados excluídos com sucesso!';
 $string['confpagedelete'] = 'Você quer mesmo apagar esta página juntamente com todos os arquivos e registros relacionados a ela?';
 $string['confpagenotedelete'] = 'Tem certeza que quer excluir esta anotação juntamente com todas as suas respostas? <span class="label label-warning">{$a} resposta(s)</span>';
 $string['layout'] = 'Layout da página';

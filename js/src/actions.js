@@ -7,9 +7,6 @@
  */
 $(document).ready(function() {
 	
-	// Habilita toltip
-	$('[data-toggle="tooltip"]').tooltip();
-
 	// Check (onLoad) if the cookie is there and set the class if it is
     if ($.cookie('highcontrast') == "yes") {
         $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
@@ -205,9 +202,9 @@ $(document).ready(function() {
 		$('.textnotecomment').focus();
 		
 		// Cancela edicao
-		$(".btnnotecancel").click({lastcomment: textcomment}, onEditNoteCancelClick);
+		$("#pages").on('click', '.btnnotecancel', {lastcomment: textcomment}, onEditNoteCancelClick);
 		// Salva edicao
-		$(".btnnotesave").click(onEditNoteSaveClick);
+		$("#pages").on('click', '.btnnotesave', onEditNoteSaveClick);
 	}
 	
 	// Cancela resposta de anotacao
@@ -254,7 +251,6 @@ $(document).ready(function() {
 			}
 		});
 		// fim ajax
-		//console.log(data);
 	}
 	// Cria formulario para responder anotacoes
 	function onReplyNoteClick(){
@@ -292,9 +288,9 @@ $(document).ready(function() {
 		$('.replynotecomment').focus();
 		
 		// Cancela resposta
-		$(".btnnotereplycancel").click(onReplyNoteCancelClick);
+		$("#pages").on('click', '.btnnotereplycancel', onReplyNoteCancelClick);
 		// Salva resposta
-		$(".btnnotereplysave").click(onReplyNoteSaveClick);
+		$("#pages").on('click', '.btnnotereplysave', onReplyNoteSaveClick);
 	}
 
 	// Alternar Alto contraste
@@ -314,14 +310,13 @@ $(document).ready(function() {
         }
 	}
 	
-	// Chamada das funcoes nomeadas
-	
-	$("#idbtnsavenote").click(onSaveNoteClick);
-	$("#idbtnsavedoubt").click(onSaveDoubtClick);
-	$(".likenote").click(onLikeNoteClick);
-	$(".editnote").click(onEditNoteClick);
-	$(".replynote").click(onReplyNoteClick);
-	$(".togglehighcontrast").click(onToggleHightContrastClick);
+	// Events
+	$("#pages").on('click','#idbtnsavenote', onSaveNoteClick);
+	$("#pages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
+	$("#pages").on('click', '.likenote', onLikeNoteClick);
+	$("#pages").on('click', '.editnote', onEditNoteClick);
+	$("#pages").on('click', '.replynote', onReplyNoteClick);
+	$("#pages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
 
 });
 // End ready

@@ -55,7 +55,7 @@ if ($confirm) {  // the operation was confirmed.
 	icontent_remove_notes($pagenote->pageid, $pagenote->id);
 	// NOTA: Colocar mensagem
 	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
- 	redirect($url, "Excluido");
+ 	redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
 }
 
 echo $OUTPUT->header();

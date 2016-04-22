@@ -790,7 +790,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'tab-content', array('id'=>'idtabicontent'));
 	
 	// Area Notes
-	$notesarea = html_writer::tag('div', $hr. $h4. $tabnav. $tabicontent, array('class'=>'row-fluid notesarea'));
+	$notesarea = html_writer::tag('div', $hr. $h4. $tabnav. $tabicontent, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));
 	
  	// return 
  	return $notesarea;
@@ -807,7 +807,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_listnotespage($pagenotes, $icontent, $page){
  	global $OUTPUT, $CFG;
  	if(!empty($pagenotes)){
- 		//$scriptsjs = html_writer::script(false, new moodle_url('js/src/actions.js'));
  		$divnote = '';
  		foreach ($pagenotes as $pagenote) {
  			// Object user
@@ -817,14 +816,16 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			// Note header
 			$linkfirstname = html_writer::link($CFG->wwwroot.'/user/view.php?id='.$user->id.'&course='.$icontent->course, $user->firstname, array('title'=>$user->firstname));
  			$noteon = html_writer::tag('em', get_string('notedon', 'icontent'), array('class'=>'noteon'));
+ 			$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
 			$notepagetitle = html_writer::span($page->title, 'notepagetitle');
- 			$noteheader = html_writer::div($linkfirstname. $noteon. $notepagetitle, 'noteheader');
+ 			$noteheader = $pagenote->parent ? html_writer::div($linkfirstname. $replyon, 'noteheader') : html_writer::div($linkfirstname. $noteon. $notepagetitle, 'noteheader');
+ 			
 			// Note comments
 			$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 			// Note footer
 			$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
 			$noteremove = html_writer::link("deletenote.php?id=".$pagenote->cmid."&pnid=".$pagenote->id."&sesskey=".sesskey(), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
-			$notelike = icontent_make_likeunlike($page, $pagenote);
+			$notelike = icontent_make_likeunlike($pagenote);
 			$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
  			$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
 			$notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
@@ -857,14 +858,14 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$picture = $OUTPUT->user_picture($user, array('size'=>30, 'class'=> 'img-thumbnail pull-left'));
 	// Note header
 	$linkfirstname = html_writer::link($CFG->wwwroot.'/user/view.php?id='.$user->id.'&course='.$icontent->course, $user->firstname, array('title'=>$user->firstname));
-	$noteon = html_writer::tag('em', ' '.strtolower(get_string('respond', 'icontent')).': ', array('class'=>'noteon'));
-	$noteheader = html_writer::div($linkfirstname. $noteon, 'noteheader');
+	$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
+	$noteheader = html_writer::div($linkfirstname. $replyon, 'noteheader');
 	// Note comments
 	$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 	// Note footer
 	$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
 	$noteremove = html_writer::link('#', "<i class='fa fa-times'></i>".get_string('remove', 'icontent'));
-	$notelike = icontent_make_likeunlike($page, $pagenote);
+	$notelike = icontent_make_likeunlike($pagenote);
 	$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
 	$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
 	$notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
@@ -886,9 +887,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @param  object $pagenote
  * @return string $likeunlike
  */
- function icontent_make_likeunlike($page, $pagenote){
+ function icontent_make_likeunlike($pagenote){
  	global $USER;
-	$pagenotelike = icontent_get_pagenotelike($pagenote->id, $USER->id, $page->cmid);
+	$pagenotelike = icontent_get_pagenotelike($pagenote->id, $USER->id, $pagenote->cmid);
 	
 	$countlikes = icontent_count_pagenotelike($pagenote->id);
 	$notelinklabel = html_writer::span(get_string('like', 'icontent', $countlikes));
@@ -900,7 +901,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	return html_writer::link(null, "<i class='fa fa-star-o'></i>".$notelinklabel,
 		array(
 			'class'=>'likenote',
-			'data-cmid'=>$page->cmid,
+			'data-cmid'=>$pagenote->cmid,
 			'data-pagenoteid'=>$pagenote->id,
 			'data-sesskey' => sesskey()
 		)
@@ -1008,7 +1009,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $DB, $CFG;
 	// PENDENTE: Criar rotina para gravar logs...
 	
-	$scriptsjs = html_writer::script(false, new moodle_url('js/src/actions.js'));
+	$tooltip = html_writer::script("$(function () { $('[data-toggle=\"tooltip\"]').tooltip() })");
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
 		
@@ -1042,7 +1043,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
 	
 	// Preparando conteudo da pagina para retorno
-	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $notesarea. $scriptsjs, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $notesarea. $tooltip, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	
 	// Destruindo propriedade, pois ela foi passada para a propriedade fullpageicontent na linha acima.
 	unset($objpage->pageicontent);

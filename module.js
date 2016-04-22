@@ -1,8 +1,8 @@
 /**
  * Prints a particular instance of icontent
  *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
+ * Responsavel pelas funcoes JavaScript mais abrangentes do mod_icontent.
+ * As funcoes mais especificas estao disponiveis no arquivo js/src/actions.js
  *
  * @package    mod_icontent
  * @copyright  2015 Leo Renis Santos

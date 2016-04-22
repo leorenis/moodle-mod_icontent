@@ -81,6 +81,7 @@ $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery.cookie.min.js'));
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/bootstrap/bootstrap.min.js'));
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/module.js'));
+$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/src/actions.js'));
 
 // CSS
 $PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.4.0/css/font-awesome.min.css'));

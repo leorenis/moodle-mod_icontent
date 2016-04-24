@@ -202,9 +202,10 @@ $(document).ready(function() {
 		$('.textnotecomment').focus();
 		
 		// Cancela edicao
-		$("#pages").on('click', '.btnnotecancel', {lastcomment: textcomment}, onEditNoteCancelClick);
+		$("#idicontentpages").on('click', '.btnnotecancel', {lastcomment: textcomment}, onEditNoteCancelClick);
 		// Salva edicao
-		$("#pages").on('click', '.btnnotesave', onEditNoteSaveClick);
+		//$("#idicontentpages").on('click', '.btnnotesave', onEditNoteSaveClick);
+		$(".btnnotesave").click(onEditNoteSaveClick);
 	}
 	
 	// Cancela resposta de anotacao
@@ -288,9 +289,10 @@ $(document).ready(function() {
 		$('.replynotecomment').focus();
 		
 		// Cancela resposta
-		$("#pages").on('click', '.btnnotereplycancel', onReplyNoteCancelClick);
+		$("#idicontentpages").on('click', '.btnnotereplycancel', onReplyNoteCancelClick);
 		// Salva resposta
-		$("#pages").on('click', '.btnnotereplysave', onReplyNoteSaveClick);
+		//$("#idicontentpages").on('click', '.btnnotereplysave', onReplyNoteSaveClick);
+		$(".btnnotereplysave").click(onReplyNoteSaveClick);
 	}
 
 	// Alternar Alto contraste
@@ -311,12 +313,12 @@ $(document).ready(function() {
 	}
 	
 	// Events
-	$("#pages").on('click','#idbtnsavenote', onSaveNoteClick);
-	$("#pages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
-	$("#pages").on('click', '.likenote', onLikeNoteClick);
-	$("#pages").on('click', '.editnote', onEditNoteClick);
-	$("#pages").on('click', '.replynote', onReplyNoteClick);
-	$("#pages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
+	$("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
+	$("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
+	$("#idicontentpages").on('click', '.likenote', onLikeNoteClick);
+	$("#idicontentpages").on('click', '.editnote', onEditNoteClick);
+	$("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
+	$("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
 
 });
 // End ready

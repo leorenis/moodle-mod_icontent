@@ -108,7 +108,7 @@ if ($icontent->intro) {
 }
 // Caixa de conteudo
 echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
-echo $OUTPUT->box_start('icontent-page', 'pages');
+echo $OUTPUT->box_start('icontent-page', 'idicontentpages');
 echo $showpage->fullpageicontent;
 echo $OUTPUT->box_end();
 echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);

@@ -30,6 +30,7 @@ $(document).ready(function(){
 			
 		// Ativa link ou botao da pagina atual
 		onActive(data.pagenum);
+		onDisableButtonClick();
 		
 		data = "&" + $.param(data);
 	  	$.ajax({
@@ -43,6 +44,7 @@ $(document).ready(function(){
 	    }); // fim ajax
 	  	
 	  	onChangeStateControlButtons($(this));
+	  	onEnableButtonClick();
 	    
 	} // End onLoad..
 	
@@ -70,12 +72,12 @@ $(document).ready(function(){
 		$btnnext.attr( "data-pagenum", nextpage );
 	}
 	// Disable button when clicked.
-	function onDisableButtonClick($this){
-		$this.prop("disabled", true );
+	function onDisableButtonClick(){
+		$('#idicontentpages .active').prop("disabled", true );
 	}
 	// Enable button when clicked	
-	function onEnableButtonClick($this){
-
+	function onEnableButtonClick(){
+		$('#idicontentpages .active').removeAttr('disabled');
 	}
 
 	function onActive(pagenum){

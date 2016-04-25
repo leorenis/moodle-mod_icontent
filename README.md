@@ -1,4 +1,6 @@
 # Moodle iContent 1.0
+[![License](https://poser.pugx.org/leaphly/cart-bundle/license.svg)](http://opensource.org/licenses/MIT)
+
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
 
 ## About

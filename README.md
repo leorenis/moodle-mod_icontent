@@ -17,8 +17,8 @@ O conteúdo será distribuído em paginas, garantindo uma leitura relevante, pro
 O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, isso proporciona melhor interação entre o participante e a plataforma virtual de aprendizagem, sendo que o recurso poderá se tornar um item avaliativo ou lançar notas fracionadas nos itens disponíveis no curso conforme definido no plano de ação. A extensão descrita é devidamente responsiva e poderá ser acessada por qualquer dispositivo.
 
 ## Compatibility / Compatibilidade
-PHP >= 5.4
-Moodle >= 2.5
+* PHP >= 5.4
+* Moodle >= 2.5
 
 ## License / Licença
 O iContent utiliza a licença MIT, para saber mais leia no link: [MIT license](http://opensource.org/licenses/MIT).

@@ -69,7 +69,15 @@ $(document).ready(function(){
 		$btnprev.attr( "data-pagenum", prevpage );
 		$btnnext.attr( "data-pagenum", nextpage );
 	}
-	
+	// Disable button when clicked.
+	function onDisableButtonClick($this){
+		$this.prop("disabled", true );
+	}
+	// Enable button when clicked	
+	function onEnableButtonClick($this){
+
+	}
+
 	function onActive(pagenum){
 		var pagenum = pagenum;
 		$(".load-page").removeClass("active");

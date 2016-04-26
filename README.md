@@ -23,4 +23,3 @@ O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, 
 ## License / Licença
 The iContent uses the MIT license, to learn more read the link: [MIT license](http://opensource.org/licenses/MIT).
 O iContent utiliza a licença MIT, para saber mais leia no link: [MIT license](http://opensource.org/licenses/MIT).
-

@@ -366,7 +366,7 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 	// Create buttons!
 	$npage = 0;
 	$tpages = count($pages);
-	$pgbuttons = html_writer::start_div('full-paging-buttonbar icontent-buttonbar');
+	$pgbuttons = html_writer::start_div('full-paging-buttonbar icontent-buttonbar', array('id'=>'idicontentbuttonbar'));
 	$pgbuttons .= icontent_make_button_previous_page($objbutton, $tpages);
 	foreach ($pages as $page) {
 		if(!$page->hidden){

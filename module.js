@@ -73,11 +73,11 @@ $(document).ready(function(){
 	}
 	// Disable button when clicked.
 	function onDisableButtonClick(){
-		$('#idicontentpages .active').prop("disabled", true );
+		$('.active').prop("disabled", true );
 	}
 	// Enable button when clicked	
 	function onEnableButtonClick(){
-		$('#idicontentpages .active').removeAttr('disabled');
+		$('.active').removeAttr('disabled');
 	}
 
 	function onActive(pagenum){

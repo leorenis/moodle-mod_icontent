@@ -26,7 +26,9 @@
     margin-top: 0.5em;
 }
 .block_icontent_toc .icontent_toc ul li .active{
-	font-weight: bolder;
+	cursor: default;
+    font-weight: bolder;
+    pointer-events: none;
 }
 .icontent-page .row {
 	margin-left: 0;

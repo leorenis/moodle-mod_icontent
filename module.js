@@ -12,6 +12,7 @@ $(document).ready(function(){
 	
 	// Carrega pagina
 	function onLoadPageClick(){
+		
 		var data = {
 			"action": "loadpage",
 			"id": $(this).attr('data-cmid'),
@@ -27,10 +28,8 @@ $(document).ready(function(){
 					.html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
 			)
 			.css('opacity', '0.5');
-			
-		// Ativa link ou botao da pagina atual
-		onActive(data.pagenum);
-		onDisableButtonClick();
+		
+		onBtnActiveEnableDisableClick(data.pagenum);	// Active link or button the atual page
 		
 		data = "&" + $.param(data);
 	  	$.ajax({
@@ -44,7 +43,6 @@ $(document).ready(function(){
 	    }); // fim ajax
 	  	
 	  	onChangeStateControlButtons($(this));
-	  	onEnableButtonClick();
 	    
 	} // End onLoad..
 	
@@ -72,22 +70,16 @@ $(document).ready(function(){
 		$btnnext.attr( "data-pagenum", nextpage );
 	}
 	// Disable button when clicked.
-	function onDisableButtonClick(){
-		$('.active').prop("disabled", true );
-	}
-	// Enable button when clicked	
-	function onEnableButtonClick(){
-		$('.active').removeAttr('disabled');
-	}
-
-	function onActive(pagenum){
+	function onBtnActiveEnableDisableClick(pagenum){
 		var pagenum = pagenum;
 		$(".load-page").removeClass("active");
+		$(".btn-icontent-page").removeAttr("disabled");
 		$(".page"+ pagenum).addClass("active");
+		$(".page"+ pagenum).prop("disabled", true );
 	}
 	
 	// Chamada de eventos
-	onActive($(".fulltextpage").attr('data-pagenum'));
+	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
   	$(".load-page").click(onLoadPageClick);
   	
 }); // End ready

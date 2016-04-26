@@ -161,7 +161,7 @@ $(document).ready(function() {
 		};
 		
 		data = "&" + $.param(data);
-
+		$(this).prop("disabled", true );
 		$.ajax({
 			type : "POST",
 			dataType : "json",
@@ -238,6 +238,7 @@ $(document).ready(function() {
 		};
 		
 		data = "&" + $.param(data);
+		$(this).prop("disabled", true );
 
 		$.ajax({
 			type : "POST",

@@ -371,7 +371,7 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 	foreach ($pages as $page) {
 		if(!$page->hidden){
 			$npage ++;
-			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
+			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
 		}
 	}
 	$objbutton->name = get_string('next', 'mod_icontent');
@@ -750,14 +750,14 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// fields
 	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'span12', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
 	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'span12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
-	$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate'));
-	$labelprivate = html_writer::tag('label', get_string('private', 'mod_icontent'), array('for'=>'idprivate'));
+	$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate', 'class'=>'icontent-checkbox'));
+	$labelprivate = html_writer::tag('label', get_string('private', 'mod_icontent'), array('for'=>'idprivate', 'class'=> 'icontent-label'));
 	$spanprivate = html_writer::tag('span', $checkprivate. $labelprivate, array('class'=>'fieldprivate'));
-	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured'));
-	$labelfeatured = html_writer::tag('label', get_string('featured', 'mod_icontent'), array('for'=>'idfeatured'));
+	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured', 'class'=>'icontent-checkbox'));
+	$labelfeatured = html_writer::tag('label', get_string('featured', 'mod_icontent'), array('for'=>'idfeatured', 'class'=> 'icontent-label'));
 	$spanfeatured = html_writer::tag('span', $checkfeatured. $labelfeatured, array('class'=>'fieldfeatured'));
-	$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor'));
-	$labeldoubttutor = html_writer::tag('label', get_string('doubttutor', 'mod_icontent'), array('for'=>'iddoubttutor'));
+	$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor', 'class'=>'icontent-checkbox'));
+	$labeldoubttutor = html_writer::tag('label', get_string('doubttutor', 'mod_icontent'), array('for'=>'iddoubttutor', 'class'=>'icontent-label'));
 	$spandoubttutor = html_writer::tag('span', $checkdoubttutor. $labeldoubttutor, array('class'=>'fielddoubttutor'));
 	$btnsavenote = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavenote', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
 	$btnsavedoubt = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavedoubt', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));

@@ -18,7 +18,7 @@ O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, 
 
 ## Compatibility / Compatibilidade
 * PHP >= 5.4
-* Moodle >= 2.5
+* Moodle >= 2.6.5+ (Build: 20140918)
 
 ## License / Licença
 * The iContent uses the MIT license, to learn more read the link: [MIT license](http://opensource.org/licenses/MIT).

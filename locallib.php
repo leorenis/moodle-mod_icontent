@@ -205,7 +205,6 @@ function icontent_has_permission_edition($allowedit, $edit = 0){
 	} else {
 		$edit = 0;
 	}
-	
 	return $edit;
 }
 /**
@@ -824,7 +823,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 			// Note footer
 			$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
-			$noteremove = html_writer::link("deletenote.php?id=".$pagenote->cmid."&pnid=".$pagenote->id."&sesskey=".sesskey(), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
+			$noteremove = html_writer::link(new moodle_url('deletenote.php', array('id' => $pagenote->cmid, 'pnid' => $pagenote->id, 'sesskey' => sesskey())), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
 			$notelike = icontent_make_likeunlike($pagenote);
 			$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
  			$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
@@ -834,7 +833,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 
 			// Div list page notes
 			$noterowicontent = html_writer::div($noteheader. $notecomment. $notefooter, 'noterowicontent');
-			$divnote .= html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels));
+			$divnote .= html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels, 'id' => "pnote{$pagenote->id}"));
 		 }
 		
 		$divnotes = html_writer::div($divnote, 'span notelist');
@@ -864,7 +863,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 	// Note footer
 	$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
-	$noteremove = html_writer::link("deletenote.php?id=".$pagenote->cmid."&pnid=".$pagenote->id."&sesskey=".sesskey(), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'));
+	$noteremove = html_writer::link(new moodle_url('deletenote.php', array('id' => $pagenote->cmid, 'pnid' => $pagenote->id, 'sesskey' => sesskey())), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'));
 	$notelike = icontent_make_likeunlike($pagenote);
 	$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
 	$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
@@ -877,7 +876,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$noterowicontent = html_writer::div($noteheader. $notecomment. $notefooter, 'noterowicontent');
 	
 	// return reply
-	return html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels));
+	return html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels, 'id' => "pnote{$pagenote->id}"));
  }
 
 /**

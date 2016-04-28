@@ -202,9 +202,8 @@ $(document).ready(function() {
 		$('.textnotecomment').focus();
 		
 		// Cancela edicao
-		$("#idicontentpages").on('click', '.btnnotecancel', {lastcomment: textcomment}, onEditNoteCancelClick);
+		$(".btnnotecancel").click({lastcomment: textcomment}, onEditNoteCancelClick);
 		// Salva edicao
-		//$("#idicontentpages").on('click', '.btnnotesave', onEditNoteSaveClick);
 		$(".btnnotesave").click(onEditNoteSaveClick);
 	}
 	
@@ -247,7 +246,7 @@ $(document).ready(function() {
 			data : data,
 			success : function(data) {
 				$("#message"+data.tab).text(data.totalnotes);
-				$notecomment.parents('.notelist').append(data.reply);
+				$("#pnote"+ parseInt(data.parent)).after(data.reply);
 				$notecomment.children('.replynotecomment').remove();
 				$notecomment.children('.buttonscomment').remove();
 			}
@@ -290,9 +289,8 @@ $(document).ready(function() {
 		$('.replynotecomment').focus();
 		
 		// Cancela resposta
-		$("#idicontentpages").on('click', '.btnnotereplycancel', onReplyNoteCancelClick);
+		$(".btnnotereplycancel").click(onReplyNoteCancelClick);
 		// Salva resposta
-		//$("#idicontentpages").on('click', '.btnnotereplysave', onReplyNoteSaveClick);
 		$(".btnnotereplysave").click(onReplyNoteSaveClick);
 	}
 

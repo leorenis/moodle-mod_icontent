@@ -624,7 +624,6 @@ function icontent_ajax_editnote(stdClass $pagenote){
 		return $pagenote;
 	}
 	return false;
-	
 }
 /**
  * Insere as respostas das anotacoes na tabela {icontent_pages_notes}
@@ -662,6 +661,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 		$return = new stdClass;
 		$return->reply = icontent_make_pagenotereply($pagenote, $icontent);
 		$return->tab = $pagenote->tab;
+		$return->parent = $pagenote->parent;
 		$return->totalnotes = $DB->count_records('icontent_pages_notes', array('pageid'=>$pagenote->pageid, 'cmid'=>$pagenote->cmid, 'tab'=>$pagenote->tab));
 	}
 	

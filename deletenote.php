@@ -32,17 +32,15 @@ $confirm	= optional_param('confirm', 0, PARAM_BOOL);
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
+$pagenote = $DB->get_record('icontent_pages_notes', array('id'=>$pnid), '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 require_sesskey();
 
 $context = context_module::instance($cm->id);
-require_capability('mod/icontent:edit', $context);
+icontent_user_can_remove_note($pagenote, $context);
 
 $PAGE->set_url('/mod/icontent/deletenote.php', array('id'=>$id, 'pnid'=>$pnid));
-
-$pagenote = $DB->get_record('icontent_pages_notes', array('id'=>$pnid), '*', MUST_EXIST);
-
 
 // Header and strings.
 $PAGE->set_title($icontent->name);

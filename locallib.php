@@ -657,10 +657,6 @@ function icontent_has_permission_edition($allowedit, $edit = 0){
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_has_permission_manager($context){
-	global $USER;
-	if (!isset($USER->editing)) {
-		return true;
-	}
 	if(has_capability('mod/icontent:manage', $context)){
 		return true;
 	}
@@ -670,21 +666,30 @@ function icontent_has_permission_manager($context){
 /**
  * Check if can remove note
  * @param string $context
- * @param object $note
+ * @param object $pagenote
  * @return boolean true if the user has this permission. Otherwise false.
  */
-function icontent_user_can_remove_note($context, $note){
-	global $USER;
-
+function icontent_user_can_remove_note($pagenote, $context){
+	if (icontent_check_user_isowner_note($pagenote)){
+		return true;
+	}
+	if (icontent_has_permission_manager($context)){
+		return true;
+	}
+	return false;
 }
 
 /**
  * Check if the user is owner the note
- * @param object $note
+ * @param object $pagenote
  * @return boolean true if the user has this permission. Otherwise false.
  */
-function icontent_check_user_isowner_note($note){
+function icontent_check_user_isowner_note($pagenote){
 	global $USER;
+	if ($USER->id === $pagenote->userid){
+		return true;
+	}
+	return false;
 }
 
 // ==================================
@@ -855,6 +860,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  */
  function icontent_make_listnotespage($pagenotes, $icontent, $page){
  	global $OUTPUT, $CFG;
+ 	$context = context_module::instance($page->cmid);
  	if(!empty($pagenotes)){
  		$divnote = '';
  		foreach ($pagenotes as $pagenote) {
@@ -873,7 +879,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 			// Note footer
 			$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
-			$noteremove = html_writer::link(new moodle_url('deletenote.php', array('id' => $pagenote->cmid, 'pnid' => $pagenote->id, 'sesskey' => sesskey())), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
+			$noteremove = icontent_make_link_remove_note($pagenote, $context);
 			$notelike = icontent_make_likeunlike($pagenote);
 			$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
  			$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
@@ -905,6 +911,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $OUTPUT, $CFG;
 	
 	$user = icontent_get_user_by_id($pagenote->userid);
+	$context = context_module::instance($pagenote->cmid);
 	
 	$picture = $OUTPUT->user_picture($user, array('size'=>30, 'class'=> 'img-thumbnail pull-left'));
 	// Note header
@@ -915,7 +922,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 	// Note footer
 	$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
-	$noteremove = html_writer::link(new moodle_url('deletenote.php', array('id' => $pagenote->cmid, 'pnid' => $pagenote->id, 'sesskey' => sesskey())), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'));
+	$noteremove = icontent_make_link_remove_note($pagenote, $context);
 	$notelike = icontent_make_likeunlike($pagenote);
 	$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
 	$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
@@ -929,6 +936,22 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	
 	// return reply
 	return html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels, 'id' => "pnote{$pagenote->id}"));
+ }
+ 
+ /**
+  * This is the function responsible for creating link to remove note.
+  *
+  * Returns link
+  *
+  * @param  object $pagenote
+  * @param  object $icontent
+  * @return string $link
+  */
+ function icontent_make_link_remove_note($pagenote, $context){
+ 	if(icontent_user_can_remove_note($pagenote, $context)){
+ 		return html_writer::link(new moodle_url('deletenote.php', array('id' => $pagenote->cmid, 'pnid' => $pagenote->id, 'sesskey' => sesskey())), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
+ 	}
+ 	return false;
  }
 
 /**

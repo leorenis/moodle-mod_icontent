@@ -83,7 +83,7 @@ if ($mform->is_cancelled()) {
 		$data = file_postupdate_standard_editor($data, 'pageicontent', $pageicontentoptions, $context, 'mod_icontent', 'page', $data->id);
         $DB->update_record('icontent_pages', $data);
 		
-		// Salvando arquivo bgarea filemanager
+		// Saving file bgarea in the filemanager
 		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage',
                    $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 				   
@@ -101,7 +101,7 @@ if ($mform->is_cancelled()) {
 		
    		$DB->update_record('icontent_pages', $data);
 		
-		// Salvando arquivo bgarea filemanager
+		// Saving file bgarea in the filemanager
 		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage',
                    $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 				   

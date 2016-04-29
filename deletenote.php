@@ -53,7 +53,6 @@ if ($confirm) {  // the operation was confirmed.
 	
 	$notes = icontent_get_notes_daughters($pagenote->id);
 	icontent_remove_notes($pagenote->pageid, $pagenote->id);
-	// NOTA: Colocar mensagem
 	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
  	redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
 }

@@ -117,7 +117,7 @@
     margin-top: 25%;
     position: absolute;
 }
-/*Resolucao menor que 990*/
+/* Resolution < 990*/
 @media (max-width: 990px) {
 	.icontent-page .fulltextpage .loading{
 		margin-left: 0%;
@@ -148,7 +148,7 @@
     border-radius: 6px;
 }
 
-/** AREA DE ANOTACOES */
+/** NOTES AREA */
 .notesarea #note .fields span{
 	margin-right: 15px;
 }
@@ -228,7 +228,7 @@
     float: right;
 }
 
-/*Organizacao das anotacoes em em niveis*/
+/* Organization of notes in at levels */
 .icontent-page .notelist .level-2{
 	margin-left: 4%;
 }
@@ -263,7 +263,7 @@
 	margin-left: 40%;
 }
 
-/*Layout Page*/
+/* Page Layout */
 .icontent-page .fulltextpage .columns-2{
   -webkit-columns: 2 200px;
      -moz-columns: 2 200px;
@@ -405,7 +405,7 @@
 	position: unset;
 }
 
-/*ALTERANDO A COR DO TEXTO SELECIONADO */
+/* CHANGING COLOR OF SELECTED TEXT */
 ::-moz-selection {
 	background:#036;
 	color:#FFF;

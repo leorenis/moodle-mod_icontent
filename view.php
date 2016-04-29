@@ -92,9 +92,9 @@ $showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context);
 
 icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //ADICIONA BLOCO SUMARIO
 
-// =====================================================
+// ==========================
 // Content display HTML code
-// =====================================================
+// ==========================
 
 // Output starts here.
 echo $OUTPUT->header();
@@ -102,11 +102,11 @@ echo $OUTPUT->header();
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name);
 
-// Conditions to show the intro can change to look for own settings or whatever.
+// Conditions to show the intro.
 if ($icontent->intro) {
     echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
 }
-// Caixa de conteudo
+// Content box
 echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
 echo $OUTPUT->box_start('icontent-page', 'idicontentpages');
 echo $showpage->fullpageicontent;

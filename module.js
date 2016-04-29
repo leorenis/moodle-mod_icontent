@@ -1,8 +1,8 @@
 /**
  * Prints a particular instance of icontent
  *
- * Responsavel pelas funcoes JavaScript mais abrangentes do mod_icontent.
- * As funcoes mais especificas estao disponiveis no arquivo js/src/actions.js
+ * Responsible for generic Java Script functions of interactive content plugin <iContent>
+ * More specific functions are available in the archive <js/src/actions.js>
  *
  * @package    mod_icontent
  * @copyright  2015 Leo Renis Santos
@@ -10,7 +10,7 @@
  */
 $(document).ready(function(){
 	
-	// Carrega pagina
+	// Loads page
 	function onLoadPageClick(){
 		
 		var data = {
@@ -19,7 +19,7 @@ $(document).ready(function(){
 			"pagenum": $(this).attr('data-pagenum'),
 			"sesskey": $(this).attr('data-sesskey')
 		};
-		// Carregando pagina
+		// Loading page
 		$(".icontent-page")
 			.children('.fulltextpage')
 			.prepend(
@@ -35,12 +35,12 @@ $(document).ready(function(){
 	  	$.ajax({
 	    	type: "POST",
 	    	dataType: "json",
-	    	url: "ajax.php", //Relative or absolute path to ajax.php file
+	    	url: "ajax.php", // Relative or absolute path to ajax.php file
 	    	data: data,
 	    	success: function(data) {
 	    		$(".icontent-page").html(data.fullpageicontent);
 	    	}
-	    }); // fim ajax
+	    }); // End AJAX
 	  	
 	  	onChangeStateControlButtons($(this));
 	    
@@ -78,7 +78,7 @@ $(document).ready(function(){
 		$(".page"+ pagenum).prop("disabled", true );
 	}
 	
-	// Chamada de eventos
+	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
   	$(".load-page").click(onLoadPageClick);
   	

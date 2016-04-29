@@ -1,10 +1,9 @@
 <?php
 /**
- * Settings for bigblueButton
+ * Settings for icontent
  *
- * Authors:
- *    Fred Dixon  (ffdixon [at] blindsidenetworks [dt] com)
- *    Jesus Federico  (jesus [at] blindsidenetworks [dt] com)    
+ * Author:
+ *    Leo Santos <leorenis@gmail.com>
  * 
  * @package   mod_icontent
  * @copyright 2014 Léo Renis Santos 

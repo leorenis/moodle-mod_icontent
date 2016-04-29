@@ -111,12 +111,13 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 		            }
 					$toc .= html_writer::link(new moodle_url('edit.php', array('cmid' => $pg->cmid, 'pagenum' => $pg->pagenum, 'sesskey' => $USER->sesskey)),
 	                		$OUTPUT->pix_icon('add', get_string('addafter', 'mod_icontent'), 'mod_icontent'), array('title' => get_string('addafter', 'mod_icontent')));
-				$toc .= html_writer::end_tag('div'); 	// Fim </div>
-			$toc .= html_writer::end_tag('li'); // Fim </li>
+				$toc .= html_writer::end_tag('div'); 	// End </div>
+			$toc .= html_writer::end_tag('li'); // End </li>
 		}
 		
 		$toc .= html_writer::end_tag('ul');
-	}else{	// Normal students view
+	}else{	
+		// Visualization to students
 		$toc .= html_writer::start_tag('ul');
 		foreach ($pages as $pg) {
 			if(!$pg->hidden){
@@ -135,7 +136,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 	return $toc;
 }
  /**
- * Add atributos dinamicos da tela de carregamento de paginas
+ * Add dynamic attributes in page loading screen.
  * @param object $pagestyle
  * @return void
  */
@@ -151,8 +152,10 @@ function icontent_add_properties_css($pagestyle){
 	return $style;
 }
  /**
- * Recupera estilo da pagina. O metodo verifica se a pagina possui os valores suficientes para montar o estilo. 
- * Senão retorna estilo generico do plugin.
+ * Get page style. 
+ * 
+ * This method checks if the current page have enough attributes to create your style. Otherwise returns Generic style plugin.
+ * 
  * @param object $icontent
  * @param object $page
  * @return pagestyle;
@@ -184,7 +187,8 @@ function icontent_add_borderwidth_options(){
 }
 
 /**
- * Recupera bgimage do plugin icontent
+ * Get background image of interactive content plugin <iContent>.
+ * 
  * @param object $context 
  * @return string $fullpath
  */
@@ -209,7 +213,8 @@ function icontent_get_bgimage($context){
 	return false;
 }
 /**
- * Recupera bgimage das paginas de conteudo do plugin icontent
+ * Get background image of pages of interactive content plugin <iContent>.
+ * 
  * @param object $context 
  * @return string $fullpath
  */
@@ -269,7 +274,7 @@ function icontent_preload_pages($icontent){
 	return $pages;
 }
 /**
- * Remove anotacoes de uma pagina. Se a o parametro $pagenoteid for passado, a removera a anotacao atual e suas anotacoes filhas.
+ * Remove notes from a page. If the param $pagenoteid was passed, It will delete only the current note and their daughters.
  *
  * Returns boolean true or false
  *
@@ -288,7 +293,7 @@ function icontent_remove_notes($pageid, $pagenoteid = null){
 				$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pnid));
 			}
 		}
-		// Remove atual note
+		// Remove current note
 		icontent_remove_note_likes($pagenoteid);
 		$rs = $DB->delete_records('icontent_pages_notes', array('id'=>$pagenoteid));
 		return $rs ? true : false;
@@ -303,7 +308,7 @@ function icontent_remove_notes($pageid, $pagenoteid = null){
 }
 
 /**
- * Remove likes de anotacoes de uma pagina.
+ * Remove note likes of page.
  *
  * Returns boolean true or false
  *
@@ -318,7 +323,7 @@ function icontent_remove_note_likes($pagenoteid){
 }
 
 /**
- * Load full paging button bar.
+ * Loads full paging button bar.
  *
  * Returns buttons related pages
  *
@@ -359,7 +364,7 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 }
 
 /**
- * Load simple paging button bar.
+ * Loads simple paging button bar.
  *
  * Returns buttons previous and next
  *
@@ -389,7 +394,7 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
 }
 
 /**
- * Carrega numero da pagina de unicio do usuario logado.
+ * Get the number of the user home page logged in.
  *
  * Returns array of pages 
  * Please note the icontent/text of pages is not included.
@@ -410,7 +415,7 @@ function icontent_get_startpagenum($icontent, $context){
 }
 
 /**
- * Carrega primeira pagina de conteudo do componente.
+ * Loads first page content.
  *
  * Returns array of pages 
  * Please note the icontent/text of pages is not included.
@@ -429,7 +434,7 @@ function icontent_get_minpagenum($icontent){
 }
 
 /**
- * Add visualizacao em uma pagina e ela ainda nao foi vizualizada.
+ * Add preview in page if its not previewed.
  *
  * Returns object of pagedisplayed
  *
@@ -459,7 +464,7 @@ function icontent_add_pagedisplayed($pageid, $cmid){
 
 
 /**
- * Consulta visualizacao de pagina.
+ * Get page viewed
  *
  * Returns string of pagedisplayed 
  *
@@ -474,9 +479,9 @@ function icontent_get_pagedisplayed($pageid, $cmid){
 }
 
 /**
- * Consulta lista anotacoes de uma pagina.
+ * Get pagenotes by pageid.
  *
- * Returns array of pagenotes 
+ * Returns array of pagenotes
  *
  * @param  int $pageid
  * @param  int $cmid
@@ -506,7 +511,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 }
 
 /**
- * Retorna numero de paginas de conteudo interativo.
+ * Get pages number interactive content <iContent>
  *
  * Returns pagenum
  *
@@ -519,7 +524,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  }
  
  /**
- * Retorna numero de paginas visualizadas por determinado usuario.
+ * Get pages number viewed by user
  *
  * Returns page viewed by user
  *
@@ -533,7 +538,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  }
  
  /**
- * Recupera a quantidade de curtidas de uma anotacao {icontent_pages_notes_like}.
+ * Get count of likes a note {icontent_pages_notes_like}.
  *
  * Returns count
  *
@@ -546,7 +551,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  }
  
  /**
- * Recupera numero da pagina atraves de um Id da pagina.
+ * Get page number by pageid
  *
  * Returns pagenum
  *
@@ -563,7 +568,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  }
  
  /**
- * Recupera o nivel de profundidade da anotacao.
+ * Get the level of depth this note
  *
  * Returns levels
  *
@@ -583,7 +588,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  }
  
  /**
- * Recupera usuario atraves de um ID.
+ * Get user by ID.
  *
  * Returns object $user
  *
@@ -597,7 +602,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  }
  
  /**
-  * Funcao recursiva que obtem anotacoes filhas.
+  * Recursive function that gets notes daughters.
   *
   * Returns array $notesdaughters
   *
@@ -668,16 +673,24 @@ function icontent_has_permission_manager($context){
  * @param object $note
  * @return boolean true if the user has this permission. Otherwise false.
  */
-function icontent_user_can_remove_note($context, $nonte){
+function icontent_user_can_remove_note($context, $note){
 	global $USER;
 
 }
 
-/*****************************************************************\  
-\************* METODOS QUE CRIAM E RETORNAM HTML *****************/
-/*****************************************************************\
+/**
+ * Check if the user is owner the note
+ * @param object $note
+ * @return boolean true if the user has this permission. Otherwise false.
  */
- 
+function icontent_check_user_isowner_note($note){
+	global $USER;
+}
+
+// ==================================
+// METHODS CREATING AND RETURNS HTML
+// ==================================
+
  /**
   * Create button previous page.
   *
@@ -713,8 +726,10 @@ function icontent_user_can_remove_note($context, $nonte){
  }
  
  /**
-  * Funcao responsavel por criar list group de respostas das anotacoes a serem removidas
-  * Return $listgroup
+  * This is the function responsible for creating a list of answers to the notes that will be removed.
+  * 
+  * Return list of answers
+  * 
   * @param  array $notesdaughters
   * @return string $listgroup
   */
@@ -732,8 +747,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	return false;
  }
  /**
- * Metodo responsavel por criar barra de progresso
- * Return $progressbar
+ * This is the function responsible for creating a progress bar.
+ * 
+ * Return progress bar
+ * 
  * @param  object $objpage
  * @param  object $icontent
  * @param  object $context
@@ -756,8 +773,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	return $progress;
   }
  /**
- * Metodo responsavel por criar area de comentarios das paginas
- * Returns notesarea
+ * This is the function responsible for creating the area comments on pages.
+ * 
+ * Returns notes area
+ * 
  * @param  object $objpage
  * @param  object $icontent
  * @return string $notesarea
@@ -817,7 +836,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$icontentdoubt = html_writer::div($formdoubt, 'tab-pane', array('role'=>'tabpanel', 'id'=>'doubt'));
 	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'tab-content', array('id'=>'idtabicontent'));
 	
-	// Area Notes
+	// Notes area
 	$notesarea = html_writer::tag('div', $hr. $h4. $tabnav. $tabicontent, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));
 	
  	// return 
@@ -825,8 +844,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  }
 
 /**
- * Gera lista de anotacoes.
+ * This is the function responsible for creating notes list.
  *
+ * Returns notes list
+ * 
  * @param  object $pagenotes
  * @param  object $icontent
  * @param  object $page
@@ -872,8 +893,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  }
 
 /**
- * Gera resposta de anotacao.
+ * This is the function responsible for creating the responses of notes.
  *
+ * Returns responses of notes
+ * 
  * @param  object $pagenote
  * @param  object $icontent
  * @return string $pagenotereply
@@ -909,8 +932,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  }
 
 /**
- * Gera link like e unlike.
+ * This is the function responsible for creating links like and unlike.
  *
+ * Returns links
+ * 
  * @param  object $page
  * @param  object $pagenote
  * @return string $likeunlike
@@ -937,7 +962,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  }
 
  /**
- * Gera html da barra de ferramentas.
+ * This is the function responsible for creating the toolbar.
  *
  * @param  object $page
  * @param  object $icontent
@@ -1026,7 +1051,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  }
 
 /**
- * Gera conteudo de uma pagina e retorna objeto.
+ * This is the function responsible for creating the content of a page.
+ * 
+ * Returns an object with the page content.
  *
  * @param  int 		$pagenum || $startpage
  * @param  object 	$icontent
@@ -1041,41 +1068,37 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
 		
-	// Elementos toolbar
+	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
 
-	// Registra acesso do usuario na pagina
 	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
 	
-	// Adicionando elemento titulo da pagina
+	// Add title page
 	$title = html_writer::tag('h3', '<i class="fa fa-hand-o-right"></i> '.$objpage->title, array('class'=>'pagetitle'));
 	
-	// Tratando arquivos da pagina e preparando conteudo
+	// Preparing content
 	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $objpage->id);
 	$objpage->pageicontent = format_text($objpage->pageicontent, $objpage->pageicontentformat, array('noclean'=>true, 'overflowdiv'=>false, 'context'=>$context));
 	$objpage->pageicontent = html_writer::div($objpage->pageicontent, 'page-layout columns-'.$objpage->layout);
 	
-	// Adicionando elemento que contera a numero da pagina
+	// Element page number
 	$npage = html_writer::tag('div', get_string('page', 'icontent', $objpage->pagenum), array('class'=>'pagenum'));
 	
 	// Progress bar
 	$progbar = icontent_make_progessbar($objpage, $icontent, $context);
 	
-	// form notes
+	// Form notes
 	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	
-	/* // Adicionando passadores de pagina
+	/* Internal control buttons
 	$previous = html_writer::link('#', "<i class='fa fa-angle-left'></i> ".get_string('previous', 'icontent'), array('title' => s(get_string('pageprevious', 'icontent')), 'class'=>'previous span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum - 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
 	$next = html_writer::link('#', get_string('next', 'icontent')." <i class='fa fa-angle-right'></i>", array('title' => s(get_string('nextpage', 'icontent')), 'class'=>'next span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum + 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
 	
 	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
 	
-	// Preparando conteudo da pagina para retorno
+	// Content page for return
 	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $notesarea. $tooltip, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	
-	// Destruindo propriedade, pois ela foi passada para a propriedade fullpageicontent na linha acima.
 	unset($objpage->pageicontent);
-	
-	// retornando objeto
 	return $objpage;
  }

@@ -1,8 +1,8 @@
 /**
- * Responsavel pelas funcoes JavaScript internas do mod_icontent
+ * Responsible for internal Java Script functions of interactive content plugin <iContent>
  *
  * @package    mod_icontent
- * @copyright  2015 Leo Santos
+ * @copyright  2016 Leo Santos
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $(document).ready(function() {
@@ -12,11 +12,11 @@ $(document).ready(function() {
         $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
     }
 	
-	// Funcoes nomeadas //
+	// Named functions
 	
-	//Salvar note do tipo anotacoes
+    // Save note tab type 'note'
 	function onSaveNoteClick() {
-		// valida entrada de dados
+		// Validates input data
 		if (!$("#idcommentnote").val().trim()) {
 			$("#idcommentnote").focus().val("");
 			return false;
@@ -47,12 +47,12 @@ $(document).ready(function() {
 				$("#messagenotes").text(data.totalnotes);
 				removeIconLoad($this);
 			}
-		});	// fim ajax
-	}// chamada da funcao
+		});	// End AJAX
+	}
 
-	//Salvar note do tipo duvidas
+	// Save note tab type 'doubts'
 	function onSaveDoubtClick() {
-		// valida entrada de dados
+		// Validates input data
 		if (!$("#idcommentdoubt").val().trim()) {
 			$("#idcommentdoubt").focus().val("");
 			return false;
@@ -83,13 +83,13 @@ $(document).ready(function() {
 				$("#messagedoubt").text(data.totalnotes);
 				removeIconLoad($this);
 			}
-		});	// fim ajax
+		});	// End AJAX
 	}
 	
-	// carregamento
+	// Show loading icon
 	function showIconLoad($this){
 		$this.hide();
-		// Carregando
+		// Loading
 		$(".icontent-page")
 			.children('.fulltextpage')
 			.prepend(
@@ -99,10 +99,10 @@ $(document).ready(function() {
 			)
 			.css('opacity', '0.5');
 	}
-	// Remove icone carregamento
+	// Hide loading icon
 	function removeIconLoad($this){
 		$this.show();
-		// Carregando
+		// Loading
 		$(".icontent-page")
 			.children('.fulltextpage')
 			.css('opacity', '1')
@@ -110,7 +110,7 @@ $(document).ready(function() {
 			$this.removeAttr('disabled');
 	}
 	
-	// Curtir anotacoes
+	// Like note
 	function onLikeNoteClick() {
 		var $like = $(this).children("span");
 		var data = {
@@ -131,10 +131,10 @@ $(document).ready(function() {
 				$like.text(data.likes);
 			}
 		});
-		// fim ajax
+		// End AJAX
 	}
 	
-	//Cancela Edicao de anotacoes
+	// Cancels editing annotation
 	function onEditNoteCancelClick(event){
 		var textcomment = event.data.lastcomment;
 		var $notecomment = $(this).parent('.buttonscomment').parent('.notecomment');
@@ -142,11 +142,11 @@ $(document).ready(function() {
 		$notecomment.text(textcomment);
 	}
 	
-	//Salva Edicao de anotacoes
+	// Save editing annotation
 	function onEditNoteSaveClick(){
 		var $notecomment = $(this).parent('.buttonscomment').parent('.notecomment');
 		var textnotecomment = $notecomment.children('.textnotecomment').val();
-		// valida entrada de dados
+		// Validates input data
 		if (!textnotecomment.trim()) {
 			$notecomment.children('.textnotecomment').focus().val('');
 			return false;
@@ -171,12 +171,12 @@ $(document).ready(function() {
 				$notecomment.text(data.comment);
 			}
 		});
-		// fim ajax
+		// End AJAX
 	}
 	
-	// Editar anotacoes
+	// Edit annotations
 	function onEditNoteClick(){
-		// captura comentario
+		// Capture comment
 		var $notecomment = $(this).parent('.notefooter').parent('.noterowicontent').children('.notecomment');
 		var textcomment = $notecomment.text();
 		$notecomment.text('')
@@ -201,13 +201,13 @@ $(document).ready(function() {
 					);
 		$('.textnotecomment').focus();
 		
-		// Cancela edicao
+		// Cancels edition
 		$(".btnnotecancel").click({lastcomment: textcomment}, onEditNoteCancelClick);
-		// Salva edicao
+		// Save edition
 		$(".btnnotesave").click(onEditNoteSaveClick);
 	}
 	
-	// Cancela resposta de anotacao
+	// Cancel annotation reply
 	function onReplyNoteCancelClick(){
 		var $notecomment = $(this).parent('.buttonscomment').parent('.notecomment');
 		
@@ -216,13 +216,13 @@ $(document).ready(function() {
 		
 	}
 	
-	// Salva resposta de anotacao
+	// Save annotation reply
 	function onReplyNoteSaveClick(){
 		
 		var $notecomment = $(this).parent('.buttonscomment').parent('.notecomment');
 		var textnotecomment = $notecomment.children('.replynotecomment').val();
 		
-		// valida entrada de dados
+		// Validates input data
 		if (!textnotecomment.trim()) {
 			$notecomment.children('.replynotecomment').focus().val('');
 			return false;
@@ -251,15 +251,15 @@ $(document).ready(function() {
 				$notecomment.children('.buttonscomment').remove();
 			}
 		});
-		// fim ajax
+		// End AJAX
 	}
-	// Cria formulario para responder anotacoes
+	// Create form to reply notes
 	function onReplyNoteClick(){
 		
 		var $notecomment = $(this).parent('.notefooter').parent('.noterowicontent').children('.notecomment');
 		
 		if(!$notecomment.children('.replynotecomment').length){
-			// fecha campo responder aberto anteriormente
+			// Closes answer field
 			$('.replynotecomment').remove();
 			$('.buttonscomment').remove();
 			
@@ -288,13 +288,13 @@ $(document).ready(function() {
 		
 		$('.replynotecomment').focus();
 		
-		// Cancela resposta
+		// Cancel reply
 		$(".btnnotereplycancel").click(onReplyNoteCancelClick);
-		// Salva resposta
+		// Save reply
 		$(".btnnotereplysave").click(onReplyNoteSaveClick);
 	}
 
-	// Alternar Alto contraste
+	// Switch high contrast
 	function onToggleHightContrastClick(){
 		// Remove hightcontrast
 		if ($.cookie('highcontrast') == "yes") {

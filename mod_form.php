@@ -130,8 +130,6 @@ class mod_icontent_mod_form extends moodleform_mod {
 				
 				file_save_draft_area_files($default_values['bgimage'], $this->context->id, 'mod_icontent', 'icontent',
 				0, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
-
-				//echo "<pre>"; var_dump($draftitemid, $default_values['bgimage']); echo "</pre>";
 	        }
         }
 }

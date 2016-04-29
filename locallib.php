@@ -184,30 +184,6 @@ function icontent_add_borderwidth_options(){
 }
 
 /**
- * Check if has permission for edition
- * @param boolean $allowedit
- * @param boolean option_param $dit received by parameter in the URL.
- * @return boolean true if the user has this permission. Otherwise false.
- */
-function icontent_has_permission_edition($allowedit, $edit = 0){
-	global $USER;
-	
-	if ($allowedit) {
-		if ($edit != -1 and confirm_sesskey()) {
-			$USER->editing = $edit;
-		} else {
-			if (isset($USER->editing)) {
-				$edit = $USER->editing;
-			} else {
-				$edit = 0;
-			}
-		}
-	} else {
-		$edit = 0;
-	}
-	return $edit;
-}
-/**
  * Recupera bgimage do plugin icontent
  * @param object $context 
  * @return string $fullpath
@@ -644,6 +620,59 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  	}
  	return $pagenotes;
  }
+
+ /**
+ * Check if has permission for edition
+ * @param boolean $allowedit
+ * @param boolean option_param $dit received by parameter in the URL.
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_has_permission_edition($allowedit, $edit = 0){
+	global $USER;
+	
+	if ($allowedit) {
+		if ($edit != -1 and confirm_sesskey()) {
+			$USER->editing = $edit;
+		} else {
+			if (isset($USER->editing)) {
+				$edit = $USER->editing;
+			} else {
+				$edit = 0;
+			}
+		}
+	} else {
+		$edit = 0;
+	}
+	return $edit;
+}
+
+/**
+ * Check if has permission of manager
+ * @param string $context
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_has_permission_manager($context){
+	global $USER;
+	if (!isset($USER->editing)) {
+		return true;
+	}
+	if(has_capability('mod/icontent:manage', $context)){
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Check if can remove note
+ * @param string $context
+ * @param object $note
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_remove_note($context, $nonte){
+	global $USER;
+
+}
+
 /*****************************************************************\  
 \************* METODOS QUE CRIAM E RETORNAM HTML *****************/
 /*****************************************************************\

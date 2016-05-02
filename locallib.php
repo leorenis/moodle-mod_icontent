@@ -664,22 +664,6 @@ function icontent_has_permission_manager($context){
 }
 
 /**
- * Check if can remove note
- * @param string $context
- * @param object $pagenote
- * @return boolean true if the user has this permission. Otherwise false.
- */
-function icontent_user_can_remove_note($pagenote, $context){
-	if (icontent_check_user_isowner_note($pagenote)){
-		return true;
-	}
-	if (icontent_has_permission_manager($context)){
-		return true;
-	}
-	return false;
-}
-
-/**
  * Check if the user is owner the note
  * @param object $pagenote
  * @return boolean true if the user has this permission. Otherwise false.
@@ -688,6 +672,42 @@ function icontent_check_user_isowner_note($pagenote){
 	global $USER;
 	if ($USER->id === $pagenote->userid){
 		return true;
+	}
+	return false;
+}
+
+/**
+ * Check if user can remove note
+ * @param string $context
+ * @param object $pagenote
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_remove_note($pagenote, $context){
+	if (has_capability('mod/icontent:removenotes', $context)){
+		if (icontent_check_user_isowner_note($pagenote)){
+			return true;
+		}
+		if (icontent_has_permission_manager($context)){
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * Check if user can edit note
+ * @param string $context
+ * @param object $pagenote
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_edit_note($pagenote, $context){
+	if (has_capability('mod/icontent:editnotes', $context)){
+		if (icontent_check_user_isowner_note($pagenote)){
+			return true;
+		}
+		if (icontent_has_permission_manager($context)){
+			return true;
+		}
 	}
 	return false;
 }
@@ -878,7 +898,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			// Note comments
 			$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 			// Note footer
-			$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
+			$noteedit = icontent_make_link_edit_note($pagenote, $context);
 			$noteremove = icontent_make_link_remove_note($pagenote, $context);
 			$notelike = icontent_make_likeunlike($pagenote);
 			$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
@@ -921,7 +941,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// Note comments
 	$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 	// Note footer
-	$noteedit = html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
+	$noteedit = icontent_make_link_edit_note($pagenote, $context);
 	$noteremove = icontent_make_link_remove_note($pagenote, $context);
 	$notelike = icontent_make_likeunlike($pagenote);
 	$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
@@ -950,6 +970,22 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_link_remove_note($pagenote, $context){
  	if(icontent_user_can_remove_note($pagenote, $context)){
  		return html_writer::link(new moodle_url('deletenote.php', array('id' => $pagenote->cmid, 'pnid' => $pagenote->id, 'sesskey' => sesskey())), "<i class='fa fa-times'></i>".get_string('remove', 'icontent'), array('class'=>'removenote'));
+ 	}
+ 	return false;
+ }
+
+ /**
+  * This is the function responsible for creating link to edit note.
+  *
+  * Returns link
+  *
+  * @param  object $pagenote
+  * @param  object $icontent
+  * @return string $link
+  */
+ function icontent_make_link_edit_note($pagenote, $context){
+ 	if(icontent_user_can_edit_note($pagenote, $context)){
+ 		return html_writer::link(null, "<i class='fa fa-pencil'></i>".get_string('edit', 'icontent'), array('class'=>'editnote'));
  	}
  	return false;
  }

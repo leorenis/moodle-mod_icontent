@@ -145,6 +145,7 @@ $string['respond'] = ' Respond ';
 $string['statusview'] = 'Status view';
 $string['labelprogressbar'] = '{$a} complete';
 
+$string['icontent:addinstance'] = 'Add a new interactive content';
 $string['icontent:grade'] = 'View grade report';
 $string['icontent:manage'] = 'Manage interactive icontent';
 $string['icontent:view'] = 'View interactive icontent';
@@ -159,3 +160,4 @@ $string['icontent:checkboxprivatenotes'] = 'Mark notes as private';
 $string['icontent:editnotes'] = 'Edit note';
 $string['icontent:removenotes'] = 'Remove notes';
 $string['icontent:replynotes'] = 'Reply note';
+$string['icontent:newquestion'] = 'Add a new question';

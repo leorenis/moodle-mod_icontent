@@ -148,6 +148,7 @@ $string['respond'] = ' Respondeu ';
 $string['statusview'] = 'Status de visualização';
 $string['labelprogressbar'] = '{$a}% completo';
 
+$string['icontent:addinstance'] = 'Adicionar novo conteúdo interativo';
 $string['icontent:grade'] = 'Visualizar Relatório de notas';
 $string['icontent:manage'] = 'Gerenciar conteúdo interativo';
 $string['icontent:view'] = 'Vizualizar conteúdo interativo';
@@ -162,3 +163,4 @@ $string['icontent:checkboxprivatenotes'] = 'Marcar anotação como privada';
 $string['icontent:editnotes'] = 'Editar anotação';
 $string['icontent:removenotes'] = 'Remover anotação';
 $string['icontent:replynotes'] = 'Responder anotação';
+$string['icontent:newquestion'] = 'Adicionar uma nova questão';

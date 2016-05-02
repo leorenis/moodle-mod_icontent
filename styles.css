@@ -114,8 +114,8 @@
 }
 .icontent-page .fulltextpage .loading{
 	margin-left: 27%;
-    margin-top: 25%;
-    position: absolute;
+  margin-top: 25%;
+  position: absolute;
 }
 /* Resolution < 990*/
 @media (max-width: 990px) {

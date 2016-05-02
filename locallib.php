@@ -651,6 +651,9 @@ function icontent_has_permission_edition($allowedit, $edit = 0){
 	return $edit;
 }
 
+// ====================
+// METHODS CAPABILITYES
+// ====================
 /**
  * Check if has permission of manager
  * @param string $context
@@ -708,6 +711,74 @@ function icontent_user_can_edit_note($pagenote, $context){
 		if (icontent_has_permission_manager($context)){
 			return true;
 		}
+	}
+	return false;
+}
+
+/**
+ * Check if user can reply note
+ * @param string $context
+ * @param object $pagenote
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_reply_note($pagenote, $context){
+	if (has_capability('mod/icontent:replynotes', $context)){
+		if (icontent_has_permission_manager($context)){
+			return true;
+		}
+		if($pagenote->doubttutor){
+			return false;
+		}
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Check if user can like or do not like the note
+ * @param string $context
+ * @param object $pagenote
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_likeunlike_note($pagenote, $context){
+	if (has_capability('mod/icontent:likenotes', $context)){
+		return true;
+	}
+	return false;
+}
+/**
+ * Check if user can view private field
+ * @param string $context
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_view_checkbox_field_private($context){
+	if (has_capability('mod/icontent:checkboxprivatenotes', $context)){
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Check if user can view featured field
+ * @param string $context
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+
+function icontent_user_can_view_checkbox_field_featured($context){
+	if (has_capability('mod/icontent:checkboxfeaturednotes', $context)){
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Check if user can view doubttutor field
+ * @param string $context
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_view_checkbox_field_doubttutor($context){
+	if (has_capability('mod/icontent:checkboxdoubttutornotes', $context)){
+		return true;
 	}
 	return false;
 }
@@ -822,15 +893,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// fields
 	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'span12', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
 	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'span12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
-	$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate', 'class'=>'icontent-checkbox'));
-	$labelprivate = html_writer::tag('label', get_string('private', 'mod_icontent'), array('for'=>'idprivate', 'class'=> 'icontent-label'));
-	$spanprivate = html_writer::tag('span', $checkprivate. $labelprivate, array('class'=>'fieldprivate'));
-	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured', 'class'=>'icontent-checkbox'));
-	$labelfeatured = html_writer::tag('label', get_string('featured', 'mod_icontent'), array('for'=>'idfeatured', 'class'=> 'icontent-label'));
-	$spanfeatured = html_writer::tag('span', $checkfeatured. $labelfeatured, array('class'=>'fieldfeatured'));
-	$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor', 'class'=>'icontent-checkbox'));
-	$labeldoubttutor = html_writer::tag('label', get_string('doubttutor', 'mod_icontent'), array('for'=>'iddoubttutor', 'class'=>'icontent-label'));
-	$spandoubttutor = html_writer::tag('span', $checkdoubttutor. $labeldoubttutor, array('class'=>'fielddoubttutor'));
+	$spanprivate = icontent_make_span_checkbox_field_private($objpage);
+	$spanfeatured = icontent_make_span_checkbox_field_featured($objpage);
+	$spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage);
 	$btnsavenote = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavenote', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
 	$btnsavedoubt = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavedoubt', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
 	
@@ -867,9 +932,62 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// return 
  	return $notesarea;
  }
-
+ /**
+  * This is the function responsible for creating checkbox field private.
+  *
+  * Returns span with checkbox field
+  *
+  * @return string $spancheckbox
+  */
+ function icontent_make_span_checkbox_field_private($page){
+ 	$context = context_module::instance($page->cmid);
+ 	if (icontent_user_can_view_checkbox_field_private($context)) {
+ 		$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate', 'class'=>'icontent-checkbox'));
+	 	$labelprivate = html_writer::tag('label', get_string('private', 'mod_icontent'), array('for'=>'idprivate', 'class'=> 'icontent-label'));
+	 	
+	 	return html_writer::tag('span', $checkprivate. $labelprivate, array('class'=>'fieldprivate'));
+ 	}
+ 	return false;
+ }
+ 
+ /**
+  * This is the function responsible for creating checkbox field featured.
+  *
+  * Returns span with checkbox featured
+  *
+  * @return string $spancheckbox
+  */
+ function icontent_make_span_checkbox_field_featured($page){
+ 	$context = context_module::instance($page->cmid);
+ 	if (icontent_user_can_view_checkbox_field_featured($context)) {
+	 	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured', 'class'=>'icontent-checkbox'));
+	 	$labelfeatured = html_writer::tag('label', get_string('featured', 'mod_icontent'), array('for'=>'idfeatured', 'class'=> 'icontent-label'));
+	 
+	 	return html_writer::tag('span', $checkfeatured. $labelfeatured, array('class'=>'fieldfeatured'));
+ 	}
+ 	return false;
+ }
+ 
+ /**
+  * This is the function responsible for creating checkbox field doubttutor.
+  *
+  * Returns span with checkbox doubttutor
+  *
+  * @return string $spancheckbox
+  */
+ function icontent_make_span_checkbox_field_doubttutor($page){
+ 	$context = context_module::instance($page->cmid);
+ 	if (icontent_user_can_view_checkbox_field_doubttutor($context)) {
+ 		$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor', 'class'=>'icontent-checkbox'));
+ 		$labeldoubttutor = html_writer::tag('label', get_string('doubttutor', 'mod_icontent'), array('for'=>'iddoubttutor', 'class'=>'icontent-label'));
+ 		
+ 		return html_writer::tag('span', $checkdoubttutor. $labeldoubttutor, array('class'=>'fielddoubttutor'));
+ 	}
+ 	return false;
+ }
+ 
 /**
- * This is the function responsible for creating notes list.
+ * This is the function responsible for creating notes list by page.
  *
  * Returns notes list
  * 
@@ -880,9 +998,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  */
  function icontent_make_listnotespage($pagenotes, $icontent, $page){
  	global $OUTPUT, $CFG;
- 	$context = context_module::instance($page->cmid);
  	if(!empty($pagenotes)){
  		$divnote = '';
+ 		$context = context_module::instance($page->cmid);
  		foreach ($pagenotes as $pagenote) {
  			// Object user
  			$user = icontent_get_user_by_id($pagenote->userid);
@@ -900,8 +1018,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			// Note footer
 			$noteedit = icontent_make_link_edit_note($pagenote, $context);
 			$noteremove = icontent_make_link_remove_note($pagenote, $context);
-			$notelike = icontent_make_likeunlike($pagenote);
-			$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
+			$notelike = icontent_make_likeunlike($pagenote, $context);
+			$notereply = icontent_make_link_reply_note($pagenote, $context);
  			$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
 			$notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
 			// Verify path levels
@@ -944,7 +1062,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$noteedit = icontent_make_link_edit_note($pagenote, $context);
 	$noteremove = icontent_make_link_remove_note($pagenote, $context);
 	$notelike = icontent_make_likeunlike($pagenote);
-	$notereply = html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
+	$notereply = icontent_make_link_reply_note($pagenote, $context);
 	$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
 	$notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
 	
@@ -989,9 +1107,25 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  	return false;
  }
+ 
+ /**
+  * This is the function responsible for creating link to reply note.
+  *
+  * Returns link
+  *
+  * @param  object $pagenote
+  * @param  object $icontent
+  * @return string $link
+  */
+ function icontent_make_link_reply_note($pagenote, $context){
+ 	if(icontent_user_can_reply_note($pagenote, $context)){
+ 		return html_writer::link(null, "<i class='fa fa-reply-all'></i>".get_string('reply', 'icontent'), array('class'=>'replynote'));
+ 	}
+ 	return false;
+ }
 
 /**
- * This is the function responsible for creating links like and unlike.
+ * This is the function responsible for creating links like and do not like.
  *
  * Returns links
  * 
@@ -999,25 +1133,28 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @param  object $pagenote
  * @return string $likeunlike
  */
- function icontent_make_likeunlike($pagenote){
+ function icontent_make_likeunlike($pagenote, $context){
  	global $USER;
-	$pagenotelike = icontent_get_pagenotelike($pagenote->id, $USER->id, $pagenote->cmid);
-	
-	$countlikes = icontent_count_pagenotelike($pagenote->id);
-	$notelinklabel = html_writer::span(get_string('like', 'icontent', $countlikes));
-	
- 	if(!empty($pagenotelike)){
- 		$notelinklabel = html_writer::span(get_string('unlike', 'icontent', $countlikes));
+ 	if(icontent_user_can_likeunlike_note($pagenote, $context)){
+ 		$pagenotelike = icontent_get_pagenotelike($pagenote->id, $USER->id, $pagenote->cmid);
+ 		
+ 		$countlikes = icontent_count_pagenotelike($pagenote->id);
+ 		$notelinklabel = html_writer::span(get_string('like', 'icontent', $countlikes));
+ 		
+ 		if(!empty($pagenotelike)){
+ 			$notelinklabel = html_writer::span(get_string('unlike', 'icontent', $countlikes));
+ 		}
+ 		
+ 		return html_writer::link(null, "<i class='fa fa-star-o'></i>".$notelinklabel,
+ 			array(
+ 					'class'=>'likenote',
+ 					'data-cmid'=>$pagenote->cmid,
+ 					'data-pagenoteid'=>$pagenote->id,
+ 					'data-sesskey' => sesskey()
+ 				)
+ 			);
  	}
- 	
-	return html_writer::link(null, "<i class='fa fa-star-o'></i>".$notelinklabel,
-		array(
-			'class'=>'likenote',
-			'data-cmid'=>$pagenote->cmid,
-			'data-pagenoteid'=>$pagenote->id,
-			'data-sesskey' => sesskey()
-		)
-	);
+ 	return false;
  }
 
  /**
@@ -1027,7 +1164,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @param  object $icontent
  * @return string $toolbar
  */
-
  function icontent_make_toolbar($page, $icontent){
  	// Edit mode (view.php)
  	global $USER;

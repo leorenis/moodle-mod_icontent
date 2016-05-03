@@ -89,15 +89,6 @@ $capabilities = array(
         )
     ),
     
-    'mod/icontent:submit' => array(
-        'riskbitmask' => RISK_SPAM,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student' => CAP_ALLOW
-        )
-    ),
-    
 	'mod/icontent:viewnotes' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -106,15 +97,6 @@ $capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW
-        )
-    ),
-    
-	'mod/icontent:submitnotes' => array(
-        'riskbitmask' => RISK_SPAM,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student' => CAP_ALLOW
         )
     ),
     

@@ -882,24 +882,29 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if(!$icontent->shownotesarea){
  		return false;
  	}
+ 	$context = context_module::instance($objpage->cmid);
+ 	if(!has_capability('mod/icontent:viewnotes', $context)){
+ 		return false;
+ 	}
  	global $OUTPUT, $USER;
 	
 	// Divisor page / notes
 	$hr = html_writer::tag('hr', null). html_writer::link(null, null, array('name'=>'notesarea'));
+	
  	// Title page
 	$h4 = html_writer::tag('h4', get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes'));
 	// user image
 	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'span1 userpicture'));
 	// fields
 	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'span12', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
-	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'span12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
 	$spanprivate = icontent_make_span_checkbox_field_private($objpage);
 	$spanfeatured = icontent_make_span_checkbox_field_featured($objpage);
-	$spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage);
 	$btnsavenote = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavenote', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
+	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'span12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
+	$spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage);
 	$btnsavedoubt = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavedoubt', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
 	
-	$datapagenotesnote = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'note');	// data page notes note
+	$datapagenotesnote = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'note');		// data page notes note
 	$datapagenotesdoubt = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt');	// data page notes doubt
 	$pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage), 'pagenotesnote', array('id'=>'idpagenotesnote'));
 	$pagenotesdoubt = html_writer::div(icontent_make_listnotespage($datapagenotesdoubt, $icontent, $objpage), 'pagenotesdoubt', array('id'=>'idpagenotesdoubt'));
@@ -907,7 +912,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'span11'));
 	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'span11'));
 	
-	// Form
+	// Forms
 	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'fields'));
 	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'fields'));
 	

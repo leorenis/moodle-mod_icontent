@@ -525,7 +525,7 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, n
 /* Ajax API */
 
 /**
- * Recupera a pagina de conteudo de acordo com os parametros pagenum e icontentid.
+ * Retrieve the content page according to the parameters pagenum and icontentid.
  * @param int $pagenum
  * @param object $icontent
  * @return array $pageicontent
@@ -540,7 +540,7 @@ function icontent_ajax_getpage($pagenum, $icontent, $context){
 }
 
 /**
- * Salva um novo registro de {icontent_pages_notes} e retorna lista anotacoes da pagina.
+ * Save a new record in {icontent_pages_notes} and returns a list page notes.
  * @param int $pageid
  * @param object $note
  * @return array $pagenotes
@@ -579,7 +579,7 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
 }
 
 /**
- * Executa o like ou unlike na tabela {icontent_pages_notes_like}
+ * Runs the like or unlike in table {icontent_pages_notes_like}
  * @param object $notelike
  * @return array $result
  */
@@ -610,7 +610,7 @@ function icontent_ajax_likenote(stdClass $notelike){
 }
 
 /**
- * Executa alteracao de anotacao na tabela {icontent_pages_notes_like}
+ * Runs update in note at table {icontent_pages_notes_like}
  * @param object $pagenote
  * @return string $pagenote
  */
@@ -626,7 +626,7 @@ function icontent_ajax_editnote(stdClass $pagenote){
 	return false;
 }
 /**
- * Insere as respostas das anotacoes na tabela {icontent_pages_notes}
+ * Inserts responses of notes in table {icontent_pages_notes}
  * @param object $pagenote
  * @param object $icontent
  * @return string $reply
@@ -634,7 +634,7 @@ function icontent_ajax_editnote(stdClass $pagenote){
 function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 	global $DB, $USER;
 	
-	// Recupera pagenote pai
+	// Recovers pagenote father
 	$objparent = $DB->get_record('icontent_pages_notes', array('id'=>$pagenote->parent), 'pageid, tab, path, private, featured, doubttutor');
 	
 	$pagenote->userid = $USER->id;

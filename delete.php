@@ -35,7 +35,6 @@ $icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EX
 
 require_login($course, false, $cm);
 require_sesskey();
-
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:edit', $context);
 
@@ -43,15 +42,15 @@ $PAGE->set_url('/mod/icontent/delete.php', array('id'=>$id, 'pageid'=>$pageid));
 
 $page = $DB->get_record('icontent_pages', array('id'=>$pageid, 'icontentid'=>$icontent->id), '*', MUST_EXIST);
 
-
 // Header and strings.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
 
 // Form processing.
-if ($confirm) {  // the operation was confirmed.
+if ($confirm) {
+	// The operation was confirmed.
     $fs = get_file_storage();
- 	// deletando todos os arquivos e registros vinculados s pagina
+ 	// Deleting all files and records linked to page
     $fs->delete_area_files($context->id, 'mod_icontent', 'page', $page->id);
 	$fs->delete_area_files($context->id, 'mod_icontent', 'bgpage', $page->id);
 	

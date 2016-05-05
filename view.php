@@ -84,7 +84,7 @@ $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/module.js'));
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/src/actions.js'));
 
 // CSS
-$PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.4.0/css/font-awesome.min.css'));
+$PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css'));
 
 // Recupera primeira pagina a ser apresentada
 $startwithpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);

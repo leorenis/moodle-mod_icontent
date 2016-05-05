@@ -479,7 +479,7 @@ function icontent_get_pagedisplayed($pageid, $cmid){
 }
 
 /**
- * Get pagenotes by pageid.
+ * Get pagenotes by pageid according to the user's capability logged.
  *
  * Returns array of pagenotes
  *
@@ -489,9 +489,15 @@ function icontent_get_pagedisplayed($pageid, $cmid){
  * @return object $pagenotes
  */
 function icontent_get_pagenotes($pageid, $cmid, $tab){
-	global $DB;
-	
-	return $DB->get_records('icontent_pages_notes', array('pageid'=>$pageid, 'cmid'=>$cmid, 'tab'=>$tab), 'path');
+	global $DB, $USER;
+	if(icontent_has_permission_manager(context_module::instance($cmid))){
+		// If manager
+		return $DB->get_records('icontent_pages_notes', array('pageid'=>$pageid, 'cmid'=>$cmid, 'tab'=>$tab), 'path');
+	}
+	// If student
+	$sql = 'SELECT * FROM {icontent_pages_notes} WHERE pageid = ? AND cmid = ? AND tab = ? AND (userid = ? OR private = ?) ORDER BY path ASC;';
+
+	return $DB->get_records_sql($sql, array($pageid, $cmid, $tab, $USER->id, 0));
 }
 
 /**
@@ -660,6 +666,9 @@ function icontent_has_permission_edition($allowedit, $edit = 0){
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_has_permission_manager($context){
+	if(has_capability('mod/icontent:edit', $context)){
+		return true;
+	}
 	if(has_capability('mod/icontent:manage', $context)){
 		return true;
 	}

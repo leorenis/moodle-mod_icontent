@@ -131,6 +131,18 @@ class icontent_pages_edit_form extends moodleform {
 		$mform->addHelpButton('borderwidth', 'borderwidthpagehelp', 'icontent');
 		$mform->setDefault('borderwidth', 1);
 		
+		$mform->addElement('text', 'maxnotesperpages', get_string('maxnotesperpages', 'icontent'), array('class'=>'x-large'));
+		$mform->setType('maxnotesperpages', PARAM_INT);
+		$mform->addHelpButton('maxnotesperpages', 'maxnotesperpageshelp', 'icontent');
+		$mform->addRule('maxnotesperpages', null, 'numeric', null, 'client');
+		$mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
+		
+		$mform->addElement('text', 'maxquestionsperpages', get_string('maxquestionsperpages', 'icontent'), array('class'=>'x-large'));
+		$mform->setType('maxquestionsperpages', PARAM_INT);
+		$mform->addHelpButton('maxquestionsperpages', 'maxquestionsperpageshelp', 'icontent');
+		$mform->addRule('maxquestionsperpages', null, 'numeric', null, 'client');
+		$mform->addRule('maxquestionsperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
+		
 		$mform->addElement('header', 'effects', get_string('effects', 'icontent'));
 		$effects = array(
 			'blind' => 'Blind',

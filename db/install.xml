@@ -14,16 +14,18 @@
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="The maximum grade. Can be negative to indicate the use of a scale."/>
-		    <FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Escala."/>
-		    <FIELD NAME="bgimage" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+		<FIELD NAME="scale" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Escala."/>
+		<FIELD NAME="bgimage" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="bgcolor" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="bordercolor" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="borderwidth" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="evaluative" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Diz se o icontent sera avaliativo." />
         <FIELD NAME="maxpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
-      	<FIELD NAME="progressbar" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Porcentagem das paginas visualizadas." />
-        <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mostrar area de anotacoes." />
-	  	  <FIELD NAME="copyright" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Direitos reservados"/>
+        <FIELD NAME="progressbar" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Porcentagem das paginas visualizadas." />
+        <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mostrar area de anotacoes." />       
+	  	<FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de anotacao por pagina." />
+        <FIELD NAME="maxquestionsperpages" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de questoes por pagina." />
+      	<FIELD NAME="copyright" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Direitos reservados"/>
 	  </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -55,6 +57,8 @@
         <FIELD NAME="borderwidth" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="pagenum" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="hidden" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de anotacao por pagina." />
+        <FIELD NAME="maxquestionsperpages" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de questoes por pagina." />
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
       </FIELDS>
@@ -142,10 +146,11 @@
       </KEYS>
     </TABLE>
     
-    <TABLE NAME="icontent_sent_questions" COMMENT="Defines icontent_sent_questions">
+    <TABLE NAME="icontent_question_attempt" COMMENT="Defines icontent_question_attempt">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="pagesquestionsid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="cmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="fraction" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Fracao da nota recebida na questao enviada."/>

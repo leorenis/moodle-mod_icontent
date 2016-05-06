@@ -71,6 +71,6 @@ echo $OUTPUT->header();
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
-
+echo "<pre>"; var_dump($context->get_course_context(true)->id); echo "</pre>";
 // Finish the page.
 echo $OUTPUT->footer();

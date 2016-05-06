@@ -103,15 +103,29 @@ class mod_icontent_mod_form extends moodleform_mod {
 		$mform->addRule('maxpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
 		$mform->setDefault('maxpages', 55);
 		
+		$mform->addElement('selectyesno', 'shownotesarea', get_string('shownotesarea', 'icontent'));
+		$mform->addHelpButton('shownotesarea', 'shownotesarea', 'icontent');
+		$mform->setType('shownotesarea', PARAM_INT);
+		$mform->setDefault('shownotesarea', 1);
+		
+		$mform->addElement('text', 'maxnotesperpages', get_string('maxnotesperpages', 'icontent'), array('class'=>'x-large'));
+		$mform->setType('maxnotesperpages', PARAM_INT);
+		$mform->addHelpButton('maxnotesperpages', 'maxnotesperpageshelp', 'icontent');
+		$mform->addRule('maxnotesperpages', null, 'numeric', null, 'client');
+		$mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
+		$mform->setDefault('maxnotesperpages', 15);
+		
+		$mform->addElement('text', 'maxquestionsperpages', get_string('maxquestionsperpages', 'icontent'), array('class'=>'x-large'));
+		$mform->setType('maxquestionsperpages', PARAM_INT);
+		$mform->addHelpButton('maxquestionsperpages', 'maxquestionsperpageshelp', 'icontent');
+		$mform->addRule('maxquestionsperpages', null, 'numeric', null, 'client');
+		$mform->addRule('maxquestionsperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
+		$mform->setDefault('maxquestionsperpages', 3);
+		
 		$mform->addElement('selectyesno', 'progressbar', get_string('progressbar', 'icontent'));
         $mform->addHelpButton('progressbar', 'progressbar', 'icontent');
         $mform->setType('progressbar', PARAM_INT);
         $mform->setDefault('progressbar', 1);
-
-        $mform->addElement('selectyesno', 'shownotesarea', get_string('shownotesarea', 'icontent'));
-        $mform->addHelpButton('shownotesarea', 'shownotesarea', 'icontent');
-        $mform->setType('shownotesarea', PARAM_INT);
-        $mform->setDefault('shownotesarea', 1);
 		
 		// Grade.
     	$this->standard_grading_coursemodule_elements();

@@ -1213,7 +1213,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 
  	$update = false;
  	$new = false;
-
+ 	$addquestion = false;
 	// check se editing exists for $USER
 	if(property_exists($USER, 'editing')){
 	 	if($USER->editing){

@@ -1218,6 +1218,23 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	if(property_exists($USER, 'editing')){
 	 	if($USER->editing){
 	 		// icons teachers
+	 		$addquestion = html_writer::link(
+		 		new moodle_url('addquestionpage.php', 
+		 			array(
+		 				'id' => $page->cmid,
+		 				'pageid' => $page->id,
+		 				'sesskey' => $USER->sesskey
+		 			)
+		 		),
+		 		'<i class="fa fa-question-circle fa-lg"></i>',
+		 		array(
+		 			'title' => s(get_string('addquestion', 'mod_icontent')),
+		 			'class'=>'icon icon-addquestion',
+		 			'data-toggle'=> 'tooltip',
+		 			'data-placement'=> 'top'
+		 			)
+		 		);
+
 		 	$update = html_writer::link(
 		 		new moodle_url('edit.php',
 		 			array(
@@ -1228,7 +1245,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 			)
 		 		, '<i class="fa fa-pencil-square-o fa-lg"></i>',
 		 		array(
-		 			'title' => s(get_string('edit')),
+		 			'title' => s(get_string('editcurrentpage', 'mod_icontent')),
 		 			'class'=>'icon icon-update',
 		 			'data-toggle'=> 'tooltip',
 		 			'data-placement'=> 'top'
@@ -1245,7 +1262,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 		),
 		 		'<i class="fa fa-plus-circle fa-lg"></i>',
 		 		array(
-		 			'title' => s(get_string('new')),
+		 			'title' => s(get_string('addnewpage', 'mod_icontent')),
 		 			'class'=>'icon icon-new',
 		 			'data-toggle'=> 'tooltip',
 		 			'data-placement'=> 'top'
@@ -1254,7 +1271,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 }
 	}
 
-	$toolbar = html_writer::tag('div', $comments. $displayed. $highcontrast. $update. $new, array('class'=>'toolbarpage '));
+	$toolbar = html_writer::tag('div', $highcontrast. $comments. $displayed. $addquestion. $update. $new, array('class'=>'toolbarpage '));
 
  	return $toolbar;
  }

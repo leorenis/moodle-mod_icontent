@@ -48,8 +48,8 @@ if ($id) {
 }
 
 require_login($course, true, $cm);
-require_sesskey();
 $context = context_module::instance($cm->id);
+$coursecontext = $context->get_course_context(true)->id;
 
 // Log this request.
 $event = \mod_icontent\event\course_module_viewed::create(array(
@@ -70,7 +70,35 @@ echo $OUTPUT->header();
 
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
+$questions = 0; //icontent_get_questions_of_questionbank($coursecontext);
 
-echo "<pre>"; var_dump($context->get_course_context(true)->id); echo "</pre>";
+$table = new html_table();
+$table->id = "categoryquestions";
+$table->attributes = array('class'=>'generaltable icontentquestions');
+$table->colclasses = array('checkbox', 'qtype', 'questionname', 'creatorname', 'modifiername');
+$table->head  = array(null, get_string('type', 'mod_icontent') , get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
+
+if($questions) foreach ($questions as $question){
+	$checkbox = html_writer::tag('input', null, array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id));
+	$qtype = "<img src='{$OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent')}' alt='".get_string($question->qtype, 'mod_icontent')."' />";
+	$qname = $question->name;
+	$createdby = icontent_get_user_by_id($question->createdby);
+	$modifiedby = icontent_get_user_by_id($question->modifiedby);
+	$table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
+}
+else {
+	echo html_writer::div('<strong>Atenção: </strong>Banco de questões está vazio', 'alert alert-warning'); 
+	echo $OUTPUT->footer(); 
+	exit;
+}
+
+echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
+echo html_writer::start_div('categoryquestionscontainer');
+echo html_writer::table($table);
+echo html_writer::end_div();
+echo html_writer::tag('input', null, array('type'=>'submit', 'value'=>get_string('add')));
+echo html_writer::end_tag('form');
+
+//echo "<pre>"; var_dump(icontent_get_questions_of_questionbank($coursecontext)); echo "</pre>";
 // Finish the page.
 echo $OUTPUT->footer();

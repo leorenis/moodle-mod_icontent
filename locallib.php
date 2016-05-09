@@ -33,6 +33,8 @@ defined('MOODLE_INTERNAL') || die();
  * Constantes
  */
 define('ICONTENT_PAGE_MIN_HEIGHT', 500);
+define('ICONTENT_MAX_PER_PAGE', 1000);
+define('ICONTENT_PER_PAGE', 20);
 
 require_once(dirname(__FILE__).'/lib.php');
 
@@ -431,6 +433,47 @@ function icontent_get_minpagenum($icontent){
  	$obj = $DB->get_record_sql($sql, array($icontent->id));
 	
 	return $obj->minpagenum;
+}
+/**
+ * Get questions of question bank.
+ *
+ * Returns array of questions
+ *
+ * @param  object $coursecontext
+ * @param  string $sort
+ * @param  int $page
+ * @param  int $perpage
+ * @return array of $questionbank
+ */
+function icontent_get_questions_of_questionbank($coursecontext, $sort="q.id ASC", $page = 0, $perpage = ICONTENT_PER_PAGE){
+	global $DB;
+	
+	$limitsql = '';
+	$page = (int) $page;
+	$perpage = (int) $perpage;
+	
+	// Setup pagination - when both $page and $perpage = 0, get all results
+	if ($page || $perpage) {
+		if ($page < 0) {
+			$page = 0;
+		}
+	
+		if ($perpage > ICONTENT_MAX_PER_PAGE) {
+			$perpage = ICONTENT_MAX_PER_PAGE;
+		} else if ($perpage < 1) {
+			$perpage = ICONTENT_PER_PAGE;
+		}
+		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
+	}
+	
+	$sql = "SELECT q.id, q.qtype, q.name, q.timecreated, q.timemodified, q.createdby, q.modifiedby, c.contextid
+			FROM {question} q 
+			JOIN {question_categories} c
+			ON c.id = q.category 
+			WHERE c.contextid = ? 
+			ORDER BY {$sort} {$limitsql}";
+	
+	return $DB->get_records_sql($sql, array($coursecontext));
 }
 
 /**
@@ -1222,8 +1265,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 		new moodle_url('addquestionpage.php', 
 		 			array(
 		 				'id' => $page->cmid,
-		 				'pageid' => $page->id,
-		 				'sesskey' => $USER->sesskey
+		 				'pageid' => $page->id
 		 			)
 		 		),
 		 		'<i class="fa fa-question-circle fa-lg"></i>',

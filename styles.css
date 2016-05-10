@@ -329,6 +329,26 @@
 	float: left;
 }
 
+/*Table addquestionpage */
+table.icontentquestions{
+	margin-bottom: 10px !important;
+}
+table.icontentquestions .header{
+	text-align: left !important;
+}
+
+table.icontentquestions .qtype{
+	text-align: left !important;
+}
+
+table.icontentquestions .questionname {
+    white-space: normal !important;
+}
+
+table.icontentquestions td{
+	padding: 5px !important;
+}
+
 /** Barra de Progresso Twitter Boostrap 3.5 */
 .progress {
   height: 20px;

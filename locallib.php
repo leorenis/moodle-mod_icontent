@@ -445,10 +445,11 @@ function icontent_get_minpagenum($icontent){
  * @param  int $perpage
  * @return array of $questionbank
  */
-function icontent_get_questions_of_questionbank($coursecontext, $sort="q.id ASC", $page = 0, $perpage = ICONTENT_PER_PAGE){
+function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
 	
 	$limitsql = '';
+	$sort = 'q.name '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
 	
@@ -463,7 +464,7 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort="q.id ASC"
 		} else if ($perpage < 1) {
 			$perpage = ICONTENT_PER_PAGE;
 		}
-		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage ;
+		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
 	
 	$sql = "SELECT q.id, q.qtype, q.name, q.timecreated, q.timemodified, q.createdby, q.modifiedby, c.contextid
@@ -474,6 +475,19 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort="q.id ASC"
 			ORDER BY {$sort} {$limitsql}";
 	
 	return $DB->get_records_sql($sql, array($coursecontext));
+}
+/**
+ * Get total questions of question bank.
+ *
+ * Returns int of total questions
+ *
+ * @param  object $coursecontext
+ * @return int of $tquestions
+ */
+function icontent_count_questions_of_questionbank($coursecontext){
+	global $DB;
+	$questions = $DB->get_record_sql("SELECT count(*) as total FROM {question} q JOIN {question_categories} c ON c.id = q.category WHERE c.contextid = ?", array($coursecontext));
+	return (int) $questions->total;
 }
 
 /**
@@ -673,6 +687,25 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  		return $notesdaughters;
  	}
  	return $pagenotes;
+ }
+ 
+ /**
+  * Check that the value of param is a valid SQL clause.
+  * 
+  * Returns string ASC or DESC
+  * 
+  * @param string $sortsql
+  * @return $sort ASC or DESC.
+  */
+ function icontent_check_value_sort($sortsql){
+ 	$sortsql = strtolower($sortsql);
+ 	switch ($sortsql){
+ 		case 'asc':
+ 			return 'ASC';
+ 			break;
+ 		default:
+ 			return "DESC";
+ 	}
  }
 
  /**

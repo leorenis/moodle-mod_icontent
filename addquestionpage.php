@@ -34,6 +34,11 @@ require_once(dirname(__FILE__).'/lib.php');
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it should be named as the first character of the module.
 $pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID
+$action = optional_param('action', '', PARAM_ALPHA);
+
+$sort = optional_param('sort', '', PARAM_RAW);
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
 
 if ($id) {
     $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
@@ -70,21 +75,24 @@ echo $OUTPUT->header();
 
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
-$questions = 0; //icontent_get_questions_of_questionbank($coursecontext);
+$sort = icontent_check_value_sort($sort);
+$questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
+$tquestions = icontent_count_questions_of_questionbank($coursecontext);
 
 $table = new html_table();
 $table->id = "categoryquestions";
-$table->attributes = array('class'=>'generaltable icontentquestions');
-$table->colclasses = array('checkbox', 'qtype', 'questionname', 'creatorname', 'modifiername');
-$table->head  = array(null, get_string('type', 'mod_icontent') , get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
+$table->attributes = array('class'=>'icontentquestions');
+$table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
+$table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('preview') ,get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
 
 if($questions) foreach ($questions as $question){
-	$checkbox = html_writer::tag('input', null, array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id));
-	$qtype = "<img src='{$OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent')}' alt='".get_string($question->qtype, 'mod_icontent')."' />";
-	$qname = $question->name;
+	$checkbox = html_writer::tag('input', null, array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id));
+	$qtype = "<img src='{$OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent')}' class='smallicon' alt='".get_string($question->qtype, 'mod_icontent')."' title='".get_string($question->qtype, 'mod_icontent')."' />";
+	$qname = html_writer::label($question->name, 'idcheck'.$question->id);
+	$preview = "<img src='{$OUTPUT->pix_url('t/preview')}' class='smallicon' alt='".get_string('preview')."' title='".get_string('preview')."' />";
 	$createdby = icontent_get_user_by_id($question->createdby);
 	$modifiedby = icontent_get_user_by_id($question->modifiedby);
-	$table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
+	$table->data[] = array($checkbox, $qtype, $qname, $preview, $createdby->firstname , $modifiedby->firstname);
 }
 else {
 	echo html_writer::div('<strong>Atenção: </strong>Banco de questões está vazio', 'alert alert-warning'); 
@@ -99,6 +107,6 @@ echo html_writer::end_div();
 echo html_writer::tag('input', null, array('type'=>'submit', 'value'=>get_string('add')));
 echo html_writer::end_tag('form');
 
-//echo "<pre>"; var_dump(icontent_get_questions_of_questionbank($coursecontext)); echo "</pre>";
+//echo "<pre>"; var_dump($tquestions); echo "</pre>";
 // Finish the page.
 echo $OUTPUT->footer();

@@ -700,11 +700,11 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  function icontent_check_value_sort($sortsql){
  	$sortsql = strtolower($sortsql);
  	switch ($sortsql){
- 		case 'asc':
- 			return 'ASC';
+ 		case 'desc':
+ 			return 'DESC';
  			break;
  		default:
- 			return "DESC";
+ 			return "ASC";
  	}
  }
 

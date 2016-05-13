@@ -74,6 +74,7 @@ $string['progressbar'] = 'Progress bar';
 $string['shownotesarea'] = 'Show notes area';
 $string['shownotesarea_help'] = 'Select "Yes" to display the notes area.';
 $string['progressbar_help'] = 'If enabled, a bar is displayed at the bottom of lesson pages showing approximate percentage of completion.';
+$string['emptyquestionbank'] = '<strong>Warning: </strong>Bank question is empty.';
 $string['evaluative'] = 'Evaluative item';
 $string['evaluative_help'] = 'If you enable this feature becomes an evaluation item.';
 $string['usemaxgrade'] = 'Maximum points';
@@ -156,6 +157,8 @@ $string['lastmodifiedby'] = 'Last modified by';
 $string['respond'] = ' Respond ';
 $string['statusview'] = 'Status view';
 $string['labelprogressbar'] = '{$a} complete';
+$string['erroridnotfound'] = ' <strong>Error: </strong>You must specify the param {$a}';
+
 $string['calculated'] = 'Calculated';
 $string['calculatedmulti'] = 'Calculated multi';
 $string['calculatedsimple'] = 'Calculated simple';

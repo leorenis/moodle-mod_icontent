@@ -77,6 +77,7 @@ $string['progressbar'] = 'Barra de progresso';
 $string['shownotesarea'] = 'Mostrar área de anotações';
 $string['shownotesarea_help'] = 'Selecione "Sim" para mostrar a área de anotações.';
 $string['progressbar_help'] = 'Se ativado, uma barra é exibida na parte inferior das páginas mostrando a porcentagem aproximada de conclusão.';
+$string['emptyquestionbank'] = '<strong>Aviso: </strong>Banco de questões está vazio';
 $string['evaluative'] = 'Item avaliativo';
 $string['evaluative_help'] = 'Se ativado, este recurso se torna um item avaliativo.';
 $string['usemaxgrade'] = 'Máximo de pontos';
@@ -159,6 +160,8 @@ $string['lastmodifiedby'] = 'Última modificação por';
 $string['respond'] = ' Respondeu ';
 $string['statusview'] = 'Status de visualização';
 $string['labelprogressbar'] = '{$a}% completo';
+$string['erroridnotfound'] = ' <strong>Erro: </strong>Você deve especificar o parâmetro {$a}';
+
 $string['calculated'] = 'Calculado';
 $string['calculatedmulti'] = 'Multi calculada';
 $string['calculatedsimple'] = 'Cálculo simples';

@@ -339,6 +339,7 @@ table.icontentquestions .header{
 
 table.icontentquestions .qtype{
 	text-align: left !important;
+	width: 5% !important;
 }
 
 table.icontentquestions .questionname {

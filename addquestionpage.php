@@ -34,7 +34,7 @@ require_once(dirname(__FILE__).'/lib.php');
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it should be named as the first character of the module.
 $pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID
-$action = optional_param('action', '', PARAM_ALPHA);
+$action = optional_param('action', '', PARAM_BOOL);
 
 $sort = optional_param('sort', '', PARAM_RAW);
 $page = optional_param('page', 0, PARAM_INT);
@@ -49,13 +49,16 @@ if ($id) {
     $course     = $DB->get_record('course', array('id' => $icontent->course), '*', MUST_EXIST);
     $cm         = get_coursemodule_from_instance('icontent', $icontent->id, $course->id, false, MUST_EXIST);
 } else {
-    error('You must specify a course_module ID or an instance ID');
+    print_error('You must specify a course_module ID or an instance ID');
 }
+if(!$pageid) {
+    print_error('You must specify a page ID');
+}
+
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $coursecontext = $context->get_course_context(true)->id;
-
 // Log this request.
 $event = \mod_icontent\event\course_module_viewed::create(array(
     'objectid' => $PAGE->cm->instance,
@@ -69,12 +72,18 @@ $event->trigger();
 $PAGE->set_url('/mod/icontent/addquestionpage.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
+$url = new moodle_url('/mod/icontent/addquestionpage.php', array('id'=>$id, 'pageid'=> $pageid, 'page' => $page, 'perpage' => $perpage));
 
 // Output starts here.
 echo $OUTPUT->header();
 
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
+
+if ($action){
+	echo "ok";
+}
+
 $sort = icontent_check_value_sort($sort);
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
@@ -86,25 +95,27 @@ $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction',
 $table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('preview') ,get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
 
 if($questions) foreach ($questions as $question){
-	$checkbox = html_writer::tag('input', null, array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id));
-	$qtype = "<img src='{$OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent')}' class='smallicon' alt='".get_string($question->qtype, 'mod_icontent')."' title='".get_string($question->qtype, 'mod_icontent')."' />";
+	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id));
+	$qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
 	$qname = html_writer::label($question->name, 'idcheck'.$question->id);
-	$preview = "<img src='{$OUTPUT->pix_url('t/preview')}' class='smallicon' alt='".get_string('preview')."' title='".get_string('preview')."' />";
+	$preview = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('t/preview'), 'class'=>'smallicon', 'alt'=> get_string('preview'), 'title'=>get_string('preview')));
 	$createdby = icontent_get_user_by_id($question->createdby);
 	$modifiedby = icontent_get_user_by_id($question->modifiedby);
 	$table->data[] = array($checkbox, $qtype, $qname, $preview, $createdby->firstname , $modifiedby->firstname);
 }
 else {
-	echo html_writer::div('<strong>Atenção: </strong>Banco de questões está vazio', 'alert alert-warning'); 
-	echo $OUTPUT->footer(); 
+	echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
+	echo $OUTPUT->footer();
 	exit;
 }
 
 echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
+echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'action', 'value'=>true));
 echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
+echo $OUTPUT->paging_bar($tquestions, $page, $perpage, $url);
 echo html_writer::end_div();
-echo html_writer::tag('input', null, array('type'=>'submit', 'value'=>get_string('add')));
+echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')));
 echo html_writer::end_tag('form');
 
 //echo "<pre>"; var_dump($tquestions); echo "</pre>";

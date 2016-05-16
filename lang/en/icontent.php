@@ -130,6 +130,7 @@ $string['collumns4'] = 'Until four collumns';
 $string['collumns5'] = 'Until five collumns';
 $string['msgsucess'] = 'Successfully recorded data!';
 $string['msgsucessexclusion'] = 'Successfully deleted data!';
+$string['msgaddquestionpage'] = 'Successfully add questions!';
 $string['page'] = '<span>Page <em>{$a}</em></span>';
 $string['highcontrast'] = 'highcontrast';
 $string['comments'] = 'Comments';

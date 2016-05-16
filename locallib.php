@@ -476,6 +476,7 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 	
 	return $DB->get_records_sql($sql, array($coursecontext));
 }
+
 /**
  * Get total questions of question bank.
  *
@@ -490,6 +491,19 @@ function icontent_count_questions_of_questionbank($coursecontext){
 	return (int) $questions->total;
 }
 
+/**
+ * Get questions of current page.
+ *
+ * Returns array questionspage
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return array $questionspage
+ */
+function icontent_get_questions_of_currentpage($pageid, $cmid){
+	global $DB;
+	return $DB->get_records('icontent_pages_questions', array('pageid'=>$pageid, 'cmid'=>$cmid), null, 'questionid, id');
+}
 /**
  * Add preview in page if its not previewed.
  *
@@ -519,6 +533,50 @@ function icontent_add_pagedisplayed($pageid, $cmid){
 	return $pagedisplayed;
 }
 
+/**
+ * Adds questions on a page.
+ *
+ * Returns true or false
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return boolean true or false
+ */
+function icontent_add_questionpage($questions, $pageid, $cmid){
+	global $DB;
+	$records = array();
+	if($questions) {
+		// Remove questions this page
+		$DB->delete_records('icontent_pages_questions', array('pageid'=>$pageid, 'cmid'=>$cmid));
+		// Create array of objects questionpage
+		$i = 0;
+		foreach ($questions as $question) {
+			$records[$i] = new stdClass;
+			$records[$i]->pageid = $pageid;
+			$records[$i]->questionid = $question;
+			$records[$i]->cmid = $cmid;
+			$records[$i]->timecreated = time();
+			$i ++;
+		}
+		// Persists objects
+		$DB->insert_records('icontent_pages_questions', $records);
+		return true;
+	}
+	return false;
+
+}
+/**
+ * Delete question per page by id.
+ *
+ * Returns true or false
+ *
+ * @param  int $id
+ * @return boolean $result
+ */
+function icontent_remove_questionpagebyid($id){
+	global $DB;
+	return $DB->delete_records('icontent_pages_questions', array('id'=>$id));
+}
 
 /**
  * Get page viewed

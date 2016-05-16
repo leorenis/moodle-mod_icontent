@@ -18,7 +18,7 @@
  * Delete icontent page
  *
  * @package    mod_icontent
- * @copyright  2004-2011 Petr Skoda {@link http://skodak.org}
+ * @copyright  2016-2015 Leo Santos {@link http://github.com/leorenis}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -60,8 +60,9 @@ if ($confirm) {
     $DB->delete_records('icontent_pages', array('id'=>$page->id));
 
     icontent_preload_pages($icontent); // Fix structure.
-
-    redirect('view.php?id='.$cm->id);
+    
+    $url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id));
+    redirect($url);
 }
 
 echo $OUTPUT->header();

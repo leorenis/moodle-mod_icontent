@@ -21,7 +21,7 @@
  * if you like, and it can span multiple lines.
  *
  * @package    mod_icontent
- * @copyright  2015 Leo Renis Santos
+ * @copyright  2016 Leo Renis Santos
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -81,12 +81,19 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
 if ($action){
-	echo "ok";
+	// Receives values
+	$questions = optional_param_array('question', array(), PARAM_RAW);
+	// Save values
+	if(icontent_add_questionpage($questions, $pageid, $cm->id)){
+ 		$urlredirect = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
+		redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
+	}
 }
 
 $sort = icontent_check_value_sort($sort);
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
+$qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 
 $table = new html_table();
 $table->id = "categoryquestions";
@@ -95,7 +102,8 @@ $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction',
 $table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('preview') ,get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
 
 if($questions) foreach ($questions as $question){
-	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id));
+	$checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
+	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked);
 	$qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
 	$qname = html_writer::label($question->name, 'idcheck'.$question->id);
 	$preview = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('t/preview'), 'class'=>'smallicon', 'alt'=> get_string('preview'), 'title'=>get_string('preview')));
@@ -118,6 +126,6 @@ echo html_writer::end_div();
 echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')));
 echo html_writer::end_tag('form');
 
-//echo "<pre>"; var_dump($tquestions); echo "</pre>";
+$DB->set_debug(true);
 // Finish the page.
 echo $OUTPUT->footer();

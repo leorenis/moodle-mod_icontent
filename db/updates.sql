@@ -1,4 +1,9 @@
-﻿ALTER TABLE `moodle28`.`mdl_icontent_pages` 
+﻿-- Updates 2016051500
+ALTER TABLE `db_moodletcc`.`mdl_icontent_pages_questions` 
+DROP COLUMN `qtype`, DROP COLUMN `maxmark`;
+
+-- Updates 2016051000 
+ALTER TABLE `moodle28`.`mdl_icontent_pages` 
 ADD COLUMN `maxnotesperpages` SMALLINT(5) NOT NULL DEFAULT 0 COMMENT 'Maximo de anotacao por pagina.' AFTER `hidden`,
 ADD COLUMN `maxquestionsperpages` SMALLINT(3) NOT NULL DEFAULT 0 COMMENT 'Maximo de questoes por pagina.' AFTER `maxnotesperpages`;
 

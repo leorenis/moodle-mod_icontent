@@ -594,6 +594,30 @@ function icontent_get_pagedisplayed($pageid, $cmid){
 }
 
 /**
+ * Get questions by pageid.
+ *
+ * Returns array of questions
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return array $questions
+ */
+function icontent_get_pagequestions($pageid, $cmid){
+	global $DB;
+	$sql = 'SELECT pq.id AS pqid,
+			       q.id  AS qid,
+			       q.NAME,
+			       q.questiontext,
+			       q.questiontextformat,
+			       q.qtype
+			FROM   {icontent_pages_questions} pq
+			       INNER JOIN {question} q
+			               ON pq.questionid = q.id
+			WHERE  pq.pageid = ?
+			       AND pq.cmid = ?;';
+	return $DB->get_records_sql($sql, array($pageid, $cmid));
+}
+/**
  * Get pagenotes by pageid according to the user's capability logged.
  *
  * Returns array of pagenotes
@@ -1010,7 +1034,67 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$progress = html_writer::div($progressbar, 'progress');
 	
  	return $progress;
-  }
+ }
+ 
+ /**
+  * This is the function responsible for creating the area questions on pages.
+  *
+  * Returns questions area
+  *
+  * @param  object $objpage
+  * @param  object $icontent
+  * @return string $questionsarea
+  */
+ function icontent_make_questionsarea($objpage, $icontent){
+ 	$questions = icontent_get_pagequestions($objpage->id, $objpage->cmid);
+ 	if(!$questions){
+ 		return false;
+ 	}
+ 	// Divisor page / questions
+ 	$hr = html_writer::empty_tag('hr');
+ 	// Title page
+ 	$h4 = html_writer::tag('h4', get_string('questions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase'));
+ 	$qlist = '';
+ 	foreach ($questions as $question){
+ 		$qlist .= icontent_make_questions_answers_by_type($question);
+ 	}
+ 	
+ 	return html_writer::div($hr. $h4. $qlist);
+ }
+ /**
+  * This is the function responsible for creating the answers of questions area.
+  *
+  * Returns answers
+  *
+  * @param  object $question
+  * @return string $answers
+  */
+ function icontent_make_questions_answers_by_type($question){
+ 	global $DB;
+ 	switch ($question->qtype){
+ 		case 'multichoice':
+ 			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
+ 			$questionanswers = html_writer::start_div('ablock');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
+ 			$questionanswers .= html_writer::div(get_string('choose'), 'prompt');
+ 			foreach ($anwswers as $anwswer){
+ 				$check = html_writer::empty_tag('input', array('id'=>'ck'.$anwswer->id, 'name'=>'answer[]', 'type'=>'radio'));
+ 				$label = html_writer::label(strip_tags($anwswer->answer), 'ck'.$anwswer->id);
+ 				$questionanswers .= html_writer::div($check. $label);
+ 			}
+ 			$questionanswers .= html_writer::end_div();
+ 			return $questionanswers;
+ 			break;
+ 		case 'match':
+ 			// code..
+ 			break;
+ 		case 'essay':
+ 			// code..
+ 			break;
+ 		default:
+ 			// code..
+ 	}
+ }
  /**
  * This is the function responsible for creating the area comments on pages.
  * 
@@ -1032,7 +1116,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $OUTPUT, $USER;
 	
 	// Divisor page / notes
-	$hr = html_writer::tag('hr', null). html_writer::link(null, null, array('name'=>'notesarea'));
+	$hr = html_writer::empty_tag('hr');
 	
  	// Title page
 	$h4 = html_writer::tag('h4', get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes'));
@@ -1449,6 +1533,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// Form notes
 	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	
+	// Questions
+	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
+	
 	/* Internal control buttons
 	$previous = html_writer::link('#', "<i class='fa fa-angle-left'></i> ".get_string('previous', 'icontent'), array('title' => s(get_string('pageprevious', 'icontent')), 'class'=>'previous span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum - 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
 	$next = html_writer::link('#', get_string('next', 'icontent')." <i class='fa fa-angle-right'></i>", array('title' => s(get_string('nextpage', 'icontent')), 'class'=>'next span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum + 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
@@ -1456,7 +1543,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
 	
 	// Content page for return
-	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $notesarea. $tooltip, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $tooltip, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	
 	unset($objpage->pageicontent);
 	return $objpage;

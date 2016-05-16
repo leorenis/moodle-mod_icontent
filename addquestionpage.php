@@ -99,17 +99,16 @@ $table = new html_table();
 $table->id = "categoryquestions";
 $table->attributes = array('class'=>'icontentquestions');
 $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
-$table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('preview') ,get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
+$table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'),get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
 
 if($questions) foreach ($questions as $question){
 	$checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
 	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked);
 	$qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
 	$qname = html_writer::label($question->name, 'idcheck'.$question->id);
-	$preview = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('t/preview'), 'class'=>'smallicon', 'alt'=> get_string('preview'), 'title'=>get_string('preview')));
 	$createdby = icontent_get_user_by_id($question->createdby);
 	$modifiedby = icontent_get_user_by_id($question->modifiedby);
-	$table->data[] = array($checkbox, $qtype, $qname, $preview, $createdby->firstname , $modifiedby->firstname);
+	$table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
 }
 else {
 	echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
@@ -126,6 +125,6 @@ echo html_writer::end_div();
 echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')));
 echo html_writer::end_tag('form');
 
-$DB->set_debug(true);
+//$DB->set_debug(true);
 // Finish the page.
 echo $OUTPUT->footer();

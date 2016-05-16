@@ -153,6 +153,7 @@ $string['like'] = ' Like ({$a}) ';
 $string['unlike'] = ' unlike ({$a}) ';
 $string['reply'] = ' Reply ';
 $string['type'] = ' Type';
+$string['questions'] = ' Questions';
 $string['createdby'] = ' Created by';
 $string['lastmodifiedby'] = 'Last modified by';
 $string['respond'] = ' Respond ';

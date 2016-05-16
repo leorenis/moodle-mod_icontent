@@ -156,6 +156,7 @@ $string['like'] = ' Favoritar ({$a}) ';
 $string['unlike'] = ' Desfavoritar ({$a}) ';
 $string['reply'] = ' Responder ';
 $string['type'] = ' Tipo';
+$string['questions'] = ' Questões';
 $string['createdby'] = 'Criado por';
 $string['lastmodifiedby'] = 'Última modificação por';
 $string['respond'] = ' Respondeu ';

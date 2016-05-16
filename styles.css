@@ -425,6 +425,9 @@ table.icontentquestions td{
 .progress .progress-bar .sr-only{
 	position: unset;
 }
+#idicontentpages .text-uppercase{
+	text-transform: uppercase;
+}
 
 /* CHANGING COLOR OF SELECTED TEXT */
 ::-moz-selection {

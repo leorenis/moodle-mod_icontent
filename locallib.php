@@ -1054,12 +1054,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$hr = html_writer::empty_tag('hr');
  	// Title page
  	$h4 = html_writer::tag('h4', get_string('questions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase'));
+ 	$header = html_writer::div($hr. $h4, 'headerareaquestions');
  	$qlist = '';
  	foreach ($questions as $question){
  		$qlist .= icontent_make_questions_answers_by_type($question);
  	}
  	
- 	return html_writer::div($hr. $h4. $qlist);
+ 	return html_writer::div($header. $qlist, 'questionsarea');
  }
  /**
   * This is the function responsible for creating the answers of questions area.
@@ -1074,7 +1075,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	switch ($question->qtype){
  		case 'multichoice':
  			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
- 			$questionanswers = html_writer::start_div('ablock');
+ 			$questionanswers = html_writer::start_div('question multichoice');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
  			$questionanswers .= html_writer::div(get_string('choose'), 'prompt');
  			foreach ($anwswers as $anwswer){
@@ -1086,13 +1087,28 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			return $questionanswers;
  			break;
  		case 'match':
- 			// code..
+ 			$options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid));
+ 			$questionanswers = html_writer::start_div('question match');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
+ 			$contenttable = '';
+ 			$arrayanswers = [];
+ 			foreach ($options as $option){
+ 				$arrayanswers[$option->id] = strip_tags($option->answertext);
+ 			}
+ 			foreach ($options as $option){
+ 				$qtext = html_writer::tag('td', strip_tags($option->questiontext));
+ 				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, 'answers'));
+ 				$contenttable .= html_writer::tag('tr', $qtext. $answertext);
+ 			}
+ 			$questionanswers .= html_writer::tag('table', $contenttable);
+ 			$questionanswers .= html_writer::end_div();
+ 			return $questionanswers;
  			break;
  		case 'essay':
  			// code..
  			break;
  		default:
- 			// code..
+ 			return false;
  	}
  }
  /**

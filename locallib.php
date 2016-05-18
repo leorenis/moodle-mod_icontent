@@ -35,6 +35,11 @@ defined('MOODLE_INTERNAL') || die();
 define('ICONTENT_PAGE_MIN_HEIGHT', 500);
 define('ICONTENT_MAX_PER_PAGE', 1000);
 define('ICONTENT_PER_PAGE', 20);
+// Questions
+define('ICONTENT_QTYPE_MATCH', 'match');
+define('ICONTENT_QTYPE_MULTICHOICE', 'multichoice');
+define('ICONTENT_QTYPE_TRUEFALSE', 'truefalse');
+define('ICONTENT_QTYPE_ESSAY', 'essay');
 
 require_once(dirname(__FILE__).'/lib.php');
 
@@ -604,7 +609,7 @@ function icontent_get_pagedisplayed($pageid, $cmid){
  */
 function icontent_get_pagequestions($pageid, $cmid){
 	global $DB;
-	$sql = 'SELECT pq.id AS pqid,
+	$sql = 'SELECT pq.id AS qpid,
 			       q.id  AS qid,
 			       q.NAME,
 			       q.questiontext,
@@ -1073,7 +1078,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_questions_answers_by_type($question){
  	global $DB;
  	switch ($question->qtype){
- 		case 'multichoice':
+ 		case ICONTENT_QTYPE_MULTICHOICE:
  			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
  			$questionanswers = html_writer::start_div('question multichoice');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
@@ -1086,7 +1091,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$questionanswers .= html_writer::end_div();
  			return $questionanswers;
  			break;
- 		case 'match':
+ 		case ICONTENT_QTYPE_MATCH:
  			$options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid));
  			$questionanswers = html_writer::start_div('question match');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
@@ -1097,14 +1102,17 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			}
  			foreach ($options as $option){
  				$qtext = html_writer::tag('td', strip_tags($option->questiontext));
- 				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, 'answers'));
+ 				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, 'qpid:'.$question->qpid.'_answerid:'.$option->id));
  				$contenttable .= html_writer::tag('tr', $qtext. $answertext);
  			}
  			$questionanswers .= html_writer::tag('table', $contenttable);
  			$questionanswers .= html_writer::end_div();
  			return $questionanswers;
  			break;
- 		case 'essay':
+ 		case ICONTENT_QTYPE_TRUEFALSE:
+ 			// code..
+ 			break;
+ 		case ICONTENT_QTYPE_ESSAY:
  			// code..
  			break;
  		default:

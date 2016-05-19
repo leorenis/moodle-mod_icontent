@@ -476,10 +476,20 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 			FROM {question} q 
 			JOIN {question_categories} c
 			ON c.id = q.category 
-			WHERE c.contextid = ? 
+			WHERE c.contextid = ?
+			AND q.qtype IN (?,?,?,?)
 			ORDER BY {$sort} {$limitsql}";
 	
-	return $DB->get_records_sql($sql, array($coursecontext));
+	return $DB->get_records_sql(
+				$sql,
+				array(
+					$coursecontext,
+					ICONTENT_QTYPE_ESSAY,
+					ICONTENT_QTYPE_MATCH,
+					ICONTENT_QTYPE_MULTICHOICE,
+					ICONTENT_QTYPE_TRUEFALSE
+				)
+			);
 }
 
 /**
@@ -1084,8 +1094,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
  			$questionanswers .= html_writer::div(get_string('choose'), 'prompt');
  			foreach ($anwswers as $anwswer){
- 				$check = html_writer::empty_tag('input', array('id'=>'ck'.$anwswer->id, 'name'=>'answer[]', 'type'=>'radio'));
- 				$label = html_writer::label(strip_tags($anwswer->answer), 'ck'.$anwswer->id);
+ 				$fieldname = 'qpid:'.$question->qpid.'_answermultichoice';
+ 				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
+ 				$check = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio'));
+ 				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
  				$questionanswers .= html_writer::div($check. $label);
  			}
  			$questionanswers .= html_writer::end_div();
@@ -1110,7 +1122,21 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			return $questionanswers;
  			break;
  		case ICONTENT_QTYPE_TRUEFALSE:
- 			// code..
+ 			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
+ 			$questionanswers = html_writer::start_div('question truefalse');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
+ 			$questionanswers .= html_writer::div(get_string('choose'), 'prompt');
+ 			$val = 0;
+ 			foreach ($anwswers as $anwswer){
+ 				$fieldname = 'qpid:'.$question->qpid.'_answertruefalse';
+ 				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
+ 				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$val));
+ 				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
+ 				$questionanswers .= html_writer::div($radio. $label, 'options');
+ 				$val++;
+ 			}
+ 			$questionanswers .= html_writer::end_div();
+ 			return $questionanswers;
  			break;
  		case ICONTENT_QTYPE_ESSAY:
  			// code..

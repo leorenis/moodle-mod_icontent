@@ -1139,7 +1139,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			return $questionanswers;
  			break;
  		case ICONTENT_QTYPE_ESSAY:
- 			// code..
+ 			$fieldname = 'qpid:'.$question->qpid.'_answeressay';
+ 			$qoptions = $DB->get_records('qtype_essay_options', array('questionid'=>$question->qid));
+ 			$questionanswers = html_writer::start_div('question essay');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
+ 			$questionanswers .= html_writer::tag('textarea', null, array('name'=>$fieldname, 'class'=>'answertextarea'));
+ 			$questionanswers .= html_writer::end_div();
+ 			return $questionanswers;
  			break;
  		default:
  			return false;

@@ -311,6 +311,15 @@ $(document).ready(function() {
         }
 	}
 	
+	// Save attemp
+	function onSaveQuestionsAttemp(){
+		var formdata = $(this).serialize();
+		console.log(formdata);
+		
+		// Ajax code...
+		return false;
+	}
+	
 	// Events
 	$("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
 	$("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
@@ -318,6 +327,7 @@ $(document).ready(function() {
 	$("#idicontentpages").on('click', '.editnote', onEditNoteClick);
 	$("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
 	$("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
+	$("#idicontentpages").on('submit', '#idformquestions', onSaveQuestionsAttemp);
 
 });
 // End ready

@@ -161,6 +161,7 @@ $string['createdby'] = 'Criado por';
 $string['lastmodifiedby'] = 'Última modificação por';
 $string['respond'] = ' Respondeu ';
 $string['statusview'] = 'Status de visualização';
+$string['sendattemp'] = 'Enviar';
 $string['labelprogressbar'] = '{$a}% completo';
 $string['erroridnotfound'] = ' <strong>Erro: </strong>Você deve especificar o parâmetro {$a}';
 

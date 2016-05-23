@@ -158,6 +158,7 @@ $string['createdby'] = ' Created by';
 $string['lastmodifiedby'] = 'Last modified by';
 $string['respond'] = ' Respond ';
 $string['statusview'] = 'Status view';
+$string['sendattemp'] = 'Send attemp';
 $string['labelprogressbar'] = '{$a} complete';
 $string['erroridnotfound'] = ' <strong>Error: </strong>You must specify the param {$a}';
 

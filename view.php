@@ -90,7 +90,7 @@ $PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awe
 $startwithpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);
 $showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context);
 
-icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //ADICIONA BLOCO SUMARIO
+icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //Add block sumary
 
 // ==========================
 // Content display HTML code

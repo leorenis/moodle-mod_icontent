@@ -1074,8 +1074,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	foreach ($questions as $question){
  		$qlist .= icontent_make_questions_answers_by_type($question);
  	}
- 	
- 	return html_writer::div($header. $qlist, 'questionsarea');
+ 	$qbtnsend = html_writer::tag('button', get_string('sendattemp', 'mod_icontent'));
+ 	return html_writer::div($header. $qlist. $qbtnsend, 'questionsarea');
  }
  /**
   * This is the function responsible for creating the answers of questions area.

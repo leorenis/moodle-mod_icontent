@@ -97,6 +97,11 @@ switch ($action) {
 		
 		$return = icontent_ajax_replynote($pagenote, $icontent);
 		break;
+		
+	case 'savequestions':
+		var_dump($_POST);
+		$return = false;
+		break;
 }
 
 echo json_encode($return);

@@ -32,7 +32,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Example constant, you probably want to remove this :-)
+ * Constant
  */
 define('ICONTENT_ULTIMATE_ANSWER', 42);
 

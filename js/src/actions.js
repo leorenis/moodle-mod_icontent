@@ -313,9 +313,18 @@ $(document).ready(function() {
 	
 	// Save attemp
 	function onSaveQuestionsAttemp(){
-		var formdata = $(this).serialize();
-		console.log(formdata);
-		
+		var data = $(this).serialize();
+		console.log(data);
+		$.ajax({
+			type : "POST",
+			dataType : "json",
+			url : "ajax.php",
+			data : data,
+			success : function(data) {
+				// code...
+			}
+		});
+		// End AJAX
 		// Ajax code...
 		return false;
 	}

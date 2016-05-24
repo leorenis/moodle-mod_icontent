@@ -18,7 +18,7 @@
  * Show/hide icontent page
  *
  * @package    mod_icontent
- * @copyright  2004-2010 Petr Skoda {@link http://skodak.org}
+ * @copyright  2015-2016 Leo Santos {@link http://github.com/leorenis}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

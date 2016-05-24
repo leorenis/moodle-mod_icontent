@@ -21,7 +21,7 @@
  * lib.php/modulename_install() post installation hook and partially defaults.php.
  *
  * @package    mod_icontent
- * @copyright  2015 Leo Renis Santos <leorenis@gmail.com>
+ * @copyright  2016 Leo Renis Santos <leorenis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

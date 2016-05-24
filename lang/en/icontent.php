@@ -21,7 +21,7 @@
  * if you like, and it can span multiple lines.
  *
  * @package    mod_icontent
- * @copyright  2015 Leo Renis Santos
+ * @copyright  2016 Leo Renis Santos
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -120,6 +120,9 @@ $string['copyright'] = 'Copyright';
 $string['copyright_help'] = 'Reserved space to add the credits related to copyright.';
 $string['confpagedelete'] = 'Do you want to delete this page along with all files and records related to it?';
 $string['confpagenotedelete'] = 'Are you sure you want to delete this note and all replies? <span class="label label-warning">{$a} reply(ies)</span>';
+$string['choiceoneoption'] = 'Choose a option:';
+$string['choiceone'] = 'Choice a:';
+$string['choiceoneormore'] = 'Choice one or more:';
 $string['layout'] = 'Page layout';
 $string['layouthelp'] = 'Layout of page';
 $string['layouthelp_help'] = 'Choose a layout.';

@@ -22,7 +22,7 @@
  * if you like, and it can span multiple lines.
  *
  * @package    mod_icontent
- * @copyright  2015 Leo Renis Santos
+ * @copyright  2016 Leo Renis Santos
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -126,6 +126,9 @@ $string['msgsucessexclusion'] = 'Dados excluídos com sucesso!';
 $string['msgaddquestionpage'] = 'Questões adicionadas com sucesso!';
 $string['confpagedelete'] = 'Você quer mesmo apagar esta página juntamente com todos os arquivos e registros relacionados a ela?';
 $string['confpagenotedelete'] = 'Tem certeza que quer excluir esta anotação juntamente com todas as suas respostas? <span class="label label-warning">{$a} resposta(s)</span>';
+$string['choiceoneoption'] = 'Escolha uma opção:';
+$string['choiceone'] = 'Escolha uma:';
+$string['choiceoneormore'] = 'Escolha uma ou mais:';
 $string['layout'] = 'Layout da página';
 $string['layouthelp'] = 'Layout da página';
 $string['layouthelp_help'] = 'Escolha um layout para apresentação do conteúdo na página.';

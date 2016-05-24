@@ -99,7 +99,7 @@ $table = new html_table();
 $table->id = "categoryquestions";
 $table->attributes = array('class'=>'icontentquestions');
 $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
-$table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'),get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
+$table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
 
 if($questions) foreach ($questions as $question){
 	$checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();

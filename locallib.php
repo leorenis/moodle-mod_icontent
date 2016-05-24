@@ -23,7 +23,7 @@ use core\progress\null;
  * logic, should go here. Never include this file from your lib.php!
  *
  * @package    mod_icontent
- * @copyright  2015 Leo Renis Santos
+ * @copyright  2016 Leo Renis Santos
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -1095,13 +1095,15 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			if($totalrightanwsers > 1){
  				$type = 'checkbox';
  				$brackets = '[]';
+ 				$strprompt = get_string('choiceoneormore', 'mod_icontent');
  			}else {
  				$type = 'radio';
  				$brackets = '';
+ 				$strprompt = get_string('choiceone', 'mod_icontent');
  			}
  			$questionanswers = html_writer::start_div('question multichoice');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
- 			$questionanswers .= html_writer::div(get_string('choose'), 'prompt');
+ 			$questionanswers .= html_writer::div($strprompt, 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			foreach ($anwswers as $anwswer){
  				$fieldname = 'qpid-'.$question->qpid.'_answermultichoice'.$brackets;
@@ -1139,7 +1141,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
  			$questionanswers = html_writer::start_div('question truefalse');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
- 			$questionanswers .= html_writer::div(get_string('choose'), 'prompt');
+ 			$questionanswers .= html_writer::div(get_string('choiceoneoption', 'mod_icontent'), 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			$val = 0;
  			foreach ($anwswers as $anwswer){
@@ -1473,7 +1475,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $USER;
 
  	// icones all users
- 	$comments = html_writer::link('#notesarea', '<i class="fa fa-comments fa-lg"></i>',
+ 	$comments = html_writer::link('#idnotesarea', '<i class="fa fa-comments fa-lg"></i>',
  		array(
  			'title' => s(get_string('comments', 'icontent')),
  			'class'=>'icon icon-comments',

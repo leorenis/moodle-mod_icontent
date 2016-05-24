@@ -6,7 +6,7 @@
  *    Leo Santos <leorenis@gmail.com>
  * 
  * @package   mod_icontent
- * @copyright 2014 Léo Renis Santos 
+ * @copyright 2016 Léo Renis Santos 
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v2 or later
  */
 

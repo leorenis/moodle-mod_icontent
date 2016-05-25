@@ -98,9 +98,9 @@ switch ($action) {
 		$return = icontent_ajax_replynote($pagenote, $icontent);
 		break;
 		
-	case 'savequestions':
-		var_dump($_POST);
-		$return = false;
+	case 'saveattempt':
+		$formdata = required_param('formdata', PARAM_RAW);
+		$return = icontent_ajax_saveattempt($formdata, $icontent);
 		break;
 }
 

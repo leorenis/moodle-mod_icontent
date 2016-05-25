@@ -1,4 +1,9 @@
-﻿-- Updates 2016051500
+﻿-- Updates 2016052500
+ALTER TABLE `moodle28`.`mdl_icontent_question_attempt` 
+ADD COLUMN `rightanswer` VARCHAR(255) NULL DEFAULT '0' COMMENT 'Resposta correta.' AFTER `fraction`,
+ADD COLUMN `answertext` LONGTEXT NULL COMMENT 'Texto de resposta.' AFTER `rightanswer`;
+
+-- Updates 2016051500
 ALTER TABLE `db_moodletcc`.`mdl_icontent_pages_questions` 
 DROP COLUMN `qtype`, DROP COLUMN `maxmark`;
 

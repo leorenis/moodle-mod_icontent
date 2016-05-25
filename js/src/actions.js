@@ -312,9 +312,17 @@ $(document).ready(function() {
 	}
 	
 	// Save attemp
-	function onSaveQuestionsAttemp(){
-		var data = $(this).serialize();
-		console.log(data);
+	function onSaveAttempAnswers(){
+		var formdata = $(this).serialize();
+		var cmid = parseInt($( "#idhfieldcmid").val());
+		var sesskey = $( "#idhfieldsesskey").val();
+		var data = {
+				"action" : "saveattempt",
+				"id" : cmid,
+				"sesskey" : sesskey,
+				"formdata" : formdata,
+			};
+		
 		$.ajax({
 			type : "POST",
 			dataType : "json",
@@ -323,9 +331,8 @@ $(document).ready(function() {
 			success : function(data) {
 				// code...
 			}
-		});
-		// End AJAX
-		// Ajax code...
+		});// End AJAX
+		
 		return false;
 	}
 	
@@ -336,7 +343,7 @@ $(document).ready(function() {
 	$("#idicontentpages").on('click', '.editnote', onEditNoteClick);
 	$("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
 	$("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
-	$("#idicontentpages").on('submit', '#idformquestions', onSaveQuestionsAttemp);
+	$("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);
 
 });
 // End ready

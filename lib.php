@@ -667,3 +667,28 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 	
 	return $return;
 }
+/**
+ * Saves attempts to answers to the questions of the current page in table {icontent_question_attempt}
+ * @param string $formdata
+ * @param object $icontent
+ * @return string $response
+ */
+function icontent_ajax_saveattempt($formdata, stdClass $icontent){
+	// Get form data
+	parse_str($formdata, $data);
+	// Destroy unused fields
+	unset($data['id']);
+	unset($data['sesskey']);
+	// Create array object for attempt
+	$i = 0;
+	$records = array();
+	foreach ($data as $key => $value){
+		list($qpage, $qtype) = explode('_', $key);
+		list($str1, $qpid) = explode('-', $qpage);
+		$records[$i] = new stdClass();
+		$records[$i]->pagesquestionsid = (int) $qpid;
+		$i ++;
+	}
+	//var_dump($records);
+	return false;
+}

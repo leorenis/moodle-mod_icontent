@@ -1075,9 +1075,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		$qlist .= icontent_make_questions_answers_by_type($question);
  	}
  	// Hidden form fields
- 	$hiddenfields = html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'id', 'value'=>$objpage->cmid));
- 	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'action', 'value'=>'savequestions'));
- 	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'sesskey', 'value'=>sesskey()));
+ 	$hiddenfields = html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'id', 'value'=>$objpage->cmid, 'id'=>'idhfieldcmid'));
+ 	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'sesskey', 'value'=>sesskey(), 'id'=>'idhfieldsesskey'));
  	// Button send questions
  	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'value'=> get_string('sendattemp', 'mod_icontent')));
  	// Tag form

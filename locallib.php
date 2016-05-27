@@ -1111,7 +1111,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$questionanswers .= html_writer::div($strprompt, 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			foreach ($anwswers as $anwswer){
- 				$fieldname = 'qpid-'.$question->qpid.'_answermultichoice'.$brackets;
+ 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_multichoice'.$brackets;
  				$value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
  				$check = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>$type, 'value'=>$value));
@@ -1133,8 +1133,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				$arrayanswers[$option->answertext] = strip_tags($option->answertext);
  			}
  			foreach ($options as $option){
+ 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_matchanswerid-'.$option->id;
  				$qtext = html_writer::tag('td', strip_tags($option->questiontext));
- 				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, 'qpid-'.$question->qpid.'_matchanswerid-'.$option->id, null, array('' => 'choosedots'), array('required'=>'required')));
+ 				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, null, array('' => 'choosedots'), array('required'=>'required')));
  				$contenttable .= html_writer::tag('tr', $qtext. $answertext);
  			}
  			$questionanswers .= html_writer::tag('table', $contenttable);
@@ -1150,7 +1151,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			$val = 0;
  			foreach ($anwswers as $anwswer){
- 				$fieldname = 'qpid-'.$question->qpid.'_answertruefalse';
+ 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_truefalse';
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
  				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$val));
  				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
@@ -1162,7 +1163,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			return $questionanswers;
  			break;
  		case ICONTENT_QTYPE_ESSAY:
- 			$fieldname = 'qpid-'.$question->qpid.'_answeressay';
+ 			$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_essay';
  			$qoptions = $DB->get_records('qtype_essay_options', array('questionid'=>$question->qid));
  			$questionanswers = html_writer::start_div('question essay');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));

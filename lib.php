@@ -683,12 +683,18 @@ function icontent_ajax_saveattempt($formdata, stdClass $icontent){
 	$i = 0;
 	$records = array();
 	foreach ($data as $key => $value){
-		list($qpage, $qtype) = explode('_', $key);
-		list($str1, $qpid) = explode('-', $qpage);
+		list($qpage, $question, $qtype) = explode('_', $key);
+		list($strvar, $qpid) = explode('-', $qpage);
+		list($strvar, $qid) = explode('-', $question);
+		// qtype match
+		if(substr($qtype, 0, 5) === 'match'){
+			list($strvar, $answerid) = explode('-', $qtype);
+		}
 		$records[$i] = new stdClass();
 		$records[$i]->pagesquestionsid = (int) $qpid;
+		$records[$i]->questionid = (int) $qid;
 		$i ++;
 	}
-	//var_dump($records);
+	var_dump($records);
 	return false;
 }

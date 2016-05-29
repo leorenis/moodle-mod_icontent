@@ -128,7 +128,7 @@ $string['confpagedelete'] = 'Você quer mesmo apagar esta página juntamente com
 $string['confpagenotedelete'] = 'Tem certeza que quer excluir esta anotação juntamente com todas as suas respostas? <span class="label label-warning">{$a} resposta(s)</span>';
 $string['choiceoneoption'] = 'Escolha uma opção:';
 $string['choiceone'] = 'Escolha uma:';
-$string['choiceoneormore'] = 'Escolha uma ou mais:';
+$string['choiceoneormore'] = 'Escolha {$a} opções:';
 $string['layout'] = 'Layout da página';
 $string['layouthelp'] = 'Layout da página';
 $string['layouthelp_help'] = 'Escolha um layout para apresentação do conteúdo na página.';

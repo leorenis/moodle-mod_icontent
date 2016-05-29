@@ -122,7 +122,7 @@ $string['confpagedelete'] = 'Do you want to delete this page along with all file
 $string['confpagenotedelete'] = 'Are you sure you want to delete this note and all replies? <span class="label label-warning">{$a} reply(ies)</span>';
 $string['choiceoneoption'] = 'Choose a option:';
 $string['choiceone'] = 'Choice a:';
-$string['choiceoneormore'] = 'Choice one or more:';
+$string['choiceoneormore'] = 'Choice {$a} options:';
 $string['layout'] = 'Page layout';
 $string['layouthelp'] = 'Layout of page';
 $string['layouthelp_help'] = 'Choose a layout.';

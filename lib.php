@@ -670,10 +670,12 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 /**
  * Saves attempts to answers to the questions of the current page in table {icontent_question_attempt}
  * @param string $formdata
- * @param object $icontent
+ * @param object $cm
  * @return string $response
  */
-function icontent_ajax_saveattempt($formdata, stdClass $icontent){
+function icontent_ajax_saveattempt($formdata, stdClass $cm){
+	global $USER;
+	require_once(dirname(__FILE__).'/locallib.php');
 	// Get form data
 	parse_str($formdata, $data);
 	// Destroy unused fields
@@ -686,13 +688,16 @@ function icontent_ajax_saveattempt($formdata, stdClass $icontent){
 		list($qpage, $question, $qtype) = explode('_', $key);
 		list($strvar, $qpid) = explode('-', $qpage);
 		list($strvar, $qid) = explode('-', $question);
-		// qtype match
-		if(substr($qtype, 0, 5) === 'match'){
-			list($strvar, $answerid) = explode('-', $qtype);
-		}
+		$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
 		$records[$i] = new stdClass();
 		$records[$i]->pagesquestionsid = (int) $qpid;
 		$records[$i]->questionid = (int) $qid;
+		$records[$i]->userid = (int) $USER->id;
+		$records[$i]->cmid = (int) $cm->id;
+		$records[$i]->fraction = $infoanswer->fraction;
+		$records[$i]->rightanswer = $infoanswer->rightanswer;
+		$records[$i]->answertext = $infoanswer->answertext;
+		$records[$i]->timecreated = time();
 		$i ++;
 	}
 	var_dump($records);

@@ -1,13 +1,18 @@
-﻿-- Updates 2016052500
+﻿-- Updates 2016052700
+ALTER TABLE `db_moodletcc`.`mdl_icontent_question_attempt` 
+ADD COLUMN `timecreated` BIGINT(10) NOT NULL DEFAULT '0' COMMENT 'Momento do envio da resposta.' AFTER `answertext`;
+ALTER TABLE `db_moodletcc`.`mdl_icontent_question_attempt` RENAME TO  `db_moodletcc`.`mdl_icontent_question_attempts` ;
+
+-- Updates 2016052500 - OK
 ALTER TABLE `moodle28`.`mdl_icontent_question_attempt` 
 ADD COLUMN `rightanswer` VARCHAR(255) NULL DEFAULT '0' COMMENT 'Resposta correta.' AFTER `fraction`,
 ADD COLUMN `answertext` LONGTEXT NULL COMMENT 'Texto de resposta.' AFTER `rightanswer`;
 
--- Updates 2016051500
+-- Updates 2016051500 - OK
 ALTER TABLE `db_moodletcc`.`mdl_icontent_pages_questions` 
 DROP COLUMN `qtype`, DROP COLUMN `maxmark`;
 
--- Updates 2016051000 
+-- Updates 2016051000 - OK
 ALTER TABLE `moodle28`.`mdl_icontent_pages` 
 ADD COLUMN `maxnotesperpages` SMALLINT(5) NOT NULL DEFAULT 0 COMMENT 'Maximo de anotacao por pagina.' AFTER `hidden`,
 ADD COLUMN `maxquestionsperpages` SMALLINT(3) NOT NULL DEFAULT 0 COMMENT 'Maximo de questoes por pagina.' AFTER `maxnotesperpages`;

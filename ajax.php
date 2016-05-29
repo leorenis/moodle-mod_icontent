@@ -100,7 +100,7 @@ switch ($action) {
 		
 	case 'saveattempt':
 		$formdata = required_param('formdata', PARAM_RAW);
-		$return = icontent_ajax_saveattempt($formdata, $icontent);
+		$return = icontent_ajax_saveattempt($formdata, $cm);
 		break;
 }
 

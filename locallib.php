@@ -520,6 +520,68 @@ function icontent_get_questions_of_currentpage($pageid, $cmid){
 	return $DB->get_records('icontent_pages_questions', array('pageid'=>$pageid, 'cmid'=>$cmid), null, 'questionid, id');
 }
 /**
+ * Get info answers by questionid.
+ *
+ * Returns object infoanswer
+ *
+ * @param  int $questionid
+ * @param  int $qtype
+ * @param  string $answer
+ * @return object $infoanswer
+ */
+function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
+	global $DB;
+	// Check if var $qtype equals match. If true get $answerid
+	if(substr($qtype, 0, 5) === ICONTENT_QTYPE_MATCH){
+		list($strvar, $answerid) = explode('-', $qtype);
+		$qtype = ICONTENT_QTYPE_MATCH;
+	}
+	// Creating the $infoanswer object
+	$infoanswer = new stdClass();
+	// Set information by qtype
+	switch ($qtype){
+		case ICONTENT_QTYPE_MULTICHOICE:
+			if(is_array($answer)){
+				$rightanwsers = $DB->get_records_select('question_answers', 'question = ? AND fraction > ?', array($questionid, 0));
+				if(count($answer) === count($rightanwsers)){
+					// Checks if answer is correct
+					$i = 0;
+					foreach ($rightanwsers as $rightanswer){
+						
+						$i ++;
+					}
+					//var_dump($answer);
+					//var_dump($rightanwsers);
+					die();
+				}
+				return false;
+			}else{
+				
+			}
+			return $infoanswer;
+		break;
+		case ICONTENT_QTYPE_MATCH:
+			$infoanswer->fraction = 'match';
+			$infoanswer->rightanswer = 'match';
+			$infoanswer->answertext = 'match';
+			return $infoanswer;
+			break;
+		case ICONTENT_QTYPE_TRUEFALSE:
+			$infoanswer->fraction = 'truefalse';
+			$infoanswer->rightanswer = 'truefalse';
+			$infoanswer->answertext = 'truefalse';
+			return $infoanswer;
+			break;
+		case ICONTENT_QTYPE_ESSAY:
+			$infoanswer->fraction = 'essay';
+			$infoanswer->rightanswer = 'essay';
+			$infoanswer->answertext = 'essay';
+			return $infoanswer;
+			break;
+	}
+	return false;
+}
+/**
  * Add preview in page if its not previewed.
  *
  * Returns object of pagedisplayed
@@ -1100,18 +1162,18 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			if($totalrightanwsers > 1){
  				$type = 'checkbox';
  				$brackets = '[]';
- 				$strprompt = get_string('choiceoneormore', 'mod_icontent');
+ 				$strprompt = get_string('choiceoneormore', 'mod_icontent', $totalrightanwsers);
  			}else {
  				$type = 'radio';
  				$brackets = '';
  				$strprompt = get_string('choiceone', 'mod_icontent');
  			}
- 			$questionanswers = html_writer::start_div('question multichoice');
+ 			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MULTICHOICE);
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
  			$questionanswers .= html_writer::div($strprompt, 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			foreach ($anwswers as $anwswer){
- 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_multichoice'.$brackets;
+ 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MULTICHOICE.$brackets;
  				$value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
  				$check = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>$type, 'value'=>$value));
@@ -1124,7 +1186,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			break;
  		case ICONTENT_QTYPE_MATCH:
  			$options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
- 			$questionanswers = html_writer::start_div('question match');
+ 			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			$contenttable = '';
@@ -1133,7 +1195,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				$arrayanswers[$option->answertext] = strip_tags($option->answertext);
  			}
  			foreach ($options as $option){
- 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_matchanswerid-'.$option->id;
+ 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
  				$qtext = html_writer::tag('td', strip_tags($option->questiontext));
  				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, null, array('' => 'choosedots'), array('required'=>'required')));
  				$contenttable .= html_writer::tag('tr', $qtext. $answertext);
@@ -1145,13 +1207,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			break;
  		case ICONTENT_QTYPE_TRUEFALSE:
  			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
- 			$questionanswers = html_writer::start_div('question truefalse');
+ 			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
  			$questionanswers .= html_writer::div(get_string('choiceoneoption', 'mod_icontent'), 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			$val = 0;
  			foreach ($anwswers as $anwswer){
- 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_truefalse';
+ 				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_TRUEFALSE;
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
  				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$val));
  				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
@@ -1163,7 +1225,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			return $questionanswers;
  			break;
  		case ICONTENT_QTYPE_ESSAY:
- 			$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_essay';
+ 			$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_ESSAY;
  			$qoptions = $DB->get_records('qtype_essay_options', array('questionid'=>$question->qid));
  			$questionanswers = html_writer::start_div('question essay');
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));

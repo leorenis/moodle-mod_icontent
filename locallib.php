@@ -574,8 +574,16 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 				// Get data answer. Pattern e.g. [qpid-8_answerid-2].
 				list($qp, $dtanswer) = explode('_', $answer);
 				list($stranswer, $answerid) = explode('-', $dtanswer);
-				$currentanwser = $DB->get_records_select('question_answers', 'question = ? AND id = ?', array($questionid, $answerid));
-				var_dump($currentanwser); die;
+				$currentanwser = $DB->get_record_select('question_answers', 'question = ? AND id = ?', array($questionid, $answerid));
+				$infoanswer->fraction = $currentanwser->fraction;
+				$infoanswer->rightanswer = $currentanwser->answer;
+				$infoanswer->answertext = $currentanwser->answer;
+				
+				if($infoanswer->fraction < 1){
+					$rightanwser = $DB->get_record_select('question_answers', 'question = ? AND fraction = ?', array($questionid, 1));
+					$infoanswer->rightanswer = $rightanwser->answer;
+				}
+				return $infoanswer;
 			}
 			return $infoanswer;
 		break;

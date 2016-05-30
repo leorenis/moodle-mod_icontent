@@ -1,5 +1,6 @@
 <?php
 use core\progress\null;
+use core_question\bank\action_column_base;
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -521,7 +522,7 @@ function icontent_get_questions_of_currentpage($pageid, $cmid){
 }
 /**
  * Get info answers by questionid.
- *
+ * Important: This function assumes that the naming patterns described in <icontent_make_questions_answers_by_type> function were followed correctly.
  * Returns object infoanswer
  *
  * @param  int $questionid
@@ -536,27 +537,45 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 		list($strvar, $answerid) = explode('-', $qtype);
 		$qtype = ICONTENT_QTYPE_MATCH;
 	}
-	// Creating the $infoanswer object
+	// Creating and initializing the $infoanswer object
 	$infoanswer = new stdClass();
+	$infoanswer->fraction = 0;
+	$infoanswer->rightanswer = '';
+	$infoanswer->answertext = '';
 	// Set information by qtype
 	switch ($qtype){
 		case ICONTENT_QTYPE_MULTICHOICE:
 			if(is_array($answer)){
 				$rightanwsers = $DB->get_records_select('question_answers', 'question = ? AND fraction > ?', array($questionid, 0));
 				if(count($answer) === count($rightanwsers)){
-					// Checks if answer is correct
-					$i = 0;
-					foreach ($rightanwsers as $rightanswer){
-						
-						$i ++;
+					// Get array with key ID answer
+					$arrayoptionsids = icontent_get_array_options_answerid($answer);
+					// Checks answers correct
+					foreach ($rightanwsers as $rightanswer) {
+						$infoanswer->rightanswer .= $rightanswer->answer.';';
+						if(array_key_exists($rightanswer->id, $arrayoptionsids)){
+							$infoanswer->fraction += $rightanswer->fraction;
+							$infoanswer->answertext .= $rightanswer->answer.';';
+						}
 					}
-					//var_dump($answer);
-					//var_dump($rightanwsers);
-					die();
+					// Checks wrong answers
+					if($infoanswer->fraction < 1){
+						$wronganswers = $DB->get_records_select('question_answers', 'question = ? AND fraction = ?', array($questionid, 0));
+						foreach ($wronganswers as $wronganswer){
+							if(array_key_exists($wronganswer->id, $arrayoptionsids)){
+								$infoanswer->answertext .= $wronganswer->answer.';';
+							}
+						}
+					}
+					return $infoanswer;
 				}
 				return false;
 			}else{
-				
+				// Get data answer. Pattern e.g. [qpid-8_answerid-2].
+				list($qp, $dtanswer) = explode('_', $answer);
+				list($stranswer, $answerid) = explode('-', $dtanswer);
+				$currentanwser = $DB->get_records_select('question_answers', 'question = ? AND id = ?', array($questionid, $answerid));
+				var_dump($currentanwser); die;
 			}
 			return $infoanswer;
 		break;
@@ -581,6 +600,24 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 	}
 	return false;
 }
+/**
+ * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].
+ *
+ * Returns array of $arrayoptionsid
+ *
+ * @param  array $answers
+ * @return array $arrayoptionsid[$answerid] = $questionpage
+ */
+function icontent_get_array_options_answerid($answers){
+	$arrayoptionsids = array();
+	foreach ($answers as $optanswer){
+		list($qp, $answer) = explode('_', $optanswer);
+		list($stranswer, $answerid) = explode('-', $answer);
+		$arrayoptionsids[$answerid] = $qp;
+	}
+	return $arrayoptionsids;
+}
+
 /**
  * Add preview in page if its not previewed.
  *
@@ -1147,8 +1184,17 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  }
  /**
   * This is the function responsible for creating the answers of questions area.
+  * 
+  * Patterns for field names and values of question types:
+  * 	Multichoice name = qpid-QPID_qid-QID_QTYPE or qpid-QPID_qid-QID_QTYPE[];
+  * 	Multichoice value = qpid-QPID_answerid-ID;
+  *		Match name = qpid-QPID_qid-QID_QTYPE-ID;
+  *		Truefalse name = qpid-QPID_qid-QID_QTYPE;
+  *		Essay name = qpid-QPID_qid-QID_QTYPE.
   *
-  * Returns answers
+  * Important: Items in capital letters must be replaced by variables.
+  *
+  * Returns fields and answers by type
   *
   * @param  object $question
   * @return string $answers

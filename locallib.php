@@ -40,6 +40,7 @@ define('ICONTENT_QTYPE_MATCH', 'match');
 define('ICONTENT_QTYPE_MULTICHOICE', 'multichoice');
 define('ICONTENT_QTYPE_TRUEFALSE', 'truefalse');
 define('ICONTENT_QTYPE_ESSAY', 'essay');
+define('ICONTENT_QUESTION_FRACTION', 1);
 
 require_once(dirname(__FILE__).'/lib.php');
 
@@ -533,7 +534,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 	global $DB;
 	// Check if var $qtype equals match. If true get $answerid
 	if(substr($qtype, 0, 5) === ICONTENT_QTYPE_MATCH){
-		list($strvar, $answerid) = explode('-', $qtype);
+		list($strvar, $optionid) = explode('-', $qtype);
 		$qtype = ICONTENT_QTYPE_MATCH;
 	}
 	// Creating and initializing the $infoanswer object
@@ -558,7 +559,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 						}
 					}
 					// Checks wrong answers
-					if($infoanswer->fraction < 1){
+					if($infoanswer->fraction < ICONTENT_QUESTION_FRACTION){
 						$wronganswers = $DB->get_records_select('question_answers', 'question = ? AND fraction = ?', array($questionid, 0));
 						foreach ($wronganswers as $wronganswer){
 							if(array_key_exists($wronganswer->id, $arrayoptionsids)){
@@ -578,17 +579,26 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 				$infoanswer->rightanswer = $currentanwser->answer;
 				$infoanswer->answertext = $currentanwser->answer;
 				
-				if($infoanswer->fraction < 1){
-					$rightanwser = $DB->get_record_select('question_answers', 'question = ? AND fraction = ?', array($questionid, 1));
+				if($infoanswer->fraction < ICONTENT_QUESTION_FRACTION){
+					$rightanwser = $DB->get_record_select('question_answers', 'question = ? AND fraction = ?', array($questionid, ICONTENT_QUESTION_FRACTION));
 					$infoanswer->rightanswer = $rightanwser->answer;
 				}
 				return $infoanswer;
 			}
 		break;
 		case ICONTENT_QTYPE_MATCH:
-			$infoanswer->fraction = 'match';
-			$infoanswer->rightanswer = 'match';
-			$infoanswer->answertext = 'match';
+			$rightanwser = $DB->get_record('qtype_match_subquestions', array('id'=> $optionid));
+			$tanwseroptions = $DB->count_records_select('qtype_match_subquestions', 'questionid = ?', array('questionid'=> $questionid));
+			// Clean answers
+			$currentanwser = trim(strip_tags($answer));
+			$rightanwser->answertext = trim(strip_tags($rightanwser->answertext));
+			// Fill object $infoanswer
+			$infoanswer->rightanswer = $rightanwser->answertext. '->'.$rightanwser->questiontext.';';
+			$infoanswer->answertext = $currentanwser. '->'. $rightanwser->questiontext.';';
+			// Checks if answer is correct
+			if($rightanwser->answertext === $currentanwser){
+				$infoanswer->fraction += number_format(ICONTENT_QUESTION_FRACTION / $tanwseroptions, 7);
+			}
 			return $infoanswer;
 			break;
 		case ICONTENT_QTYPE_TRUEFALSE:
@@ -1244,7 +1254,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$contenttable = '';
  			$arrayanswers = [];
  			foreach ($options as $option){
- 				$arrayanswers[$option->answertext] = strip_tags($option->answertext);
+ 				$optanswertext = trim(strip_tags($option->answertext));
+ 				$arrayanswers[$optanswertext] = $optanswertext;
  			}
  			foreach ($options as $option){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;

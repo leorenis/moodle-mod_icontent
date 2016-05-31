@@ -674,7 +674,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
  * @return string $response
  */
 function icontent_ajax_saveattempt($formdata, stdClass $cm){
-	global $USER;
+	global $USER, $DB;
 	require_once(dirname(__FILE__).'/locallib.php');
 	// Get form data
 	parse_str($formdata, $data);

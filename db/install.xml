@@ -154,7 +154,7 @@
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="cmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="fraction" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Fracao da nota recebida na questao enviada." />
-      	<FIELD NAME="rightanswer" TYPE="char" LENGTH="255" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Resposta correta." />
+      	<FIELD NAME="rightanswer" TYPE="char" LENGTH="3072" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Resposta correta." />
       	<FIELD NAME="answertext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Texto de resposta." />
       	<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Momento do envio da resposta." />
       </FIELDS>

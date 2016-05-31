@@ -1,4 +1,8 @@
-﻿-- Updates 2016052700
+﻿-- Updates 2016053100
+ALTER TABLE `moodle28`.`mdl_icontent_question_attempt` 
+CHANGE COLUMN `rightanswer` `rightanswer` VARCHAR(3072) NULL DEFAULT '0' COMMENT 'Resposta correta.' ;
+
+-- Updates 2016052700 - OK
 ALTER TABLE `db_moodletcc`.`mdl_icontent_question_attempt` 
 ADD COLUMN `timecreated` BIGINT(10) NOT NULL DEFAULT '0' COMMENT 'Momento do envio da resposta.' AFTER `answertext`;
 ALTER TABLE `db_moodletcc`.`mdl_icontent_question_attempt` RENAME TO  `db_moodletcc`.`mdl_icontent_question_attempts` ;

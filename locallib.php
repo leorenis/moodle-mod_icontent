@@ -1,6 +1,5 @@
 <?php
 use core\progress\null;
-use core_question\bank\action_column_base;
 
 // This file is part of Moodle - http://moodle.org/
 //
@@ -585,7 +584,6 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 				}
 				return $infoanswer;
 			}
-			return $infoanswer;
 		break;
 		case ICONTENT_QTYPE_MATCH:
 			$infoanswer->fraction = 'match';

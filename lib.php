@@ -700,6 +700,11 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm){
 		$records[$i]->timecreated = time();
 		$i ++;
 	}
-	var_dump($records);
-	return false;
+	// Save records
+	$DB->insert_records('icontent_question_attempts', $records);
+	
+	// Create object summary attempt
+	//$summaryattempt = new stdClass();
+	
+	return true;
 }

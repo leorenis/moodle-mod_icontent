@@ -545,6 +545,8 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 	// Set information by qtype
 	switch ($qtype){
 		case ICONTENT_QTYPE_MULTICHOICE:
+		case ICONTENT_QTYPE_TRUEFALSE:
+			// Check if answer is a checkbox. Otherwise, is radio,
 			if(is_array($answer)){
 				$rightanwsers = $DB->get_records_select('question_answers', 'question = ? AND fraction > ?', array($questionid, 0));
 				if(count($answer) === count($rightanwsers)){
@@ -601,20 +603,13 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 			}
 			return $infoanswer;
 			break;
-		case ICONTENT_QTYPE_TRUEFALSE:
-			$infoanswer->fraction = 'truefalse';
-			$infoanswer->rightanswer = 'truefalse';
-			$infoanswer->answertext = 'truefalse';
-			return $infoanswer;
-			break;
 		case ICONTENT_QTYPE_ESSAY:
-			$infoanswer->fraction = 'essay';
-			$infoanswer->rightanswer = 'essay';
-			$infoanswer->answertext = 'essay';
+			$infoanswer->rightanswer = 'manualgraded';	// To be defined by tutor.
+			$infoanswer->answertext = $answer;
 			return $infoanswer;
 			break;
 	}
-	return false;
+	throw new Exception("QTYPE Invalid.");
 }
 /**
  * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].
@@ -1274,14 +1269,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
  			$questionanswers .= html_writer::div(get_string('choiceoneoption', 'mod_icontent'), 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
- 			$val = 0;
  			foreach ($anwswers as $anwswer){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_TRUEFALSE;
+ 				$value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
- 				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$val));
+ 				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$value));
  				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
  				$questionanswers .= html_writer::div($radio. $label, 'options');
- 				$val++;
  			}
  			$questionanswers .= html_writer::end_div(); // End div options list
  			$questionanswers .= html_writer::end_div();
@@ -1299,6 +1293,33 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		default:
  			return false;
  	}
+ }
+ /**
+  * This is the function responsible for creating the summary attempt the current page.
+  *
+  * Returns summary attempt
+  *
+  * @param  int $pageid
+  * @param  int $cmid
+  * @return string $summaryattempt
+  */
+ function icontent_make_summary_attempt_by_page($pageid, $cmid){
+	global $DB, $USER;
+	$sql = "SELECT Sum(qa.fraction) AS sumfraction,
+			       Count(qa.id)     AS totalquestions,
+			       qa.timecreated
+			FROM   {icontent_question_attempts} qa
+			       INNER JOIN {icontent_pages_questions} pq
+			               ON qa.pagesquestionsid = pq.id
+			WHERE  pq.pageid = ?
+			       AND pq.cmid = ?
+				   AND qa.userid = ?;";
+	
+	/* Estado  		|	 Enviado em						| Avaliar
+	 * ----------------------------------------------------------------------------------------
+	 * Finalizado	| Quarta-feira, 1 jun 2016, 17:00	| 	10,00 de um máximo de 10,00 (100%)	
+	 */
+ 	return $summaryattempt;
  }
  /**
  * This is the function responsible for creating the area comments on pages.

@@ -1368,7 +1368,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$totalrightanswers = $rightanswer->totalrightanswers;
  	// String
  	$strtoevaluate = new stdClass();
- 	$strtoevaluate->fraction = $summaryattempt->sumfraction;
+ 	$strtoevaluate->fraction = number_format($summaryattempt->sumfraction, 2);
  	$strtoevaluate->maxfraction = number_format($summaryattempt->totalanswers, 2);
  	$strtoevaluate->percentage = round(($rightanswer->totalrightanswers * 100) / $summaryattempt->totalanswers);
  	$toevaluate = get_string('strtoevaluate', 'mod_icontent', $strtoevaluate);

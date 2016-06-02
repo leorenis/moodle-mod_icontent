@@ -678,8 +678,10 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm){
 	require_once(dirname(__FILE__).'/locallib.php');
 	// Get form data
 	parse_str($formdata, $data);
+	$pageid = $data['pageid'];
 	// Destroy unused fields
 	unset($data['id']);
+	unset($data['pageid']);
 	unset($data['sesskey']);
 	// Create array object for attempt
 	$i = 0;
@@ -704,7 +706,8 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm){
 	$DB->insert_records('icontent_question_attempts', $records);
 	
 	// Create object summary attempt
-	//$summaryattempt = new stdClass();
+	$summary = new stdClass();
+	$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
 	
-	return true;
+	return $summary;
 }

@@ -612,6 +612,51 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 	throw new Exception("QTYPE Invalid.");
 }
 /**
+ * Get object with attempt summary the current page.
+ *
+ * Returns object attempt summary
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return object $attemptsummary
+ */
+function icontent_get_attempt_summary_by_page($pageid, $cmid){
+	global $DB, $USER;
+	$sql = "SELECT Sum(qa.fraction) AS sumfraction,
+			       Count(qa.id)     AS totalanswers,
+			       qa.timecreated
+			FROM   {icontent_question_attempts} qa
+			       INNER JOIN {icontent_pages_questions} pq
+			               ON qa.pagesquestionsid = pq.id
+			WHERE  pq.pageid = ?
+			       AND pq.cmid = ?
+				   AND qa.userid = ?;";
+	
+	return $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id));
+}
+/**
+ * Get object with right answers by attempt summary the current page.
+ *
+ * Returns object total right answers by attempt summary
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return object $obj
+ */
+function icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid){
+	global $DB, $USER;
+	$sql = "SELECT Count(qa.id)	AS totalrightanswers
+			FROM   {icontent_question_attempts} qa
+			       INNER JOIN {icontent_pages_questions} pq
+			               ON qa.pagesquestionsid = pq.id
+			WHERE  qa.fraction > 0
+				   AND pq.pageid = ?
+			       AND pq.cmid = ?
+				   AND qa.userid = ?;";
+
+	return $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id));
+}
+/**
  * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].
  *
  * Returns array of $arrayoptionsid
@@ -1186,6 +1231,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  	// Hidden form fields
  	$hiddenfields = html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'id', 'value'=>$objpage->cmid, 'id'=>'idhfieldcmid'));
+ 	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'pageid', 'value'=>$objpage->id, 'id'=>'idhfieldpageid'));
  	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'sesskey', 'value'=>sesskey(), 'id'=>'idhfieldsesskey'));
  	// Button send questions
  	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'value'=> get_string('sendattemp', 'mod_icontent')));
@@ -1295,31 +1341,41 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  }
  /**
-  * This is the function responsible for creating the summary attempt the current page.
+  * This is the function responsible for creating the attempt summary the current page.
   *
-  * Returns summary attempt
+  * Returns attempt summary
   *
   * @param  int $pageid
   * @param  int $cmid
-  * @return string $summaryattempt
+  * @return string $attemptsummary
   */
- function icontent_make_summary_attempt_by_page($pageid, $cmid){
-	global $DB, $USER;
-	$sql = "SELECT Sum(qa.fraction) AS sumfraction,
-			       Count(qa.id)     AS totalquestions,
-			       qa.timecreated
-			FROM   {icontent_question_attempts} qa
-			       INNER JOIN {icontent_pages_questions} pq
-			               ON qa.pagesquestionsid = pq.id
-			WHERE  pq.pageid = ?
-			       AND pq.cmid = ?
-				   AND qa.userid = ?;";
-	
-	/* Estado  		|	 Enviado em						| Avaliar
-	 * ----------------------------------------------------------------------------------------
-	 * Finalizado	| Quarta-feira, 1 jun 2016, 17:00	| 	10,00 de um máximo de 10,00 (100%)	
-	 */
- 	return $summaryattempt;
+ function icontent_make_attempt_summary_by_page($pageid, $cmid){
+ 	// get object summaryattempt
+ 	$summaryattempt = icontent_get_attempt_summary_by_page($pageid, $cmid);
+ 	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);
+ 	// Make table
+ 	$summarygrid = new html_table();
+ 	$summarygrid->id = "idicontentattemptsummary";
+ 	$summarygrid->attributes = array('class'=>'icontentattemptsummary');
+ 	$summarygrid->head = array(
+ 							get_string('state', 'mod_icontent'),
+ 							get_string('answers', 'mod_icontent'),
+ 							get_string('rightanswers', 'mod_icontent'),
+ 							get_string('toevaluate', 'mod_icontent')
+ 						);
+ 	$state = get_string('strstate', 'mod_icontent', userdate($summaryattempt->timecreated));
+ 	$totalanswers = $summaryattempt->totalanswers;
+ 	$totalrightanswers = $rightanswer->totalrightanswers;
+ 	// String
+ 	$strtoevaluate = new stdClass();
+ 	$strtoevaluate->fraction = $summaryattempt->sumfraction;
+ 	$strtoevaluate->maxfraction = number_format($summaryattempt->totalanswers, 2);
+ 	$strtoevaluate->percentage = round(($rightanswer->totalrightanswers * 100) / $summaryattempt->totalanswers);
+ 	$toevaluate = get_string('strtoevaluate', 'mod_icontent', $strtoevaluate);
+ 	// Set data
+ 	$summarygrid->data[] = array($state, $totalanswers, $totalrightanswers, $toevaluate);
+ 	
+ 	return html_writer::table($summarygrid);
  }
  /**
  * This is the function responsible for creating the area comments on pages.
@@ -1519,7 +1575,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// Note footer
 	$noteedit = icontent_make_link_edit_note($pagenote, $context);
 	$noteremove = icontent_make_link_remove_note($pagenote, $context);
-	$notelike = icontent_make_likeunlike($pagenote);
+	$notelike = icontent_make_likeunlike($pagenote, $context);
 	$notereply = icontent_make_link_reply_note($pagenote, $context);
 	$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
 	$notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
@@ -1760,7 +1816,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	
 	// Questions
-	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
+	$qtsareas = icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid) ? icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid) : icontent_make_questionsarea($objpage, $icontent);
 	
 	/* Internal control buttons
 	$previous = html_writer::link('#', "<i class='fa fa-angle-left'></i> ".get_string('previous', 'icontent'), array('title' => s(get_string('pageprevious', 'icontent')), 'class'=>'previous span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum - 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));

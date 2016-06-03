@@ -590,7 +590,6 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 		break;
 		case ICONTENT_QTYPE_MATCH:
 			$rightanwser = $DB->get_record('qtype_match_subquestions', array('id'=> $optionid));
-			$tanwseroptions = $DB->count_records_select('qtype_match_subquestions', 'questionid = ?', array('questionid'=> $questionid));
 			// Clean answers
 			$currentanwser = trim(strip_tags($answer));
 			$rightanwser->answertext = trim(strip_tags($rightanwser->answertext));
@@ -599,7 +598,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 			$infoanswer->answertext = $currentanwser. '->'. $rightanwser->questiontext.';';
 			// Checks if answer is correct
 			if($rightanwser->answertext === $currentanwser){
-				$infoanswer->fraction += number_format(ICONTENT_QUESTION_FRACTION / $tanwseroptions, 7);
+				$infoanswer->fraction = ICONTENT_QUESTION_FRACTION;
 			}
 			return $infoanswer;
 			break;
@@ -618,10 +617,11 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
  *
  * @param  int $pageid
  * @param  int $cmid
- * @return object $attemptsummary
+ * @return object $attemptsummary, otherwhise false.
  */
 function icontent_get_attempt_summary_by_page($pageid, $cmid){
 	global $DB, $USER;
+	// SQL Query
 	$sql = "SELECT Sum(qa.fraction) AS sumfraction,
 			       Count(qa.id)     AS totalanswers,
 			       qa.timecreated
@@ -631,8 +631,13 @@ function icontent_get_attempt_summary_by_page($pageid, $cmid){
 			WHERE  pq.pageid = ?
 			       AND pq.cmid = ?
 				   AND qa.userid = ?;";
-	
-	return $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id));
+	// Get record
+	$attemptsummary = $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id));
+	// Checks if a property isn't empty.
+	if(!empty($attemptsummary->totalanswers)){
+		return $attemptsummary;
+	}
+	return false;
 }
 /**
  * Get object with right answers by attempt summary the current page.
@@ -1220,6 +1225,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if(!$questions){
  		return false;
  	}
+ 	if(icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid)){
+ 		return icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid);
+ 	}
  	// Divisor page / questions
  	$hr = html_writer::empty_tag('hr');
  	// Title page
@@ -1237,7 +1245,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'value'=> get_string('sendattemp', 'mod_icontent')));
  	// Tag form
  	$qform = html_writer::tag('form', $hiddenfields. $header. $qlist. $qbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
- 	return html_writer::div($qform, 'questionsarea');
+ 	return html_writer::div($qform, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**
   * This is the function responsible for creating the answers of questions area.
@@ -1356,7 +1364,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Make table
  	$summarygrid = new html_table();
  	$summarygrid->id = "idicontentattemptsummary";
- 	$summarygrid->attributes = array('class'=>'icontentattemptsummary');
+ 	$summarygrid->attributes = array('class'=>'table table-hover icontentattemptsummary');
  	$summarygrid->head = array(
  							get_string('state', 'mod_icontent'),
  							get_string('answers', 'mod_icontent'),
@@ -1789,7 +1797,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $DB, $CFG;
 	// PENDENTE: Criar rotina para gravar logs...
 	
-	$tooltip = html_writer::script("$(function () { $('[data-toggle=\"tooltip\"]').tooltip() })");
+	$tooltip = html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip() })");
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
 		
@@ -1816,7 +1824,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	
 	// Questions
-	$qtsareas = icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid) ? icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid) : icontent_make_questionsarea($objpage, $icontent);
+	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
 	
 	/* Internal control buttons
 	$previous = html_writer::link('#', "<i class='fa fa-angle-left'></i> ".get_string('previous', 'icontent'), array('title' => s(get_string('pageprevious', 'icontent')), 'class'=>'previous span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum - 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));

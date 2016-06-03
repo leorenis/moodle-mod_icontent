@@ -12,8 +12,8 @@ $(document).ready(function() {
         $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
     }
 	
-	// Named functions
-	
+	/* Named functions 
+	 */
     // Save note tab type 'note'
 	function onSaveNoteClick() {
 		// Validates input data
@@ -329,7 +329,7 @@ $(document).ready(function() {
 			url : "ajax.php",
 			data : data,
 			success : function(data) {
-				// code...
+				$("#idquestionsarea").html(data.grid);
 			}
 		});// End AJAX
 		
@@ -344,6 +344,5 @@ $(document).ready(function() {
 	$("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
 	$("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
 	$("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);
-
 });
 // End ready

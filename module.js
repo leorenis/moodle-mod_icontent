@@ -19,6 +19,9 @@ $(document).ready(function(){
 			"pagenum": $(this).attr('data-pagenum'),
 			"sesskey": $(this).attr('data-sesskey')
 		};
+		// Destroy all toltips
+		$('[data-toggle="tooltip"]').tooltip('destroy');
+		
 		// Loading page
 		$(".icontent-page")
 			.children('.fulltextpage')

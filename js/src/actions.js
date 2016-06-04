@@ -7,13 +7,7 @@
  */
 $(document).ready(function() {
 	
-	// Check (onLoad) if the cookie is there and set the class if it is
-    if ($.cookie('highcontrast') == "yes") {
-        $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
-    }
-	
-	/* Named functions 
-	 */
+	// List of the named functions
     // Save note tab type 'note'
 	function onSaveNoteClick() {
 		// Validates input data
@@ -49,7 +43,6 @@ $(document).ready(function() {
 			}
 		});	// End AJAX
 	}
-
 	// Save note tab type 'doubts'
 	function onSaveDoubtClick() {
 		// Validates input data
@@ -71,7 +64,6 @@ $(document).ready(function() {
 		};
 		showIconLoad($this);
 		data = "&" + $.param(data);
-
 		$.ajax({
 			type : "POST",
 			dataType : "json",
@@ -85,7 +77,6 @@ $(document).ready(function() {
 			}
 		});	// End AJAX
 	}
-	
 	// Show loading icon
 	function showIconLoad($this){
 		$this.hide();
@@ -109,7 +100,6 @@ $(document).ready(function() {
 			.children('.loading').remove();
 			$this.removeAttr('disabled');
 	}
-	
 	// Like note
 	function onLikeNoteClick() {
 		var $like = $(this).children("span");

@@ -1666,7 +1666,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		if(!empty($pagenotelike)){
  			$notelinklabel = html_writer::span(get_string('unlike', 'icontent', $countlikes));
  		}
- 		
  		return html_writer::link(null, "<i class='fa fa-star-o'></i>".$notelinklabel,
  			array(
  					'class'=>'likenote',
@@ -1797,13 +1796,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $DB, $CFG;
 	// PENDENTE: Criar rotina para gravar logs...
 	
-	$tooltip = html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip() })");
+	$script = html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip(); })");
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
-		
+	
 	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
-
+	
 	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
 	
 	// Add title page
@@ -1833,7 +1832,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
 	
 	// Content page for return
-	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $tooltip, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $script, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	
 	unset($objpage->pageicontent);
 	return $objpage;

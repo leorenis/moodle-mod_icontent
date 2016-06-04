@@ -9,19 +9,17 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $(document).ready(function(){
-	
+	onChecksHighcontrast();
 	// Loads page
 	function onLoadPageClick(){
-		
 		var data = {
 			"action": "loadpage",
 			"id": $(this).attr('data-cmid'),
 			"pagenum": $(this).attr('data-pagenum'),
 			"sesskey": $(this).attr('data-sesskey')
 		};
-		// Destroy all toltips
+		// Destroy all tooltips
 		$('[data-toggle="tooltip"]').tooltip('destroy');
-		
 		// Loading page
 		$(".icontent-page")
 			.children('.fulltextpage')
@@ -31,8 +29,8 @@ $(document).ready(function(){
 					.html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
 			)
 			.css('opacity', '0.5');
-		
-		onBtnActiveEnableDisableClick(data.pagenum);	// Active link or button the atual page
+		// Active link or button the atual page
+		onBtnActiveEnableDisableClick(data.pagenum);
 		
 		data = "&" + $.param(data);
 	  	$.ajax({
@@ -42,13 +40,19 @@ $(document).ready(function(){
 	    	data: data,
 	    	success: function(data) {
 	    		$(".icontent-page").html(data.fullpageicontent);
+	    		onChecksHighcontrast();
 	    	}
 	    }); // End AJAX
-	  	
 	  	onChangeStateControlButtons($(this));
-	    
 	} // End onLoad..
 	
+	// Checks if the cookie is set.
+	function onChecksHighcontrast(){
+	    if ($.cookie('highcontrast') == "yes") {
+	        $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
+	    }
+	}
+	// Change state the control buttons
 	function onChangeStateControlButtons($this){
 		var pagenum = parseInt($this.attr('data-pagenum'));
 		var tpages = parseInt($this.attr('data-totalpages'));
@@ -80,7 +84,6 @@ $(document).ready(function(){
 		$(".page"+ pagenum).addClass("active");
 		$(".page"+ pagenum).prop("disabled", true );
 	}
-	
 	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
   	$(".load-page").click(onLoadPageClick);

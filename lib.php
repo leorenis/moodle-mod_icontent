@@ -664,7 +664,6 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 		$return->parent = $pagenote->parent;
 		$return->totalnotes = $DB->count_records('icontent_pages_notes', array('pageid'=>$pagenote->pageid, 'cmid'=>$pagenote->cmid, 'tab'=>$pagenote->tab));
 	}
-	
 	return $return;
 }
 /**

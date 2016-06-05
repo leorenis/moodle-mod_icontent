@@ -964,7 +964,30 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  			return "ASC";
  	}
  }
-
+/**
+ * Checks if exists answers the questions of current page.
+ *
+ * Returns array answerspage
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return array $answerspage
+ */
+function icontent_checks_answers_of_currentpage($pageid, $cmid){
+	global $DB;
+	$sql = "SELECT Count(qa.id)     AS totalanswers
+			FROM   {icontent_question_attempts} qa
+			       INNER JOIN {icontent_pages_questions} pq
+			               ON qa.pagesquestionsid = pq.id
+			WHERE  pq.pageid = ?
+			       AND pq.cmid = ?;";
+	$totalanswers = $DB->get_record_sql($sql, array($pageid, $cmid));
+	// Checks if a property isn't empty.
+	if(!empty($totalanswers->totalanswers)){
+		return $totalanswers;
+	}
+	return false;
+}
  /**
  * Check if has permission for edition
  * @param boolean $allowedit

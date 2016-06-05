@@ -94,6 +94,7 @@ $sort = icontent_check_value_sort($sort);
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
+$answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
 
 $table = new html_table();
 $table->id = "categoryquestions";
@@ -103,7 +104,8 @@ $table->head  = array(null, get_string('type', 'mod_icontent'), get_string('ques
 
 if($questions) foreach ($questions as $question){
 	$checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
-	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked);
+	$disabled = $answerscurrentpage ? array('disabled'=>'disabled') : array();
+	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked + $disabled);
 	$qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
 	$qname = html_writer::label($question->name, 'idcheck'.$question->id);
 	$createdby = icontent_get_user_by_id($question->createdby);
@@ -122,7 +124,7 @@ echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tquestions, $page, $perpage, $url);
 echo html_writer::end_div();
-echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')));
+echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')) + $disabled);
 echo html_writer::end_tag('form');
 
 //$DB->set_debug(true);

@@ -30,6 +30,15 @@
     font-weight: bolder;
     pointer-events: none;
 }
+.statusdisplay {
+    background-color: #ffc;
+    clear: both;
+    margin: 0.3em 1em 0.3em 0;
+    padding: 1px;
+}
+.statusdisplay p {
+    margin: 0.4em;
+}
 .icontent-page .row {
 	margin-left: 0;
 }
@@ -88,7 +97,7 @@
   background-color: #222;
   border-bottom: 1px solid #555;
 }
-/*Fim Hightcontrast */
+/*End Hightcontrast */
 .icontent-page .fulltextpage .toolbarpage{
 	text-align: right;
 }
@@ -183,7 +192,7 @@
 .notesarea .titlenotes{
 	text-transform: uppercase;
 }
-/** Lista de Anotacoes **/
+/** List of anotations **/
 .icontent-page .notesarea .notelist .noterowicontent{
 	margin-left: 45px;
 	font-size: 13px;
@@ -350,7 +359,7 @@ table.icontentquestions td{
 	padding: 5px !important;
 }
 
-/** Barra de Progresso Twitter Boostrap 3.5 */
+/** Progress bar Twitter Boostrap 3.5 */
 .progress {
   height: 20px;
   margin-bottom: 20px;

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * English strings for icontent
  *
@@ -91,7 +90,9 @@ $string['answers'] = 'Respostas';
 $string['rightanswers'] = 'Acertos';
 $string['totalanswers'] = 'Total de respostas';
 $string['toevaluate'] = 'Resultado';
-$string['strtoevaluate'] = '{$a->fraction} de um máximo de {$a->maxfraction} ({$a->percentage}%)';
+$string['stropenanswer'] = '{$a} resposta(s) aguardando avaliação.';
+$string['strtoevaluate'] = '{$a->fraction} de um máximo de {$a->maxfraction} ({$a->percentage}%). {$a->openanswer}';
+$string['action'] = 'Ação';
 $string['addafter'] = 'Adicionar nova página';
 $string['addquestion'] = 'Adicionar nova questão';
 $string['addnewpage'] = 'Adicionar nova página';
@@ -116,9 +117,11 @@ $string['previouspage'] = 'Página anterior';
 $string['texttransitiontype'] = 'Efeito para texto';
 $string['texttransitiontypehelp'] = 'Efeito para texto';
 $string['texttransitiontypehelp_help'] = 'Selecione o tipo de transição para os textos.';
+$string['tryagain'] = 'Tentar novamente';
 $string['imagetransitiontype'] = 'Efeito para imagens';
 $string['imagetransitiontypehelp'] = 'Efeito para imagens';
 $string['imagetransitiontypehelp_help'] = 'Selecione o tipo de transição para as imagens.';
+$string['infomaxquestionperpage'] = '<strong>Orientação:</strong> Siga os padrões de usabilidade e adicione no máximo 3 questões por página.';
 $string['displayed'] = 'Visível';
 $string['displayedhelp'] = 'Página visível';
 $string['displayedhelp_help'] = 'Selecione para deixar a página visível.';
@@ -131,6 +134,8 @@ $string['copyright_help'] = 'Espaço reservados para adição dos créditos refe
 $string['msgsucess'] = 'Dados gravados com sucesso!';
 $string['msgsucessexclusion'] = 'Dados excluídos com sucesso!';
 $string['msgaddquestionpage'] = 'Questões adicionadas com sucesso!';
+$string['msgconfirmtryagain'] = 'Foram encontradas <span class="label label-warning">{$a->totalanswers} respostas</span> para esta tentativa. Você tem certeza que deseja removê-la?';
+$string['msgstatusdisplay'] = '<strong>Atenção:</strong> Você não pode adicionar ou remover perguntas, porque já foram registradas respostas para as questões dessa página.';
 $string['confpagedelete'] = 'Você quer mesmo apagar esta página juntamente com todos os arquivos e registros relacionados a ela?';
 $string['confpagenotedelete'] = 'Tem certeza que quer excluir esta anotação juntamente com todas as suas respostas? <span class="label label-warning">{$a} resposta(s)</span>';
 $string['choiceoneoption'] = 'Escolha uma opção:';

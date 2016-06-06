@@ -40,6 +40,8 @@ define('ICONTENT_QTYPE_MATCH', 'match');
 define('ICONTENT_QTYPE_MULTICHOICE', 'multichoice');
 define('ICONTENT_QTYPE_TRUEFALSE', 'truefalse');
 define('ICONTENT_QTYPE_ESSAY', 'essay');
+define('ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE', 'toevaluate');
+define('ICONTENT_QTYPE_ESSAY_STATUS_VALUED', 'valued');
 define('ICONTENT_QUESTION_FRACTION', 1);
 
 require_once(dirname(__FILE__).'/lib.php');
@@ -603,7 +605,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 			return $infoanswer;
 			break;
 		case ICONTENT_QTYPE_ESSAY:
-			$infoanswer->rightanswer = 'manualgraded';	// To be defined by tutor.
+			$infoanswer->rightanswer = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;	// Wait evaluation of tutor.
 			$infoanswer->answertext = $answer;
 			return $infoanswer;
 			break;
@@ -646,7 +648,7 @@ function icontent_get_attempt_summary_by_page($pageid, $cmid){
  *
  * @param  int $pageid
  * @param  int $cmid
- * @return object $obj
+ * @return object $rightanswers
  */
 function icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid){
 	global $DB, $USER;
@@ -658,8 +660,28 @@ function icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid){
 				   AND pq.pageid = ?
 			       AND pq.cmid = ?
 				   AND qa.userid = ?;";
-
 	return $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id));
+}
+/**
+ * Get object with open answers by attempt summary the current page.
+ *
+ * Returns object total open answers by attempt summary
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return object $openanswers
+ */
+function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid){
+	global $DB, $USER;
+	$sql = "SELECT Count(qa.id) AS totalopenanswers
+			FROM   {icontent_question_attempts} qa
+				   INNER JOIN {icontent_pages_questions} pq
+						   ON qa.pagesquestionsid = pq.id
+			WHERE  pq.pageid = ?
+				   AND pq.cmid = ?
+				   AND qa.userid = ?
+				   AND qa.rightanswer IN (?);";
+	return $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE));
 }
 /**
  * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].
@@ -1381,10 +1403,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * @return string $attemptsummary
   */
  function icontent_make_attempt_summary_by_page($pageid, $cmid){
- 	// get object summaryattempt
+ 	// Get objects that create summary attempt.
  	$summaryattempt = icontent_get_attempt_summary_by_page($pageid, $cmid);
  	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);
- 	// Make table
+ 	$openanswer = icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid);
+ 	// Create table
  	$summarygrid = new html_table();
  	$summarygrid->id = "idicontentattemptsummary";
  	$summarygrid->attributes = array('class'=>'table table-hover icontentattemptsummary');
@@ -1392,20 +1415,35 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  							get_string('state', 'mod_icontent'),
  							get_string('answers', 'mod_icontent'),
  							get_string('rightanswers', 'mod_icontent'),
- 							get_string('toevaluate', 'mod_icontent')
+ 							get_string('toevaluate', 'mod_icontent'),
+ 							get_string('action', 'mod_icontent'), // TODO: Checks capabilities
  						);
  	$state = get_string('strstate', 'mod_icontent', userdate($summaryattempt->timecreated));
  	$totalanswers = $summaryattempt->totalanswers;
  	$totalrightanswers = $rightanswer->totalrightanswers;
+ 	$stropenanswer = $openanswer->totalopenanswers ? get_string('stropenanswer', 'mod_icontent', $openanswer->totalopenanswers) : '';
  	// String
- 	$strtoevaluate = new stdClass();
- 	$strtoevaluate->fraction = number_format($summaryattempt->sumfraction, 2);
- 	$strtoevaluate->maxfraction = number_format($summaryattempt->totalanswers, 2);
- 	$strtoevaluate->percentage = round(($rightanswer->totalrightanswers * 100) / $summaryattempt->totalanswers);
- 	$toevaluate = get_string('strtoevaluate', 'mod_icontent', $strtoevaluate);
+ 	$evaluate = new stdClass();
+ 	$evaluate->fraction = number_format($summaryattempt->sumfraction, 2);
+ 	$evaluate->maxfraction = number_format($summaryattempt->totalanswers, 2);
+ 	$evaluate->percentage = round(($rightanswer->totalrightanswers * 100) / $summaryattempt->totalanswers);
+ 	$evaluate->openanswer = $stropenanswer;
+ 	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
+ 	// Icon repeat attempt
+ 	// TODO: Checks capabilities
+ 	$iconrepeatattempt = html_writer::link(
+ 			new moodle_url('tryagain.php', 
+ 			array('id' => $cmid, 'pageid' => $pageid,'sesskey' => sesskey())), '<i class="fa fa-repeat fa-lg"></i>', 
+ 			array(
+ 					'title'=>get_string('tryagain', 'mod_icontent'),
+ 					'class'=>'icon icon-comments',
+ 					'data-toggle'=> 'tooltip',
+ 					'data-placement'=> 'top'
+ 			)
+ 		);
  	// Set data
- 	$summarygrid->data[] = array($state, $totalanswers, $totalrightanswers, $toevaluate);
- 	
+ 	$summarygrid->data[] = array($state, $totalanswers, $totalrightanswers, $strevaluate, $iconrepeatattempt);
+ 	// Return table summary attempt.
  	return html_writer::table($summarygrid);
  }
  /**
@@ -1817,7 +1855,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  */
  function icontent_get_fullpageicontent($pagenum, $icontent, $context){
  	global $DB, $CFG;
-	// PENDENTE: Criar rotina para gravar logs...
+	// TODO: Criar rotina para gravar logs...
 	
 	$script = html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip(); })");
 	

@@ -69,7 +69,7 @@ $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
 // Print the page header.
-$PAGE->set_url('/mod/icontent/addquestionpage.php', array('id' => $cm->id));
+$PAGE->set_url('/mod/icontent/addquestionpage.php', array('id' => $cm->id, 'pageid'=>$pageid));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
 $url = new moodle_url('/mod/icontent/addquestionpage.php', array('id'=>$id, 'pageid'=> $pageid, 'page' => $page, 'perpage' => $perpage));
@@ -89,19 +89,18 @@ if ($action){
 		redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
 	}
 }
-
+// Get info
 $sort = icontent_check_value_sort($sort);
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
-
+// Make table questions
 $table = new html_table();
 $table->id = "categoryquestions";
 $table->attributes = array('class'=>'icontentquestions');
 $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
 $table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
-
 if($questions) foreach ($questions as $question){
 	$checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
 	$disabled = $answerscurrentpage ? array('disabled'=>'disabled') : array();
@@ -117,7 +116,9 @@ else {
 	echo $OUTPUT->footer();
 	exit;
 }
-
+// Show elements HTML
+echo html_writer::div(get_string('infomaxquestionperpage', 'mod_icontent'), 'alert alert-info');
+echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
 echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
 echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'action', 'value'=>true));
 echo html_writer::start_div('categoryquestionscontainer');

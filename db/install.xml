@@ -57,8 +57,8 @@
         <FIELD NAME="borderwidth" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="pagenum" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="hidden" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de anotacao por pagina." />
-        <FIELD NAME="maxquestionsperpages" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de questoes por pagina." />
+        <FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="10" SEQUENCE="false" COMMENT="Maximo de anotacao por pagina." />
+        <FIELD NAME="maxquestionsperpages" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="3" SEQUENCE="false" COMMENT="Maximo de questoes por pagina." />
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
       </FIELDS>

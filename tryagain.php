@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Delete icontent page
+ * Try Again icontent page
  *
  * @package    mod_icontent
  * @copyright  2016-2015 Leo Santos {@link http://github.com/leorenis}
@@ -26,21 +26,20 @@ require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
 $id			= required_param('id', PARAM_INT);      // Course Module ID
-$pnid		= required_param('pnid', PARAM_INT); 	// page note ID
+$pageid		= required_param('pageid', PARAM_INT); 	// page note ID
 $confirm	= optional_param('confirm', 0, PARAM_BOOL);
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
-$pagenote = $DB->get_record('icontent_pages_notes', array('id'=>$pnid), '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 require_sesskey();
 
 $context = context_module::instance($cm->id);
-icontent_user_can_remove_note($pagenote, $context);
+//icontent_user_can_remove_note($pagenote, $context); TODO: Checks capabilities
 
-$PAGE->set_url('/mod/icontent/deletenote.php', array('id'=>$id, 'pnid'=>$pnid));
+$PAGE->set_url('/mod/icontent/tryagain.php', array('id' => $cm->id, 'pageid' => $pageid,'sesskey' => sesskey()));
 
 // Header and strings.
 $PAGE->set_title($icontent->name);
@@ -52,19 +51,17 @@ if ($confirm) {
 	$notes = icontent_get_notes_daughters($pagenote->id);
 	icontent_remove_notes($pagenote->pageid, $pagenote->id);
 	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
- 	redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
+ 	redirect($url, get_string('msgtryagain', 'mod_icontent'));
 }
-
 echo $OUTPUT->header();
-echo $OUTPUT->heading($icontent->name." : ".get_string('removenotes', 'mod_icontent'));
+echo $OUTPUT->heading($icontent->name." : ".get_string('tryagain', 'mod_icontent'));
 
 // Operation not confirmed.
-$notes = icontent_get_notes_daughters($pagenote->id);
-$strconfirm = get_string('confpagenotedelete', 'mod_icontent', count($notes));
+$answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
+$strconfirm = get_string('msgconfirmtryagain', 'mod_icontent', $answerscurrentpage);
 
-$continue = new moodle_url('/mod/icontent/deletenote.php', array('id'=>$cm->id, 'pnid'=>$pagenote->id, 'confirm'=>1));
-$cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
-$listreplies = icontent_make_list_group_notesdaughters($notes);
+$continue = new moodle_url('/mod/icontent/tryagain.php', array('id' => $cm->id, 'pageid' => $pageid, 'confirm'=>1));
+$cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
 
-echo $OUTPUT->confirm("<p>$strconfirm</p><blockquote>$pagenote->comment</blockquote>". $listreplies, $continue, $cancel);
+echo $OUTPUT->confirm("<p>$strconfirm</p>", $continue, $cancel);
 echo $OUTPUT->footer();

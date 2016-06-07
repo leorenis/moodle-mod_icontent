@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_icontent';
-$plugin->version = 2015053000;
+$plugin->version = 2015053100;
 $plugin->release = '1.0';
 $plugin->requires = 2014051200;
 $plugin->maturity = MATURITY_ALPHA;

@@ -331,6 +331,43 @@ function icontent_remove_note_likes($pagenoteid){
 	
 	return $rs ? true : false;
 }
+/**
+ * Delete question per page by id.
+ *
+ * Returns true or false
+ *
+ * @param  int $id
+ * @return boolean $result
+ */
+function icontent_remove_questionpagebyid($id){
+	global $DB;
+	return $DB->delete_records('icontent_pages_questions', array('id'=>$id));
+}
+/**
+ * Remove answers the attempts summary the current page.
+ *
+ * Returns true os false
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return array $questionattemptid
+ */
+function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid){
+	global $DB, $USER;
+	// SQL Query
+	$sql = "SELECT qa.id
+			FROM   {icontent_question_attempts} qa
+			       INNER JOIN {icontent_pages_questions} pq
+			               ON qa.pagesquestionsid = pq.id
+			WHERE  pq.pageid = ?
+			       AND pq.cmid = ?
+				   AND qa.userid = ?;";
+	// Get items
+	$idanswers = $DB->get_fieldset_sql($sql, array($pageid, $cmid, $USER->id));
+	list($in, $values) = $DB->get_in_or_equal($idanswers);
+	// Delete records
+	return $DB->delete_records_select('icontent_question_attempts', 'id '. $in, $values);
+}
 
 /**
  * Loads full paging button bar.
@@ -762,19 +799,6 @@ function icontent_add_questionpage($questions, $pageid, $cmid){
 	return false;
 
 }
-/**
- * Delete question per page by id.
- *
- * Returns true or false
- *
- * @param  int $id
- * @return boolean $result
- */
-function icontent_remove_questionpagebyid($id){
-	global $DB;
-	return $DB->delete_records('icontent_pages_questions', array('id'=>$id));
-}
-
 /**
  * Get page viewed
  *
@@ -1403,6 +1427,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * @return string $attemptsummary
   */
  function icontent_make_attempt_summary_by_page($pageid, $cmid){
+ 	global $DB;
+ 	// Get object page
+ 	$objpage = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, pagenum, attemptsallowed', MUST_EXIST);
  	// Get objects that create summary attempt.
  	$summaryattempt = icontent_get_attempt_summary_by_page($pageid, $cmid);
  	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);

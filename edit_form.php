@@ -137,11 +137,9 @@ class icontent_pages_edit_form extends moodleform {
 		$mform->addRule('maxnotesperpages', null, 'numeric', null, 'client');
 		$mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
 		
-		$mform->addElement('text', 'maxquestionsperpages', get_string('maxquestionsperpages', 'icontent'), array('class'=>'x-large'));
-		$mform->setType('maxquestionsperpages', PARAM_INT);
-		$mform->addHelpButton('maxquestionsperpages', 'maxquestionsperpageshelp', 'icontent');
-		$mform->addRule('maxquestionsperpages', null, 'numeric', null, 'client');
-		$mform->addRule('maxquestionsperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
+		$mform->addElement('header', 'grade', get_string('grade'));
+		$mform->addElement('select', 'attemptsallowed', get_string('attemptsallowed', 'icontent'), array('0'=>get_string('unlimited'), '1'=> '1 '.get_string('attempt', 'mod_icontent')));
+		$mform->addHelpButton('attemptsallowed', 'attemptsallowedhelp', 'icontent');
 		
 		$mform->addElement('header', 'effects', get_string('effects', 'icontent'));
 		$effects = array(

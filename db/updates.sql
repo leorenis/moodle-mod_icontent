@@ -1,4 +1,8 @@
-﻿-- Updates 2016053100
+﻿-- Updates 2016060700
+ALTER TABLE `moodle28`.`mdl_icontent_pages` 
+CHANGE COLUMN `maxquestionsperpages` `attemptsallowed` SMALLINT(3) NOT NULL DEFAULT '0' COMMENT 'Maximo de questoes por pagina.' ;
+
+-- Updates 2016053100
 ALTER TABLE `moodle28`.`mdl_icontent_question_attempt` 
 CHANGE COLUMN `rightanswer` `rightanswer` VARCHAR(3072) NULL DEFAULT '0' COMMENT 'Resposta correta.' ;
 

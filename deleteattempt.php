@@ -47,18 +47,20 @@ $PAGE->set_heading($course->fullname);
 
 // Form processing.
 if ($confirm) {
-	// the operation was confirmed.
-	$notes = icontent_get_notes_daughters($pagenote->id);
-	icontent_remove_notes($pagenote->pageid, $pagenote->id);
-	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
- 	redirect($url, get_string('msgdeleteattempt', 'mod_icontent'));
+	// Try the operation confirmed.
+	$delete = icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
+	if($delete){
+		$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
+		redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
+	}
+		
 }
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name." : ".get_string('confdeleteattempt', 'mod_icontent', $page));
 
 // Operation not confirmed.
-$answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
-$strconfirm = get_string('msgconfirmdeleteattempt', 'mod_icontent', $answerscurrentpage);
+$attemptsummary = icontent_get_attempt_summary_by_page($pageid, $cm->id);
+$strconfirm = get_string('msgconfirmdeleteattempt', 'mod_icontent', $attemptsummary);
 
 $continue = new moodle_url('/mod/icontent/deleteattempt.php', array('id' => $cm->id, 'pageid' => $pageid, 'confirm'=>1));
 $cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));

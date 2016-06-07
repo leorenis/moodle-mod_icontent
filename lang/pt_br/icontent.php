@@ -134,10 +134,11 @@ $string['copyright_help'] = 'Espaço reservados para adição dos créditos refe
 $string['msgsucess'] = 'Dados gravados com sucesso!';
 $string['msgsucessexclusion'] = 'Dados excluídos com sucesso!';
 $string['msgaddquestionpage'] = 'Questões adicionadas com sucesso!';
-$string['msgconfirmtryagain'] = 'Foram encontradas <span class="label label-warning">{$a->totalanswers} respostas</span> para esta tentativa. Você tem certeza que deseja removê-la?';
+$string['msgconfirmdeleteattempt'] = 'Foram encontradas <span class="label label-warning"> {$a->totalanswers} respostas</span> para esta tentativa. Você tem certeza que deseja removê-la?';
 $string['msgstatusdisplay'] = '<strong>Atenção:</strong> Você não pode adicionar ou remover perguntas, porque já foram registradas respostas para as questões dessa página.';
 $string['confpagedelete'] = 'Você quer mesmo apagar esta página juntamente com todos os arquivos e registros relacionados a ela?';
 $string['confpagenotedelete'] = 'Tem certeza que quer excluir esta anotação juntamente com todas as suas respostas? <span class="label label-warning">{$a} resposta(s)</span>';
+$string['confdeleteattempt'] = 'Remover tentativa da página {$a->pagenum}';
 $string['choiceoneoption'] = 'Escolha uma opção:';
 $string['choiceone'] = 'Escolha uma:';
 $string['choiceoneormore'] = 'Escolha {$a} opções:';

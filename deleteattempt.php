@@ -32,14 +32,14 @@ $confirm	= optional_param('confirm', 0, PARAM_BOOL);
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
-
+$page = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, pagenum, title', MUST_EXIST);
 require_login($course, false, $cm);
 require_sesskey();
 
 $context = context_module::instance($cm->id);
 //icontent_user_can_remove_note($pagenote, $context); TODO: Checks capabilities
 
-$PAGE->set_url('/mod/icontent/tryagain.php', array('id' => $cm->id, 'pageid' => $pageid,'sesskey' => sesskey()));
+$PAGE->set_url('/mod/icontent/deleteattempt.php', array('id' => $cm->id, 'pageid' => $pageid,'sesskey' => sesskey()));
 
 // Header and strings.
 $PAGE->set_title($icontent->name);
@@ -51,16 +51,16 @@ if ($confirm) {
 	$notes = icontent_get_notes_daughters($pagenote->id);
 	icontent_remove_notes($pagenote->pageid, $pagenote->id);
 	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
- 	redirect($url, get_string('msgtryagain', 'mod_icontent'));
+ 	redirect($url, get_string('msgdeleteattempt', 'mod_icontent'));
 }
 echo $OUTPUT->header();
-echo $OUTPUT->heading($icontent->name." : ".get_string('tryagain', 'mod_icontent'));
+echo $OUTPUT->heading($icontent->name." : ".get_string('confdeleteattempt', 'mod_icontent', $page));
 
 // Operation not confirmed.
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
-$strconfirm = get_string('msgconfirmtryagain', 'mod_icontent', $answerscurrentpage);
+$strconfirm = get_string('msgconfirmdeleteattempt', 'mod_icontent', $answerscurrentpage);
 
-$continue = new moodle_url('/mod/icontent/tryagain.php', array('id' => $cm->id, 'pageid' => $pageid, 'confirm'=>1));
+$continue = new moodle_url('/mod/icontent/deleteattempt.php', array('id' => $cm->id, 'pageid' => $pageid, 'confirm'=>1));
 $cancel = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
 
 echo $OUTPUT->confirm("<p>$strconfirm</p>", $continue, $cancel);

@@ -1432,7 +1432,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Icon repeat attempt
  	// TODO: Checks capabilities
  	$iconrepeatattempt = html_writer::link(
- 			new moodle_url('tryagain.php', 
+ 			new moodle_url('deleteattempt.php', 
  			array('id' => $cmid, 'pageid' => $pageid,'sesskey' => sesskey())), '<i class="fa fa-repeat fa-lg"></i>', 
  			array(
  					'title'=>get_string('tryagain', 'mod_icontent'),

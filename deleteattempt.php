@@ -33,18 +33,17 @@ $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
 $page = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, pagenum, title', MUST_EXIST);
+// Check auth
 require_login($course, false, $cm);
 require_sesskey();
-
 $context = context_module::instance($cm->id);
-//icontent_user_can_remove_note($pagenote, $context); TODO: Checks capabilities
-
+require_capability('mod/icontent:answerquestionstryagain', $context);
+// TODO: Add log event
+// Page setting
 $PAGE->set_url('/mod/icontent/deleteattempt.php', array('id' => $cm->id, 'pageid' => $pageid,'sesskey' => sesskey()));
-
 // Header and strings.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
-
 // Form processing.
 if ($confirm) {
 	// Try the operation confirmed.

@@ -350,10 +350,15 @@ function icontent_remove_questionpagebyid($id){
  *
  * @param  int $pageid
  * @param  int $cmid
- * @return array $questionattemptid
+ * @return true or false
  */
 function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid){
 	global $DB, $USER;
+	// Check capabilities
+	$allownewattempts = icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid);
+	if(!$allownewattempts){
+		return false;
+	}
 	// SQL Query
 	$sql = "SELECT qa.id
 			FROM   {icontent_question_attempts} qa
@@ -1059,9 +1064,9 @@ function icontent_has_permission_edition($allowedit, $edit = 0){
 	return $edit;
 }
 
-// ====================
-// METHODS CAPABILITYES
-// ====================
+// ======================
+// FUNCTIONS CAPABILITYES
+// ======================
 /**
  * Check if has permission of manager
  * @param string $context
@@ -1168,7 +1173,6 @@ function icontent_user_can_view_checkbox_field_private($context){
 	}
 	return false;
 }
-
 /**
  * Check if user can view featured field
  * @param string $context
@@ -1193,10 +1197,30 @@ function icontent_user_can_view_checkbox_field_doubttutor($context){
 	}
 	return false;
 }
-
-// ==================================
-// METHODS CREATING AND RETURNS HTML
-// ==================================
+/**
+ * Check if user can remove attempts answers for try again
+ * @param string $context
+ * @return boolean true if the user has this permission. Otherwise false.
+ */
+function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
+	global $DB;
+	// Get context
+	$context = context_module::instance($cmid);
+	if(icontent_has_permission_manager($context)){
+		return true;
+	}
+	if (has_capability('mod/icontent:answerquestionstryagain', $context)){
+		// Get object page
+		$objpage = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, pagenum, attemptsallowed', MUST_EXIST);
+		if((int)$objpage->attemptsallowed === 0){
+			return true;
+		}
+	}
+	return false;
+}
+// ===================================
+// FUNCTIONS CREATING AND RETURNS HTML
+// ===================================
 
  /**
   * Create button previous page.
@@ -1427,13 +1451,28 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * @return string $attemptsummary
   */
  function icontent_make_attempt_summary_by_page($pageid, $cmid){
- 	global $DB;
- 	// Get object page
- 	$objpage = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, pagenum, attemptsallowed', MUST_EXIST);
  	// Get objects that create summary attempt.
  	$summaryattempt = icontent_get_attempt_summary_by_page($pageid, $cmid);
  	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);
  	$openanswer = icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid);
+ 	$allownewattempts = icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid);
+ 	// Check capabilities for new attempts
+ 	$straction = null;
+ 	$iconrepeatattempt = null;
+ 	if($allownewattempts){
+ 		$straction = get_string('action', 'mod_icontent');
+ 		// Icon repeat attempt
+ 		$iconrepeatattempt = html_writer::link(
+ 				new moodle_url('deleteattempt.php',
+ 						array('id' => $cmid, 'pageid' => $pageid,'sesskey' => sesskey())), '<i class="fa fa-repeat fa-lg"></i>',
+ 				array(
+ 						'title'=>get_string('tryagain', 'mod_icontent'),
+ 						'class'=>'icon icon-comments',
+ 						'data-toggle'=> 'tooltip',
+ 						'data-placement'=> 'top'
+ 				)
+ 				);
+ 	}
  	// Create table
  	$summarygrid = new html_table();
  	$summarygrid->id = "idicontentattemptsummary";
@@ -1443,7 +1482,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  							get_string('answers', 'mod_icontent'),
  							get_string('rightanswers', 'mod_icontent'),
  							get_string('toevaluate', 'mod_icontent'),
- 							get_string('action', 'mod_icontent'), // TODO: Checks capabilities
+ 							$straction,
  						);
  	$state = get_string('strstate', 'mod_icontent', userdate($summaryattempt->timecreated));
  	$totalanswers = $summaryattempt->totalanswers;
@@ -1456,18 +1495,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$evaluate->percentage = round(($rightanswer->totalrightanswers * 100) / $summaryattempt->totalanswers);
  	$evaluate->openanswer = $stropenanswer;
  	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
- 	// Icon repeat attempt
- 	// TODO: Checks capabilities
- 	$iconrepeatattempt = html_writer::link(
- 			new moodle_url('deleteattempt.php', 
- 			array('id' => $cmid, 'pageid' => $pageid,'sesskey' => sesskey())), '<i class="fa fa-repeat fa-lg"></i>', 
- 			array(
- 					'title'=>get_string('tryagain', 'mod_icontent'),
- 					'class'=>'icon icon-comments',
- 					'data-toggle'=> 'tooltip',
- 					'data-placement'=> 'top'
- 			)
- 		);
  	// Set data
  	$summarygrid->data[] = array($state, $totalanswers, $totalrightanswers, $strevaluate, $iconrepeatattempt);
  	// Return table summary attempt.

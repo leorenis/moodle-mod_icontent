@@ -519,7 +519,15 @@ function icontent_extend_navigation(navigation_node $navref, stdClass $course, s
  * @param navigation_node $icontentnode icontent administration node
  */
 function icontent_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $icontentnode=null) {
-    // TODO Delete this function and its docblock, or implement it.
+	global $PAGE;
+    // TODO Create everything menu items.
+	if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
+		$resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
+		$url = new moodle_url('/mod/icontent/report.php', array('id'=>$PAGE->cm->id, 'action'=>'overview'));
+		$resultsnode->add(get_string('grade'), $url);
+		$url = new moodle_url('/mod/icontent/report.php', array('id'=>$PAGE->cm->id, 'action'=>'grading'));
+		$resultsnode->add(get_string('manualreview', 'mod_icontent'), $url);
+	}
 }
 
 /* Ajax API */

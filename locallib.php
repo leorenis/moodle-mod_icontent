@@ -1073,10 +1073,7 @@ function icontent_has_permission_edition($allowedit, $edit = 0){
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_has_permission_manager($context){
-	if(has_capability('mod/icontent:edit', $context)){
-		return true;
-	}
-	if(has_capability('mod/icontent:manage', $context)){
+	if(has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
 		return true;
 	}
 	return false;
@@ -1481,7 +1478,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  							get_string('state', 'mod_icontent'),
  							get_string('answers', 'mod_icontent'),
  							get_string('rightanswers', 'mod_icontent'),
- 							get_string('toevaluate', 'mod_icontent'),
+ 							get_string('result', 'mod_icontent'),
  							$straction,
  						);
  	$state = get_string('strstate', 'mod_icontent', userdate($summaryattempt->timecreated));

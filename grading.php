@@ -38,13 +38,12 @@ require_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:grade', $context);
 // Page setting
-$PAGE->set_url('/mod/icontent/report.php', array('id' => $cm->id, 'action'=>$action));
+$PAGE->set_url('/mod/icontent/grading.php', array('id' => $cm->id, 'action'=>$action));
 // Header and strings.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
-echo $OUTPUT->heading('Questões que necessitam ser avaliadas', 3);
-
+echo $OUTPUT->heading(get_string('strmanualgrading', 'mod_icontent'), 3);
 echo $OUTPUT->footer();

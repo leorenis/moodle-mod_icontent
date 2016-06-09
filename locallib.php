@@ -550,7 +550,24 @@ function icontent_count_questions_of_questionbank($coursecontext){
 	$questions = $DB->get_record_sql("SELECT count(*) as total FROM {question} q JOIN {question_categories} c ON c.id = q.category WHERE c.contextid = ?", array($coursecontext));
 	return (int) $questions->total;
 }
-
+/**
+ * Get total attempts users of users by course modules ID 
+ *
+ * Returns int of total attempts users
+ *
+ * @param  object $cmid
+ * @return int of $tattemptsusers
+ */
+function icontent_count_attempts_users($cmid){
+	global $DB;
+	$sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
+			FROM   {user} u
+			       INNER JOIN mdl_icontent_question_attempts qa
+			               ON u.id = qa.userid
+			WHERE  qa.cmid = ?;";
+	$totalattemptsusers = $DB->get_record_sql($sql, array($cmid));
+	return (int) $totalattemptsusers->totalattemptsusers;
+}
 /**
  * Get questions of current page.
  *
@@ -655,7 +672,56 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 	throw new Exception("QTYPE Invalid.");
 }
 /**
- * Get object with attempt summary the current page.
+ * Get object with attempts of users by course modules ID <iContent>
+ *
+ * Returns object attempt users
+ *
+ * @param  int $cmid
+ * @param  string $sort
+ * @param  int $page
+ * @param  int $perpage
+ * @return object $attemptusers, otherwhise false.
+ */
+function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
+	global $DB;
+	
+	$limitsql = '';
+	$sortparams = 'u.firstname '.$sort;
+	$page = (int) $page;
+	$perpage = (int) $perpage;
+	
+	// Setup pagination - when both $page and $perpage = 0, get all results
+	if ($page || $perpage) {
+		if ($page < 0) {
+			$page = 0;
+		}
+	
+		if ($perpage > ICONTENT_MAX_PER_PAGE) {
+			$perpage = ICONTENT_MAX_PER_PAGE;
+		} else if ($perpage < 1) {
+			$perpage = ICONTENT_PER_PAGE;
+		}
+		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
+	}
+	$ufields = user_picture::fields('u');
+	$sql = "SELECT DISTINCT {$ufields},
+			                (SELECT Sum(fraction) 
+			                 FROM   {icontent_question_attempts} 
+			                 WHERE  userid = u.id 
+			                        AND cmid = ?) AS sumfraction, 
+			                (SELECT Count(id) 
+			                 FROM  {icontent_question_attempts} 
+			                 WHERE  userid = u.id 
+			                        AND cmid = ?) AS totalanswers 
+			FROM   mdl_user u 
+			       INNER JOIN {icontent_question_attempts} qa 
+			               ON u.id = qa.userid 
+			WHERE  qa.cmid = ?
+			ORDER BY {$sortparams} {$limitsql};";
+	return $DB->get_records_sql($sql, array($cmid, $cmid, $cmid)); // Field CMID used three times. Check (?).
+}
+/**
+ * Get object with attempt summary of user the current page.
  *
  * Returns object attempt summary
  *
@@ -683,6 +749,7 @@ function icontent_get_attempt_summary_by_page($pageid, $cmid){
 	}
 	return false;
 }
+
 /**
  * Get object with right answers by attempt summary the current page.
  *
@@ -971,7 +1038,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	
 	return $DB->get_record('user', array('id'=>$userid), 'id, firstname, lastname, email, picture, firstnamephonetic, lastnamephonetic, middlename, alternatename, imagealt');
  }
- 
+
  /**
   * Recursive function that gets notes daughters.
   *
@@ -1631,7 +1698,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @return string $listnotes
  */
  function icontent_make_listnotespage($pagenotes, $icontent, $page){
- 	global $OUTPUT, $CFG;
+ 	global $OUTPUT;
  	if(!empty($pagenotes)){
  		$divnote = '';
  		$context = context_module::instance($page->cmid);
@@ -1641,7 +1708,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			// Get picture
 			$picture = $OUTPUT->user_picture($user, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
 			// Note header
-			$linkfirstname = html_writer::link($CFG->wwwroot.'/user/view.php?id='.$user->id.'&course='.$icontent->course, $user->firstname, array('title'=>$user->firstname));
+			$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$user->id, 'course'=>$icontent->course)), $user->firstname, array('title'=>$user->firstname));
  			$noteon = html_writer::tag('em', get_string('notedon', 'icontent'), array('class'=>'noteon'));
  			$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
 			$notepagetitle = html_writer::span($page->title, 'notepagetitle');
@@ -1680,14 +1747,14 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @return string $pagenotereply
  */
  function icontent_make_pagenotereply($pagenote, $icontent){
- 	global $OUTPUT, $CFG;
+ 	global $OUTPUT;
 	
 	$user = icontent_get_user_by_id($pagenote->userid);
 	$context = context_module::instance($pagenote->cmid);
 	
 	$picture = $OUTPUT->user_picture($user, array('size'=>30, 'class'=> 'img-thumbnail pull-left'));
 	// Note header
-	$linkfirstname = html_writer::link($CFG->wwwroot.'/user/view.php?id='.$user->id.'&course='.$icontent->course, $user->firstname, array('title'=>$user->firstname));
+	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$user->id, 'course'=>$icontent->course)), $user->firstname, array('title'=>$user->firstname));
 	$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
 	$noteheader = html_writer::div($linkfirstname. $replyon, 'noteheader');
 	// Note comments

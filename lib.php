@@ -521,11 +521,14 @@ function icontent_extend_navigation(navigation_node $navref, stdClass $course, s
 function icontent_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $icontentnode=null) {
 	global $PAGE;
     // TODO Create everything menu items.
+	$url = new moodle_url('/mod/icontent/view.php', array('id' => $PAGE->cm->id));
+	$icontentnode->add(get_string('preview', 'mod_icontent'), $url);
+	// Check capabilities
 	if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
 		$resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
-		$url = new moodle_url('/mod/icontent/report.php', array('id'=>$PAGE->cm->id, 'action'=>'overview'));
-		$resultsnode->add(get_string('grade'), $url);
-		$url = new moodle_url('/mod/icontent/report.php', array('id'=>$PAGE->cm->id, 'action'=>'grading'));
+		$url = new moodle_url('/mod/icontent/grade.php', array('id'=>$PAGE->cm->id, 'action'=>'overview'));
+		$resultsnode->add(get_string('grades'), $url);
+		$url = new moodle_url('/mod/icontent/grading.php', array('id'=>$PAGE->cm->id, 'action'=>'grading'));
 		$resultsnode->add(get_string('manualreview', 'mod_icontent'), $url);
 	}
 }
@@ -539,11 +542,8 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, n
  * @return array $pageicontent
  */
 function icontent_ajax_getpage($pagenum, $icontent, $context){
-	
 	require_once(dirname(__FILE__).'/locallib.php');
-	
 	$objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context);
-	
 	return $objpage;
 }
 

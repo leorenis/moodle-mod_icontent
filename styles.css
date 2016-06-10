@@ -358,7 +358,15 @@ table.icontentquestions .questionname {
 table.icontentquestions td{
 	padding: 5px !important;
 }
-
+#idtableattemptsusers .fullname .lkfullname{
+	margin-left: 5px;
+}
+#idtableattemptsusers a.btn-primary{
+	color: white;
+}
+#idtableattemptsusers a.btn-toevaluate{
+	padding: 4px 10px !important;
+}
 /** Progress bar Twitter Boostrap 3.5 */
 .progress {
   height: 20px;

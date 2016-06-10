@@ -19,8 +19,7 @@ use core\progress\null;
 /**
  * Internal library of functions for module icontent
  *
- * All the icontent specific functions, needed to implement the module
- * logic, should go here. Never include this file from your lib.php!
+ * All the icontent specific functions, needed to implement the module logic, should go here.
  *
  * @package    mod_icontent
  * @copyright  2016 Leo Renis Santos
@@ -161,6 +160,15 @@ function icontent_add_properties_css($pagestyle){
 	
 	return $style;
 }
+
+/**
+ * Add script that load tooltip twiter bootstrap.
+ * @param string $script
+ * @return void
+ */
+function icontent_add_script_load_tooltip(){
+	return html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip(); })");
+}
  /**
  * Get page style. 
  * 
@@ -179,7 +187,6 @@ function icontent_get_page_style($icontent, $page, $context){
 	if($page->showbgimage){
 		$pagestyle->bgimage = icontent_get_page_bgimage($context, $page) ? icontent_get_page_bgimage($context, $page) : icontent_get_bgimage($context);
 	}
-	
 	return icontent_add_properties_css($pagestyle);
 }
 
@@ -569,6 +576,25 @@ function icontent_count_attempts_users($cmid){
 	return (int) $totalattemptsusers->totalattemptsusers;
 }
 /**
+ * Get total attempts users of users with answers not evaluated by course modules ID
+ *
+ * Returns int of total attempts users
+ *
+ * @param  object $cmid
+ * @return int of $tattemptsusers
+ */
+function icontent_count_attempts_users_with_open_answers($cmid){
+	global $DB;
+	$sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
+			FROM   {user} u
+			       INNER JOIN mdl_icontent_question_attempts qa
+			               ON u.id = qa.userid
+			WHERE  qa.cmid = ? 
+			AND    qa.rightanswer IN (?);";
+	$totalattemptsusers = $DB->get_record_sql($sql, array($cmid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE));
+	return (int) $totalattemptsusers->totalattemptsusers;
+}
+/**
  * Get questions of current page.
  *
  * Returns array questionspage
@@ -710,15 +736,69 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
 			                 WHERE  userid = u.id 
 			                        AND cmid = ?) AS sumfraction, 
 			                (SELECT Count(id) 
-			                 FROM  {icontent_question_attempts} 
+			                 FROM  {icontent_question_attempts}
 			                 WHERE  userid = u.id 
-			                        AND cmid = ?) AS totalanswers 
-			FROM   mdl_user u 
+			                        AND cmid = ?) AS totalanswers,
+			                (SELECT Count(id) 
+			                 FROM  {icontent_question_attempts}
+			                 WHERE  userid = u.id 
+			                        AND cmid = ?
+			                        AND rightanswer IN (?)) AS totalopenanswers
+			FROM   {user} u 
 			       INNER JOIN {icontent_question_attempts} qa 
 			               ON u.id = qa.userid 
 			WHERE  qa.cmid = ?
 			ORDER BY {$sortparams} {$limitsql};";
-	return $DB->get_records_sql($sql, array($cmid, $cmid, $cmid)); // Field CMID used three times. Check (?).
+	return $DB->get_records_sql($sql, array($cmid, $cmid, $cmid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, $cmid)); // Field CMID used four times. Check (?).
+}
+
+/**
+ * Get object with attempts of users with answers not evaluated by course modules ID <iContent>
+ *
+ * Returns object attempt users
+ *
+ * @param  int $cmid
+ * @param  string $sort
+ * @param  int $page
+ * @param  int $perpage
+ * @return object $attemptusers, otherwhise false.
+ */
+function icontent_get_attempts_users_with_open_answers($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
+	global $DB;
+
+	$limitsql = '';
+	$sortparams = 'u.firstname '.$sort;
+	$page = (int) $page;
+	$perpage = (int) $perpage;
+
+	// Setup pagination - when both $page and $perpage = 0, get all results
+	if ($page || $perpage) {
+		if ($page < 0) {
+			$page = 0;
+		}
+
+		if ($perpage > ICONTENT_MAX_PER_PAGE) {
+			$perpage = ICONTENT_MAX_PER_PAGE;
+		} else if ($perpage < 1) {
+			$perpage = ICONTENT_PER_PAGE;
+		}
+		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
+	}
+	$ufields = user_picture::fields('u');
+	$sql = "SELECT DISTINCT {$ufields},
+			                (SELECT Count(id) 
+			                 FROM  {icontent_question_attempts}
+			                 WHERE  userid = u.id 
+			                        AND cmid = ?
+			                        AND rightanswer IN (?)) AS totalopenanswers
+			FROM   {user} u 
+			       INNER JOIN {icontent_question_attempts} qa 
+			               ON u.id = qa.userid 
+			WHERE  qa.cmid = ?
+			AND    qa.rightanswer IN (?)
+			ORDER BY {$sortparams} {$limitsql};";
+	$sttoeval = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
+	return $DB->get_records_sql($sql, array($cmid, $sttoeval, $cmid, $sttoeval)); // Field CMID used two times. Check (?).
 }
 /**
  * Get object with attempt summary of user the current page.
@@ -1517,7 +1597,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_attempt_summary_by_page($pageid, $cmid){
  	// Get objects that create summary attempt.
  	$summaryattempt = icontent_get_attempt_summary_by_page($pageid, $cmid);
- 	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);
+ 	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);	// Items with hits
  	$openanswer = icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid);
  	$allownewattempts = icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid);
  	// Check capabilities for new attempts
@@ -1531,11 +1611,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  						array('id' => $cmid, 'pageid' => $pageid,'sesskey' => sesskey())), '<i class="fa fa-repeat fa-lg"></i>',
  				array(
  						'title'=>get_string('tryagain', 'mod_icontent'),
- 						'class'=>'icon icon-comments',
  						'data-toggle'=> 'tooltip',
  						'data-placement'=> 'top'
  				)
- 				);
+ 			);
  	}
  	// Create table
  	$summarygrid = new html_table();
@@ -1556,7 +1635,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$evaluate = new stdClass();
  	$evaluate->fraction = number_format($summaryattempt->sumfraction, 2);
  	$evaluate->maxfraction = number_format($summaryattempt->totalanswers, 2);
- 	$evaluate->percentage = round(($rightanswer->totalrightanswers * 100) / $summaryattempt->totalanswers);
+ 	$evaluate->percentage = round(($summaryattempt->sumfraction * 100) / $summaryattempt->totalanswers);
  	$evaluate->openanswer = $stropenanswer;
  	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
  	// Set data
@@ -1975,7 +2054,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $DB, $CFG;
 	// TODO: Criar rotina para gravar logs...
 	
-	$script = html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip(); })");
+	$script = icontent_add_script_load_tooltip();
 	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
 	

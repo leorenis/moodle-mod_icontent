@@ -28,8 +28,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 $id			= required_param('id', PARAM_INT);      // Course Module ID
 $pageid		= optional_param('pageid', 0, PARAM_INT); 	// page note ID
 $action		= optional_param('action', 0, PARAM_ALPHA); // Action
-
-$sort = optional_param('sort', '', PARAM_RAW);
+$sort = optional_param('sort', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
 
@@ -51,22 +50,33 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('summaryattempts', 'mod_icontent'), 3);
 $url = new moodle_url('/mod/icontent/grade.php', array('id'=>$id, 'action'=> $action, 'page' => $page, 'perpage' => $perpage));
-
+// Get sort value
 $sort = icontent_check_value_sort($sort);
+// Get users attempts
 $attemptsusers = icontent_get_attempts_users($cm->id, $sort, $page, $perpage);
 $tattemtpsusers = icontent_count_attempts_users($cm->id);
 
 // Make table questions
 $table = new html_table();
 $table->id = "idtableattemptsusers";
+$table->colclasses = array('fullname', 'answers', 'grades', 'result');
 $table->attributes = array('class'=>'table table-hover tableattemptsusers');
-$table->head  = array(get_string('firstname'), get_string('grade'), get_string('answers', 'mod_icontent'));
+$table->head  = array(get_string('fullname'), get_string('answers', 'mod_icontent'), get_string('grades'), get_string('result', 'mod_icontent'));
 if($attemptsusers) foreach ($attemptsusers as $attemptuser){
 	// Get picture
 	$picture = $OUTPUT->user_picture($attemptuser, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
-	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$attemptuser->id, 'course'=>$course->id)), $attemptuser->firstname, array('title'=>$attemptuser->firstname));
+	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$attemptuser->id, 'course'=>$course->id)), $attemptuser->firstname. ' '. $attemptuser->lastname, array('title'=>$attemptuser->firstname, 'class'=>'lkfullname'));
+	// String open answers for user
+	$stropenanswer = $attemptuser->totalopenanswers ? get_string('stropenanswer', 'mod_icontent', $attemptuser->totalopenanswers) : '';
+	// String evaluate
+	$evaluate = new stdClass();
+	$evaluate->fraction = number_format($attemptuser->sumfraction, 2);
+	$evaluate->maxfraction = number_format($attemptuser->totalanswers, 2);
+	$evaluate->percentage = round(($attemptuser->sumfraction * 100) / $attemptuser->totalanswers);
+	$evaluate->openanswer = $stropenanswer;
+	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
 	// Set data
-	$table->data[] = array($picture. $linkfirstname, number_format($attemptuser->sumfraction, 2), $attemptuser->totalanswers);
+	$table->data[] = array($picture. $linkfirstname, $attemptuser->totalanswers, number_format($attemptuser->sumfraction, 2), $strevaluate);
 }
 else {
 	echo html_writer::div(get_string('norecordsfound', 'mod_icontent'), 'alert alert-warning');
@@ -74,7 +84,7 @@ else {
 	exit;
 }
 // Show table
-echo html_writer::start_div('categoryidtableattemptsusers');
+echo html_writer::start_div('idtablegradeattemptsusers');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tattemtpsusers, $page, $perpage, $url);
 echo html_writer::end_div();

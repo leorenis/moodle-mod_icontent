@@ -521,9 +521,11 @@ function icontent_extend_navigation(navigation_node $navref, stdClass $course, s
 function icontent_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $icontentnode=null) {
 	global $PAGE;
     // TODO Create everything menu items.
-	$url = new moodle_url('/mod/icontent/view.php', array('id' => $PAGE->cm->id));
-	$icontentnode->add(get_string('preview', 'mod_icontent'), $url);
 	// Check capabilities
+	if (has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $PAGE->cm->context)){
+		$url = new moodle_url('/mod/icontent/view.php', array('id' => $PAGE->cm->id));
+		$icontentnode->add(get_string('preview', 'mod_icontent'), $url);
+	}
 	if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
 		$resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
 		$url = new moodle_url('/mod/icontent/grade.php', array('id'=>$PAGE->cm->id, 'action'=>'overview'));

@@ -54,8 +54,7 @@ if ($id) {
 if(!$pageid) {
     print_error('You must specify a page ID');
 }
-
-
+// Require login
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $coursecontext = $context->get_course_context(true)->id;
@@ -75,11 +74,9 @@ $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
 // CSS
 $PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css'));
-$url = new moodle_url('/mod/icontent/addquestionpage.php', array('id'=>$id, 'pageid'=> $pageid, 'page' => $page, 'perpage' => $perpage));
-
+$url = new moodle_url('/mod/icontent/addquestionpage.php', array('id'=>$id, 'pageid'=> $pageid, 'page' => $page, 'perpage' => $perpage));;
 // Output starts here.
 echo $OUTPUT->header();
-
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 

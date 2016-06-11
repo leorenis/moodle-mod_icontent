@@ -73,6 +73,8 @@ $event->trigger();
 $PAGE->set_url('/mod/icontent/addquestionpage.php', array('id' => $cm->id, 'pageid'=>$pageid));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
+// CSS
+$PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css'));
 $url = new moodle_url('/mod/icontent/addquestionpage.php', array('id'=>$id, 'pageid'=> $pageid, 'page' => $page, 'perpage' => $perpage));
 
 // Output starts here.

@@ -323,7 +323,6 @@ function icontent_remove_notes($pageid, $pagenoteid = null){
 	}
 	return $rs ? true : false;
 }
-
 /**
  * Remove note likes of page.
  *
@@ -380,7 +379,18 @@ function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid){
 	// Delete records
 	return $DB->delete_records_select('icontent_question_attempts', 'id '. $in, $values);
 }
-
+/**
+ * Update question attempt.
+ *
+ * Returns true or false
+ *
+ * @param  object $attempt
+ * @return boolean true or false
+ */
+function icontent_update_question_attempts($attempt){
+	global $DB;
+	return $DB->update_record('icontent_question_attempts', $attempt);
+}
 /**
  * Loads full paging button bar.
  *
@@ -871,6 +881,36 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid){
 				   AND qa.userid = ?
 				   AND qa.rightanswer IN (?);";
 	return $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE));
+}
+
+/**
+ * Get object with questions and open answers by user the current page.
+ *
+ * Returns object questions and open answers by attempt summary
+ *
+ * @param  int $pageid
+ * @param  int $cmid
+ * @return object $qopenanswers
+ */
+function icontent_get_questions_and_open_answers_by_user($userid, $cmid){
+	global $DB;
+	$sql = "SELECT qa.id,
+			       qa.userid,
+			       qa.questionid,
+			       qa.pagesquestionsid,
+			       qa.answertext,
+			       qa.timecreated,
+			       q.questiontext,
+				   pq.pageid
+			FROM   {icontent_question_attempts} qa
+			       INNER JOIN {question} q
+			               ON qa.questionid = q.id
+				   INNER JOIN {icontent_pages_questions} pq
+						   ON qa.pagesquestionsid = pq.id
+			WHERE  qa.cmid = ?
+			       AND qa.userid = ?
+			       AND qa.rightanswer IN (?);";
+	return $DB->get_records_sql($sql, array($cmid, $userid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE));
 }
 /**
  * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].

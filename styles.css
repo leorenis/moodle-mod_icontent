@@ -367,6 +367,9 @@ table.icontentquestions td{
 #idtableattemptsusers a.btn-toevaluate{
 	padding: 4px 10px !important;
 }
+.labelfieldgrade{
+	font-weight: bolder;
+}
 /** Progress bar Twitter Boostrap 3.5 */
 .progress {
   height: 20px;

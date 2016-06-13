@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Try Again icontent page
+ * to evaluate user icontent page
  *
  * @package    mod_icontent
  * @copyright  2016-2015 Leo Santos {@link http://github.com/leorenis}
@@ -27,25 +27,73 @@ require_once(dirname(__FILE__).'/locallib.php');
 
 $id			= required_param('id', PARAM_INT);      // Course Module ID
 $userid		= required_param('userid', PARAM_INT); 	// page note ID
-$action		= optional_param('action', 0, PARAM_ALPHA); // Action
+$action		= optional_param('action', 0, PARAM_BOOL); // Action
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
 $icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
+$user = $DB->get_record('user', array('id'=>$userid), '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 require_sesskey();
 $context = context_module::instance($cm->id);
-require_capability('mod/icontent:grade', $context);
+require_capability('mod/icontent:manage', $context);
 // Page setting
-$PAGE->set_url('/mod/icontent/toevaluate.php', array('id' => $cm->id, 'userid'=>$action, 'sesskey'=>sesskey()));
+$PAGE->set_url('/mod/icontent/toevaluate.php', array('id' => $cm->id, 'action'=>$action, 'userid'=>$userid, 'sesskey'=>sesskey()));
 // Header and strings.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
-$PAGE->navbar->add(get_string('manualreview', 'mod_icontent'));
+$PAGE->navbar->add(get_string('results', 'mod_icontent'))->add(get_string('manualreview', 'mod_icontent'))->add(fullname($user));
+
+// Check action
+if ($action){
+	// Receives values
+	$questions = optional_param_array('question', array(), PARAM_RAW);
+	$i = 0;
+	if($questions) foreach ($questions as $qname => $qvalue){
+		list($strname, $answerid) = explode('-', $qname);
+		$qvalue = $qvalue > 1 ? 1 : $qvalue;
+		$attempt = new stdClass();
+		$attempt->id = $answerid;
+		$attempt->fraction = $qvalue;
+		$attempt->rightanswer = ICONTENT_QTYPE_ESSAY_STATUS_VALUED;
+		// Save values
+		$update = icontent_update_question_attempts($attempt);
+		$i ++;
+	}
+	if($update){
+		redirect(new moodle_url('/mod/icontent/grading.php', array('id'=>$cm->id, 'action'=> 'grading')), get_string('msgsucessevaluate', 'mod_icontent', $i));
+	}
+}
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
-echo $OUTPUT->heading(get_string('manualreview', 'mod_icontent'), 3);
+echo $OUTPUT->heading(get_string('manualreviewofparticipant', 'mod_icontent', fullname($user)), 3);
 
+$qopenanswers = icontent_get_questions_and_open_answers_by_user($user->id, $cm->id);
+//echo "<pre>"; var_dump($qopenanswers); echo "</pre>";
+echo html_writer::start_tag('form', array('method'=>'post'));
+if($qopenanswers) foreach ($qopenanswers as $qopenanswer){
+	$fieldname = 'question[attemptid-'.$qopenanswer->id.']';
+	$fieldid = 'idquestion-'.$qopenanswer->questionid.'_pqid-'.$qopenanswer->pagesquestionsid.'_'.ICONTENT_QTYPE_ESSAY;
+	// Get page
+	$page = $DB->get_record('icontent_pages', array('id'=>$qopenanswer->pageid), 'id, title, pagenum', MUST_EXIST);
+	$attempttitle = html_writer::tag('strong', get_string('strattempttitle', 'mod_icontent', $page));
+	$qtext = html_writer::div($qopenanswer->questiontext, 'qtext');
+	$qanswer = html_writer::div($qopenanswer->answertext, 'answer qtype_essay_editor qtype_essay_response readonly');
+	$ablock = html_writer::div($qanswer, 'ablock');
+	$skipline = html_writer::empty_tag('br');
+	$labelgrade = html_writer::label(get_string('grade'). $skipline, $fieldid, null, array('class'=>'labelfieldgrade'));
+	$fieldfraction = html_writer::empty_tag('input', array('type'=>'number', 'class'=>'input-mini', 'id'=>$fieldid, 'name'=>$fieldname, 'required'=>'required', 'step'=>'0.1', 'min'=>'0', 'max'=>'1'));
+	$labelmaxgrade = html_writer::label(get_string('strmaxgrade', 'mod_icontent'), null);
+	$divgrade = html_writer::div($labelgrade. $fieldfraction. $labelmaxgrade, 'gblock');
+	$content = html_writer::div($qtext. $ablock. $divgrade, 'formulation');
+	echo html_writer::div($attempttitle. $content, 'que manualgraded '.ICONTENT_QTYPE_ESSAY, array('id'=>'idq'.$qopenanswer->questionid));
+	
+}else{
+	redirect(new moodle_url('/mod/icontent/grading.php', array('id'=>$cm->id, 'action'=>$action)), get_string('norecordsfound', 'mod_icontent'));
+}
+echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'action', 'value'=>true));
+echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('savechanges')));
+echo html_writer::end_tag('form');
 echo $OUTPUT->footer();

@@ -28,6 +28,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 $id			= required_param('id', PARAM_INT);      // Course Module ID
 $userid		= required_param('userid', PARAM_INT); 	// page note ID
 $action		= optional_param('action', 0, PARAM_BOOL); // Action
+$status		= optional_param('status', ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, PARAM_ALPHA); // Status
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
@@ -70,12 +71,13 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('manualreviewofparticipant', 'mod_icontent', fullname($user)), 3);
 
-$qopenanswers = icontent_get_questions_and_open_answers_by_user($user->id, $cm->id);
+$qopenanswers = icontent_get_questions_and_open_answers_by_user($user->id, $cm->id, $status);
 //echo "<pre>"; var_dump($qopenanswers); echo "</pre>";
 echo html_writer::start_tag('form', array('method'=>'post'));
 if($qopenanswers) foreach ($qopenanswers as $qopenanswer){
 	$fieldname = 'question[attemptid-'.$qopenanswer->id.']';
 	$fieldid = 'idquestion-'.$qopenanswer->questionid.'_pqid-'.$qopenanswer->pagesquestionsid.'_'.ICONTENT_QTYPE_ESSAY;
+	$fraction = ($status === ICONTENT_QTYPE_ESSAY_STATUS_VALUED) ? $qopenanswer->fraction : '';	// Check status
 	// Get page
 	$page = $DB->get_record('icontent_pages', array('id'=>$qopenanswer->pageid), 'id, title, pagenum', MUST_EXIST);
 	$attempttitle = html_writer::tag('strong', get_string('strattempttitle', 'mod_icontent', $page));
@@ -84,7 +86,7 @@ if($qopenanswers) foreach ($qopenanswers as $qopenanswer){
 	$ablock = html_writer::div($qanswer, 'ablock');
 	$skipline = html_writer::empty_tag('br');
 	$labelgrade = html_writer::label(get_string('grade'). $skipline, $fieldid, null, array('class'=>'labelfieldgrade'));
-	$fieldfraction = html_writer::empty_tag('input', array('type'=>'number', 'class'=>'input-mini', 'id'=>$fieldid, 'name'=>$fieldname, 'required'=>'required', 'step'=>'0.1', 'min'=>'0', 'max'=>'1'));
+	$fieldfraction = html_writer::empty_tag('input', array('type'=>'number', 'class'=>'input-mini', 'value'=>$fraction, 'id'=>$fieldid, 'name'=>$fieldname, 'required'=>'required', 'step'=>'0.1', 'min'=>'0', 'max'=>'1'));
 	$labelmaxgrade = html_writer::label(get_string('strmaxgrade', 'mod_icontent'), null);
 	$divgrade = html_writer::div($labelgrade. $fieldfraction. $labelmaxgrade, 'gblock');
 	$content = html_writer::div($qtext. $ablock. $divgrade, 'formulation');

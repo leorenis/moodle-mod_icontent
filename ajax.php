@@ -58,7 +58,7 @@ switch ($action) {
 		$pagenum = required_param('pagenum', PARAM_INT);
 		$return = icontent_ajax_getpage($pagenum, $icontent, $context);
 		break;
-	// save and return records table {pages_notes}
+	// Save and return records table {pages_notes}
 	case 'savereturnpagenotes':
 		$pageid = required_param('pageid', PARAM_INT);
 		$note = new stdClass;
@@ -68,7 +68,7 @@ switch ($action) {
 		$note->private 		= required_param('private', PARAM_INT);
 		$note->doubttutor 	= required_param('doubttutor', PARAM_INT);
 		$note->tab 			= required_param('tab', PARAM_ALPHANUMEXT);
-		// prepare return
+		// Prepare return
 		$return = icontent_ajax_savereturnnotes($pageid, $note, $icontent);
 		break;
 		

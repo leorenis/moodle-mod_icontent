@@ -576,7 +576,7 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
 		// Get notes this page
 		require_once(dirname(__FILE__).'/locallib.php');
 		$pagenotes = icontent_get_pagenotes($note->pageid, $note->cmid, $note->tab);
-		$page = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, title');
+		$page = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, title, cmid');
 		
 		$list = new stdClass;
 		$list->notes = icontent_make_listnotespage($pagenotes, $icontent, $page);

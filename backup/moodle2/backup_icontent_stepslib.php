@@ -47,7 +47,17 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
 
         // Define the root element describing the icontent instance.
         $icontent = new backup_nested_element('icontent', array('id'), array(
-            'name', 'intro', 'introformat', 'grade'));
+            'name', 'intro', 'introformat', 'grade', 'scale', 'bgimage', 
+        	'bgcolor', 'bordercolor', 'borderwidth', 'evaluative', 'maxpages',
+        	'progressbar', 'shownotesarea', 'copyright', 'maxnotesperpages'));
+        
+        $pages = new backup_nested_element('pages');
+        
+        $pages = new backup_nested_element('pages', array('id'), array(
+        		'coverpage', 'title', 'showtitle', 'pageicontent', 'pageicontentformat',
+        		'showbgimage', 'bgimage', 'bgcolor', 'layout', 'nexttransitiontype', 'prevtransitiontype',
+        		'texttransitiontype', 'imagetransitiontype', 'bordercolor', 'borderwidth', 'pagenum', 'hidden',
+        		'maxnotesperpages', 'attemptsallowed', 'timecreated', 'timemodified'));
 
         // If we had more elements, we would build the tree here.
 

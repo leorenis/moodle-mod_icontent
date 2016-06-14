@@ -593,15 +593,20 @@ function icontent_count_attempts_users($cmid){
  * @param  object $cmid
  * @return int of $tattemptsusers
  */
-function icontent_count_attempts_users_with_open_answers($cmid){
+function icontent_count_attempts_users_with_open_answers($cmid, $status = null){
 	global $DB;
+	// Check if status is filled in.
+	if(!isset($status)){
+		$status = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
+	}
+	// SQL Query
 	$sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
 			FROM   {user} u
 			       INNER JOIN mdl_icontent_question_attempts qa
 			               ON u.id = qa.userid
 			WHERE  qa.cmid = ? 
 			AND    qa.rightanswer IN (?);";
-	$totalattemptsusers = $DB->get_record_sql($sql, array($cmid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE));
+	$totalattemptsusers = $DB->get_record_sql($sql, array($cmid, $status));
 	return (int) $totalattemptsusers->totalattemptsusers;
 }
 /**
@@ -773,14 +778,17 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
  * @param  int $perpage
  * @return object $attemptusers, otherwhise false.
  */
-function icontent_get_attempts_users_with_open_answers($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
+function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = null, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-
+	
 	$limitsql = '';
 	$sortparams = 'u.firstname '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
-
+	// Check if status is filled in.
+	if(!isset($status)){
+		$status = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
+	}
 	// Setup pagination - when both $page and $perpage = 0, get all results
 	if ($page || $perpage) {
 		if ($page < 0) {
@@ -807,8 +815,7 @@ function icontent_get_attempts_users_with_open_answers($cmid, $sort, $page = 0, 
 			WHERE  qa.cmid = ?
 			AND    qa.rightanswer IN (?)
 			ORDER BY {$sortparams} {$limitsql};";
-	$sttoeval = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
-	return $DB->get_records_sql($sql, array($cmid, $sttoeval, $cmid, $sttoeval)); // Field CMID used two times. Check (?).
+	return $DB->get_records_sql($sql, array($cmid, $status, $cmid, $status)); // Field CMID used two times. Check (?).
 }
 /**
  * Get object with attempt summary of user the current page.
@@ -892,13 +899,19 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid){
  * @param  int $cmid
  * @return object $qopenanswers
  */
-function icontent_get_questions_and_open_answers_by_user($userid, $cmid){
+function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status = null){
 	global $DB;
+	// Check if status is filled in.
+	if(!isset($status)){
+		$status = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
+	}
+	// SQL query
 	$sql = "SELECT qa.id,
 			       qa.userid,
 			       qa.questionid,
 			       qa.pagesquestionsid,
 			       qa.answertext,
+			       qa.fraction,
 			       qa.timecreated,
 			       q.questiontext,
 				   pq.pageid
@@ -910,7 +923,8 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid){
 			WHERE  qa.cmid = ?
 			       AND qa.userid = ?
 			       AND qa.rightanswer IN (?);";
-	return $DB->get_records_sql($sql, array($cmid, $userid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE));
+	// Get records and return
+	return $DB->get_records_sql($sql, array($cmid, $userid, $status));
 }
 /**
  * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].

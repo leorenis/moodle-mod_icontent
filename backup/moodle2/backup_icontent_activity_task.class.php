@@ -56,19 +56,19 @@ class backup_icontent_activity_task extends backup_activity_task {
      * @param string $icontent some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the icontent with the URLs encoded
      */
-    static public function encode_icontent_links($icontent) {
+    static public function encode_content_links($content) {
         global $CFG;
 
         $base = preg_quote($CFG->wwwroot, '/');
 
         // Link to the list of icontents.
         $search = '/('.$base.'\/mod\/icontent\/index.php\?id\=)([0-9]+)/';
-        $icontent = preg_replace($search, '$@CONTENTINDEX*$2@$', $icontent);
+        $content = preg_replace($search, '$@CONTENTINDEX*$2@$', $content);
 
         // Link to icontent view by moduleid.
         $search = '/('.$base.'\/mod\/icontent\/view.php\?id\=)([0-9]+)/';
-        $icontent = preg_replace($search, '$@CONTENTVIEWBYID*$2@$', $icontent);
+        $content = preg_replace($search, '$@CONTENTVIEWBYID*$2@$', $content);
 
-        return $icontent;
+        return $content;
     }
 }

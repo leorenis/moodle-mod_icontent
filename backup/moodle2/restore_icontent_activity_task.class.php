@@ -55,15 +55,15 @@ class restore_icontent_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the icontents in the activity that must be
+     * Define the contents in the activity that must be
      * processed by the link decoder
      */
-    static public function define_decode_icontents() {
-        $icontents = array();
+    static public function define_decode_contents() {
+        $contents = array();
 
-        $icontents[] = new restore_decode_icontent('icontent', array('intro'), 'icontent');
+        $contents[] = new restore_decode_content('icontent', array('intro'), 'icontent');
 
-        return $icontents;
+        return $contents;
     }
 
     /**

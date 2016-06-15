@@ -52,23 +52,76 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         	'progressbar', 'shownotesarea', 'copyright', 'maxnotesperpages'));
         
         $pages = new backup_nested_element('pages');
-        
-        $pages = new backup_nested_element('pages', array('id'), array(
+        $page = new backup_nested_element('page', array('id'), array(
         		'coverpage', 'title', 'showtitle', 'pageicontent', 'pageicontentformat',
         		'showbgimage', 'bgimage', 'bgcolor', 'layout', 'nexttransitiontype', 'prevtransitiontype',
         		'texttransitiontype', 'imagetransitiontype', 'bordercolor', 'borderwidth', 'pagenum', 'hidden',
         		'maxnotesperpages', 'attemptsallowed', 'timecreated', 'timemodified'));
-
-        // If we had more elements, we would build the tree here.
+        
+        $pagesnotes = new backup_nested_element('pages_notes');
+        $pagesnote = new backup_nested_element('pages_note', array('id'), array(
+        		'userid', 'comment', 'timecreated', 'timemodified', 'tab', 'path',
+        		'parent', 'private', 'featured', 'doubttutor'));
+        
+        $noteslikes = new backup_nested_element('notes_likes');
+        $noteslike = new backup_nested_element('notes_like', array('id'), array(
+        		'userid', 'timemodified', 'visible'));
+        
+        $pagesdisplayeds = new backup_nested_element('pages_displayeds');
+        $pagesdisplayed = new backup_nested_element('pages_displayed', array('id'), array(
+        		'userid', 'timecreated'));
+        
+        $pagequestions = new backup_nested_element('page_questions');
+        $pagequestion = new backup_nested_element('page_question', array('id'), array(
+        		'questionid', 'timecreated', 'timemodified', 'remake'));
+        
+        $questionattempts = new backup_nested_element('question_attempts');
+        $questionattempt = new backup_nested_element('question_attempt', array('id'), array(
+        		'questionid', 'userid', 'fraction', 'rightanswer', 'answertext', 'timecreated'));
+        
+        // Build the tree
+        $icontent->add_child($pages);
+        $pages->add_child($page);
+        
+        $page->add_child($pagesnotes);
+        $pagesnotes->add_child($pagesnote);
+        
+        $pagesnote->add_child($noteslikes);
+        $noteslikes->add_child($noteslike);
+        
+        $page->add_child($pagesdisplayeds);
+        $pagesdisplayeds->add_child($pagesdisplayed);
+        
+        $page->add_child($pagequestions);
+        $pagequestions->add_child($pagequestion);
+        
+        $pagequestion->add_child($questionattempts);
+        $questionattempts->add_child($questionattempt);
 
         // Define data sources.
         $icontent->set_source_table('icontent', array('id' => backup::VAR_ACTIVITYID));
+        $page->set_source_table('icontent_pages', array('icontentid' => backup::VAR_PARENTID));
+        $pagequestion->set_source_table('icontent_pages_questions', array('pageid' => backup::VAR_PARENTID));
+        
+        // All these source definitions only happen if we are including user info
+        if ($userinfo) {
+        	$pagesnote->set_source_table('icontent_pages_notes', array('pageid' => backup::VAR_PARENTID));
+        	$noteslike->set_source_table('icontent_pages_notes_like', array('pagenoteid' => backup::VAR_PARENTID));
+        	$pagesdisplayed->set_source_table('icontent_pages_displayed', array('pageid' => backup::VAR_PARENTID));
+        	$questionattempt->set_source_table('icontent_question_attempts', array('pagesquestionsid' => backup::VAR_PARENTID));
+        }
 
-        // If we were referring to other tables, we would annotate the relation
-        // with the element's annotate_ids() method.
-
-        // Define file annotations (we do not use itemid in this example).
+        // If we were referring to other tables, we would annotate the relation with the element's annotate_ids() method.
+        // Define id annotations
+        $pagesnote->annotate_ids('user', 'userid');
+        $noteslike->annotate_ids('user', 'userid');
+        $pagesdisplayed->annotate_ids('user', 'userid');
+        $questionattempt->annotate_ids('user', 'userid');
+        
+        // Define file annotations.
         $icontent->annotate_files('mod_icontent', 'intro', null);
+        $page->annotate_files('mod_icontent', 'page', 'id');
+        $page->annotate_files('mod_icontent', 'bgpage', 'id');
 
         // Return the root element (icontent), wrapped into standard activity structure.
         return $this->prepare_activity_structure($icontent);

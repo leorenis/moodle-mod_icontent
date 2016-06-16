@@ -117,6 +117,7 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $noteslike->annotate_ids('user', 'userid');
         $pagesdisplayed->annotate_ids('user', 'userid');
         $questionattempt->annotate_ids('user', 'userid');
+        $pagequestion->annotate_ids('question', 'questionid');
         
         // Define file annotations.
         $icontent->annotate_files('mod_icontent', 'intro', null);

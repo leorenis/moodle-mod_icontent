@@ -41,8 +41,17 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     protected function define_structure() {
 
         $paths = array();
+        $userinfo = $this->get_setting_value('userinfo');
         $paths[] = new restore_path_element('icontent', '/activity/icontent');
-
+        $paths[] = new restore_path_element('icontent_page', '/activity/icontent/pages/page');
+        $paths[] = new restore_path_element('icontent_page_question', '/activity/icontent/page_questions/page_question');
+        
+        if ($userinfo) {
+        	$paths[] = new restore_path_element('icontent_page_note', '/activity/icontent/pages_notes/pages_note');
+        	$paths[] = new restore_path_element('icontent_page_note_like', '/activity/icontent/notes_likes/notes_like');
+        	$paths[] = new restore_path_element('icontent_page_displayed', '/activity/icontent/pages_displayeds/pages_displayed');
+        	$paths[] = new restore_path_element('icontent_question_attempt', '/activity/icontent/question_attempts/question_attempt');
+        }
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
@@ -76,6 +85,96 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $newitemid = $DB->insert_record('icontent', $data);
         $this->apply_activity_instance($newitemid);
     }
+    
+    protected function process_icontent_page($data) {
+    	global $DB;
+    	
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	// Get new course module id
+    	$icontentid = $this->get_new_parentid('icontent');
+    	$cm = get_coursemodule_from_instance('icontent', $icontentid);
+    	
+    	$data->cmid = $cm->id;
+    	$data->icontentid = $this->get_new_parentid('icontent');
+    	$data->timecreated = $this->apply_date_offset($data->timecreated);
+    	$data->timemodified = $this->apply_date_offset($data->timemodified);
+    	
+    	$newitemid = $DB->insert_record('icontent_pages', $data);
+    	$this->set_mapping('icontent_page', $oldid, $newitemid);
+    }
+    
+    protected function process_icontent_page_question($data){
+    	global $DB;
+    	 
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	 
+    	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
+    	$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->timecreated = $this->apply_date_offset($data->timecreated);
+    	$data->timemodified = $this->apply_date_offset($data->timemodified);
+    	
+    	$newitemid = $DB->insert_record('icontent_pages_questions', $data);
+    	$this->set_mapping('icontent_page_question', $oldid, $newitemid);
+    }
+    
+    protected function process_icontent_page_note($data) {
+    	global $DB;
+    	
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	
+    	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
+    	$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->timecreated = $this->apply_date_offset($data->timecreated);
+    	$data->timemodified = $this->apply_date_offset($data->timemodified);
+    	
+    	$newitemid = $DB->insert_record('icontent_pages_notes', $data);
+    	$this->set_mapping('icontent_page_note', $oldid, $newitemid);
+    }
+    
+    protected function process_icontent_page_note_like($data) {
+    	global $DB;
+    	
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	
+    	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
+    	$data->pagenoteid = $this->get_mappingid('icontent_page_note', $data->pagenoteid);
+    	$data->timemodified = $this->apply_date_offset($data->timemodified);
+    	 
+    	$newitemid = $DB->insert_record('icontent_pages_notes_like', $data);
+    	$this->set_mapping('icontent_page_note_like', $oldid, $newitemid);
+    }
+    
+    protected function process_icontent_page_displayed($data){
+    	global $DB;
+    	
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	
+    	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
+    	$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->timecreated = $this->apply_date_offset($data->timecreated);
+    	
+    	$newitemid = $DB->insert_record('icontent_pages_displayed', $data);
+    	$this->set_mapping('icontent_page_displayed', $oldid, $newitemid);
+    }
+    
+    protected function process_icontent_question_attempt($data){
+    	global $DB;
+    	
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	
+    	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
+    	$data->pagesquestionsid = $this->get_mappingid('icontent_page_question', $data->pagesquestionsid);
+    	$data->timecreated = $this->apply_date_offset($data->timecreated);
+    	 
+    	$newitemid = $DB->insert_record('icontent_pages_displayed', $data);
+    	$this->set_mapping('icontent_question_attempt', $oldid, $newitemid);
+    }
 
     /**
      * Post-execution actions
@@ -83,5 +182,9 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     protected function after_execute() {
         // Add icontent related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_icontent', 'intro', null);
+        
+        // Add page related files, matching by itemname = 'icontent_page'
+        $this->add_related_files('mod_icontent', 'page', 'icontent_page');
+        $this->add_related_files('mod_icontent', 'bgpage', 'icontent_page');
     }
 }

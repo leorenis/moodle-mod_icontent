@@ -25,11 +25,6 @@
 
 /**
  * Structure step to restore one icontent activity
- *
- * @package   mod_icontent
- * @category  backup
- * @copyright 2015 Leo Renis Santos <leorenis@gmail.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_icontent_activity_structure_step extends restore_activity_structure_step {
 

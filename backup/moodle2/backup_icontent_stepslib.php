@@ -58,6 +58,10 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         		'texttransitiontype', 'imagetransitiontype', 'bordercolor', 'borderwidth', 'pagenum', 'hidden',
         		'maxnotesperpages', 'attemptsallowed', 'timecreated', 'timemodified'));
         
+        $pagequestions = new backup_nested_element('page_questions');
+        $pagequestion = new backup_nested_element('page_question', array('id'), array(
+        		'questionid', 'timecreated', 'timemodified', 'remake'));
+        
         $pagesnotes = new backup_nested_element('pages_notes');
         $pagesnote = new backup_nested_element('pages_note', array('id'), array(
         		'userid', 'comment', 'timecreated', 'timemodified', 'tab', 'path',
@@ -71,10 +75,6 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $pagesdisplayed = new backup_nested_element('pages_displayed', array('id'), array(
         		'userid', 'timecreated'));
         
-        $pagequestions = new backup_nested_element('page_questions');
-        $pagequestion = new backup_nested_element('page_question', array('id'), array(
-        		'questionid', 'timecreated', 'timemodified', 'remake'));
-        
         $questionattempts = new backup_nested_element('question_attempts');
         $questionattempt = new backup_nested_element('question_attempt', array('id'), array(
         		'questionid', 'userid', 'fraction', 'rightanswer', 'answertext', 'timecreated'));
@@ -82,6 +82,9 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         // Build the tree
         $icontent->add_child($pages);
         $pages->add_child($page);
+        
+        $page->add_child($pagequestions);
+        $pagequestions->add_child($pagequestion);
         
         $page->add_child($pagesnotes);
         $pagesnotes->add_child($pagesnote);
@@ -91,9 +94,6 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         
         $page->add_child($pagesdisplayeds);
         $pagesdisplayeds->add_child($pagesdisplayed);
-        
-        $page->add_child($pagequestions);
-        $pagequestions->add_child($pagequestion);
         
         $pagequestion->add_child($questionattempts);
         $questionattempts->add_child($questionattempt);
@@ -114,10 +114,10 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         // If we were referring to other tables, we would annotate the relation with the element's annotate_ids() method.
         // Define id annotations
         $pagesnote->annotate_ids('user', 'userid');
+        $pagequestion->annotate_ids('question', 'questionid');
         $noteslike->annotate_ids('user', 'userid');
         $pagesdisplayed->annotate_ids('user', 'userid');
         $questionattempt->annotate_ids('user', 'userid');
-        $pagequestion->annotate_ids('question', 'questionid');
         
         // Define file annotations.
         $icontent->annotate_files('mod_icontent', 'intro', null);

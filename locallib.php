@@ -81,7 +81,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
     global $USER, $OUTPUT;
 	
 	$context = context_module::instance($cm->id);
-	
+	$tpages = count($pages);
 	$toc = '';
 	$toc .= html_writer::start_tag('div', array('class' => 'icontent_toc clearfix'));
 	
@@ -94,7 +94,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 			$i ++;
 			$title = trim(format_string($pg->title, true, array('context'=>$context)));
 			$toc .= html_writer::start_tag('li', array('class' => 'clearfix')); // Inicio <li>
-				$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey()));
+				$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
 				
 				// Actions
 				$toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
@@ -132,7 +132,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 			if(!$pg->hidden){
 				$title = trim(format_string($pg->title, true, array('context'=>$context)));
 				$toc .= html_writer::start_tag('li', array('class' => 'clearfix'));
-					$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey()));
+					$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
 				$toc .= html_writer::end_tag('li');
 			}
 		}
@@ -477,7 +477,7 @@ function icontent_get_startpagenum($icontent, $context){
 	if(has_capability('mod/icontent:edit', $context)){
 		return icontent_get_minpagenum($icontent);
 	}
-	// REGRA: sistema devera encontrar a pagina que o usuario parou na tabela {icontent_pages_displayed} e retornar pagina.
+	// TODO Sistema devera encontrar a pagina que o usuario parou na tabela {icontent_pages_displayed} e retornar pagina.
 	// codigo aqui
 	$pagenum = 1;
 	return $pagenum;

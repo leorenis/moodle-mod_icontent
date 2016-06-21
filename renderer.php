@@ -25,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * iContent module renderer class
+ * TODO create renderer
  */
 class mod_icontent_renderer extends plugin_renderer_base {
 	

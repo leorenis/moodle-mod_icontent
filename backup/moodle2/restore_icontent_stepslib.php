@@ -101,12 +101,13 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     
     protected function process_icontent_page_question($data){
     	global $DB;
-    	 
+    	
     	$data = (object)$data;
     	$oldid = $data->id;
-    	 
+    	
+    	$data->pageid = $this->get_new_parentid('icontent_page'); // $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->questionid = $this->get_mappingid('question', $data->questionid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
-    	$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
     	$data->timemodified = $this->apply_date_offset($data->timemodified);
     	
@@ -120,8 +121,9 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
+    	$data->pageid = $this->get_new_parentid('icontent_page'); // $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
-    	$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
     	$data->timemodified = $this->apply_date_offset($data->timemodified);
     	
@@ -135,36 +137,40 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
+    	$data->pagenoteid = $this->get_new_parentid('icontent_page_note'); // $data->pagenoteid = $this->get_mappingid('icontent_page_note', $data->pagenoteid);
+    	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
-    	$data->pagenoteid = $this->get_mappingid('icontent_page_note', $data->pagenoteid);
     	$data->timemodified = $this->apply_date_offset($data->timemodified);
     	 
     	$newitemid = $DB->insert_record('icontent_pages_notes_like', $data);
     	$this->set_mapping('icontent_page_note_like', $oldid, $newitemid);
     }
     
-    protected function process_icontent_page_displayed($data){
+    protected function process_icontent_page_displayed($data) {
     	global $DB;
     	
     	$data = (object)$data;
     	$oldid = $data->id;
     	
+    	$data->pageid = $this->get_new_parentid('icontent_page'); // $data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
-    	$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
     	
     	$newitemid = $DB->insert_record('icontent_pages_displayed', $data);
     	$this->set_mapping('icontent_page_displayed', $oldid, $newitemid);
     }
     
-    protected function process_icontent_question_attempt($data){
+    protected function process_icontent_question_attempt($data) {
     	global $DB;
     	
     	$data = (object)$data;
     	$oldid = $data->id;
     	
+    	$data->pagesquestionsid = $this->get_new_parentid('icontent_page_question'); // $data->pagesquestionsid = $this->get_mappingid('icontent_page_question', $data->pagesquestionsid);
+    	$data->questionid = $this->get_mappingid('question', $data->questionid);
+    	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
-    	$data->pagesquestionsid = $this->get_mappingid('icontent_page_question', $data->pagesquestionsid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
     	 
     	$newitemid = $DB->insert_record('icontent_pages_displayed', $data);

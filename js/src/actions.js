@@ -2,7 +2,7 @@
  * Responsible for internal Java Script functions of interactive content plugin <iContent>
  *
  * @package    mod_icontent
- * @copyright  2016 Leo Santos
+ * @copyright  2016 Leo Santos {@link http://github.com/leorenis}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $(document).ready(function() {

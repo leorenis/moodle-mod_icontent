@@ -1,3 +1,11 @@
+/**
+ * Responsible for internal style of interactive content plugin <iContent>
+ *
+ * @package    mod_icontent
+ * @copyright  2016 Leo Santos {@link http://github.com/leorenis}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+ 
 /* styles using by icontent */
 .path-mod-icontent .block_icontent_toc .action-list {
 	float: right;

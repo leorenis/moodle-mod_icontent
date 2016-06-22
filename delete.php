@@ -58,8 +58,9 @@ if ($confirm) {
 	$DB->delete_records('icontent_pages_questions', array('pageid'=>$page->id));
 	icontent_remove_notes($page->id); // remove notes and notes like
     $DB->delete_records('icontent_pages', array('id'=>$page->id));
-
     icontent_preload_pages($icontent); // Fix structure.
+    // Event log
+    \mod_icontent\event\page_deleted::create_from_page($icontent, $context, $page)->trigger();
     
     $url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id));
     redirect($url);

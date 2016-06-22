@@ -82,30 +82,29 @@ if ($mform->is_cancelled()) {
         $data->timemodified = time();
 		$data = file_postupdate_standard_editor($data, 'pageicontent', $pageicontentoptions, $context, 'mod_icontent', 'page', $data->id);
         $DB->update_record('icontent_pages', $data);
-		
 		// Saving file bgarea in the filemanager
-		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage',
-                   $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
-				   
+		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage', $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		// Get page
         $page = $DB->get_record('icontent_pages', array('id' => $data->id));
-		
+		// Set log
+        \mod_icontent\event\page_updated::create_from_page($icontent, $context, $page)->trigger();
 		// redirect
 		redirect("view.php?id=$cm->id&pageid=$data->id", get_string('msgsucess','icontent'));
 		
 	}else{
 		$data->pageicontent = '';         		// updated later
 		$data->pageicontentformat = FORMAT_HTML; // updated later
-		
 		$data->id = $DB->insert_record('icontent_pages', $data);
 		$data = file_postupdate_standard_editor($data, 'pageicontent', $pageicontentoptions, $context, 'mod_icontent', 'page', $data->id);
-		
    		$DB->update_record('icontent_pages', $data);
-		
 		// Saving file bgarea in the filemanager
-		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage',
-                   $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
-				   
-		icontent_preload_pages($icontent); // fix structure
+		file_save_draft_area_files($data->bgimage, $context->id, 'mod_icontent', 'bgpage', $data->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		// fix structure
+		icontent_preload_pages($icontent);
+		// Get page
+        $page = $DB->get_record('icontent_pages', array('id' => $data->id));
+		// Set log
+		\mod_icontent\event\page_created::create_from_page($icontent, $context, $page)->trigger();
 		redirect("view.php?id=$cm->id&pageid=$data->id", get_string('msgsucess','icontent'));	// redirect
 	}
 }

@@ -29,10 +29,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Interactive Content';
 $string['modulenameplural'] = 'Interactive Contents';
-$string['modulename_help'] = 'The Interactive Content module is designed so that, from it, conteudistas, tutors and technicians can apply icontent to a course, following usability and accessibility standards.
-This tool will be responsible for signaling the good practice of adding text, images, multimedia, among others. In it, the icontent will be distributed in pages, so that the monitoring of the icontent does not become something exhausting and tiring. This plugin has a bookmark that helps the participant to lie, based on last logged furthermore allow the inclusion of public or private notes, which the participant can provide feedback on the icontent studied on the page and enjoy and reply comments from other colleagues.
-The plugin also allows the launch of questions about the icontent covered, it provides better interaction between the participant and the virtual learning platform, and the feature can become an evaluation item or launch fractional notes to the items available in the course as defined in action plan.
-The described extension is properly responsive and can be accessed by any device.';
+$string['modulename_help'] = 'The plugin for Moodle interactive content, was designed so that from it, conteudista, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.
+This tool will be responsible for signaling the good practice of adding text, images, multimedia, among others. In it, the content will be distributed in pages, so that the monitoring of the content does not become something exhausting and tiring. The plugin also has a bookmark, so that the participant can be located, based on last logged furthermore allow the inclusion of public or private notes, which the participant can provide feedback on the content studied on the page and enjoy and reply comments from other colleagues.
+The plugin also allows the launch of questions about the content addressed, this provides better interaction between the participant and the virtual learning platform, and the feature may become an evaluation item or launch fractional notes on the items available in the course as defined in the plan of action. The described extension is fully responsive and can be accessed by any device.';
 $string['icontentfieldset'] = 'Custom example fieldset';
 $string['icontentname'] = 'Interactive Content name';
 $string['icontentname_help'] = 'This is the icontent of the help tooltip associated with the icontentname field. Markdown syntax is supported.';

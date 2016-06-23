@@ -1996,10 +1996,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @return string $toolbar
  */
  function icontent_make_toolbar($page, $icontent){
- 	// Edit mode (view.php)
  	global $USER;
-
- 	// icones all users
+ 	// Icons for all users
  	$comments = html_writer::link('#idnotesarea', '<i class="fa fa-comments fa-lg"></i>',
  		array(
  			'title' => s(get_string('comments', 'icontent')),
@@ -2008,7 +2006,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			'data-placement'=> 'top'
  			)
  		);
-
  	$icondisplayed = icontent_get_pagedisplayed($page->id, $page->cmid) ? '<i class="fa fa-check-square-o fa-lg"></i>': '<i class="fa fa-square-o fa-lg"></i>';
  	$displayed = html_writer::link('#', $icondisplayed,
  		array(
@@ -2018,7 +2015,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			'data-placement'=> 'top'
  		)
  	);
-
  	$highcontrast = html_writer::link('#!', '<i class="fa fa-adjust fa-lg"></i>',
  		array(
  			'title' => s(get_string('highcontrast', 'icontent')),
@@ -2027,14 +2023,15 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			'data-placement'=> 'top'
  		)
  	);
-
  	$update = false;
  	$new = false;
  	$addquestion = false;
 	// check se editing exists for $USER
 	if(property_exists($USER, 'editing')){
+		// Edit mode (view.php)
 	 	if($USER->editing){
-	 		// icons teachers
+	 		/* Icons teachers */
+	 		// Add new question
 	 		$addquestion = html_writer::link(
 		 		new moodle_url('addquestionpage.php', 
 		 			array(
@@ -2050,7 +2047,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 			'data-placement'=> 'top'
 		 			)
 		 		);
-
+	 		// Update page
 		 	$update = html_writer::link(
 		 		new moodle_url('edit.php',
 		 			array(
@@ -2067,7 +2064,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 			'data-placement'=> 'top'
 		 			)
 		 		);
-	
+			// Add new page
 		 	$new = html_writer::link(
 		 		new moodle_url('edit.php', 
 		 			array(
@@ -2086,9 +2083,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 		 		);
 		 }
 	}
-
+	// Make toolbar
 	$toolbar = html_writer::tag('div', $highcontrast. $comments. $displayed. $addquestion. $update. $new, array('class'=>'toolbarpage '));
-
+	// Return toolbar
  	return $toolbar;
  }
 
@@ -2104,46 +2101,30 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  */
  function icontent_get_fullpageicontent($pagenum, $icontent, $context){
  	global $DB, $CFG;
-	// TODO: Criar rotina para gravar logs...
-	
+ 	// Add tooltip
 	$script = icontent_add_script_load_tooltip();
-	
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
-	
 	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
-	
 	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
-	
 	// Add title page
 	$title = html_writer::tag('h3', '<i class="fa fa-hand-o-right"></i> '.$objpage->title, array('class'=>'pagetitle'));
-	
-	// Preparing content
+	// Make content
 	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $objpage->id);
 	$objpage->pageicontent = format_text($objpage->pageicontent, $objpage->pageicontentformat, array('noclean'=>true, 'overflowdiv'=>false, 'context'=>$context));
 	$objpage->pageicontent = html_writer::div($objpage->pageicontent, 'page-layout columns-'.$objpage->layout);
-	
 	// Element page number
 	$npage = html_writer::tag('div', get_string('page', 'icontent', $objpage->pagenum), array('class'=>'pagenum'));
-	
 	// Progress bar
 	$progbar = icontent_make_progessbar($objpage, $icontent, $context);
-	
 	// Form notes
 	$notesarea = icontent_make_notesarea($objpage, $icontent);
-	
 	// Questions
 	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
-	
-	/* Internal control buttons
-	$previous = html_writer::link('#', "<i class='fa fa-angle-left'></i> ".get_string('previous', 'icontent'), array('title' => s(get_string('pageprevious', 'icontent')), 'class'=>'previous span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum - 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
-	$next = html_writer::link('#', get_string('next', 'icontent')." <i class='fa fa-angle-right'></i>", array('title' => s(get_string('nextpage', 'icontent')), 'class'=>'next span6 load-page page'.$objpage->pagenum, 'data-pagenum' => ($objpage->pagenum + 1), 'data-cmid' => $objpage->cmid, 'data-sesskey' => sesskey()));
-	
-	$controlbuttons = html_writer::tag('div', $previous. $next, array('class'=>'pagenavbar row'));*/
-	
 	// Content page for return
 	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $script, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
-	
+	// Set log and return page
+	\mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
 	unset($objpage->pageicontent);
 	return $objpage;
  }

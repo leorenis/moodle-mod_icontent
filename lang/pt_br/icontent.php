@@ -212,6 +212,11 @@ $string['random'] = 'Aleatória';
 $string['shortanswer'] = 'Resposta curta';
 $string['truefalse'] = 'Verdadeiro / Falso';
 
+$string['eventpagecreated'] = 'Criação de página';
+$string['eventpagedeleted'] = 'Deleção de página';
+$string['eventpageupdated'] = 'Atualização de página';
+$string['eventpageviewed'] = 'Visualização de página';
+
 $string['icontent:addinstance'] = 'Adicionar novo conteúdo interativo';
 $string['icontent:grade'] = 'Visualizar Relatório de notas';
 $string['icontent:manage'] = 'Gerenciar conteúdo interativo';

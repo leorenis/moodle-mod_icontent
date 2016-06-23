@@ -209,6 +209,11 @@ $string['random'] = 'Random';
 $string['shortanswer'] = 'Short answer';
 $string['truefalse'] = 'truefalse';
 
+$string['eventpagecreated'] = 'Page created';
+$string['eventpagedeleted'] = 'Page deleted';
+$string['eventpageupdated'] = 'Page updated';
+$string['eventpageviewed'] = 'Page viewed';
+
 $string['icontent:addinstance'] = 'Add a new interactive content';
 $string['icontent:grade'] = 'View grade report';
 $string['icontent:manage'] = 'Manage interactive icontent';

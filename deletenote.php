@@ -51,6 +51,7 @@ if ($confirm) {
 	// the operation was confirmed.
 	$notes = icontent_get_notes_daughters($pagenote->id);
 	icontent_remove_notes($pagenote->pageid, $pagenote->id);
+	\mod_icontent\event\note_deleted::create_from_note($icontent, $context, $pagenote)->trigger();
 	$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pagenote->pageid));
  	redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
 }

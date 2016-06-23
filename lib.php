@@ -577,7 +577,7 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
 		require_once(dirname(__FILE__).'/locallib.php');
 		$pagenotes = icontent_get_pagenotes($note->pageid, $note->cmid, $note->tab);
 		$page = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, title, cmid');
-		
+		\mod_icontent\event\note_created::create_from_note($icontent, context_module::instance($page->cmid), $note)->trigger();
 		$list = new stdClass;
 		$list->notes = icontent_make_listnotespage($pagenotes, $icontent, $page);
 		$list->totalnotes = count($pagenotes);
@@ -593,29 +593,39 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
  * @param object $notelike
  * @return array $result
  */
-function icontent_ajax_likenote(stdClass $notelike){
+function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
 	global $USER, $DB;
-	
+	// Set values
 	$notelike->userid = $USER->id;
 	$notelike->timemodified = time();
-	
-	// verifica se like ou unlike
+	// Get values
 	require_once(dirname(__FILE__).'/locallib.php');
 	$pagenotelike = icontent_get_pagenotelike($notelike->pagenoteid, $notelike->userid, $notelike->cmid);
+	$pageid = $DB->get_field('icontent_pages_notes', 'pageid', array('pagenoteid'=>$notelike->pagenoteid));
 	$countlikes = icontent_count_pagenotelike($notelike->pagenoteid);
-	
+	// Make object for return
 	$return = new stdClass;
-	
+	// Check if like or unlike
 	if(empty($pagenotelike)){
 		// Insert notelike
-		$insert = $DB->insert_record('icontent_pages_notes_like', $notelike);
+		$insertid = $DB->insert_record('icontent_pages_notes_like', $notelike, true);
+		$notelike->id = $insertid;
 		$return->likes = get_string('unlike', 'icontent', $countlikes + 1);
-		return $insert ?  $return : false;
+		// Set Log
+		$notelike->pageid = $pageid;
+		\mod_icontent\event\note_like_created::create_from_note_like($icontent, context_module::instance($pagenotelike->cmid), $notelike);
+		// Return object return
+		return $insertid ?  $return : false;
 	}
-
+	// Execute unlike
 	$unlike = $DB->delete_records('icontent_pages_notes_like', array('id'=>$pagenotelike->id));
+	// Set Log
+	$notelike->id = $pagenotelike->id;
+	$notelike->pageid = $pageid;
+	\mod_icontent\event\note_like_deleted::create_from_note_like($icontent, context_module::instance($pagenotelike->cmid), $notelike);
+	// Make return
 	$return->likes = get_string('like', 'icontent', $countlikes - 1);
-	
+	// Return object
 	return $unlike ?  $return : false;
 }
 
@@ -624,13 +634,14 @@ function icontent_ajax_likenote(stdClass $notelike){
  * @param object $pagenote
  * @return string $pagenote
  */
-function icontent_ajax_editnote(stdClass $pagenote){
+function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent){
 	global $DB;
 	
 	$pagenote->timemodified = time();
 	$update = $DB->update_record('icontent_pages_notes', $pagenote);
 	
 	if($update){
+		\mod_icontent\event\note_updated::create_from_note($icontent, context_module::instance($pagenote->cmid), $pagenote)->trigger();
 		return $pagenote;
 	}
 	return false;
@@ -664,7 +675,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 		$pagenote->path = $objparent->path."/".$insert;
 		$pagenote->timemodified = time();
 		$DB->update_record('icontent_pages_notes', $pagenote);
-		
+		\mod_icontent\event\note_replied::create_from_note($icontent, context_module::instance($pagenote->cmid), $pagenote)->trigger();
 		// Get notes reply
 		require_once(dirname(__FILE__).'/locallib.php');
 		

@@ -299,6 +299,7 @@ function icontent_preload_pages($icontent){
  */
 function icontent_remove_notes($pageid, $pagenoteid = null){
 	global $DB;
+	$rs = false;
 	if($pagenoteid){
 		// Verifies that note have daughters
 		$notesdaughters = icontent_get_notes_daughters($pagenoteid);

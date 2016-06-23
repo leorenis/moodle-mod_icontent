@@ -77,7 +77,7 @@ switch ($action) {
 		$notelike->pagenoteid 	= required_param('pagenoteid', PARAM_INT);
 		$notelike->cmid 		= required_param('id', PARAM_INT);
 		
-		$return = icontent_ajax_likenote($notelike);
+		$return = icontent_ajax_likenote($notelike, $icontent);
 		break;
 		
 	case 'editnote':
@@ -86,7 +86,7 @@ switch ($action) {
 		$pagenote->cmid 	= required_param('id', PARAM_INT);
 		$pagenote->comment 	= required_param('comment', PARAM_CLEANHTML);
 		
-		$return = icontent_ajax_editnote($pagenote);
+		$return = icontent_ajax_editnote($pagenote, $icontent);
 	break;
 	
 	case 'replynote':

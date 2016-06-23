@@ -213,6 +213,12 @@ $string['eventpagecreated'] = 'Page created';
 $string['eventpagedeleted'] = 'Page deleted';
 $string['eventpageupdated'] = 'Page updated';
 $string['eventpageviewed'] = 'Page viewed';
+$string['eventnotecreated'] = 'Note created';
+$string['eventnotedeleted'] = 'Note deleted';
+$string['eventnotereplied'] = 'Note replied';
+$string['eventnoteupdated'] = 'Note updated';
+$string['eventnotelikecreated'] = 'Note like created';
+$string['eventnotelikedeleted'] = 'Note like deleted';
 
 $string['icontent:addinstance'] = 'Add a new interactive content';
 $string['icontent:grade'] = 'View grade report';

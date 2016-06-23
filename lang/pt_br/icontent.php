@@ -213,9 +213,15 @@ $string['shortanswer'] = 'Resposta curta';
 $string['truefalse'] = 'Verdadeiro / Falso';
 
 $string['eventpagecreated'] = 'Criação de página';
-$string['eventpagedeleted'] = 'Deleção de página';
+$string['eventpagedeleted'] = 'Exclusão de página';
 $string['eventpageupdated'] = 'Atualização de página';
 $string['eventpageviewed'] = 'Visualização de página';
+$string['eventnotecreated'] = 'Criação de anotação';
+$string['eventnotedeleted'] = 'Exclusão de anotação';
+$string['eventnotereplied'] = 'Resposta de anotação';
+$string['eventnoteupdated'] = 'Atualização de anotação';
+$string['eventnotelikecreated'] = 'Curtida em anotação';
+$string['eventnotelikedeleted'] = 'Exclusão de curtida em anotação';
 
 $string['icontent:addinstance'] = 'Adicionar novo conteúdo interativo';
 $string['icontent:grade'] = 'Visualizar Relatório de notas';

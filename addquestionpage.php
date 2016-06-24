@@ -59,15 +59,8 @@ require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $coursecontext = $context->get_course_context(true)->id;
 require_capability('mod/icontent:newquestion', $context);
-// Log this request.
-$event = \mod_icontent\event\course_module_viewed::create(array(
-    'objectid' => $PAGE->cm->instance,
-    'context' => $PAGE->context,
-));
-$event->add_record_snapshot('course', $PAGE->course);
-$event->add_record_snapshot($PAGE->cm->modname, $icontent);
-$event->trigger();
-
+// Log event.
+\mod_icontent\event\question_page_viewed::create_from_question_page($icontent, $context, $pageid)->trigger();
 // Print the page header.
 $PAGE->set_url('/mod/icontent/addquestionpage.php', array('id' => $cm->id, 'pageid'=>$pageid));
 $PAGE->set_title(format_string($icontent->name));

@@ -601,7 +601,7 @@ function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
 	// Get values
 	require_once(dirname(__FILE__).'/locallib.php');
 	$pagenotelike = icontent_get_pagenotelike($notelike->pagenoteid, $notelike->userid, $notelike->cmid);
-	$pageid = $DB->get_field('icontent_pages_notes', 'pageid', array('pagenoteid'=>$notelike->pagenoteid));
+	$pageid = $DB->get_field('icontent_pages_notes', 'pageid', array('id'=>$notelike->pagenoteid));
 	$countlikes = icontent_count_pagenotelike($notelike->pagenoteid);
 	// Make object for return
 	$return = new stdClass;
@@ -611,18 +611,18 @@ function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
 		$insertid = $DB->insert_record('icontent_pages_notes_like', $notelike, true);
 		$notelike->id = $insertid;
 		$return->likes = get_string('unlike', 'icontent', $countlikes + 1);
-		// Set Log
+		// Event Log
 		$notelike->pageid = $pageid;
-		\mod_icontent\event\note_like_created::create_from_note_like($icontent, context_module::instance($pagenotelike->cmid), $notelike);
+		\mod_icontent\event\note_like_created::create_from_note_like($icontent, context_module::instance($notelike->cmid), $notelike)->trigger();
 		// Return object return
 		return $insertid ?  $return : false;
 	}
 	// Execute unlike
 	$unlike = $DB->delete_records('icontent_pages_notes_like', array('id'=>$pagenotelike->id));
-	// Set Log
+	// Event Log
 	$notelike->id = $pagenotelike->id;
 	$notelike->pageid = $pageid;
-	\mod_icontent\event\note_like_deleted::create_from_note_like($icontent, context_module::instance($pagenotelike->cmid), $notelike);
+	\mod_icontent\event\note_like_deleted::create_from_note_like($icontent, context_module::instance($notelike->cmid), $notelike)->trigger();
 	// Make return
 	$return->likes = get_string('like', 'icontent', $countlikes - 1);
 	// Return object
@@ -693,7 +693,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
  * @param object $cm
  * @return string $response
  */
-function icontent_ajax_saveattempt($formdata, stdClass $cm){
+function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
 	global $USER, $DB;
 	require_once(dirname(__FILE__).'/locallib.php');
 	// Get form data
@@ -724,7 +724,8 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm){
 	}
 	// Save records
 	$DB->insert_records('icontent_question_attempts', $records);
-	
+	// Event log
+	\mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
 	// Create object summary attempt
 	$summary = new stdClass();
 	$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);

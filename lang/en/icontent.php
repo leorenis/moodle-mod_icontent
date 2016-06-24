@@ -219,6 +219,10 @@ $string['eventnotereplied'] = 'Note replied';
 $string['eventnoteupdated'] = 'Note updated';
 $string['eventnotelikecreated'] = 'Note like created';
 $string['eventnotelikedeleted'] = 'Note like deleted';
+$string['eventquestionattemptcreated'] = 'Question attempt created';
+$string['eventquestionattemptdeleted'] = 'Question attempt deleted';
+$string['eventquestionpageviewed'] = 'View page addquestionpage';
+$string['eventquestiontoevaluatecreated'] = 'Evaluation manual questions';
 
 $string['icontent:addinstance'] = 'Add a new interactive content';
 $string['icontent:grade'] = 'View grade report';

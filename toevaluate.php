@@ -63,6 +63,8 @@ if ($action){
 		$i ++;
 	}
 	if($update){
+		// Log event.
+		\mod_icontent\event\question_toevaluate_created::create_from_question_toevaluate($icontent, $context, $user, $i)->trigger();
 		redirect(new moodle_url('/mod/icontent/grading.php', array('id'=>$cm->id, 'action'=> 'grading')), get_string('msgsucessevaluate', 'mod_icontent', $i));
 	}
 }

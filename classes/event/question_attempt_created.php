@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_icontent note_like created event.
+ * The mod_icontent question_attempt created event.
  *
  * @package    mod_icontent
  * @copyright  2016 Leo Santos <leorenis@gmail.com>
@@ -26,14 +26,14 @@ namespace mod_icontent\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_icontent note like created event class.
+ * The mod_icontent question attempts created event class.
  *
  * @package    mod_icontent
  * @since      Moodle 3.0
  * @copyright  2016 Leo Santos <leorenis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class note_like_created extends \core\event\base {
+class question_attempt_created extends \core\event\base {
     /**
      * Create instance of event.
      *
@@ -41,19 +41,17 @@ class note_like_created extends \core\event\base {
      *
      * @param \stdClass $icontent
      * @param \context_module $context
-     * @param \stdClass $notelike
-     * @return note_like_created
+     * @param \stdClass $questionattempt
+     * @return question_attempt_created
      */
-    public static function create_from_note_like(\stdClass $icontent, \context_module $context, \stdClass $notelike) {
+    public static function create_from_question_attempt(\stdClass $icontent, \context_module $context, $pageid) {
         $data = array(
             'context' => $context,
-            'objectid' => $notelike->id,
-            'other' => array('pageid'=>$notelike->pageid),
+        	'other' => array('pageid'=>$pageid),
         );
-        /** @var note_like_created $event */
+        /** @var question_attempt_created $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
-        $event->add_record_snapshot('icontent_pages_notes_like', $notelike);
         return $event;
     }
 
@@ -63,7 +61,8 @@ class note_like_created extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' created the note like with id '$this->objectid' for the icontent with " .
+    	$pageid = $this->other['pageid'];
+        return "The user with id '$this->userid' created the question attempts for pageid '$pageid' the icontent with " .
             "course module id '$this->contextinstanceid'.";
     }
 
@@ -73,8 +72,8 @@ class note_like_created extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'icontent', 'add note like', 'view.php?id=' . $this->contextinstanceid . '&pageid=' .
-            $this->other['pageid'], $this->objectid, $this->contextinstanceid);
+        return array($this->courseid, 'icontent', 'add question attempts', 'view.php?id=' . $this->contextinstanceid . '&pageid=' .
+            $this->other['pageid'], null, $this->contextinstanceid);
     }
 
     /**
@@ -83,7 +82,7 @@ class note_like_created extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventnotelikecreated', 'mod_icontent');
+        return get_string('eventquestionattemptcreated', 'mod_icontent');
     }
 
     /**
@@ -94,7 +93,7 @@ class note_like_created extends \core\event\base {
     public function get_url() {
         return new \moodle_url('/mod/icontent/view.php', array(
             'id' => $this->contextinstanceid,
-            'pageid' => $this->other['pageid']
+        	'pageid' => $this->other['pageid'],
         ));
     }
     
@@ -106,7 +105,5 @@ class note_like_created extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages_notes_like';
     }
-
 }

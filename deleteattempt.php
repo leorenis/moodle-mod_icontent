@@ -38,7 +38,6 @@ require_login($course, false, $cm);
 require_sesskey();
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:answerquestionstryagain', $context);
-// TODO: Add log event
 // Page setting
 $PAGE->set_url('/mod/icontent/deleteattempt.php', array('id' => $cm->id, 'pageid' => $pageid,'sesskey' => sesskey()));
 // Header and strings.
@@ -49,6 +48,9 @@ if ($confirm) {
 	// Try the operation confirmed.
 	$delete = icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
 	if($delete){
+		// Event log
+		\mod_icontent\event\question_attempt_deleted::create_from_question_attempt($icontent, $context, $pageid)->trigger();
+		// Make URL and redirect
 		$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
 		redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
 	}

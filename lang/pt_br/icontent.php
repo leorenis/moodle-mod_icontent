@@ -222,6 +222,10 @@ $string['eventnotereplied'] = 'Resposta de anotação';
 $string['eventnoteupdated'] = 'Atualização de anotação';
 $string['eventnotelikecreated'] = 'Curtida em anotação';
 $string['eventnotelikedeleted'] = 'Exclusão de curtida em anotação';
+$string['eventquestionattemptcreated'] = 'Envio de tentativa';
+$string['eventquestionattemptdeleted'] = 'Exclusão de tentativa';
+$string['eventquestionpageviewed'] = 'Visualização da página addquestionpage';
+$string['eventquestiontoevaluatecreated'] = 'Avaliação de questões manuais';
 
 $string['icontent:addinstance'] = 'Adicionar novo conteúdo interativo';
 $string['icontent:grade'] = 'Visualizar Relatório de notas';

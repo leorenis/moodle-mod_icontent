@@ -44,10 +44,10 @@ class question_toevaluate_created extends \core\event\base {
      * @param \stdClass $question_toevaluate
      * @return question_toevaluate_created
      */
-    public static function create_from_question_toevaluate(\stdClass $icontent, \context_module $context, \stdClass $user, $nquestions = null) {
+    public static function create_from_question_toevaluate(\stdClass $icontent, \context_module $context, \stdClass $user) {
         $data = array(
             'context' => $context,
-            'other' => array('nquestions' => $nquestions, 'useridevaluated' => $user->id),
+            'other' => array('useridevaluated' => $user->id),
         );
         /** @var question_toevaluate_created $event */
         $event = self::create($data);
@@ -61,9 +61,8 @@ class question_toevaluate_created extends \core\event\base {
      * @return string
      */
     public function get_description() {
-    	$nquestions = $this->other['nquestions'];
     	$useridevaluated = $this->other['useridevaluated'];
-        return "The user with id '$this->userid' evaluated '$nquestions' manual question(s) answered by the participant with id '$useridevaluated' in activity with " .
+        return "The user with id '$this->userid' evaluated manual question(s) answered by the participant with id '$useridevaluated' in activity with " .
             "course module id '$this->contextinstanceid'.";
     }
 

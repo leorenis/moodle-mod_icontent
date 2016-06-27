@@ -705,7 +705,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 			break;
 		case ICONTENT_QTYPE_ESSAY:
 			$infoanswer->rightanswer = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;	// Wait evaluation of tutor.
-			$infoanswer->answertext = $answer;
+			$infoanswer->answertext = s($answer);
 			return $infoanswer;
 			break;
 	}

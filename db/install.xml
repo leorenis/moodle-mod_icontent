@@ -24,7 +24,6 @@
         <FIELD NAME="progressbar" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Porcentagem das paginas visualizadas." />
         <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mostrar area de anotacoes." />       
 	  	<FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de anotacao por pagina." />
-        <FIELD NAME="maxquestionsperpages" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximo de questoes por pagina." />
       	<FIELD NAME="copyright" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Direitos reservados"/>
 	  </FIELDS>
       <KEYS>

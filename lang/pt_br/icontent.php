@@ -102,6 +102,7 @@ $string['evaluate'] = 'Avaliar';
 $string['toevaluate'] = 'A avaliar';
 $string['result'] = 'Resultado';
 $string['results'] = 'Resultados';
+$string['partialresult'] = 'Resultado Parcial';
 $string['stropenanswer'] = '<span class="label label-info">{$a} resposta(s) aguardando avaliação.</span>';
 $string['strtoevaluate'] = '{$a->fraction} de um máximo de {$a->maxfraction} ({$a->percentage}%). {$a->openanswer}';
 $string['strattempttitle'] = 'Tentativa realizada na página {$a->pagenum} título {$a->title}';

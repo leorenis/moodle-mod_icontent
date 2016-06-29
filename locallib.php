@@ -1044,6 +1044,33 @@ function icontent_get_pagequestions($pageid, $cmid){
 	return $DB->get_records_sql($sql, array($pageid, $cmid));
 }
 /**
+ * Get total of questions and subquestions by instance <iContent>.
+ *
+ * Returns total of questions by instance
+ *
+ * @param  int $cmid
+ * @return int $tquestions
+ */
+function icontent_get_totalquestions_by_instance($cmid){
+	global $DB;
+	// Get total subquestions
+	$sql = 'SELECT Count(*)
+			FROM   {qtype_match_subquestions} qms
+			       INNER JOIN {icontent_pages_questions} pq
+			               ON qms.questionid = pq.questionid
+			WHERE  pq.cmid = ?;';
+	$tquest = $DB->count_records_sql($sql, array($cmid));
+	// Get total questions
+	$sql = 'SELECT Count(*)
+			FROM   {icontent_pages_questions} pq
+			       INNER JOIN {question} q
+			               ON pq.questionid = q.id
+			WHERE  q.qtype NOT IN (?)
+			       AND pq.cmid = ?;';
+	$tsub = $DB->count_records_sql($sql, array(ICONTENT_QTYPE_MATCH, $cmid));
+	return $tsub + $tquest;
+}
+/**
  * Get pagenotes by pageid according to the user's capability logged.
  *
  * Returns array of pagenotes

@@ -95,6 +95,7 @@ $string['evaluate'] = 'Evaluate';
 $string['toevaluate'] = 'To evaluate';
 $string['result'] = 'Result';
 $string['results'] = 'Results';
+$string['partialresult'] = 'Partial result';
 $string['manualreview'] = 'Manual review';
 $string['manualreviewofparticipant'] = 'Manual review of attempt of participant {$a}';
 $string['manualgrading'] = 'Manual grading';

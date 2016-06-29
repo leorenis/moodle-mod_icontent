@@ -1,4 +1,7 @@
-﻿-- Updates 2016060700 - OK
+﻿-- Updates 2016062900
+ALTER TABLE `moodle28`.`mdl_icontent` DROP COLUMN `maxquestionsperpages`;
+
+-- Updates 2016060700 - OK
 ALTER TABLE `moodle28`.`mdl_icontent_pages` 
 CHANGE COLUMN `maxquestionsperpages` `attemptsallowed` SMALLINT(3) NOT NULL DEFAULT '0' COMMENT 'Maximo de questoes por pagina.' ;
 

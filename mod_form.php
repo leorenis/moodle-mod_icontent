@@ -115,13 +115,6 @@ class mod_icontent_mod_form extends moodleform_mod {
 		$mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
 		$mform->setDefault('maxnotesperpages', 15);
 		
-		$mform->addElement('text', 'maxquestionsperpages', get_string('maxquestionsperpages', 'icontent'), array('class'=>'x-large'));
-		$mform->setType('maxquestionsperpages', PARAM_INT);
-		$mform->addHelpButton('maxquestionsperpages', 'maxquestionsperpageshelp', 'icontent');
-		$mform->addRule('maxquestionsperpages', null, 'numeric', null, 'client');
-		$mform->addRule('maxquestionsperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
-		$mform->setDefault('maxquestionsperpages', 3);
-		
 		$mform->addElement('selectyesno', 'progressbar', get_string('progressbar', 'icontent'));
         $mform->addHelpButton('progressbar', 'progressbar', 'icontent');
         $mform->setType('progressbar', PARAM_INT);

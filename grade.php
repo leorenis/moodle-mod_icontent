@@ -55,13 +55,13 @@ $sort = icontent_check_value_sort($sort);
 // Get users attempts
 $attemptsusers = icontent_get_attempts_users($cm->id, $sort, $page, $perpage);
 $tattemtpsusers = icontent_count_attempts_users($cm->id);
-
+var_dump(icontent_get_totalquestions_by_instance($cm->id)); // TODO Check this... 
 // Make table questions
 $table = new html_table();
 $table->id = "idtableattemptsusers";
-$table->colclasses = array('fullname', 'answers', 'grades', 'result');
+$table->colclasses = array('fullname', 'answers', 'result', 'grades');
 $table->attributes = array('class'=>'table table-hover tableattemptsusers');
-$table->head  = array(get_string('fullname'), get_string('answers', 'mod_icontent'), get_string('grades'), get_string('result', 'mod_icontent'));
+$table->head  = array(get_string('fullname'), get_string('answers', 'mod_icontent'), get_string('partialresult', 'mod_icontent'), get_string('grades'));
 if($attemptsusers) foreach ($attemptsusers as $attemptuser){
 	// Get picture
 	$picture = $OUTPUT->user_picture($attemptuser, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
@@ -76,7 +76,7 @@ if($attemptsusers) foreach ($attemptsusers as $attemptuser){
 	$evaluate->openanswer = $stropenanswer;
 	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
 	// Set data
-	$table->data[] = array($picture. $linkfirstname, $attemptuser->totalanswers, number_format($attemptuser->sumfraction, 2), $strevaluate);
+	$table->data[] = array($picture. $linkfirstname, $attemptuser->totalanswers, $strevaluate, number_format($attemptuser->sumfraction, 2));
 }
 else {
 	echo html_writer::div(get_string('norecordsfound', 'mod_icontent'), 'alert alert-warning');

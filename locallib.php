@@ -553,7 +553,7 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 			);
 }
 /**
- * Set updates for grades in table {grade_grades}.
+ * Set updates for grades in table {grade_grades}. Needed by {@link grade_update_mod_grades()}.
  *
  * Returns true or false
  *

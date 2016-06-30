@@ -55,7 +55,7 @@ $sort = icontent_check_value_sort($sort);
 // Get users attempts
 $attemptsusers = icontent_get_attempts_users($cm->id, $sort, $page, $perpage);
 $tattemtpsusers = icontent_count_attempts_users($cm->id);
-var_dump(icontent_get_totalquestions_by_instance($cm->id)); // TODO Check this... 
+$tquestinstance = icontent_get_totalquestions_by_instance($cm->id);
 // Make table questions
 $table = new html_table();
 $table->id = "idtableattemptsusers";
@@ -74,9 +74,10 @@ if($attemptsusers) foreach ($attemptsusers as $attemptuser){
 	$evaluate->maxfraction = number_format($attemptuser->totalanswers, 2);
 	$evaluate->percentage = round(($attemptuser->sumfraction * 100) / $attemptuser->totalanswers);
 	$evaluate->openanswer = $stropenanswer;
+	$evaluate->finalgrade = ($attemptuser->sumfraction * $icontent->grade) / $tquestinstance;
 	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
 	// Set data
-	$table->data[] = array($picture. $linkfirstname, $attemptuser->totalanswers, $strevaluate, number_format($attemptuser->sumfraction, 2));
+	$table->data[] = array($picture. $linkfirstname, $attemptuser->totalanswers, $strevaluate, number_format($evaluate->finalgrade, 2));
 }
 else {
 	echo html_writer::div(get_string('norecordsfound', 'mod_icontent'), 'alert alert-warning');

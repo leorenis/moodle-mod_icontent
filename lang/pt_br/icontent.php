@@ -43,6 +43,7 @@ $string['pluginadministration'] = 'Administração do conteúdo interativo';
 $string['pluginname'] = 'Conteúdo Interativo';
 $string['maximumdigits'] = 'Máximo de {$a} dígitos';
 $string['grade'] = 'Nota';
+$string['gradingscale'] = 'Notas (0 - {$a})';
 $string['bgimage'] = 'Imagem de Background';
 $string['bgimagehelp'] = 'Imagem de Background';
 $string['bgimagepagehelp'] = 'Imagem de Background';

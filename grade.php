@@ -61,7 +61,7 @@ $table = new html_table();
 $table->id = "idtableattemptsusers";
 $table->colclasses = array('fullname', 'answers', 'result', 'grades');
 $table->attributes = array('class'=>'table table-hover tableattemptsusers');
-$table->head  = array(get_string('fullname'), get_string('answers', 'mod_icontent'), get_string('partialresult', 'mod_icontent'), get_string('grades'));
+$table->head  = array(get_string('fullname'), get_string('answers', 'mod_icontent'), get_string('partialresult', 'mod_icontent'), get_string('gradingscale', 'mod_icontent', $icontent->grade));
 if($attemptsusers) foreach ($attemptsusers as $attemptuser){
 	// Get picture
 	$picture = $OUTPUT->user_picture($attemptuser, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));

@@ -40,6 +40,7 @@ $string['pluginadministration'] = 'Interactive Content Administration';
 $string['pluginname'] = 'Interactive Content';
 $string['maximumdigits'] = 'Maximum of {$a} digits';
 $string['grade'] = 'Grade';
+$string['gradingscale'] = 'Grades (0 - {$a})';
 $string['bgimage'] = 'Background image';
 $string['bgimagehelp'] = 'Image of Background';
 $string['bgimagepagehelp'] = 'Image of Background';

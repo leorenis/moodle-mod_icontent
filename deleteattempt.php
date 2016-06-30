@@ -48,6 +48,8 @@ if ($confirm) {
 	// Try the operation confirmed.
 	$delete = icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
 	if($delete){
+		// Update grade
+		icontent_set_grade_item($icontent, $cm->id, $USER->id);
 		// Event log
 		\mod_icontent\event\question_attempt_deleted::create_from_question_attempt($icontent, $context, $pageid)->trigger();
 		// Make URL and redirect

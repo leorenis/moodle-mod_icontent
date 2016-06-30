@@ -724,6 +724,8 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
 	}
 	// Save records
 	$DB->insert_records('icontent_question_attempts', $records);
+	// Update grade
+	icontent_set_grade_item($icontent, $cm->id, $USER->id);
 	// Event log
 	\mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
 	// Create object summary attempt

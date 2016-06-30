@@ -45,7 +45,8 @@ $PAGE->set_url('/mod/icontent/toevaluate.php', array('id' => $cm->id, 'action'=>
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->navbar->add(get_string('results', 'mod_icontent'))->add(get_string('manualreview', 'mod_icontent'))->add(fullname($user));
-
+// Get total questions by instance
+$tquestinstance = icontent_get_totalquestions_by_instance($cm->id);
 // Check action
 if ($action){
 	// Receives values
@@ -63,18 +64,18 @@ if ($action){
 		$i ++;
 	}
 	if($update){
+		// Update grade
+		icontent_set_grade_item($icontent, $cm->id, $user->id);
 		// Log event.
 		\mod_icontent\event\question_toevaluate_created::create_from_question_toevaluate($icontent, $context, $user)->trigger();
 		redirect(new moodle_url('/mod/icontent/grading.php', array('id'=>$cm->id, 'action'=> 'grading')), get_string('msgsucessevaluate', 'mod_icontent', $i));
 	}
 }
-
+// Make page
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('manualreviewofparticipant', 'mod_icontent', fullname($user)), 3);
-
 $qopenanswers = icontent_get_questions_and_open_answers_by_user($user->id, $cm->id, $status);
-//echo "<pre>"; var_dump($qopenanswers); echo "</pre>";
 echo html_writer::start_tag('form', array('method'=>'post'));
 if($qopenanswers) foreach ($qopenanswers as $qopenanswer){
 	$fieldname = 'question[attemptid-'.$qopenanswer->id.']';

@@ -552,7 +552,45 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 				)
 			);
 }
-
+/**
+ * Set updates for grades in table {grade_grades}.
+ *
+ * Returns true or false
+ *
+ * @param  object $icontent
+ * @param  int $cmid
+ * @param  object $grade
+ * @return boolean $return
+ */
+function icontent_set_grade_item(stdClass $icontent, $cmid, $userid){
+	global $CFG, $DB;
+	require_once($CFG->libdir.'/gradelib.php');
+	$params = array('itemname'=>$icontent->name, 'idnumber'=>$cmid);
+	$sumfraction = icontent_get_sumfraction_by_userid($cmid, $userid);
+	$tquestinstance = icontent_get_totalquestions_by_instance($cmid);
+	$finalgrade = ($sumfraction * $icontent->grade) / $tquestinstance;
+	// Make set icontent_grade for <iContent>
+	$igrade = new stdClass();
+	$igrade->icontentid = $icontent->id;
+	$igrade->userid = $userid;
+	$igrade->cmid = $cmid;
+	$igrade->grade = $finalgrade;
+	$igrade->timemodified = time();
+	// Check if table {icontent_grades} has grade for user
+	$igradeid = $DB->get_field('icontent_grades', 'id', array('icontentid'=>$icontent->id, 'userid'=>$userid, 'cmid'=>$cmid));
+	if($igradeid){
+		$igrade->id = $igradeid;
+		$DB->update_record('icontent_grades', $igrade);
+	}else{
+		$DB->insert_record('icontent_grades', $igrade);
+	}
+	// Make grade
+	$grade = new stdClass();
+	$grade->rawgrade = number_format($finalgrade, 5);
+	$grade->userid = $userid;
+	// Update gradebook
+	grade_update('mod/icontent', $icontent->course, 'mod', 'icontent', $icontent->id, 0, $grade, $params);
+}
 /**
  * Get total questions of question bank.
  *
@@ -924,6 +962,21 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status
 			       AND qa.rightanswer IN (?);";
 	// Get records and return
 	return $DB->get_records_sql($sql, array($cmid, $userid, $status));
+}
+/**
+ * Get sum fraction by instance and userid.
+ *
+ * Returns sum fraction
+ *
+ * @param  int $cmid
+ * @param  int $userid
+ * @return float $sumfraction
+ */
+function icontent_get_sumfraction_by_userid($cmid, $userid){
+	global $DB;
+	$sql = "SELECT Sum(fraction) AS sumfraction FROM {icontent_question_attempts}  WHERE  userid = ? AND cmid = ?;";
+	$grade = $DB->get_record_sql($sql, array($userid, $cmid));
+	return $grade->sumfraction;
 }
 /**
  * Get array of the options of answers. Pattern input e.g. array options with [qpid-9_answerid-5].

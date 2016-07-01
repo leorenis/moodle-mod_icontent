@@ -194,7 +194,10 @@ $string['createdby'] = ' Created by';
 $string['lastmodifiedby'] = 'Last modified by';
 $string['respond'] = ' Respond ';
 $string['statusview'] = 'Status view';
+$string['send'] = 'Send';
 $string['sendattemp'] = 'Send attemp';
+$string['sendallandfinish'] = 'Send all and finish';
+$string['sendanswers'] = 'Send answers';
 $string['labelprogressbar'] = '{$a}% complete';
 $string['erroridnotfound'] = ' <i class="fa fa-exclamation-triangle"></i> You must specify the param {$a}';
 

@@ -10,7 +10,7 @@
 .path-mod-icontent .block_icontent_toc .action-list {
 	float: right;
 }
-.dir-rtl.path-mod-icontent .block_icontent_toc .action-list {
+.path-mod-icontent .block_icontent_toc .action-list {
 	float: left;
 }
 .path-mod-icontent .block_icontent_toc .action-list img.smallicon {
@@ -20,133 +20,133 @@
 .path-mod-icontent .icontent_toc{
     font-size: 0.8em;
 }
-.block_icontent_toc .icontent_toc li {
+.path-mod-icontent .block_icontent_toc .icontent_toc li {
     list-style: outside none none;
 }
-.block_icontent_toc .icontent_toc ul {
+.path-mod-icontent .block_icontent_toc .icontent_toc ul {
     margin: 0 0 0 5px;
     padding-left: 0;
     padding-right: 0;
 }
-.block_icontent_toc .icontent_toc li {
+.path-mod-icontent .block_icontent_toc .icontent_toc li {
     clear: both;
     list-style: none;
     margin-top: 0.5em;
 }
-.block_icontent_toc .icontent_toc ul li .active{
+.path-mod-icontent .block_icontent_toc .icontent_toc ul li .active{
 	cursor: default;
     font-weight: bolder;
     pointer-events: none;
 }
-.statusdisplay {
+.path-mod-icontent .statusdisplay {
     background-color: #ffc;
     clear: both;
     margin: 0.3em 1em 0.3em 0;
     padding: 1px;
 }
-.statusdisplay p {
+.path-mod-icontent .statusdisplay p {
     margin: 0.4em;
 }
-.icontent-page .row {
+.path-mod-icontent .icontent-page .row {
 	margin-left: 0;
 }
-.icontent-page .previous{
+.path-mod-icontent .icontent-page .previous{
 	text-align: right;
 }
-.icontent-page .pagenum{
+.path-mod-icontent .icontent-page .pagenum{
 	text-align: right;
 }
-.full-paging-buttonbar{
+.path-mod-icontent .full-paging-buttonbar{
 	text-align: center;
 }
-.simple-paging-buttonbar{
+.path-mod-icontent .simple-paging-buttonbar{
 	text-align: center;
 }
-.simple-paging-buttonbar button{
+.path-mod-icontent .simple-paging-buttonbar button{
 	min-width: 120px;
 }
-.icontent-page .pagenum span{
+.path-mod-icontent .icontent-page .pagenum span{
 	margin-right: 5px;
 	border: 1px solid #E3E3E3;
 	padding: 5px 10px;
 	font-weight: bold;
 	font-size: 12px;
 }
-.icontent-page .pagenum span em{
+.path-mod-icontent .icontent-page .pagenum span em{
 	font-style: normal;
 	font-size: 16px;
 }
 
-.icontent-page .fulltextpage{
+.path-mod-icontent .icontent-page .fulltextpage{
 	letter-spacing: 0.1px;
   line-height: 1.66em;
   padding: 10px 15px;
   word-spacing: 0.3px;
 }
 /*Hightcontrast */
-.icontent-page .highcontrast h1,
-.icontent-page .highcontrast h2,
-.icontent-page .highcontrast h3,
-.icontent-page .highcontrast h4,
-.icontent-page .highcontrast h5,
-.icontent-page .highcontrast h6,
-.icontent-page .highcontrast a
+.path-mod-icontent .icontent-page .highcontrast h1,
+.path-mod-icontent .icontent-page .highcontrast h2,
+.path-mod-icontent .icontent-page .highcontrast h3,
+.path-mod-icontent .icontent-page .highcontrast h4,
+.path-mod-icontent .icontent-page .highcontrast h5,
+.path-mod-icontent .icontent-page .highcontrast h6,
+.path-mod-icontent .icontent-page .highcontrast a
 {
   color: #ff0;
 }
-.icontent-page .highcontrast p, 
-.icontent-page .highcontrast b,
-.icontent-page .highcontrast strong,
-.icontent-page .highcontrast span,
-.icontent-page .highcontrast{
+.path-mod-icontent .icontent-page .highcontrast p, 
+.path-mod-icontent .icontent-page .highcontrast b,
+.path-mod-icontent .icontent-page .highcontrast strong,
+.path-mod-icontent .icontent-page .highcontrast span,
+.path-mod-icontent .icontent-page .highcontrast{
   color: #fff;
 }
-.icontent-page .highcontrast .notesarea .notelist .pagenoterow{
+.path-mod-icontent .icontent-page .highcontrast .notesarea .notelist .pagenoterow{
   background-color: #222;
   border-bottom: 1px solid #555;
 }
 /*End Hightcontrast */
-.icontent-page .fulltextpage .toolbarpage{
+.path-mod-icontent .icontent-page .fulltextpage .toolbarpage{
 	text-align: right;
 }
-.icontent-page .fulltextpage h3.pagetitle{
+.path-mod-icontent .icontent-page .fulltextpage h3.pagetitle{
 	
 }
-.icontent-page .fulltextpage p{
+.path-mod-icontent .icontent-page .fulltextpage p{
 	font-size: 15px;
 	text-indent: 1.25em;
 }
-.icontent-page .fulltextpage .toolbarpage a{
+.path-mod-icontent .icontent-page .fulltextpage .toolbarpage a{
 	margin: 0;
 }
-.icontent-page .fulltextpage .toolbarpage .icon{
+.path-mod-icontent .icontent-page .fulltextpage .toolbarpage .icon{
   margin-left: 10px;
 }
-.icontent-page .fulltextpage .formcomment{
+.path-mod-icontent .icontent-page .fulltextpage .formcomment{
 	margin-top: 15px;
 	text-align: right;
 }
-.icontent-page .fulltextpage img{
+.path-mod-icontent .icontent-page .fulltextpage img{
 	margin-right: 10px;
 }
-.icontent-page .fulltextpage .loading{
+.path-mod-icontent .icontent-page .fulltextpage .loading{
 	margin-left: 27%;
   margin-top: 25%;
   position: absolute;
 }
 /* Resolution < 990*/
 @media (max-width: 990px) {
-	.icontent-page .fulltextpage .loading{
+	.path-mod-icontent .icontent-page .fulltextpage .loading{
 		margin-left: 0%;
 	    margin-top: 0%;
 	    position: absolute;
 	}
 }
-.icontent-page .fulltextpage .loading .img-loading{
+.path-mod-icontent .icontent-page .fulltextpage .loading .img-loading{
 	
 }
 /** BOOTSTRAP IMGs*/
-.img-thumbnail {
+.path-mod-icontent .img-thumbnail {
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -157,19 +157,19 @@
     padding: 4px;
     transition: all 0.2s ease-in-out 0s;
 }
-.img-circle {
+.path-mod-icontent .img-circle {
     border-radius: 50%;
 }
 
-.img-rounded {
+.path-mod-icontent .img-rounded {
     border-radius: 6px;
 }
 
 /** NOTES AREA */
-.notesarea #note .fields span{
+.path-mod-icontent .notesarea #note .fields span{
 	margin-right: 15px;
 }
-.notesarea #tabnav #messagenotes{
+.path-mod-icontent .notesarea #tabnav #messagenotes{
  	background: #6DB143 none repeat scroll 0 0;
     border-radius: 10px;
     font-size: 0.7em;
@@ -181,7 +181,7 @@
     margin-top: -5px;
     padding: 4px 5px 2px;
 }
-.notesarea #tabnav #messagedoubt{
+.path-mod-icontent .notesarea #tabnav #messagedoubt{
  	background: #238BC7 none repeat scroll 0 0;
     border-radius: 10px;
     font-size: 0.7em;
@@ -193,56 +193,40 @@
     margin-top: -5px;
     padding: 4px 5px 2px;
 }
-.notesarea #tabnav #messagedoubt:hover,
-.notesarea #tabnav #messagenotes:hover{
+.path-mod-icontent .notesarea #tabnav #messagedoubt:hover,
+.path-mod-icontent .notesarea #tabnav #messagenotes:hover{
 	text-decoration: none;
 }
-.notesarea .titlenotes{
+.path-mod-icontent .notesarea .titlenotes{
 	text-transform: uppercase;
 }
 /** List of anotations **/
-.icontent-page .notesarea .notelist .noterowicontent{
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent{
 	margin-left: 45px;
 	font-size: 13px;
 }
-.icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon{
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon{
 	color: #aaa;
 }
-.icontent-page .notesarea .notelist .noterowicontent .notefooter .notedate, 
-.icontent-page .notesarea .notelist .noterowicontent .notefooter a{
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter .notedate, 
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a{
 	color: #aaa;
 	font-size: 12px;
 }
-.icontent-page .notesarea .notelist .noterowicontent .notefooter a{
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a{
 	cursor: pointer;
 }
-.icontent-page .notesarea .notelist .noterowicontent .notefooter a:hover{
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a:hover{
 	text-decoration: none;
 	color: #555;
 }
-.icontent-page .notesarea .notelist .pagenoterow{
+.path-mod-icontent .icontent-page .notesarea .notelist .pagenoterow{
 	background-color: #fff;
     border-bottom: 1px solid #eee;
     border-radius: 5px;
     margin-bottom: 10px;
     margin-top: 10px;
     padding: 5px;
-}
-/* List-Groups Bootstrap*/
-.list-group-item:first-child {
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-}
-.list-group-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    display: block;
-    margin-bottom: -1px;
-    padding: 10px 15px;
-    position: relative;
-}
-.list-group-item > .badge {
-    float: right;
 }
 
 /* Organization of notes in at levels */
@@ -281,7 +265,7 @@
 }
 
 /* Page Layout */
-.icontent-page .fulltextpage .columns-2{
+.path-mod-icontent .icontent-page .fulltextpage .columns-2{
   -webkit-columns: 2 200px;
      -moz-columns: 2 200px;
           columns: 2 200px;
@@ -292,7 +276,7 @@
      -moz-column-rule: 1px dotted #ddd;
           column-rule: 1px dotted #ddd;
 }
-.icontent-page .fulltextpage .columns-3{
+.path-mod-icontent .icontent-page .fulltextpage .columns-3{
   -webkit-columns: 3 200px;
      -moz-columns: 3 200px;
           columns: 3 200px;
@@ -303,7 +287,7 @@
      -moz-column-rule: 1px dotted #ddd;
           column-rule: 1px dotted #ddd;
 }
-.icontent-page .fulltextpage .columns-4{
+.path-mod-icontent .icontent-page .fulltextpage .columns-4{
   -webkit-columns: 4 165px;
      -moz-columns: 4 165px;
           columns: 4 165px;
@@ -315,7 +299,7 @@
           column-rule: 1px dotted #ddd;
 }
 
-.icontent-page .fulltextpage .columns-5{
+.path-mod-icontent .icontent-page .fulltextpage .columns-5{
   -webkit-columns: 5 120px;
      -moz-columns: 5 120px;
           columns: 5 120px;
@@ -328,13 +312,13 @@
 }
 
 @media (max-width: 990px) {
-	.icontent-page .previous{
+	.path-mod-icontent .icontent-page .previous{
 		text-align: center;
 	}
-	.icontent-page .next{
+	.path-mod-icontent .icontent-page .next{
 		text-align: center;
 	}
-	.icontent-page .notesarea .userpicture{
+	.path-mod-icontent .icontent-page .notesarea .userpicture{
 		display: none;
 	}
 }
@@ -347,38 +331,54 @@
 }
 
 /*Table addquestionpage */
-table.icontentquestions{
+.path-mod-icontent table.icontentquestions{
 	margin-bottom: 10px !important;
 }
-table.icontentquestions .header{
+.path-mod-icontent table.icontentquestions .header{
 	text-align: left !important;
 }
 
-table.icontentquestions .qtype{
+.path-mod-icontent table.icontentquestions .qtype{
 	text-align: left !important;
 	width: 5% !important;
 }
 
-table.icontentquestions .questionname {
+.path-mod-icontent table.icontentquestions .questionname {
     white-space: normal !important;
 }
 
-table.icontentquestions td{
+.path-mod-icontent table.icontentquestions td{
 	padding: 5px !important;
 }
-#idtableattemptsusers .fullname .lkfullname{
+.path-mod-icontent #idtableattemptsusers .fullname .lkfullname{
 	margin-left: 5px;
 }
-#idtableattemptsusers a.btn-primary{
+.path-mod-icontent #idtableattemptsusers a.btn-primary{
 	color: white;
 }
-#idtableattemptsusers a.btn-toevaluate{
+.path-mod-icontent #idtableattemptsusers a.btn-toevaluate{
 	padding: 4px 10px !important;
 }
-.labelfieldgrade{
+.path-mod-icontent .labelfieldgrade{
 	font-weight: bolder;
 }
-/** Progress bar Twitter Boostrap 3.5 */
+/* List-Groups. Override Twitter Bootstrap */
+.list-group-item:first-child {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+.list-group-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    display: block;
+    margin-bottom: -1px;
+    padding: 10px 15px;
+    position: relative;
+}
+.list-group-item > .badge {
+    float: right;
+}
+/** Progress bar. Override Twitter Bootstrap */
 .progress {
   height: 20px;
   margin-bottom: 20px;

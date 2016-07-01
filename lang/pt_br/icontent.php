@@ -197,7 +197,10 @@ $string['createdby'] = 'Criado por';
 $string['lastmodifiedby'] = 'Última modificação por';
 $string['respond'] = ' Respondeu ';
 $string['statusview'] = 'Status de visualização';
-$string['sendattemp'] = 'Enviar';
+$string['send'] = 'Enviar';
+$string['sendattemp'] = 'Enviar tantativa';
+$string['sendallandfinish'] = 'Enviar tudo e terminar';
+$string['sendanswers'] = 'Enviar respostas';
 $string['labelprogressbar'] = '{$a}% completo';
 $string['erroridnotfound'] = ' <i class="fa fa-exclamation-triangle"></i> Você deve especificar o parâmetro {$a}';
 

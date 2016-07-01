@@ -55,8 +55,7 @@ if ($confirm) {
 		// Make URL and redirect
 		$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
 		redirect($url, get_string('msgsucessexclusion', 'mod_icontent'));
-	}
-		
+	}	
 }
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name." : ".get_string('confdeleteattempt', 'mod_icontent', $page));

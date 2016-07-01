@@ -312,7 +312,7 @@ $(document).ready(function() {
 				"sesskey" : sesskey,
 				"formdata" : formdata,
 			};
-		
+		$('.btn-sendanswers').prop("disabled", true ); // Disable button
 		$.ajax({
 			type : "POST",
 			dataType : "json",

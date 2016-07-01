@@ -1612,9 +1612,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'pageid', 'value'=>$objpage->id, 'id'=>'idhfieldpageid'));
  	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'sesskey', 'value'=>sesskey(), 'id'=>'idhfieldsesskey'));
  	// Button send questions
- 	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'value'=> get_string('sendattemp', 'mod_icontent')));
+ 	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('sendanswers', 'mod_icontent')));
+ 	$divbtnsend = html_writer::div($qbtnsend, 'row sendanswers');
  	// Tag form
- 	$qform = html_writer::tag('form', $hiddenfields. $header. $qlist. $qbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
+ 	$qform = html_writer::tag('form', $hiddenfields. $header. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
  	return html_writer::div($qform, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**

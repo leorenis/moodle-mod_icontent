@@ -53,15 +53,20 @@ if ($confirm) {
  	// Deleting all files and records linked to page
     $fs->delete_area_files($context->id, 'mod_icontent', 'page', $page->id);
 	$fs->delete_area_files($context->id, 'mod_icontent', 'bgpage', $page->id);
-	
+	// Delete records
 	$DB->delete_records('icontent_pages_displayed', array('pageid'=>$page->id));
+	// Get page questions for remove items attempts
+	$pagequestions = $DB->get_records('icontent_pages_questions', array('pageid' => $page->id), null, 'id, pageid, cmid');
+	if($pagequestions) foreach ($pagequestions as $pagequestion){
+		$DB->delete_records('icontent_question_attempts', array('pagesquestionsid'=>$pagequestion->id));
+	}
 	$DB->delete_records('icontent_pages_questions', array('pageid'=>$page->id));
 	icontent_remove_notes($page->id); // remove notes and notes like
     $DB->delete_records('icontent_pages', array('id'=>$page->id));
     icontent_preload_pages($icontent); // Fix structure.
     // Event log
     \mod_icontent\event\page_deleted::create_from_page($icontent, $context, $page)->trigger();
-    
+    // Make URL
     $url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id));
     redirect($url);
 }

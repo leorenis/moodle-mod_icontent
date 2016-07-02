@@ -128,17 +128,29 @@ function icontent_update_instance(stdClass $icontent, mod_icontent_mod_form $mfo
  */
 function icontent_delete_instance($id) {
     global $DB;
-
+	// check if instance exists
     if (! $icontent = $DB->get_record('icontent', array('id' => $id))) {
         return false;
     }
-
+    if (!$cm = get_coursemodule_from_instance('icontent', $icontent->id)) {
+    	return false;
+    }
     // Delete any dependent records here.
+	$DB->delete_records('icontent_pages_notes_like', array('cmid' => $cm->id));
+	$DB->delete_records('icontent_pages_notes', array('cmid' => $cm->id));
+	$DB->delete_records('icontent_pages_questions', array('cmid' => $cm->id));
+	$DB->delete_records('icontent_question_attempts', array('cmid' => $cm->id));
+	$DB->delete_records('icontent_pages_displayed', array('cmid' => $cm->id));
 	$DB->delete_records('icontent_pages', array('icontentid'=>$icontent->id));
+    $DB->delete_records('icontent_grades', array('cmid' => $cm->id));
     $DB->delete_records('icontent', array('id' => $icontent->id));
-
+	// Delete grades
     icontent_grade_item_delete($icontent);
-
+    // Delete files
+    $context = context_module::instance($cm->id);
+    $fs = get_file_storage();
+    $fs->delete_area_files($context->id, 'mod_icontent');
+    // Return
     return true;
 }
 

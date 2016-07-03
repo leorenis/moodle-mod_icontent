@@ -58,7 +58,7 @@ if ($confirm) {
 	// Get page questions for remove items attempts
 	$pagequestions = $DB->get_records('icontent_pages_questions', array('pageid' => $page->id), null, 'id, pageid, cmid');
 	if($pagequestions) foreach ($pagequestions as $pagequestion){
-		$DB->delete_records('icontent_question_attempts', array('pagesquestionsid'=>$pagequestion->id));
+		$DB->delete_records('icontent_question_attempts', array('pagesquestionsid' => $pagequestion->id));
 	}
 	$DB->delete_records('icontent_pages_questions', array('pageid'=>$page->id));
 	icontent_remove_notes($page->id); // remove notes and notes like

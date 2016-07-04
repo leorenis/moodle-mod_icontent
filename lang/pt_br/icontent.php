@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * English strings for icontent
+ * Portuguese strings for icontent
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -173,13 +173,18 @@ $string['collumns5'] = 'Até cinco colunas';
 $string['page'] = '<span>Página <em>{$a}</em></span>';
 $string['highcontrast'] = 'Alto contraste';
 $string['comments'] = 'Anotações';
+$string['doubts'] = 'Dúvidas';
 $string['writenotes'] = 'Escrever anotações';
 $string['writedoubt'] = 'Escrever dúvida';
 $string['note'] = 'Anotações <span id="messagenotes">{$a}</span>';
 $string['doubt'] = 'Dúvidas <span id="messagedoubt">{$a}</span>';
 $string['private'] = 'Privado';
+$string['privates'] = 'Privadas';
 $string['featured'] = 'Destaque';
+$string['highlights'] = 'Destaques';
+$string['alldoubts'] = 'Todas as dúvidas';
 $string['doubttutor'] = 'Perguntar somente ao tutor';
+$string['doubtstotutor'] = 'Perguntas enviadas ao tutor';
 $string['doubtandnotes'] = 'Dúvidas e anotações';
 $string['nonotes'] = 'Nenhuma anotação para essa página.';
 $string['notedon'] = ' anotou sobre ';
@@ -188,6 +193,7 @@ $string['editcurrentpage'] = ' Editar página atual';
 $string['remove'] = ' Remover ';
 $string['removenote'] = ' Remover anotação';
 $string['removenotes'] = ' Remover anotações';
+$string['likes'] = ' Favoritas ';
 $string['like'] = ' Favoritar ({$a}) ';
 $string['unlike'] = ' Desfavoritar ({$a}) ';
 $string['reply'] = ' Responder ';

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Try Again icontent page
+ * Manual review
  *
  * @package    mod_icontent
  * @copyright  2016-2015 Leo Santos {@link http://github.com/leorenis}

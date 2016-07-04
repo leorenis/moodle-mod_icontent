@@ -750,6 +750,77 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
 	throw new Exception("QTYPE Invalid.");
 }
 /**
+ * Get object with notes of users in featured or private by course modules ID <iContent>
+ *
+ * Returns object notes users
+ *
+ * @param  int $cmid
+ * @param  string $tab
+ * @param  string $sort
+ * @param  int $page
+ * @param  int $perpage
+ * @return object $notes, otherwhise false.
+ */
+function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $private = null, $featured = null, $doubttutor = null, $likes = null){
+	global $DB, $USER;
+	
+	$limitsql = '';
+	$sortparams = 'pn.path '.$sort;
+	$page = (int) $page;
+	$perpage = (int) $perpage;
+	// Get context
+	$context = context_module::instance($cmid);
+	
+	// Filter
+	$andfilter = '';
+	$joinfilter = '';
+	$distinct = '';
+	$arrayfilter = array($cmid);
+	if($private){
+		$andfilter .= 'AND pn.private = ? ';
+		array_push($arrayfilter, $private);
+	}
+	if($featured){
+		$andfilter .= 'AND pn.featured = ? ';
+		array_push($arrayfilter, $featured);
+	}
+	if($doubttutor){
+		$andfilter .= 'AND pn.doubttutor = ? ';
+		array_push($arrayfilter, $doubttutor);
+	}
+	if(!has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
+		$andfilter .= 'AND u.id = ? ';
+		array_push($arrayfilter, $USER->id);
+	}
+	if($likes){
+		$joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
+		$distinct = 'DISTINCT';
+	}
+	// Setup pagination - when both $page and $perpage = 0, get all results
+	if ($page || $perpage) {
+		if ($page < 0) {
+			$page = 0;
+		}
+		if ($perpage > ICONTENT_MAX_PER_PAGE) {
+			$perpage = ICONTENT_MAX_PER_PAGE;
+		} else if ($perpage < 1) {
+			$perpage = ICONTENT_PER_PAGE;
+		}
+		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
+	}
+	$ufields = user_picture::fields('u');
+	$sql = "SELECT {$distinct} {$ufields},
+			       pn.*
+			FROM   {user} u 
+			       INNER JOIN {icontent_pages_notes} pn 
+			               ON u.id = pn.userid 
+			       {$joinfilter}
+			WHERE  pn.cmid = ?
+			{$andfilter}
+			ORDER BY {$sortparams} {$limitsql};";
+	return $DB->get_records_sql($sql, $arrayfilter);
+}
+/**
  * Get object with attempts of users by course modules ID <iContent>
  *
  * Returns object attempt users

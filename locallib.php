@@ -788,7 +788,8 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
 		$andfilter .= 'AND pn.doubttutor = ? ';
 		array_push($arrayfilter, $doubttutor);
 	}
-	if(!has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
+	// If not has any capability and $likes equals null, so add filter for user
+	if(!has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context) && !$likes){
 		$andfilter .= 'AND u.id = ? ';
 		array_push($arrayfilter, $USER->id);
 	}

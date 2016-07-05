@@ -534,28 +534,29 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, n
 	global $PAGE, $DB;
     // Get instance object icontent.
 	$icontent = $DB->get_record('icontent', array('id'=>$PAGE->cm->instance), '*', MUST_EXIST);
-    // Check capabilities for students
-	if (has_capability('mod/icontent:viewnotes', $PAGE->cm->context) && $icontent->shownotesarea) {
-		// Notes
-		$resultsnode = $icontentnode->add(get_string('comments', 'mod_icontent'));
-		$url = new moodle_url('/mod/icontent/notes.php', array('id'=>$PAGE->cm->id, 'action'=>'featured', 'featured'=> 1));
-		$resultsnode->add(get_string('highlights', 'mod_icontent'), $url);
-		$url = new moodle_url('/mod/icontent/notes.php', array('id'=>$PAGE->cm->id, 'action'=>'likes', 'likes'=> 1));
-		$resultsnode->add(get_string('likes', 'mod_icontent'), $url);
-		$url = new moodle_url('/mod/icontent/notes.php', array('id'=>$PAGE->cm->id, 'action'=>'private', 'private'=> 1));
-		$resultsnode->add(get_string('privates', 'mod_icontent'), $url);
-		// Doubts
-		$resultsnode = $icontentnode->add(get_string('doubts', 'mod_icontent'));
-		$url = new moodle_url('/mod/icontent/doubts.php', array('id'=>$PAGE->cm->id, 'doubttutor'=> 1));
-		$resultsnode->add(get_string('doubtstotutor', 'mod_icontent'), $url);
-		$url = new moodle_url('/mod/icontent/doubts.php', array('id'=>$PAGE->cm->id, 'action'=>'alldoubts'));
-		$resultsnode->add(get_string('alldoubts', 'mod_icontent'), $url);
-	}
-	// Menu items for manager
+	// View menu
 	if (has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $PAGE->cm->context)){
 		$url = new moodle_url('/mod/icontent/view.php', array('id' => $PAGE->cm->id));
 		$icontentnode->add(get_string('preview', 'mod_icontent'), $url);
 	}
+    // Check capabilities for students
+	if (has_capability('mod/icontent:viewnotes', $PAGE->cm->context) && $icontent->shownotesarea) {
+		// Notes
+		$resultsnode = $icontentnode->add(get_string('comments', 'mod_icontent'));
+		$url = new moodle_url('/mod/icontent/notes.php', array('id' => $PAGE->cm->id, 'action'=>'featured', 'featured'=> 1));
+		$resultsnode->add(get_string('highlighted', 'mod_icontent'), $url);
+		$url = new moodle_url('/mod/icontent/notes.php', array('id' => $PAGE->cm->id, 'action'=>'likes', 'likes'=> 1));
+		$resultsnode->add(get_string('likes', 'mod_icontent'), $url);
+		$url = new moodle_url('/mod/icontent/notes.php', array('id' => $PAGE->cm->id, 'action'=>'private', 'private'=> 1));
+		$resultsnode->add(get_string('privates', 'mod_icontent'), $url);
+		// Doubts
+		$resultsnode = $icontentnode->add(get_string('doubts', 'mod_icontent'));
+		$url = new moodle_url('/mod/icontent/doubts.php', array('id' => $PAGE->cm->id, 'action'=>'doubttutor', 'doubttutor'=> 1,  'tab'=> 'doubt'));
+		$resultsnode->add(get_string('doubtstotutor', 'mod_icontent'), $url);
+		$url = new moodle_url('/mod/icontent/doubts.php', array('id' => $PAGE->cm->id, 'action'=>'alldoubts', 'tab' => 'doubt'));
+		$resultsnode->add(get_string('alldoubts', 'mod_icontent'), $url);
+	}
+	// Menu items for manager
 	if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
 		$resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
 		$url = new moodle_url('/mod/icontent/grade.php', array('id'=>$PAGE->cm->id, 'action'=>'overview'));

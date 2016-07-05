@@ -47,7 +47,7 @@ $urlparams = array('id' => $cm->id, 'action'=>$action);
 switch ($action){
 	case 'featured':
 		$urlparams += array('featured' => $featured);
-		$strheading = get_string('highlights', 'mod_icontent');
+		$strheading = get_string('highlighted', 'mod_icontent');
 		break;
 	case 'likes':
 		$urlparams += array('likes' => $likes);
@@ -64,25 +64,26 @@ $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
-echo $OUTPUT->heading($strheading, 3);
+echo $OUTPUT->heading(get_string('mylistcomments', 'mod_icontent').' '. strtolower($strheading), 3);
 $url = new moodle_url('/mod/icontent/notes.php', $urlparams + array('page' => $page, 'perpage' => $perpage));
 // Get sort value
 $sort = icontent_check_value_sort($sort);
 // Get users attempts
 $notesusers = icontent_get_notes_users_instance($cm->id, $sort, $page, $perpage, $private, $featured, $doubttutor, $likes);
 $tnotesusers = icontent_count_notes_users_instance($cm->id, $private, $featured, $doubttutor, $likes);
-echo $tnotesusers;
 // Make table questions
 $table = new html_table();
 $table->id = "idtablenotesusers";
 $table->colclasses = array('pictures', 'comments');
 $table->attributes = array('class'=>'table table-hover tableattemptsusers');
-$table->head  = array('#', get_string('comments', 'mod_icontent'));
+$table->head  = array(get_string('fullname'), get_string('description'));
 if($notesusers) foreach ($notesusers as $notesuser){
-	// Get picture
-	$picture = $OUTPUT->user_picture($notesuser, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
+	$user = clone $notesuser;
+	$user->id = $notesuser->userid;
+	$picture = $OUTPUT->user_picture($user, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
+	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$notesuser->userid, 'course'=>$course->id)), $notesuser->firstname. ' '. $notesuser->lastname, array('title'=>$notesuser->firstname, 'class'=>'lkfullname'));
 	// Set data
-	$table->data[] = array($picture, $notesuser->comment);
+	$table->data[] = array($picture. $linkfirstname, $notesuser->comment);
 }
 else {
 	echo html_writer::div(get_string('norecordsfound', 'mod_icontent'), 'alert alert-warning');

@@ -603,7 +603,7 @@ function icontent_set_grade_item(stdClass $icontent, $cmid, $userid){
  * @param  int $likes
  * @return object $notes, otherwhise false.
  */
-function icontent_count_notes_users_instance($cmid, $private = null, $featured = null, $doubttutor = null, $likes = null){
+function icontent_count_notes_users_instance($cmid, $private = null, $featured = null, $doubttutor = null, $likes = null, $tab = null){
 	global $DB, $USER;
 	// Get context
 	$context = context_module::instance($cmid);
@@ -631,13 +631,14 @@ function icontent_count_notes_users_instance($cmid, $private = null, $featured =
 	}
 	if($likes){
 		$joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
-		$distinct = 'DISTINCT';
+		$andfilter .= 'AND pnl.userid = ? ';
+		array_push($arrayfilter, $USER->id);
 	}
 	// Query
-	$sql = "SELECT {$distinct} count(*) AS total
-			FROM   {user} u
-			INNER JOIN {icontent_pages_notes} pn
-				ON u.id = pn.userid
+	$sql = "SELECT Count(*) AS total
+			FROM   {icontent_pages_notes} pn
+			       INNER JOIN {user} u
+			               ON pn.userid = u.id
 			{$joinfilter}
 			WHERE  pn.cmid = ?
 			{$andfilter};";
@@ -817,7 +818,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
  * @param  int $likes
  * @return object $notes, otherwhise false.
  */
-function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $private = null, $featured = null, $doubttutor = null, $likes = null){
+function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $private = null, $featured = null, $doubttutor = null, $likes = null, $tab = null){
 	global $DB, $USER;
 	
 	$limitsql = '';
@@ -844,6 +845,10 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
 		$andfilter .= 'AND pn.doubttutor = ? ';
 		array_push($arrayfilter, $doubttutor);
 	}
+	if($tab){
+		$andfilter .= 'AND pn.tab in (?) ';
+		array_push($arrayfilter, $tab);
+	}
 	// If not has any capability and $likes equals null, so add filter for user
 	if(!has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context) && !$likes){
 		$andfilter .= 'AND u.id = ? ';
@@ -851,7 +856,8 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
 	}
 	if($likes){
 		$joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
-		$distinct = 'DISTINCT';
+		$andfilter .= 'AND pnl.userid = ? ';
+		array_push($arrayfilter, $USER->id);
 	}
 	// Setup pagination - when both $page and $perpage = 0, get all results
 	if ($page || $perpage) {
@@ -865,13 +871,14 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
 		}
 		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
-	$ufields = user_picture::fields('u');
-	$sql = "SELECT {$distinct} {$ufields},
-			       pn.*
-			FROM   {user} u 
-			       INNER JOIN {icontent_pages_notes} pn 
-			               ON u.id = pn.userid 
-			       {$joinfilter}
+	$ufields = user_picture::fields('u', null, 'userid');
+	$sql = "SELECT pn.id,
+			       pn.comment,
+			       {$ufields}
+			FROM   {icontent_pages_notes} pn
+			       INNER JOIN {user} u
+			               ON pn.userid = u.id
+			{$joinfilter}
 			WHERE  pn.cmid = ?
 			{$andfilter}
 			ORDER BY {$sortparams} {$limitsql};";

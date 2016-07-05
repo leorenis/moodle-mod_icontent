@@ -70,11 +70,12 @@ $url = new moodle_url('/mod/icontent/notes.php', $urlparams + array('page' => $p
 $sort = icontent_check_value_sort($sort);
 // Get users attempts
 $notesusers = icontent_get_notes_users_instance($cm->id, $sort, $page, $perpage, $private, $featured, $doubttutor, $likes);
-$tnotesusers = count($notesusers);
+$tnotesusers = icontent_count_notes_users_instance($cm->id, $private, $featured, $doubttutor, $likes);
+echo $tnotesusers;
 // Make table questions
 $table = new html_table();
 $table->id = "idtablenotesusers";
-$table->colclasses = array('fullname', 'answers', 'result', 'grades');
+$table->colclasses = array('pictures', 'comments');
 $table->attributes = array('class'=>'table table-hover tableattemptsusers');
 $table->head  = array('#', get_string('comments', 'mod_icontent'));
 if($notesusers) foreach ($notesusers as $notesuser){

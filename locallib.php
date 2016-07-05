@@ -592,6 +592,59 @@ function icontent_set_grade_item(stdClass $icontent, $cmid, $userid){
 	grade_update('mod/icontent', $icontent->course, 'mod', 'icontent', $icontent->id, 0, $grade, $params);
 }
 /**
+ * Get count notes of users in featured or private by course modules ID <iContent>
+ *
+ * Returns object notes users
+ *
+ * @param  int $cmid
+ * @param  int $private
+ * @param  int $featured
+ * @param  int $doubttutor
+ * @param  int $likes
+ * @return object $notes, otherwhise false.
+ */
+function icontent_count_notes_users_instance($cmid, $private = null, $featured = null, $doubttutor = null, $likes = null){
+	global $DB, $USER;
+	// Get context
+	$context = context_module::instance($cmid);
+	// Filter
+	$andfilter = '';
+	$joinfilter = '';
+	$distinct = '';
+	$arrayfilter = array($cmid);
+	if($private){
+		$andfilter .= 'AND pn.private = ? ';
+		array_push($arrayfilter, $private);
+	}
+	if($featured){
+		$andfilter .= 'AND pn.featured = ? ';
+		array_push($arrayfilter, $featured);
+	}
+	if($doubttutor){
+		$andfilter .= 'AND pn.doubttutor = ? ';
+		array_push($arrayfilter, $doubttutor);
+	}
+	// If not has any capability and $likes equals null, so add filter for user
+	if(!has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context) && !$likes){
+		$andfilter .= 'AND u.id = ? ';
+		array_push($arrayfilter, $USER->id);
+	}
+	if($likes){
+		$joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
+		$distinct = 'DISTINCT';
+	}
+	// Query
+	$sql = "SELECT {$distinct} count(*) AS total
+			FROM   {user} u
+			INNER JOIN {icontent_pages_notes} pn
+				ON u.id = pn.userid
+			{$joinfilter}
+			WHERE  pn.cmid = ?
+			{$andfilter};";
+	$notes = $DB->get_record_sql($sql, $arrayfilter);
+	return $notes->total;
+}
+/**
  * Get total questions of question bank.
  *
  * Returns int of total questions
@@ -755,10 +808,13 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
  * Returns object notes users
  *
  * @param  int $cmid
- * @param  string $tab
  * @param  string $sort
  * @param  int $page
  * @param  int $perpage
+ * @param  int $private
+ * @param  int $featured
+ * @param  int $doubttutor
+ * @param  int $likes
  * @return object $notes, otherwhise false.
  */
 function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $private = null, $featured = null, $doubttutor = null, $likes = null){

@@ -111,6 +111,7 @@ $string['addquestion'] = 'Add new question';
 $string['addnewpage'] = 'Add new page';
 $string['editingpage'] = 'Editing page';
 $string['pagetitle'] = 'Page title';
+$string['pagenotfound'] = 'No page found for this instance of iContent.';
 $string['coverpage'] = 'Cover page';
 $string['clickhere'] = 'Click here';
 $string['toreassess'] = 'to reassess';

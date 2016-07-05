@@ -2321,6 +2321,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Add tooltip
 	$script = icontent_add_script_load_tooltip();
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
+ 	if(!$objpage){
+ 		$objpage = new stdClass();
+ 		$objpage->fullpageicontent = get_string('pagenotfound', 'mod_icontent');
+ 		return $objpage;
+ 	}
 	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
 	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);

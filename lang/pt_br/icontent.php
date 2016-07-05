@@ -114,6 +114,7 @@ $string['addquestion'] = 'Adicionar nova questão';
 $string['addnewpage'] = 'Adicionar nova página';
 $string['editingpage'] = 'Edição de página';
 $string['pagetitle'] = 'Título da página';
+$string['pagenotfound'] = 'Nenhuma página encontrada para esta instância do iContent.';
 $string['coverpage'] = 'Página de capa';
 $string['clickhere'] = 'Clique aqui';
 $string['toreassess'] = ' para reavaliar as respostas que foram avaliadas anteriormente';

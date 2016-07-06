@@ -11,7 +11,7 @@
 	float: right;
 }
 .path-mod-icontent .block_icontent_toc .action-list {
-	float: left;
+	/* float: left;*/
 }
 .path-mod-icontent .block_icontent_toc .action-list img.smallicon {
 	margin: 0 3px;

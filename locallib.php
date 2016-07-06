@@ -2305,7 +2305,35 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// Return toolbar
  	return $toolbar;
  }
-
+ /**
+  * This is the function responsible for creating the content for cover page.
+  *
+  * Returns a string with the cover page.
+  *
+  * @param  object 	$objpage
+  * @return string	$coverpage
+  */
+ function icontent_make_cover_page($icontent, $objpage, $context){
+ 	$script = icontent_add_script_load_tooltip();
+ 	$title = html_writer::tag('h1', $objpage->title, array('class'=>'titlecoverpage'));
+ 	$header = html_writer::div($title, 'headercoverpage row');
+ 	$strcontent = strip_tags($objpage->pageicontent);
+ 	$limitcharshow = 240;
+ 	$tchars = strlen($strcontent);
+ 	if($tchars > $limitcharshow){
+ 		$chars = html_writer::empty_tag('input', array('type'=>'checkbox', 'class'=>'read-more-state', 'id'=>'post-1'));
+ 		$chars .= html_writer::start_tag('p', array('class'=>'read-more-wrap'));
+ 		$chars .= substr($strcontent, 0, $limitcharshow);
+ 		$chars .= html_writer::span(substr($strcontent, $limitcharshow, $tchars), 'read-more-target');
+ 		$chars .= html_writer::end_tag('p');
+ 		$chars .= html_writer::label('', 'post-1', false, array('class'=> 'read-more-trigger'));
+ 	}else{
+ 		$chars = html_writer::tag('p', $strcontent);
+ 	}
+ 	$content = html_writer::div($chars, "contentcoverpage");
+ 	$coverpage = html_writer::tag('div', $header. $content. $script, array('class'=>'coverpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+ 	return $coverpage;
+ }
 /**
  * This is the function responsible for creating the content of a page.
  * 
@@ -2322,7 +2350,12 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
  	if(!$objpage){
  		$objpage = new stdClass();
- 		$objpage->fullpageicontent = get_string('pagenotfound', 'mod_icontent');
+ 		$objpage->fullpageicontent = html_writer::div(get_string('pagenotfound', 'mod_icontent'), 'alert alert-warning', array('role'=>'alert'));
+ 		return $objpage;
+ 	}
+ 	if ($objpage->coverpage){
+ 		// Make cover page
+ 		$objpage->fullpageicontent = icontent_make_cover_page($icontent, $objpage, $context);
  		return $objpage;
  	}
  	// Add tooltip

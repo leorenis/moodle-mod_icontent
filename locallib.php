@@ -2318,14 +2318,15 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  */
  function icontent_get_fullpageicontent($pagenum, $icontent, $context){
  	global $DB, $CFG;
- 	// Add tooltip
-	$script = icontent_add_script_load_tooltip();
+	// Get page
  	$objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
  	if(!$objpage){
  		$objpage = new stdClass();
  		$objpage->fullpageicontent = get_string('pagenotfound', 'mod_icontent');
  		return $objpage;
  	}
+ 	// Add tooltip
+ 	$script = icontent_add_script_load_tooltip();
 	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
 	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);

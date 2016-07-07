@@ -110,11 +110,14 @@
 	text-align: right;
 }
 .path-mod-icontent .icontent-page .fulltextpage h3.pagetitle{
-	
+	font-size: 30px;
+    line-height: 1.2em;
+    margin-bottom: 20px;
 }
 .path-mod-icontent .icontent-page .fulltextpage p{
-	font-size: 15px;
+	font-size: 16px;
 	text-indent: 1.25em;
+	line-height: 1.8em;
 }
 .path-mod-icontent .icontent-page .fulltextpage .toolbarpage a{
 	margin: 0;
@@ -401,7 +404,7 @@
 	background:  rgba(255, 255, 255, 0.7);
 	padding: 2.6em 2.6em 0;
 	width: 80%;
-	margin: 8% auto 0 !important;
+	margin: 6% auto 0 !important;
 }
 .path-mod-icontent .headercoverpage .titlecoverpage{
 	font-size: 50px;
@@ -415,7 +418,9 @@
 	margin: 0 auto;
 }
 .path-mod-icontent .contentcoverpage p{
-	
+	 color: #1c1c1c;
+    line-height: 1.8em;
+    font-size: 16px;
 }
 /* List-Groups. Override Twitter Bootstrap */
 .list-group-item:first-child {

@@ -44,7 +44,7 @@ define('ICONTENT_QUESTION_FRACTION', 1);
 require_once(dirname(__FILE__).'/lib.php');
 
  /**
- * Add the book TOC sticky block to the default region
+ * Add the icontent TOC sticky block to the default region
  *
  * @param array $pages
  * @param object $page
@@ -2314,11 +2314,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * @return string	$coverpage
   */
  function icontent_make_cover_page($icontent, $objpage, $context){
- 	$script = icontent_add_script_load_tooltip();
- 	$title = html_writer::tag('h1', $objpage->title, array('class'=>'titlecoverpage'));
- 	$header = html_writer::div($title, 'headercoverpage row');
+ 	$limitcharshow = 500;
  	$strcontent = strip_tags($objpage->pageicontent);
- 	$limitcharshow = 240;
  	$tchars = strlen($strcontent);
  	if($tchars > $limitcharshow){
  		$chars = html_writer::empty_tag('input', array('type'=>'checkbox', 'class'=>'read-more-state', 'id'=>'post-1'));
@@ -2330,8 +2327,19 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}else{
  		$chars = html_writer::tag('p', $strcontent);
  	}
- 	$content = html_writer::div($chars, "contentcoverpage");
- 	$coverpage = html_writer::tag('div', $header. $content. $script, array('class'=>'coverpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+ 	$script = icontent_add_script_load_tooltip();
+ 	// Checks if content is empty
+ 	$nospace = str_replace('&nbsp;', '', $strcontent);
+ 	$nospace = str_replace('.', '', $nospace);
+ 	// Add class 'hide' to hide element and builds the page
+ 	$displaynone = empty(trim($nospace)) ? 'hide' : false;
+ 	$title = html_writer::tag('h1', $objpage->title, array('class'=>'titlecoverpage'));
+ 	$header = $objpage->showtitle ? html_writer::div($title, 'headercoverpage row ') : false;
+ 	$content = html_writer::div($chars, "contentcoverpage ". $displaynone);
+ 	$coverpage = html_writer::tag('div', $header. $content. $script, array('class'=>'fulltextpage coverpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
+ 	// Set page preview, log event and return page
+	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
+ 	\mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
  	return $coverpage;
  }
 /**
@@ -2362,9 +2370,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$script = icontent_add_script_load_tooltip();
 	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
-	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
 	// Add title page
-	$title = html_writer::tag('h3', '<i class="fa fa-hand-o-right"></i> '.$objpage->title, array('class'=>'pagetitle'));
+	$title = $objpage->showtitle ? html_writer::tag('h3', '<i class="fa fa-hand-o-right"></i> '.$objpage->title, array('class'=>'pagetitle')) : false;
 	// Make content
 	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $objpage->id);
 	$objpage->pageicontent = format_text($objpage->pageicontent, $objpage->pageicontentformat, array('noclean'=>true, 'overflowdiv'=>false, 'context'=>$context));
@@ -2379,7 +2386,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
 	// Content page for return
 	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $script, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
-	// Set log and return page
+	// Set page preview, log event and return page
+	icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
 	\mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
 	unset($objpage->pageicontent);
 	return $objpage;

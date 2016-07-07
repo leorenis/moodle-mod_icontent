@@ -115,7 +115,7 @@ $string['pagenotfound'] = '<i class="fa fa-exclamation-triangle" aria-hidden="tr
 $string['coverpage'] = 'Cover page';
 $string['clickhere'] = 'Click here';
 $string['toreassess'] = 'to reassess';
-$string['coverpage_help'] = 'Enable to create a cover page for the content to be displayed. If you select this option, add a brief description in the content field. This description will appear on the cover. If the description is longer than 240 characters, one [read more] button will be added.';
+$string['coverpage_help'] = 'Enable to create a cover page for the content to be displayed. If you select this option, add a brief description in the content field. This description will appear on the cover. If the description is longer than 500 characters, one [read more] button will be added.';
 $string['icontent'] = 'Content';
 $string['effects'] = 'Effects';
 $string['nexttransitiontype'] = 'Next transition type';

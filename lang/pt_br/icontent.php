@@ -118,7 +118,7 @@ $string['pagenotfound'] = '<i class="fa fa-exclamation-triangle" aria-hidden="tr
 $string['coverpage'] = 'Página de capa';
 $string['clickhere'] = 'Clique aqui';
 $string['toreassess'] = ' para reavaliar as respostas que foram avaliadas anteriormente';
-$string['coverpage_help'] = 'Habilite para criar uma página de capa para o conteúdo a ser apresentado. Se você marcar essa opção, adicione uma breve descrição no campo conteúdo. Essa descrição aparecerá na capa. Caso a descrição tenha mais de 240 caracteres, será adicionado um botão [leia mais].';
+$string['coverpage_help'] = 'Habilite para criar uma página de capa para o conteúdo a ser apresentado. Se você marcar essa opção, adicione uma breve descrição no campo conteúdo. Essa descrição aparecerá na capa. Caso a descrição tenha mais de 500 caracteres, será adicionado um botão [leia mais].';
 $string['icontent'] = 'Conteúdo';
 $string['effects'] = 'Efeitos';
 $string['nexttransitiontype'] = 'Efeito para próxima página';

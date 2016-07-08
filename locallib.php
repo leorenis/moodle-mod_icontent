@@ -2331,8 +2331,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Checks if content is empty
  	$nospace = str_replace('&nbsp;', '', $strcontent);
  	$nospace = str_replace('.', '', $nospace);
+ 	$nospace = trim($nospace);
  	// Add class 'hide' to hide element and builds the page
- 	$displaynone = empty(trim($nospace)) ? 'hide' : false;
+ 	$displaynone = empty($nospace) ? 'hide' : false;
  	$title = html_writer::tag('h1', $objpage->title, array('class'=>'titlecoverpage'));
  	$header = $objpage->showtitle ? html_writer::div($title, 'headercoverpage row ') : false;
  	$content = html_writer::div($chars, "contentcoverpage ". $displaynone);

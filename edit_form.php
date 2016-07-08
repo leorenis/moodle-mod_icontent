@@ -160,17 +160,8 @@ class icontent_pages_edit_form extends moodleform {
 			'transfer' => 'Transfer',
 		);
 		
-		$mform->addElement('select', 'nexttransitiontype', get_string('nexttransitiontype','icontent'), $effects);
-		$mform->addHelpButton('nexttransitiontype', 'nexttransitiontypehelp', 'icontent');
-		
-		$mform->addElement('select', 'prevtransitiontype', get_string('prevtransitiontype','icontent'), $effects);
-		$mform->addHelpButton('prevtransitiontype', 'prevtransitiontypehelp', 'icontent');
-		
-		$mform->addElement('select', 'texttransitiontype', get_string('texttransitiontype','icontent'), $effects);
-		$mform->addHelpButton('texttransitiontype', 'texttransitiontypehelp', 'icontent');
-		
-		$mform->addElement('select', 'imagetransitiontype', get_string('imagetransitiontype','icontent'), $effects);
-		$mform->addHelpButton('imagetransitiontype', 'imagetransitiontypehelp', 'icontent');
+		$mform->addElement('select', 'transitioneffect', get_string('transitioneffect','icontent'), $effects);
+		$mform->addHelpButton('transitioneffect', 'transitioneffecthelp', 'icontent');
 		
         $this->add_action_buttons(true);
 		

@@ -473,15 +473,22 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
  */
 function icontent_get_startpagenum($icontent, $context){
 	global $DB;
-	if(has_capability('mod/icontent:edit', $context)){
+	if(has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
 		return icontent_get_minpagenum($icontent);
 	}
-	// TODO Sistema devera encontrar a pagina que o usuario parou na tabela {icontent_pages_displayed} e retornar pagina.
-	// codigo aqui
-	$pagenum = 1;
-	return $pagenum;
+	// Discover page to be presented to the student
+	global $USER;
+	$cm = get_coursemodule_from_instance('icontent', $icontent->id);
+	$pagedisplay = $DB->get_record_sql("SELECT MAX(timecreated) AS maxtimecreated FROM {icontent_pages_displayed} WHERE cmid IN(?) AND userid IN(?);", array($cm->id, $USER->id));
+	$totalpagesvieweduser = $DB->count_records('icontent_pages_displayed', array('cmid'=>$cm->id, 'userid'=>$USER->id));
+	$totalpagesavailable = $DB->count_records('icontent_pages', array('cmid'=>$cm->id, 'hidden'=> 0));
+	if(!$pagedisplay->maxtimecreated || $totalpagesvieweduser === $totalpagesavailable){
+		return icontent_get_minpagenum($icontent);
+	}
+	$lastpagedisplay = $DB->get_record("icontent_pages_displayed", array('cmid'=>$cm->id, 'userid'=> $USER->id, 'timecreated'=> $pagedisplay->maxtimecreated), 'id, pageid');
+	$page = $DB->get_record("icontent_pages", array('id'=>$lastpagedisplay->pageid), "id, pagenum");
+	return $page->pagenum;
 }
-
 /**
  * Loads first page content.
  *
@@ -493,12 +500,11 @@ function icontent_get_startpagenum($icontent, $context){
  */
 function icontent_get_minpagenum($icontent){
 	global $DB;
-	
-	$sql = "SELECT Min(pagenum) AS minpagenum FROM {icontent_pages} WHERE icontentid = ?;";
-	
- 	$obj = $DB->get_record_sql($sql, array($icontent->id));
-	
-	return $obj->minpagenum;
+	// Get object
+	$sql = "SELECT Min(pagenum) AS minpagenum FROM {icontent_pages} WHERE icontentid = ? AND hidden = ?;";
+ 	$objpage = $DB->get_record_sql($sql, array($icontent->id, 0));
+ 	// Return min page
+	return $objpage->minpagenum;
 }
 /**
  * Get questions of question bank.

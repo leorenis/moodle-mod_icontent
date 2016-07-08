@@ -54,8 +54,8 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $pages = new backup_nested_element('pages');
         $page = new backup_nested_element('page', array('id'), array(
         		'coverpage', 'title', 'showtitle', 'pageicontent', 'pageicontentformat',
-        		'showbgimage', 'bgimage', 'bgcolor', 'layout', 'nexttransitiontype', 'prevtransitiontype',
-        		'texttransitiontype', 'imagetransitiontype', 'bordercolor', 'borderwidth', 'pagenum', 'hidden',
+        		'showbgimage', 'bgimage', 'bgcolor', 'layout', 'transitioneffect',
+        		'bordercolor', 'borderwidth', 'pagenum', 'hidden',
         		'maxnotesperpages', 'attemptsallowed', 'timecreated', 'timemodified'));
         
         $pagequestions = new backup_nested_element('page_questions');

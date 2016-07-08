@@ -48,10 +48,7 @@
         <FIELD NAME="bgimage" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="bgcolor" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="layout" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false" COMMENT="Layout da pagina" />
-        <FIELD NAME="nexttransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
-        <FIELD NAME="prevtransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
-        <FIELD NAME="texttransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
-        <FIELD NAME="imagetransitiontype" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
+        <FIELD NAME="transitioneffect" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="bordercolor" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="borderwidth" TYPE="int" LENGTH="3" NOTNULL="false" SEQUENCE="false" />
         <FIELD NAME="pagenum" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" />

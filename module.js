@@ -39,7 +39,13 @@ $(document).ready(function(){
 	    	url: "ajax.php", // Relative or absolute path to ajax.php file
 	    	data: data,
 	    	success: function(data) {
-	    		$(".icontent-page").html(data.fullpageicontent);
+	    		if(data.transitioneffect !== "0"){
+	    			$(".icontent-page").hide();
+		    		$(".icontent-page").html(data.fullpageicontent);
+		    		$(".icontent-page").show( data.transitioneffect, 1000 );
+	    		}else{
+	    			$(".icontent-page").html(data.fullpageicontent);
+	    		}
 	    		onChecksHighcontrast();
 	    	}
 	    }); // End AJAX

@@ -120,6 +120,7 @@ $string['clickhere'] = 'Clique aqui';
 $string['toreassess'] = ' para reavaliar as respostas que foram avaliadas anteriormente';
 $string['coverpage_help'] = 'Habilite para criar uma página de capa para o conteúdo a ser apresentado. Se você marcar essa opção, adicione uma breve descrição no campo conteúdo. Essa descrição aparecerá na capa. Caso a descrição tenha mais de 500 caracteres, será adicionado um botão [leia mais].';
 $string['icontent'] = 'Conteúdo';
+$string['noeffect'] = 'Nenhum efeito';
 $string['effects'] = 'Efeitos';
 $string['transitioneffect'] = 'Transições';
 $string['transitioneffecthelp'] = 'Efeito para transições';

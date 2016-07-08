@@ -143,6 +143,7 @@ class icontent_pages_edit_form extends moodleform {
 		
 		$mform->addElement('header', 'effects', get_string('effects', 'icontent'));
 		$effects = array(
+			'0' => get_string('noeffect', 'mod_icontent'),
 			'blind' => 'Blind',
 			'bounce' => 'Bounce',
 			'clip' => 'Clip',
@@ -150,18 +151,17 @@ class icontent_pages_edit_form extends moodleform {
 			'explode' => 'Explode',
 			'fade' => 'Fade',
 			'fold' => 'Fold',
-			'highlight' => 'Highlight',
 			'puff' => 'Puff',
 			'pulsate' => 'Pulsate',
 			'scale' => 'Scale',
 			'shake' => 'Shake',
 			'size' => 'Size',
 			'slide' => 'Slide',
-			'transfer' => 'Transfer',
 		);
 		
 		$mform->addElement('select', 'transitioneffect', get_string('transitioneffect','icontent'), $effects);
 		$mform->addHelpButton('transitioneffect', 'transitioneffecthelp', 'icontent');
+		$mform->setDefault('transitioneffect', 0);
 		
         $this->add_action_buttons(true);
 		

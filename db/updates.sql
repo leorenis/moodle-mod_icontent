@@ -3,7 +3,7 @@ ALTER TABLE `moodle28`.`mdl_icontent_pages`
 DROP COLUMN `imagetransitiontype`,
 DROP COLUMN `texttransitiontype`,
 DROP COLUMN `prevtransitiontype`,
-CHANGE COLUMN `nexttransitiontype` `transitioneffect` VARCHAR(255) NULL DEFAULT NULL ;
+CHANGE COLUMN `nexttransitiontype` `transitioneffect` VARCHAR(255) NULL DEFAULT '0';
 
 -- Updates 2016062900
 ALTER TABLE `moodle28`.`mdl_icontent` DROP COLUMN `maxquestionsperpages`;

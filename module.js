@@ -47,9 +47,9 @@ $(document).ready(function(){
 	    			$(".icontent-page").html(data.fullpageicontent);
 	    		}
 	    		onChecksHighcontrast();
+	    		onChangeStateControlButtons(data);
 	    	}
 	    }); // End AJAX
-	  	onChangeStateControlButtons($(this));
 	} // End onLoad..
 	
 	// Checks if the cookie is set.
@@ -59,28 +59,21 @@ $(document).ready(function(){
 	    }
 	}
 	// Change state the control buttons
-	function onChangeStateControlButtons($this){
-		var pagenum = parseInt($this.attr('data-pagenum'));
-		var tpages = parseInt($this.attr('data-totalpages'));
-		var prevpage = pagenum - 1;
-		var nextpage = pagenum + 1;
+	function onChangeStateControlButtons($data){
 		var $btnprev = $('.icontent-buttonbar .btn-previous-page');
 		var $btnnext = $('.icontent-buttonbar .btn-next-page');
-
-		if(pagenum <= 1){
-			$btnprev.prop("disabled", true );
-		}else{
+		if($data.previous){
 			$btnprev.removeAttr('disabled');
-		}
-
-		if(pagenum >= tpages){
-			$btnnext.prop("disabled", true);
+			$btnprev.attr( "data-pagenum", $data.previous );
 		}else{
-			$btnnext.removeAttr('disabled');
+			$btnprev.prop("disabled", true );
 		}
-
-		$btnprev.attr( "data-pagenum", prevpage );
-		$btnnext.attr( "data-pagenum", nextpage );
+		if($data.next){
+			$btnnext.removeAttr('disabled');
+			$btnnext.attr( "data-pagenum", $data.next );
+		}else{
+			$btnnext.prop("disabled", true);
+		}
 	}
 	// Disable button when clicked.
 	function onBtnActiveEnableDisableClick(pagenum){

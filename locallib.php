@@ -507,6 +507,38 @@ function icontent_get_minpagenum($icontent){
 	return $objpage->minpagenum;
 }
 /**
+ * Get page previous.
+ *
+ * Return int  page previous
+ *
+ * @param  object $objpage
+ * @return int $previous
+ */
+function icontent_get_prev_pagenum(stdClass $objpage){
+	global $DB;
+	// Get page previous
+	$maxpagenum = $objpage->pagenum - 1;
+	$page = $DB->get_record_sql("SELECT max(pagenum) AS previous FROM {icontent_pages}  WHERE cmid = ? AND hidden = ? AND pagenum BETWEEN ? and ?;", array($objpage->cmid, 0, 0, $maxpagenum));
+	return $page->previous;
+}
+/**
+ * Get next page.
+ *
+ * Return int next page
+ *
+ * @param  object $objpage
+ * @return int $next
+ */
+function icontent_get_next_pagenum(stdClass $objpage){
+	global $DB;
+	// Get max valid pagenum
+	$pagenum = $DB->get_record_sql("SELECT max(pagenum) AS max FROM {icontent_pages} WHERE cmid = ? AND hidden = ?;", array($objpage->cmid, 0));
+	// Get next page
+	$minpagenum = $objpage->pagenum + 1;
+	$page = $DB->get_record_sql("SELECT min(pagenum) AS next FROM {icontent_pages}  WHERE cmid = ? AND hidden = ? AND pagenum BETWEEN ? and ?;", array($objpage->cmid, 0, $minpagenum, $pagenum->max));
+	return $page->next;
+}
+/**
  * Get questions of question bank.
  *
  * Returns array of questions
@@ -2371,6 +2403,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if ($objpage->coverpage){
  		// Make cover page
  		$objpage->fullpageicontent = icontent_make_cover_page($icontent, $objpage, $context);
+ 		// Control button
+ 		$objpage->previous = icontent_get_prev_pagenum($objpage);
+ 		$objpage->next = icontent_get_next_pagenum($objpage);
  		return $objpage;
  	}
  	// Add tooltip
@@ -2391,6 +2426,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	// Questions
 	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
+	// Control button
+	$objpage->previous = icontent_get_prev_pagenum($objpage);
+	$objpage->next = icontent_get_next_pagenum($objpage);
 	// Content page for return
 	$objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $script, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
 	// Set page preview, log event and return page

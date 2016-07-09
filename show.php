@@ -49,5 +49,5 @@ $page->hidden = $page->hidden ? 0 : 1;
 $DB->update_record('icontent_pages', $page);
 
 icontent_preload_pages($icontent); // fix structure
-redirect('view.php?id='.$cm->id.'&pageid='.$page->id);
-
+$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id));
+redirect($url);

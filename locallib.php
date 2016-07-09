@@ -440,24 +440,18 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
  * @return string with $controlbuttons
  */
 function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $attrid = 'fgroup_id_buttonar'){
-	
 	// Object button
 	$objbutton = new stdClass();
-	
 	$objbutton->name  = get_string('goback', 'mod_icontent');
 	$objbutton->title = get_string('previouspage', 'mod_icontent');
 	$objbutton->cmid  = $cmid;
 	$objbutton->startwithpage = $startwithpage;
-	
 	// Go back
 	$controlbuttons = icontent_make_button_previous_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left')));
-	
 	$objbutton->name = get_string('advance', 'mod_icontent');
 	$objbutton->title = get_string('nextpage', 'mod_icontent');
-	
 	// Advance
 	$controlbuttons .= icontent_make_button_next_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right')));
-	
 	return html_writer::div($controlbuttons, "simple-paging-buttonbar icontent-buttonbar", array('id' => $attrid));
 }
 
@@ -1681,9 +1675,12 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
   * @return string with $btnprevious
   */
  function icontent_make_button_previous_page($button, $tpages, $icon = null){
- 	$pagenum = $button->startwithpage - 1;
- 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-previous-page', 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
- 	if($pagenum <= 0){
+ 	$objpage = new stdClass();
+ 	$objpage->pagenum = $button->startwithpage;
+ 	$objpage->cmid = $button->cmid;
+ 	$pageprevious = icontent_get_prev_pagenum($objpage);
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-previous-page', 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pageprevious, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	if(!$pageprevious){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}
  	return html_writer::tag('button', $icon. $button->name, $attributes);
@@ -1698,9 +1695,12 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
   * @return string with $btnnext
   */
  function icontent_make_button_next_page($button, $tpages, $icon = null){
- 	$pagenum = $button->startwithpage + 1;
- 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-next-page' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pagenum, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
- 	if($pagenum > $tpages){
+ 	$objpage = new stdClass();
+ 	$objpage->pagenum = $button->startwithpage;
+ 	$objpage->cmid = $button->cmid;
+ 	$nextpage = icontent_get_next_pagenum($objpage);
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-next-page' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $nextpage, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	if(!$nextpage){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}
  	return html_writer::tag('button', $button->name. $icon, $attributes);

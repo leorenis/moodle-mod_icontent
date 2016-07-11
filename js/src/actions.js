@@ -325,10 +325,25 @@ $(document).ready(function() {
 		
 		return false;
 	}
+	// Toggle elements UI
+	function onTogleElementClick(event){
+		$idtogle = event.data.idtogle;
+		var options = {};
+		$($idtogle).toggle( 'fade', options, 500 );
+		$(this).toggleClass( "closed", 500 );
+		// Add icon fa-minus or fa-plus
+		if($(this).hasClass('closed')){
+			$(this).children('i').removeClass("fa-minus").addClass("fa-plus");
+		}else{
+			$(this).children('i').removeClass("fa-plus").addClass("fa-minus");
+		}
+	}
 	
 	// Events
 	$("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
 	$("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
+	$("#idicontentpages").on('click', '#idtitlenotes', {idtogle: '#idfulltab'}, onTogleElementClick);
+	$("#idicontentpages").on('click', '#idtitlequestionsarea', {idtogle: '#idcontentquestionsarea'}, onTogleElementClick);
 	$("#idicontentpages").on('click', '.likenote', onLikeNoteClick);
 	$("#idicontentpages").on('click', '.editnote', onEditNoteClick);
 	$("#idicontentpages").on('click', '.replynote', onReplyNoteClick);

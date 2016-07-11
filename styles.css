@@ -201,7 +201,21 @@
 	text-decoration: none;
 }
 .path-mod-icontent .notesarea .titlenotes{
-	text-transform: uppercase;
+	cursor: pointer;
+	cursor: hand;
+	border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    padding: 12px;
+    margin-top: 0;
+    background-color: #f5f5f5;
+}
+.path-mod-icontent .questionsarea .titlequestions{
+	cursor: pointer;
+	cursor: hand;
+    border-top: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 0;
+    background-color: #f5f5f5;
 }
 /** List of anotations **/
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent{

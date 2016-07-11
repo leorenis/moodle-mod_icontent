@@ -1771,11 +1771,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if(icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid)){
  		return icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid);
  	}
- 	// Divisor page / questions
- 	$hr = html_writer::empty_tag('hr');
  	// Title page
- 	$h4 = html_writer::tag('h4', get_string('answerthequestions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase'));
- 	$header = html_writer::div($hr. $h4, 'headerareaquestions');
+ 	$icon = '<i class="fa fa-plus" aria-hidden="true"></i>&nbsp;';
+ 	$title = html_writer::tag('h4', $icon. get_string('answerthequestions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase closed', 'id'=>'idtitlequestionsarea'));
  	$qlist = '';
  	foreach ($questions as $question){
  		$qlist .= icontent_make_questions_answers_by_type($question);
@@ -1789,7 +1787,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$divbtnsend = html_writer::div($qbtnsend, 'row sendanswers');
  	// Tag form
  	$qform = html_writer::tag('form', $hiddenfields. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
- 	return html_writer::div($header. $qform, 'questionsarea', array('id'=>'idquestionsarea'));
+ 	$divcontent = html_writer::div($qform, 'contentquestionsarea', array('id'=>'idcontentquestionsarea', 'style' => 'display: none;'));
+ 	return html_writer::div($title. $divcontent, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**
   * This is the function responsible for creating the answers of questions area.
@@ -1923,15 +1922,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				)
  			);
  	}
- 	// Divisor page / questions
- 	$hr = html_writer::empty_tag('hr');
  	// Create title
- 	$h4 = html_writer::tag('h4', get_string('resultlastattempt', 'mod_icontent'), array('class'=>'titleresultattempt text-uppercase'));
- 	$header = html_writer::div($hr. $h4, 'headerareaquestions');
+ 	$icon = '<i class="fa fa-plus" aria-hidden="true"></i>&nbsp;';
+ 	$title = html_writer::tag('h4', $icon. get_string('resultlastattempt', 'mod_icontent'), array('class'=>'titlequestions text-uppercase closed', 'id'=>'idtitlequestionsarea'));
  	// Create table
  	$summarygrid = new html_table();
- 	$summarygrid->id = "idicontentattemptsummary";
- 	$summarygrid->attributes = array('class'=>'table table-hover icontentattemptsummary');
+ 	$summarygrid->id = "idcontentquestionsarea";
+ 	$summarygrid->attributes = array('class'=>'table table-hover contentquestionsarea icontentattemptsummary', 'style' => 'display: none;');
  	$summarygrid->head = array(
  							get_string('state', 'mod_icontent'),
  							get_string('answers', 'mod_icontent'),
@@ -1955,7 +1952,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	
  	// Create table summary attempt.
  	$tablesummary = html_writer::table($summarygrid);
- 	return html_writer::div($header. $tablesummary, 'questionsarea', array('id'=>'idquestionsarea'));
+ 	return html_writer::div($title. $tablesummary, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**
  * This is the function responsible for creating the area comments on pages.
@@ -1967,7 +1964,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @return string $notesarea
  */
  function icontent_make_notesarea($objpage, $icontent){
-
  	if(!$icontent->shownotesarea){
  		return false;
  	}
@@ -1976,12 +1972,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		return false;
  	}
  	global $OUTPUT, $USER;
-	
-	// Divisor page / notes
-	$hr = html_writer::empty_tag('hr');
-	
  	// Title page
-	$h4 = html_writer::tag('h4', get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes'));
+ 	$icon = '<i class="fa fa-plus" aria-hidden="true"></i>&nbsp;';
+	$title = html_writer::tag('h4', $icon. get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes text-uppercase closed', 'id'=>'idtitlenotes'));
 	// user image
 	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'span1 userpicture'));
 	// fields
@@ -1992,19 +1985,17 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'span12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
 	$spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage);
 	$btnsavedoubt = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavedoubt', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
-	
+	// Data page
 	$datapagenotesnote = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'note');		// data page notes note
 	$datapagenotesdoubt = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt');	// data page notes doubt
 	$pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage), 'pagenotesnote', array('id'=>'idpagenotesnote'));
 	$pagenotesdoubt = html_writer::div(icontent_make_listnotespage($datapagenotesdoubt, $icontent, $objpage), 'pagenotesdoubt', array('id'=>'idpagenotesdoubt'));
-	
+	// Filds
 	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'span11'));
 	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'span11'));
-	
 	// Forms
 	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'fields'));
 	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'fields'));
-	
 	// TAB NAVS
 	$note = html_writer::tag('li', 
 		html_writer::link('#note', get_string('note', 'icontent', count($datapagenotesnote)), array('id'=>'note-tab', 'aria-expanded' => 'true', 'aria-controls'=>'note' ,'role'=>'tab', 'data-toggle'=>'tab')), 
@@ -2012,19 +2003,14 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$doubt = html_writer::tag('li', 
 		html_writer::link('#doubt', get_string('doubt', 'icontent', count($datapagenotesdoubt)), array('id'=>'doubt-tab', 'aria-expanded' => 'false', 'aria-controls'=>'doubt' ,'role'=>'tab', 'data-toggle'=>'tab')), 
 	array('class'=>'', 'role'=>'presentation'));
-	
 	$tabnav = html_writer::tag('ul', $note .$doubt, array('class'=> 'nav nav-tabs', 'id'=>'tabnav'));
-	
 	// TAB CONTENT
 	$icontentnote = html_writer::div($formnote,'tab-pane active', array('role'=>'tabpanel', 'id'=>'note'));
 	$icontentdoubt = html_writer::div($formdoubt, 'tab-pane', array('role'=>'tabpanel', 'id'=>'doubt'));
 	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'tab-content', array('id'=>'idtabicontent'));
-	
-	// Notes area
-	$notesarea = html_writer::tag('div', $hr. $h4. $tabnav. $tabicontent, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));
-	
- 	// return 
- 	return $notesarea;
+	$fulltab = html_writer::div($tabnav. $tabicontent, 'fulltab', array('id'=> 'idfulltab', 'style'=>'display: none;'));
+ 	// return notes area
+ 	return html_writer::tag('div', $title. $fulltab, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));
  }
  /**
   * This is the function responsible for creating checkbox field private.

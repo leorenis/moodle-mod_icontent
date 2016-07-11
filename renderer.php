@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_icontent_renderer extends plugin_renderer_base {
 	
 	/**
-	 * Renders the iContent page header CSS.
+	 * Renders the iContent page header CSS. {@link http://fontawesome.io}
 	 *
 	 * @return string
 	 */
@@ -39,7 +39,7 @@ class mod_icontent_renderer extends plugin_renderer_base {
 	}
 	
 	/**
-	 * Renders the iContent page header External JS.
+	 * Renders the iContent page header External JS. {@link http://jqueryui.com}, {@link http://getbootstrap.com}.
 	 *
 	 * @return true
 	 */

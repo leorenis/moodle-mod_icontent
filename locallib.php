@@ -1774,7 +1774,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Divisor page / questions
  	$hr = html_writer::empty_tag('hr');
  	// Title page
- 	$h4 = html_writer::tag('h4', get_string('questions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase'));
+ 	$h4 = html_writer::tag('h4', get_string('answerthequestions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase'));
  	$header = html_writer::div($hr. $h4, 'headerareaquestions');
  	$qlist = '';
  	foreach ($questions as $question){
@@ -1788,8 +1788,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('sendanswers', 'mod_icontent')));
  	$divbtnsend = html_writer::div($qbtnsend, 'row sendanswers');
  	// Tag form
- 	$qform = html_writer::tag('form', $hiddenfields. $header. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
- 	return html_writer::div($qform, 'questionsarea', array('id'=>'idquestionsarea'));
+ 	$qform = html_writer::tag('form', $hiddenfields. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
+ 	return html_writer::div($header. $qform, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**
   * This is the function responsible for creating the answers of questions area.
@@ -1923,6 +1923,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				)
  			);
  	}
+ 	// Divisor page / questions
+ 	$hr = html_writer::empty_tag('hr');
+ 	// Create title
+ 	$h4 = html_writer::tag('h4', get_string('resultlastattempt', 'mod_icontent'), array('class'=>'titleresultattempt text-uppercase'));
+ 	$header = html_writer::div($hr. $h4, 'headerareaquestions');
  	// Create table
  	$summarygrid = new html_table();
  	$summarygrid->id = "idicontentattemptsummary";
@@ -1947,8 +1952,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
  	// Set data
  	$summarygrid->data[] = array($state, $totalanswers, $totalrightanswers, $strevaluate, $iconrepeatattempt);
- 	// Return table summary attempt.
- 	return html_writer::table($summarygrid);
+ 	
+ 	// Create table summary attempt.
+ 	$tablesummary = html_writer::table($summarygrid);
+ 	return html_writer::div($header. $tablesummary, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**
  * This is the function responsible for creating the area comments on pages.

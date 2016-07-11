@@ -37,4 +37,28 @@ class mod_icontent_renderer extends plugin_renderer_base {
 	public function icontent_requires_css(){
 		return $this->page->requires->css('/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css');
 	}
+	
+	/**
+	 * Renders the iContent page header External JS.
+	 *
+	 * @return true
+	 */
+	public function icontent_requires_external_js(){
+		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-1.11.3.min.js', true);
+		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-ui-1.11.4.min.js', true);
+		 $this->page->requires->js('/mod/icontent/js/jquery/jquery.cookie.min.js');
+		 $this->page->requires->js('/mod/icontent/js/bootstrap/bootstrap.min.js');
+		 return true;
+	}
+	
+	/**
+	 * Renders the iContent page header Internal JS.
+	 *
+	 * @return true
+	 */
+	public function icontent_requires_internal_js(){
+		$this->page->requires->js('/mod/icontent/module.js', true);
+		$this->page->requires->js('/mod/icontent/js/src/actions.js', true);
+		return true;
+	}
 }

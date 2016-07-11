@@ -48,7 +48,7 @@ if ($id) {
 } else {
     error('You must specify a course_module ID or an instance ID');
 }
-
+// Check login access
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
@@ -76,17 +76,13 @@ if ($allowedit and !$pages) {
 $PAGE->set_url('/mod/icontent/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
+// Get renderer
+$renderer = $PAGE->get_renderer('mod_icontent');
 // JS
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery-1.11.3.min.js'), true);
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery-ui-1.11.4.min.js'), true);
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery.cookie.min.js'));
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/bootstrap/bootstrap.min.js'));
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/module.js'));
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/src/actions.js'));
-
+$renderer->icontent_requires_external_js();
+$renderer->icontent_requires_internal_js();
 // CSS
-$PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css'));
-
+$renderer->icontent_requires_css();
 // Get first page to be presented
 $startwithpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);
 $showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context);

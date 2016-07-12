@@ -2276,9 +2276,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$addquestion = false;
 	// check se editing exists for $USER
 	if(property_exists($USER, 'editing')){
-		// Edit mode (view.php)
-	 	if($USER->editing){
-	 		/* Icons teachers */
+		$context = context_module::instance($page->cmid);
+		// Edit mode (view.php). Icons for teachers
+	 	if($USER->editing && has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
 	 		// Add new question
 	 		$addquestion = html_writer::link(
 		 		new moodle_url('addquestionpage.php', 

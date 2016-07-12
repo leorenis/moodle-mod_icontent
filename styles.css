@@ -120,8 +120,8 @@
 .path-mod-icontent .highcontrast .notesarea .fulltab .nav-tabs .active a,
 .path-mod-icontent .highcontrast .notesarea .fulltab .nav-tabs .active a:hover,
 .path-mod-icontent .highcontrast .notesarea .fulltab .nav-tabs .active a:focus,
-.path-mod-icontent .highcontrast .questionsarea .contentquestionsarea tr:hover {
-	background-color: #222;
+.path-mod-icontent .highcontrast .questionsarea .icontentattemptsummary tr.lastrow:hover {
+	background-color: #222 !important;
 }
 /*End Hightcontrast */
 .path-mod-icontent .icontent-page .fulltextpage .toolbarpage{

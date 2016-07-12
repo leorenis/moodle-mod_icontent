@@ -1,4 +1,9 @@
-﻿-- Updates 2016070800 - OK
+﻿-- Updates 2016120800 
+ALTER TABLE `moodle28`.`mdl_icontent_pages` 
+ADD COLUMN `expandnotesarea` INT(1) NOT NULL DEFAULT '0' AFTER `attemptsallowed`,
+ADD COLUMN `expandquestionsarea` INT(1) NOT NULL DEFAULT '0' AFTER `expandnotesarea`;
+
+-- Updates 2016070800 - OK
 ALTER TABLE `moodle28`.`mdl_icontent_pages` 
 DROP COLUMN `imagetransitiontype`,
 DROP COLUMN `texttransitiontype`,

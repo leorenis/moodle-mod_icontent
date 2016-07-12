@@ -90,8 +90,9 @@
 .path-mod-icontent .icontent-page .highcontrast h4,
 .path-mod-icontent .icontent-page .highcontrast h5,
 .path-mod-icontent .icontent-page .highcontrast h6,
-.path-mod-icontent .icontent-page .highcontrast a
-{
+.path-mod-icontent .icontent-page .highcontrast a,
+.path-mod-icontent .icontent-page .highcontrast a:active,
+.path-mod-icontent .icontent-page .highcontrast a:hover{
   color: #ff0;
 }
 .path-mod-icontent .icontent-page .highcontrast p, 
@@ -104,6 +105,23 @@
 .path-mod-icontent .icontent-page .highcontrast .notesarea .notelist .pagenoterow{
   background-color: #222;
   border-bottom: 1px solid #555;
+}
+.path-mod-icontent .icontent-page .highcontrast .questionsarea .titlequestions,
+.path-mod-icontent .icontent-page .highcontrast .notesarea .titlenotes {
+	background-color: #222;
+}
+.path-mod-icontent .icontent-page .highcontrast .questionsarea .titlequestions:hover,
+.path-mod-icontent .icontent-page .highcontrast.highcontrast .notesarea .titlenotes:hover {
+	color: #ffff80;
+}
+.path-mod-icontent .highcontrast .questionsarea .question {
+	color: #333;
+}
+.path-mod-icontent .highcontrast .notesarea .fulltab .nav-tabs .active a,
+.path-mod-icontent .highcontrast .notesarea .fulltab .nav-tabs .active a:hover,
+.path-mod-icontent .highcontrast .notesarea .fulltab .nav-tabs .active a:focus,
+.path-mod-icontent .highcontrast .questionsarea .contentquestionsarea tr:hover {
+	background-color: #222;
 }
 /*End Hightcontrast */
 .path-mod-icontent .icontent-page .fulltextpage .toolbarpage{
@@ -200,22 +218,55 @@
 .path-mod-icontent .notesarea #tabnav #messagenotes:hover{
 	text-decoration: none;
 }
-.path-mod-icontent .notesarea .titlenotes{
-	cursor: pointer;
-	cursor: hand;
-	border-bottom: 1px solid #ddd;
-    border-top: 1px solid #ddd;
-    padding: 12px;
-    margin-top: 0;
-    background-color: #f5f5f5;
+.path-mod-icontent .questionsarea{
+	margin-bottom: 2px;
 }
 .path-mod-icontent .questionsarea .titlequestions{
 	cursor: pointer;
 	cursor: hand;
-    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
     padding: 12px;
     margin-bottom: 0;
     background-color: #f5f5f5;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: all 0.8s ease 0s;
+}
+.path-mod-icontent .notesarea .titlenotes{
+	cursor: pointer;
+	cursor: hand;
+	border-bottom: 1px solid #dddddd;
+    padding: 12px;
+    margin-top: 0;
+    background-color: #f5f5f5;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: all 1s ease 0s;
+}
+.path-mod-icontent .questionsarea .titlequestions:hover,
+.path-mod-icontent .notesarea .titlenotes:hover{
+	color: #000;
+	border-bottom: 1px solid #aaaaaa;
+	background-color: #f9f9f9;
+}
+.path-mod-icontent .questionsarea .question {
+	background-color: #fff;
+    border-bottom: 2px solid #eeeeee;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+}
+.path-mod-icontent .questionsarea .question .questiontext{
+	color: #111111;
+}
+.path-mod-icontent .questionsarea .question .optionslist label{
+	font-size: 13px;
+}
+.path-mod-icontent .questionsarea .question .optionslist td.matchoptions{
+	font-size: 13px;
+	padding-right: 10px;
 }
 /** List of anotations **/
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent{

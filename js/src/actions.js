@@ -333,9 +333,9 @@ $(document).ready(function() {
 		$(this).toggleClass( "closed", 500 );
 		// Add icon fa-minus or fa-plus
 		if($(this).hasClass('closed')){
-			$(this).children('i').removeClass("fa-minus").addClass("fa-plus");
+			$(this).children('i').removeClass("fa-caret-down").addClass("fa-caret-right");
 		}else{
-			$(this).children('i').removeClass("fa-plus").addClass("fa-minus");
+			$(this).children('i').removeClass("fa-caret-right").addClass("fa-caret-down");
 		}
 	}
 	

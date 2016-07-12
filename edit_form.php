@@ -18,7 +18,7 @@
  * Chapter edit form
  *
  * @package    mod_icontent
- * @copyright  2004-2010 Petr Skoda {@link http://skodak.org}
+ * @copyright  2015-2016 Leo Santos {@link http://github.com/leorenis}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -136,6 +136,16 @@ class icontent_pages_edit_form extends moodleform {
 		$mform->addHelpButton('maxnotesperpages', 'maxnotesperpageshelp', 'icontent');
 		$mform->addRule('maxnotesperpages', null, 'numeric', null, 'client');
 		$mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
+		
+		$mform->addElement('advcheckbox', 'expandquestionsarea', get_string('expandquestionsarea', 'icontent'));
+		$mform->addHelpButton('expandquestionsarea', 'expandquestionsarea', 'icontent');
+		$mform->setType('expandquestionsarea', PARAM_INT);
+		$mform->setDefault('expandquestionsarea', 0);
+		
+		$mform->addElement('advcheckbox', 'expandnotesarea', get_string('expandnotesarea', 'icontent'));
+		$mform->addHelpButton('expandnotesarea', 'expandnotesarea', 'icontent');
+		$mform->setType('expandnotesarea', PARAM_INT);
+		$mform->setDefault('expandnotesarea', 0);
 		
 		$mform->addElement('header', 'grade', get_string('grade'));
 		$mform->addElement('select', 'attemptsallowed', get_string('attemptsallowed', 'icontent'), array('0'=>get_string('unlimited'), '1'=> '1 '.get_string('attempt', 'mod_icontent')));

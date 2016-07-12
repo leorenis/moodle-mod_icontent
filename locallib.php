@@ -54,9 +54,7 @@ require_once(dirname(__FILE__).'/lib.php');
  */
 function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     global $OUTPUT, $PAGE;
-
 	$toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit, 0);
-	
     $bc = new block_contents();
     $bc->title = get_string('icontentmenu', 'icontent');
     $bc->attributes['class'] = 'block block_icontent_toc';
@@ -64,7 +62,6 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     $defaultregion = $PAGE->blocks->get_default_region();
     $PAGE->blocks->add_fake_block($bc, $defaultregion);
 }
-
 /**
  * Generate toc structure
  *
@@ -77,15 +74,12 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
  */
 function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
     global $USER, $OUTPUT;
-	
 	$context = context_module::instance($cm->id);
 	$tpages = count($pages);
 	$toc = '';
 	$toc .= html_writer::start_tag('div', array('class' => 'icontent_toc clearfix'));
-	
-	// // Teacher's TOC
+	// Teacher's TOC
 	if($edit){
-
 		$toc .= html_writer::start_tag('ul');
 		$i = 0;
 		foreach ($pages as $pg) {
@@ -93,7 +87,6 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 			$title = trim(format_string($pg->title, true, array('context'=>$context)));
 			$toc .= html_writer::start_tag('li', array('class' => 'clearfix')); // Inicio <li>
 				$toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
-				
 				// Actions
 				$toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
 					if ($i != 1) {
@@ -121,7 +114,6 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 				$toc .= html_writer::end_tag('div'); 	// End </div>
 			$toc .= html_writer::end_tag('li'); // End </li>
 		}
-		
 		$toc .= html_writer::end_tag('ul');
 	}else{	
 		// Visualization to students
@@ -134,12 +126,9 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 				$toc .= html_writer::end_tag('li');
 			}
 		}
-		
 		$toc .= html_writer::end_tag('ul');
 	}
-	
 	$toc .= html_writer::end_tag('div');
-	
 	return $toc;
 }
  /**
@@ -151,11 +140,9 @@ function icontent_add_properties_css($pagestyle){
 	$style = "background-color: #{$pagestyle->bgcolor}; ";
 	$style .= "min-height: ". ICONTENT_PAGE_MIN_HEIGHT ."px; ";
 	$style .= "border: {$pagestyle->borderwidth}px solid #{$pagestyle->bordercolor};";
-	
 	if($pagestyle->bgimage){
 		$style .= "background-image: url('{$pagestyle->bgimage}')";
 	}
-	
 	return $style;
 }
 
@@ -211,16 +198,12 @@ function icontent_get_bgimage($context){
 	global $CFG;
 	$fs = get_file_storage();
 	$files = $fs->get_area_files($context->id, 'mod_icontent', 'icontent', 0, 'sortorder DESC, id ASC', false); // TODO: this is not very efficient!!
-	
 	if (count($files) >= 1) {
 	    $file = reset($files);
 	    unset($files);
-		
 	    $path = '/'.$context->id.'/mod_icontent/icontent/'.$file->get_filepath().$file->get_filename();
 	    $fullurl = file_encode_url($CFG->wwwroot.'/pluginfile.php', $path, false);
-	
 	    $mimetype = $file->get_mimetype();
-		
 		 if (file_mimetype_in_typegroup($mimetype, 'web_image'))   // It's an image
 			return $fullurl;
 		 return false;
@@ -237,16 +220,12 @@ function icontent_get_page_bgimage($context, $page){
 	global $CFG;
 	$fs = get_file_storage();
 	$files = $fs->get_area_files($context->id, 'mod_icontent', 'bgpage', $page->id, 'sortorder DESC, id ASC', false); // TODO: this is not very efficient!!
-	
 	if (count($files) >= 1) {
 	    $file = reset($files);
 	    unset($files);
-		
 	    $path = '/'.$context->id.'/mod_icontent/bgpage/'.$page->id.$file->get_filepath().$file->get_filename();
 	    $fullurl = file_encode_url($CFG->wwwroot.'/pluginfile.php', $path, false);
-	
 	    $mimetype = $file->get_mimetype();
-		
 		 if (file_mimetype_in_typegroup($mimetype, 'web_image'))   // It's an image
 			return $fullurl;
 		 return false;
@@ -268,7 +247,6 @@ function icontent_preload_pages($icontent){
     if (!$pages) {
         return array();
     }
-	
 	$first = true;
     $pagenum = 0; // page sort
     foreach ($pages as $id => $pg) {
@@ -278,14 +256,12 @@ function icontent_preload_pages($icontent){
         if ($first) {
             $first = false;
         }
-		
         if ($oldpg->pagenum != $pg->pagenum or $oldpg->hidden != $pg->hidden) {
             // update only if something changed
             $DB->update_record('icontent_pages', $pg);
         }
         $pages[$id] = $pg;
     }
-	
 	return $pages;
 }
 /**
@@ -333,7 +309,6 @@ function icontent_remove_notes($pageid, $pagenoteid = null){
 function icontent_remove_note_likes($pagenoteid){
 	global $DB;
 	$rs = $DB->delete_records('icontent_pages_notes_like', array('pagenoteid'=>$pagenoteid));
-	
 	return $rs ? true : false;
 }
 /**
@@ -400,7 +375,6 @@ function icontent_update_question_attempts($attempt){
  * @return string with $pgbuttons
  */
 function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
-	
 	if(empty($pages)){
 		return false;
 	}
@@ -410,7 +384,6 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 	$objbutton->title = get_string('previouspage', 'mod_icontent');
 	$objbutton->cmid = $cmid;
 	$objbutton->startwithpage = $startwithpage;
-	
 	// Create buttons!
 	$npage = 0;
 	$tpages = count($pages);
@@ -424,13 +397,10 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 	}
 	$objbutton->name = get_string('next', 'mod_icontent');
 	$objbutton->title = get_string('nextpage', 'mod_icontent');
-	
 	$pgbuttons .= icontent_make_button_next_page($objbutton, $tpages);
 	$pgbuttons .= html_writer::end_div();
-	
 	return $pgbuttons;
 }
-
 /**
  * Loads simple paging button bar.
  *
@@ -545,18 +515,15 @@ function icontent_get_next_pagenum(stdClass $objpage){
  */
 function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-	
 	$limitsql = '';
 	$sort = 'q.name '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
-	
 	// Setup pagination - when both $page and $perpage = 0, get all results
 	if ($page || $perpage) {
 		if ($page < 0) {
 			$page = 0;
 		}
-	
 		if ($perpage > ICONTENT_MAX_PER_PAGE) {
 			$perpage = ICONTENT_MAX_PER_PAGE;
 		} else if ($perpage < 1) {
@@ -564,7 +531,6 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 		}
 		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
-	
 	$sql = "SELECT q.id, q.qtype, q.name, q.timecreated, q.timemodified, q.createdby, q.modifiedby, c.contextid
 			FROM {question} q 
 			JOIN {question_categories} c
@@ -572,7 +538,6 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 			WHERE c.contextid = ?
 			AND q.qtype IN (?,?,?,?)
 			ORDER BY {$sort} {$limitsql}";
-	
 	return $DB->get_records_sql(
 				$sql,
 				array(
@@ -852,14 +817,12 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
  */
 function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $private = null, $featured = null, $doubttutor = null, $likes = null, $tab = null){
 	global $DB, $USER;
-	
 	$limitsql = '';
 	$sortparams = 'pn.path '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
 	// Get context
 	$context = context_module::instance($cmid);
-	
 	// Filter
 	$andfilter = '';
 	$joinfilter = '';
@@ -929,18 +892,15 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
  */
 function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-	
 	$limitsql = '';
 	$sortparams = 'u.firstname '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
-	
 	// Setup pagination - when both $page and $perpage = 0, get all results
 	if ($page || $perpage) {
 		if ($page < 0) {
 			$page = 0;
 		}
-	
 		if ($perpage > ICONTENT_MAX_PER_PAGE) {
 			$perpage = ICONTENT_MAX_PER_PAGE;
 		} else if ($perpage < 1) {
@@ -970,7 +930,6 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
 			ORDER BY {$sortparams} {$limitsql};";
 	return $DB->get_records_sql($sql, array($cmid, $cmid, $cmid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, $cmid)); // Field CMID used four times. Check (?).
 }
-
 /**
  * Get object with attempts of users with answers not evaluated by course modules ID <iContent>
  *
@@ -984,7 +943,6 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
  */
 function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = null, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-	
 	$limitsql = '';
 	$sortparams = 'u.firstname '.$sort;
 	$page = (int) $page;
@@ -998,7 +956,6 @@ function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = n
 		if ($page < 0) {
 			$page = 0;
 		}
-
 		if ($perpage > ICONTENT_MAX_PER_PAGE) {
 			$perpage = ICONTENT_MAX_PER_PAGE;
 		} else if ($perpage < 1) {
@@ -1050,7 +1007,6 @@ function icontent_get_attempt_summary_by_page($pageid, $cmid){
 	}
 	return false;
 }
-
 /**
  * Get object with right answers by attempt summary the current page.
  *
@@ -1162,7 +1118,6 @@ function icontent_get_array_options_answerid($answers){
 	}
 	return $arrayoptionsids;
 }
-
 /**
  * Add preview in page if its not previewed.
  *
@@ -1175,23 +1130,17 @@ function icontent_get_array_options_answerid($answers){
  */
 function icontent_add_pagedisplayed($pageid, $cmid){
 	global $DB, $USER;
-	
 	$pagedisplayed = icontent_get_pagedisplayed($pageid, $cmid);
-
 	if(empty($pagedisplayed)){
-		
 		$pagedisplayed = new stdClass;
 		$pagedisplayed->pageid 		= $pageid;
 		$pagedisplayed->cmid 		= $cmid;
 		$pagedisplayed->userid 		= $USER->id;
 		$pagedisplayed->timecreated	= time();
-		
 		return $DB->insert_record('icontent_pages_displayed', $pagedisplayed);
 	}
-	
 	return $pagedisplayed;
 }
-
 /**
  * Adds questions on a page.
  *
@@ -1235,10 +1184,8 @@ function icontent_add_questionpage($questions, $pageid, $cmid){
  */
 function icontent_get_pagedisplayed($pageid, $cmid){
 	global $DB, $USER;
-	
 	return $DB->get_record('icontent_pages_displayed', array('pageid'=>$pageid, 'cmid'=>$cmid, 'userid'=>$USER->id), 'id, timecreated');
 }
-
 /**
  * Get questions by pageid.
  *
@@ -1308,12 +1255,10 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	}
 	// If student
 	$sql = 'SELECT * FROM {icontent_pages_notes} WHERE pageid = ? AND cmid = ? AND tab = ? AND (userid = ? OR private = ?) ORDER BY path ASC;';
-
 	return $DB->get_records_sql($sql, array($pageid, $cmid, $tab, $USER->id, 0));
 }
-
 /**
- * Consulta curtida em uma pagina.
+ * Get likes of page.
  *
  * Returns object of  {icontent_pages_notes_like}
  *
@@ -1324,10 +1269,29 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  */
  function icontent_get_pagenotelike($pagenoteid, $userid, $cmid){
 	global $DB;
-	
 	return $DB->get_record('icontent_pages_notes_like', array('pagenoteid'=>$pagenoteid, 'userid'=>$userid, 'cmid'=>$cmid), 'id');
 }
-
+/**
+ * Check if expandnotesarea or expandquestionsarea field are true or false and returns toggle object.
+ *
+ * Returns toggle area object.
+ *
+ * @param  boolean $expandarea
+ * @return object $attrtogglearea
+ */
+function icontent_get_toggle_area_object($expandarea){
+	$attrtogglearea = new stdClass();
+	if(!$expandarea){
+		$attrtogglearea->icon = '<i class="fa fa-caret-right" aria-hidden="true"></i>&nbsp;';
+		$attrtogglearea->style = "display: none;";
+		$attrtogglearea->class = "closed";
+		return $attrtogglearea;
+	}
+	$attrtogglearea->icon = '<i class="fa fa-caret-down" aria-hidden="true"></i>&nbsp;';
+	$attrtogglearea->style = '';
+	$attrtogglearea->class = '';
+	return  $attrtogglearea;
+}
 /**
  * Get pages number interactive content <iContent>
  *
@@ -1340,7 +1304,6 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  	global $DB;
  	return $DB->count_records('icontent_pages', array('icontentid'=>$icontentid));
  }
- 
  /**
  * Get pages number viewed by user
  *
@@ -1354,7 +1317,6 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  	global $DB;
  	return $DB->count_records('icontent_pages_displayed', array('userid'=>$userid, 'cmid'=>$cmid));
  }
- 
  /**
  * Get count of likes a note {icontent_pages_notes_like}.
  *
@@ -1367,7 +1329,6 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  	global $DB;
 	return $DB->count_records('icontent_pages_notes_like', array('pagenoteid'=>$pagenoteid));
  }
- 
  /**
  * Get page number by pageid
  *
@@ -1379,12 +1340,9 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  function icontent_get_pagenum_by_pageid($pageid){
  	global $DB;
  	$sql = "SELECT pagenum  FROM {icontent_pages} WHERE id = ?;";
-	
  	$obj = $DB->get_record_sql($sql, array($pageid));
-	
 	return $obj->pagenum;
  }
- 
  /**
  * Get the level of depth this note
  *
@@ -1394,9 +1352,7 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  * @return int $levels
  */
  function icontent_get_noteparentinglevels($path){
- 	
 	$countpath = count(explode('/', $path)) - 1;
-	
 	if(!$countpath)
 		return 1;
 	else if($countpath > 12)
@@ -1404,7 +1360,6 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
 	else
 		return $countpath;
  }
- 
  /**
  * Get user by ID.
  *
@@ -1415,7 +1370,6 @@ function icontent_get_pagenotes($pageid, $cmid, $tab){
  */
  function icontent_get_user_by_id($userid){
  	global $DB;
-	
 	return $DB->get_record('user', array('id'=>$userid), 'id, firstname, lastname, email, picture, firstnamephonetic, lastnamephonetic, middlename, alternatename, imagealt');
  }
 
@@ -1494,7 +1448,6 @@ function icontent_checks_answers_of_currentpage($pageid, $cmid){
  */
 function icontent_has_permission_edition($allowedit, $edit = 0){
 	global $USER;
-	
 	if ($allowedit) {
 		if ($edit != -1 and confirm_sesskey()) {
 			$USER->editing = $edit;
@@ -1525,7 +1478,6 @@ function icontent_has_permission_manager($context){
 	}
 	return false;
 }
-
 /**
  * Check if the user is owner the note
  * @param object $pagenote
@@ -1538,7 +1490,6 @@ function icontent_check_user_isowner_note($pagenote){
 	}
 	return false;
 }
-
 /**
  * Check if user can remove note
  * @param string $context
@@ -1556,7 +1507,6 @@ function icontent_user_can_remove_note($pagenote, $context){
 	}
 	return false;
 }
-
 /**
  * Check if user can edit note
  * @param string $context
@@ -1574,7 +1524,6 @@ function icontent_user_can_edit_note($pagenote, $context){
 	}
 	return false;
 }
-
 /**
  * Check if user can reply note
  * @param string $context
@@ -1593,7 +1542,6 @@ function icontent_user_can_reply_note($pagenote, $context){
 	}
 	return false;
 }
-
 /**
  * Check if user can like or do not like the note
  * @param string $context
@@ -1622,14 +1570,12 @@ function icontent_user_can_view_checkbox_field_private($context){
  * @param string $context
  * @return boolean true if the user has this permission. Otherwise false.
  */
-
 function icontent_user_can_view_checkbox_field_featured($context){
 	if (has_capability('mod/icontent:checkboxfeaturednotes', $context)){
 		return true;
 	}
 	return false;
 }
-
 /**
  * Check if user can view doubttutor field
  * @param string $context
@@ -1665,7 +1611,6 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
 // ===================================
 // FUNCTIONS CREATING AND RETURNS HTML
 // ===================================
-
  /**
   * Create button previous page.
   *
@@ -1685,7 +1630,6 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
  	}
  	return html_writer::tag('button', $icon. $button->name, $attributes);
  }
- 
  /**
   * Create button next page.
   *
@@ -1738,7 +1682,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * @return string $progressbar
  */
  function icontent_make_progessbar($objpage, $icontent, $context){
- 	
  	if(!$icontent->progressbar){
   		return false;
  	}
@@ -1746,11 +1689,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$npages = icontent_count_pages($icontent->id);
 	$npagesviewd = icontent_count_pageviewedbyuser($USER->id, $objpage->cmid);
 	$percentage = ($npagesviewd * 100) / $npages;
-
  	$percent = html_writer::span(get_string('labelprogressbar', 'icontent', $percentage), 'sr-only');
  	$progressbar = html_writer::div($percent, 'progress-bar progress-bar-striped active', array('role'=>'progressbar', 'aria-valuenow'=>$percentage, 'aria-valuemin'=>'0', 'aria-valuemax'=>'100', 'style'=>"width: {$percentage}%;"));
  	$progress = html_writer::div($progressbar, 'progress');
-	
  	return $progress;
  }
  
@@ -1771,9 +1712,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if(icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid)){
  		return icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid);
  	}
+ 	$togglearea = icontent_get_toggle_area_object($objpage->expandquestionsarea);
  	// Title page
- 	$icon = '<i class="fa fa-plus" aria-hidden="true"></i>&nbsp;';
- 	$title = html_writer::tag('h4', $icon. get_string('answerthequestions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase closed', 'id'=>'idtitlequestionsarea'));
+ 	$title = html_writer::tag('h4', $togglearea->icon. get_string('answerthequestions', 'mod_icontent'), array('class'=>'titlequestions text-uppercase '.$togglearea->class, 'id'=>'idtitlequestionsarea'));
  	$qlist = '';
  	foreach ($questions as $question){
  		$qlist .= icontent_make_questions_answers_by_type($question);
@@ -1787,7 +1728,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$divbtnsend = html_writer::div($qbtnsend, 'row sendanswers');
  	// Tag form
  	$qform = html_writer::tag('form', $hiddenfields. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
- 	$divcontent = html_writer::div($qform, 'contentquestionsarea', array('id'=>'idcontentquestionsarea', 'style' => 'display: none;'));
+ 	$divcontent = html_writer::div($qform, 'contentquestionsarea', array('id'=>'idcontentquestionsarea', 'style' => $togglearea->style));
  	return html_writer::div($title. $divcontent, 'questionsarea', array('id'=>'idquestionsarea'));
  }
  /**
@@ -1822,9 +1763,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				$brackets = '';
  				$strprompt = get_string('choiceone', 'mod_icontent');
  			}
+ 			$strpromptinfo = html_writer::span($strprompt, 'label label-info');
  			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MULTICHOICE);
- 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
- 			$questionanswers .= html_writer::div($strprompt, 'prompt');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+ 			$questionanswers .= html_writer::div($strpromptinfo, 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			foreach ($anwswers as $anwswer){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MULTICHOICE.$brackets;
@@ -1841,7 +1783,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		case ICONTENT_QTYPE_MATCH:
  			$options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
  			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
- 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			$contenttable = '';
  			$arrayanswers = [];
@@ -1851,7 +1793,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			}
  			foreach ($options as $option){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
- 				$qtext = html_writer::tag('td', strip_tags($option->questiontext));
+ 				$qtext = html_writer::tag('td', strip_tags($option->questiontext), array('class'=>'matchoptions'));
  				$answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, null, array('' => 'choosedots'), array('required'=>'required')));
  				$contenttable .= html_writer::tag('tr', $qtext. $answertext);
  			}
@@ -1862,9 +1804,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			break;
  		case ICONTENT_QTYPE_TRUEFALSE:
  			$anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
+ 			$strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info');
  			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
- 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
- 			$questionanswers .= html_writer::div(get_string('choiceoneoption', 'mod_icontent'), 'prompt');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+ 			$questionanswers .= html_writer::div($strpromptinfo, 'prompt');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			foreach ($anwswers as $anwswer){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_TRUEFALSE;
@@ -1882,7 +1825,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_ESSAY;
  			$qoptions = $DB->get_records('qtype_essay_options', array('questionid'=>$question->qid));
  			$questionanswers = html_writer::start_div('question essay');
- 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'));
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
  			$questionanswers .= html_writer::tag('textarea', null, array('name'=>$fieldname, 'class'=>'span12 answertextarea', 'required'=>'required'));
  			$questionanswers .= html_writer::end_div();
  			return $questionanswers;
@@ -1901,6 +1844,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * @return string $attemptsummary
   */
  function icontent_make_attempt_summary_by_page($pageid, $cmid){
+ 	global $DB;
  	// Get objects that create summary attempt.
  	$summaryattempt = icontent_get_attempt_summary_by_page($pageid, $cmid);
  	$rightanswer = icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid);	// Items with hits
@@ -1922,13 +1866,14 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				)
  			);
  	}
+ 	$expandarea = $DB->get_field('icontent_pages', 'expandquestionsarea', array('id' => $pageid));
+ 	$togglearea = icontent_get_toggle_area_object($expandarea);
  	// Create title
- 	$icon = '<i class="fa fa-plus" aria-hidden="true"></i>&nbsp;';
- 	$title = html_writer::tag('h4', $icon. get_string('resultlastattempt', 'mod_icontent'), array('class'=>'titlequestions text-uppercase closed', 'id'=>'idtitlequestionsarea'));
+ 	$title = html_writer::tag('h4', $togglearea->icon. get_string('resultlastattempt', 'mod_icontent'), array('class'=>'titlequestions text-uppercase '. $togglearea->class, 'id'=>'idtitlequestionsarea'));
  	// Create table
  	$summarygrid = new html_table();
  	$summarygrid->id = "idcontentquestionsarea";
- 	$summarygrid->attributes = array('class'=>'table table-hover contentquestionsarea icontentattemptsummary', 'style' => 'display: none;');
+ 	$summarygrid->attributes = array('class'=>'table table-hover contentquestionsarea icontentattemptsummary', 'style' => $togglearea->style);
  	$summarygrid->head = array(
  							get_string('state', 'mod_icontent'),
  							get_string('answers', 'mod_icontent'),
@@ -1972,9 +1917,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		return false;
  	}
  	global $OUTPUT, $USER;
+ 	$togglearea = icontent_get_toggle_area_object($objpage->expandnotesarea);
  	// Title page
- 	$icon = '<i class="fa fa-plus" aria-hidden="true"></i>&nbsp;';
-	$title = html_writer::tag('h4', $icon. get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes text-uppercase closed', 'id'=>'idtitlenotes'));
+	$title = html_writer::tag('h4', $togglearea->icon. get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes text-uppercase '.$togglearea->class, 'id'=>'idtitlenotes'));
 	// user image
 	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'span1 userpicture'));
 	// fields
@@ -2008,7 +1953,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$icontentnote = html_writer::div($formnote,'tab-pane active', array('role'=>'tabpanel', 'id'=>'note'));
 	$icontentdoubt = html_writer::div($formdoubt, 'tab-pane', array('role'=>'tabpanel', 'id'=>'doubt'));
 	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'tab-content', array('id'=>'idtabicontent'));
-	$fulltab = html_writer::div($tabnav. $tabicontent, 'fulltab', array('id'=> 'idfulltab', 'style'=>'display: none;'));
+	$fulltab = html_writer::div($tabnav. $tabicontent, 'fulltab', array('id'=> 'idfulltab', 'style'=> $togglearea->style));
  	// return notes area
  	return html_writer::tag('div', $title. $fulltab, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));
  }
@@ -2024,12 +1969,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if (icontent_user_can_view_checkbox_field_private($context)) {
  		$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate', 'class'=>'icontent-checkbox'));
 	 	$labelprivate = html_writer::tag('label', get_string('private', 'mod_icontent'), array('for'=>'idprivate', 'class'=> 'icontent-label'));
-	 	
+	 	// Return span
 	 	return html_writer::tag('span', $checkprivate. $labelprivate, array('class'=>'fieldprivate'));
  	}
  	return false;
  }
- 
  /**
   * This is the function responsible for creating checkbox field featured.
   *
@@ -2042,12 +1986,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if (icontent_user_can_view_checkbox_field_featured($context)) {
 	 	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured', 'class'=>'icontent-checkbox'));
 	 	$labelfeatured = html_writer::tag('label', get_string('featured', 'mod_icontent'), array('for'=>'idfeatured', 'class'=> 'icontent-label'));
-	 
+	 	// Return span
 	 	return html_writer::tag('span', $checkfeatured. $labelfeatured, array('class'=>'fieldfeatured'));
  	}
  	return false;
  }
- 
  /**
   * This is the function responsible for creating checkbox field doubttutor.
   *
@@ -2060,12 +2003,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	if (icontent_user_can_view_checkbox_field_doubttutor($context)) {
  		$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor', 'class'=>'icontent-checkbox'));
  		$labeldoubttutor = html_writer::tag('label', get_string('doubttutor', 'mod_icontent'), array('for'=>'iddoubttutor', 'class'=>'icontent-label'));
- 		
+ 		// Return span
  		return html_writer::tag('span', $checkdoubttutor. $labeldoubttutor, array('class'=>'fielddoubttutor'));
  	}
  	return false;
  }
- 
 /**
  * This is the function responsible for creating notes list by page.
  *
@@ -2092,7 +2034,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  			$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
 			$notepagetitle = html_writer::span($page->title, 'notepagetitle');
  			$noteheader = $pagenote->parent ? html_writer::div($linkfirstname. $replyon, 'noteheader') : html_writer::div($linkfirstname. $noteon. $notepagetitle, 'noteheader');
- 			
 			// Note comments
 			$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));
 			// Note footer
@@ -2109,13 +2050,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			$noterowicontent = html_writer::div($noteheader. $notecomment. $notefooter, 'noterowicontent');
 			$divnote .= html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels, 'id' => "pnote{$pagenote->id}"));
 		 }
-		
 		$divnotes = html_writer::div($divnote, 'span notelist');
 		return $divnotes;
  	}
 	return html_writer::div(get_string('nonotes', 'icontent'));
  }
-
 /**
  * This is the function responsible for creating the responses of notes.
  *
@@ -2127,10 +2066,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  */
  function icontent_make_pagenotereply($pagenote, $icontent){
  	global $OUTPUT;
-	
 	$user = icontent_get_user_by_id($pagenote->userid);
 	$context = context_module::instance($pagenote->cmid);
-	
 	$picture = $OUTPUT->user_picture($user, array('size'=>30, 'class'=> 'img-thumbnail pull-left'));
 	// Note header
 	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$user->id, 'course'=>$icontent->course)), $user->firstname, array('title'=>$user->firstname));
@@ -2145,17 +2082,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$notereply = icontent_make_link_reply_note($pagenote, $context);
 	$notedate = html_writer::tag('span', userdate($pagenote->timecreated), array('class'=>'notedate pull-right'));
 	$notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
-	
 	// verify path levels
 	$pathlevels = icontent_get_noteparentinglevels($pagenote->path);
-
 	// Div list page notes
 	$noterowicontent = html_writer::div($noteheader. $notecomment. $notefooter, 'noterowicontent');
-	
 	// return reply
 	return html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}", array('data-level'=>$pathlevels, 'id' => "pnote{$pagenote->id}"));
  }
- 
  /**
   * This is the function responsible for creating link to remove note.
   *
@@ -2171,7 +2104,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  	return false;
  }
-
  /**
   * This is the function responsible for creating link to edit note.
   *
@@ -2187,7 +2119,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  	return false;
  }
- 
  /**
   * This is the function responsible for creating link to reply note.
   *
@@ -2203,7 +2134,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  	return false;
  }
-
 /**
  * This is the function responsible for creating links like and do not like.
  *
@@ -2217,10 +2147,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	global $USER;
  	if(icontent_user_can_likeunlike_note($pagenote, $context)){
  		$pagenotelike = icontent_get_pagenotelike($pagenote->id, $USER->id, $pagenote->cmid);
- 		
  		$countlikes = icontent_count_pagenotelike($pagenote->id);
  		$notelinklabel = html_writer::span(get_string('like', 'icontent', $countlikes));
- 		
  		if(!empty($pagenotelike)){
  			$notelinklabel = html_writer::span(get_string('unlike', 'icontent', $countlikes));
  		}

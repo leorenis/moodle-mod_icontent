@@ -54,9 +54,9 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $pages = new backup_nested_element('pages');
         $page = new backup_nested_element('page', array('id'), array(
         		'coverpage', 'title', 'showtitle', 'pageicontent', 'pageicontentformat',
-        		'showbgimage', 'bgimage', 'bgcolor', 'layout', 'transitioneffect',
-        		'bordercolor', 'borderwidth', 'pagenum', 'hidden',
-        		'maxnotesperpages', 'attemptsallowed', 'timecreated', 'timemodified'));
+        		'showbgimage', 'bgimage', 'bgcolor', 'layout', 'transitioneffect', 'bordercolor',
+        		'borderwidth', 'pagenum', 'hidden','maxnotesperpages', 'attemptsallowed',
+        		'expandnotesarea', 'expandquestionsarea', 'timecreated', 'timemodified'));
         
         $pagequestions = new backup_nested_element('page_questions');
         $pagequestion = new backup_nested_element('page_question', array('id'), array(
@@ -79,6 +79,10 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $questionattempt = new backup_nested_element('question_attempt', array('id'), array(
         		'questionid', 'userid', 'fraction', 'rightanswer', 'answertext', 'timecreated'));
         
+        $grades = new backup_nested_element('grades');
+        $grade = new backup_nested_element('grade', array('id'), array(
+        		'userid', 'cmid', 'grade', 'timemodified'));
+        
         // Build the tree
         $icontent->add_child($pages);
         $pages->add_child($page);
@@ -97,6 +101,9 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         
         $pagequestion->add_child($questionattempts);
         $questionattempts->add_child($questionattempt);
+        
+        $icontent->add_child($grades);
+        $grades->add_child($grade);
 
         // Define data sources.
         $icontent->set_source_table('icontent', array('id' => backup::VAR_ACTIVITYID));
@@ -109,6 +116,7 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         	$noteslike->set_source_table('icontent_pages_notes_like', array('pagenoteid' => backup::VAR_PARENTID));
         	$pagesdisplayed->set_source_table('icontent_pages_displayed', array('pageid' => backup::VAR_PARENTID));
         	$questionattempt->set_source_table('icontent_question_attempts', array('pagesquestionsid' => backup::VAR_PARENTID));
+        	$grade->set_source_table('icontent_grades', array('icontentid' => backup::VAR_PARENTID));
         }
 
         // If we were referring to other tables, we would annotate the relation with the element's annotate_ids() method.
@@ -118,6 +126,7 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $noteslike->annotate_ids('user', 'userid');
         $pagesdisplayed->annotate_ids('user', 'userid');
         $questionattempt->annotate_ids('user', 'userid');
+        $grade->annotate_ids('user', 'userid');
         
         // Define file annotations.
         $icontent->annotate_files('mod_icontent', 'intro', null);

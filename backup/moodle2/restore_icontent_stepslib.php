@@ -46,6 +46,7 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         	$paths[] = new restore_path_element('icontent_page_note_like', '/activity/icontent/notes_likes/notes_like');
         	$paths[] = new restore_path_element('icontent_page_displayed', '/activity/icontent/pages_displayeds/pages_displayed');
         	$paths[] = new restore_path_element('icontent_question_attempt', '/activity/icontent/question_attempts/question_attempt');
+        	$paths[] = new restore_path_element('icontent_grade', '/activity/icontent/grades/grade');
         }
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
@@ -105,7 +106,8 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
-    	$data->pageid = $this->get_new_parentid('icontent_page'); // $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->pageid = $this->get_new_parentid('icontent_page'); 
+    	// $this->get_mappingid('icontent_page', $data->pageid);
     	$data->questionid = $this->get_mappingid('question', $data->questionid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -121,7 +123,8 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
-    	$data->pageid = $this->get_new_parentid('icontent_page'); // $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->pageid = $this->get_new_parentid('icontent_page'); 
+    	// $this->get_mappingid('icontent_page', $data->pageid);
     	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -137,7 +140,8 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
-    	$data->pagenoteid = $this->get_new_parentid('icontent_page_note'); // $data->pagenoteid = $this->get_mappingid('icontent_page_note', $data->pagenoteid);
+    	$data->pagenoteid = $this->get_new_parentid('icontent_page_note'); 
+    	// $data->pagenoteid = $this->get_mappingid('icontent_page_note', $data->pagenoteid);
     	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
     	$data->timemodified = $this->apply_date_offset($data->timemodified);
@@ -152,7 +156,8 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
-    	$data->pageid = $this->get_new_parentid('icontent_page'); // $data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
+    	$data->pageid = $this->get_new_parentid('icontent_page'); 
+    	// $data->pageid = $this->get_mappingid('icontent_page', $data->pageid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
     	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -167,7 +172,8 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	$data = (object)$data;
     	$oldid = $data->id;
     	
-    	$data->pagesquestionsid = $this->get_new_parentid('icontent_page_question'); // $data->pagesquestionsid = $this->get_mappingid('icontent_page_question', $data->pagesquestionsid);
+    	$data->pagesquestionsid = $this->get_new_parentid('icontent_page_question'); 
+    	// $data->pagesquestionsid = $this->get_mappingid('icontent_page_question', $data->pagesquestionsid);
     	$data->questionid = $this->get_mappingid('question', $data->questionid);
     	$data->userid = $this->get_mappingid('user', $data->userid);
     	$data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
@@ -175,6 +181,24 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     	 
     	$newitemid = $DB->insert_record('icontent_pages_displayed', $data);
     	$this->set_mapping('icontent_question_attempt', $oldid, $newitemid);
+    }
+    
+    protected function process_icontent_grade($data) {
+    	global $DB;
+    	 
+    	$data = (object)$data;
+    	$oldid = $data->id;
+    	// Get new course module id
+    	$icontentid = $this->get_new_parentid('icontent');
+    	$cm = get_coursemodule_from_instance('icontent', $icontentid);
+    	
+    	$data->icontentid = $this->get_new_parentid('icontent');
+    	$data->userid = $this->get_mappingid('user', $data->userid);
+    	$data->cmid = $cm->id;
+    	$data->timemodified = $this->apply_date_offset($data->timemodified);
+    	 
+    	$newitemid = $DB->insert_record('icontent_grades', $data);
+    	$this->set_mapping('icontent_grade', $oldid, $newitemid);
     }
 
     /**

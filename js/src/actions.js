@@ -331,19 +331,34 @@ $(document).ready(function() {
 		var options = {};
 		$($idtogle).toggle( 'fade', options, 500 );
 		$(this).toggleClass( "closed", 500 );
-		// Add icon fa-minus or fa-plus
+		// Add icon fa-caret-down or fa-caret-right
 		if($(this).hasClass('closed')){
 			$(this).children('i').removeClass("fa-caret-down").addClass("fa-caret-right");
 		}else{
 			$(this).children('i').removeClass("fa-caret-right").addClass("fa-caret-down");
 		}
 	}
-	
+	// Read more state on
+	function onReadMoreStateOnClick(){
+		$(this).hide();
+		$('.suspension-points').hide();
+		$('.read-more-target').show('fade');
+		$('.read-more-state-off').show();
+	}
+	// Read more state off
+	function onReadMoreStateOffClick(){
+		$(this).hide();
+		$('.read-more-target').hide('fade');
+		$('.suspension-points').show();
+		$('.read-more-state-on').show();
+	}
 	// Events
 	$("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
 	$("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
 	$("#idicontentpages").on('click', '#idtitlenotes', {idtogle: '#idfulltab'}, onTogleElementClick);
 	$("#idicontentpages").on('click', '#idtitlequestionsarea', {idtogle: '#idcontentquestionsarea'}, onTogleElementClick);
+	$("#idicontentpages").on('click', '.read-more-state-on', onReadMoreStateOnClick);
+	$("#idicontentpages").on('click', '.read-more-state-off', onReadMoreStateOffClick);
 	$("#idicontentpages").on('click', '.likenote', onLikeNoteClick);
 	$("#idicontentpages").on('click', '.editnote', onEditNoteClick);
 	$("#idicontentpages").on('click', '.replynote', onReplyNoteClick);

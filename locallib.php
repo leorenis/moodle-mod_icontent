@@ -2274,25 +2274,28 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   */
  function icontent_make_cover_page($icontent, $objpage, $context){
  	$limitcharshow = 500;
+ 	$displaynone = false;
  	$strcontent = strip_tags($objpage->pageicontent);
  	$tchars = strlen($strcontent);
  	if($tchars > $limitcharshow){
- 		$chars = html_writer::empty_tag('input', array('type'=>'checkbox', 'class'=>'read-more-state', 'id'=>'post-1'));
- 		$chars .= html_writer::start_tag('p', array('class'=>'read-more-wrap'));
+ 		$chars = html_writer::start_tag('p', array('class'=>'read-more-wrap'));
  		$chars .= substr($strcontent, 0, $limitcharshow);
+ 		$chars .= html_writer::span('...', 'suspension-points');
  		$chars .= html_writer::span(substr($strcontent, $limitcharshow, $tchars), 'read-more-target');
  		$chars .= html_writer::end_tag('p');
- 		$chars .= html_writer::label('', 'post-1', false, array('class'=> 'read-more-trigger'));
+ 		$buttons = html_writer::link(null, '<i class="fa fa-plus"></i>&nbsp;'. get_string('showmore', 'mod_icontent'), array('class'=>'btn btn-default read-more-state-on'));
+ 		$buttons .= html_writer::link(null, '<i class="fa fa-minus"></i>&nbsp;'. get_string('showless', 'mod_icontent'), array('class'=>'btn btn-default read-more-state-off'));
+ 		$chars .= html_writer::div($buttons, 'state-readmore');
  	}else{
  		$chars = html_writer::tag('p', $strcontent);
+ 		// Checks if content is empty
+ 		$nospace = str_replace('&nbsp;', '', $strcontent);
+ 		$nospace = str_replace('.', '', $nospace);
+ 		$nospace = trim($nospace);
+ 		// Add class 'hide' to hide element and builds the page
+ 		$displaynone = empty($nospace) ? 'hide' : false;
  	}
  	$script = icontent_add_script_load_tooltip();
- 	// Checks if content is empty
- 	$nospace = str_replace('&nbsp;', '', $strcontent);
- 	$nospace = str_replace('.', '', $nospace);
- 	$nospace = trim($nospace);
- 	// Add class 'hide' to hide element and builds the page
- 	$displaynone = empty($nospace) ? 'hide' : false;
  	$title = html_writer::tag('h1', $objpage->title, array('class'=>'titlecoverpage'));
  	$header = $objpage->showtitle ? html_writer::div($title, 'headercoverpage row ') : false;
  	$content = html_writer::div($chars, "contentcoverpage ". $displaynone);

@@ -2343,10 +2343,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$npage = html_writer::tag('div', get_string('page', 'icontent', $objpage->pagenum), array('class'=>'pagenum'));
 	// Progress bar
 	$progbar = icontent_make_progessbar($objpage, $icontent, $context);
-	// Form notes
-	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	// Questions
 	$qtsareas = icontent_make_questionsarea($objpage, $icontent);
+	// Form notes
+	$notesarea = icontent_make_notesarea($objpage, $icontent);
 	// Control button
 	$objpage->previous = icontent_get_prev_pagenum($objpage);
 	$objpage->next = icontent_get_next_pagenum($objpage);

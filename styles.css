@@ -78,10 +78,14 @@
 }
 
 .path-mod-icontent .icontent-page .fulltextpage{
-	letter-spacing: 0.1px;
-  line-height: 1.66em;
-  padding: 10px 15px;
-  word-spacing: 0.3px;
+	font-size: 16px;
+    letter-spacing: 0.1px;
+    line-height: 1.8em;
+    word-spacing: 0.3px;
+    padding: 15px;
+}
+.path-mod-icontent .icontent-page .fulltextpage ul li{
+	line-height: 1.8em;
 }
 /*Hightcontrast */
 .path-mod-icontent .icontent-page .highcontrast h1,

@@ -169,6 +169,7 @@
 	left: 50%;
 	margin-top: 25%;
 	position: absolute;
+	margin-left: -35px;
 }
 /** BOOTSTRAP IMGs*/
 .path-mod-icontent .img-thumbnail {

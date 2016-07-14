@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Constantes
+ * Constants
  */
 define('ICONTENT_PAGE_MIN_HEIGHT', 500);
 define('ICONTENT_MAX_PER_PAGE', 1000);

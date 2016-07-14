@@ -163,20 +163,12 @@
 	margin-right: 10px;
 }
 .path-mod-icontent .icontent-page .fulltextpage .loading{
-	margin-left: 27%;
-  margin-top: 25%;
-  position: absolute;
-}
-/* Resolution < 990*/
-@media (max-width: 990px) {
-	.path-mod-icontent .icontent-page .fulltextpage .loading{
-		margin-left: 0%;
-	    margin-top: 0%;
-	    position: absolute;
-	}
+  	position: relative;
 }
 .path-mod-icontent .icontent-page .fulltextpage .loading .img-loading{
-	
+	left: 50%;
+	margin-top: 25%;
+	position: absolute;	
 }
 /** BOOTSTRAP IMGs*/
 .path-mod-icontent .img-thumbnail {

@@ -53,11 +53,13 @@ require_login($course, true, $cm);
 $return = false;
 switch ($action) {
 	case 'loadpage':
+		require_capability('mod/icontent:view', $context);
 		$pagenum = required_param('pagenum', PARAM_INT);
 		$return = icontent_ajax_getpage($pagenum, $icontent, $context);
 		break;
 	// Save and return records table {pages_notes}
 	case 'savereturnpagenotes':
+		require_capability('mod/icontent:viewnotes', $context);
 		$pageid = required_param('pageid', PARAM_INT);
 		$note = new stdClass;
 		$note->comment 		= required_param('comment', PARAM_CLEANHTML);
@@ -71,6 +73,7 @@ switch ($action) {
 		break;
 		
 	case 'likenote':
+		require_capability('mod/icontent:likenotes', $context);
 		$notelike = new stdClass;
 		$notelike->pagenoteid 	= required_param('pagenoteid', PARAM_INT);
 		$notelike->cmid 		= required_param('id', PARAM_INT);
@@ -79,6 +82,7 @@ switch ($action) {
 		break;
 		
 	case 'editnote':
+		require_capability('mod/icontent:editnotes', $context);
 		$pagenote = new stdClass;
 		$pagenote->id 		= required_param('pagenoteid', PARAM_INT);
 		$pagenote->cmid 	= required_param('id', PARAM_INT);
@@ -88,6 +92,7 @@ switch ($action) {
 	break;
 	
 	case 'replynote':
+		require_capability('mod/icontent:replynotes', $context);
 		$pagenote = new stdClass;
 		$pagenote->parent	= required_param('parent', PARAM_INT);
 		$pagenote->cmid 	= required_param('id', PARAM_INT);
@@ -97,6 +102,7 @@ switch ($action) {
 		break;
 		
 	case 'saveattempt':
+		require_capability('mod/icontent:view', $context);
 		$formdata = required_param('formdata', PARAM_RAW);
 		$return = icontent_ajax_saveattempt($formdata, $cm, $icontent);
 		break;

@@ -49,10 +49,8 @@ if ($id) {
 require_sesskey();
 $context = context_module::instance($cm->id);
 require_login($course, true, $cm);
-$allowedit  = has_capability('mod/icontent:edit', $context);
-
+// Check actions
 $return = false;
-
 switch ($action) {
 	case 'loadpage':
 		$pagenum = required_param('pagenum', PARAM_INT);

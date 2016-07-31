@@ -1,5 +1,5 @@
 # Moodle iContent 1.0
-[![License](https://poser.pugx.org/leaphly/cart-bundle/license.svg)](http://opensource.org/licenses/MIT)
+[![License](https://poser.pugx.org/covex-nn/moodle/license)](https://packagist.org/packages/covex-nn/moodle)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
 

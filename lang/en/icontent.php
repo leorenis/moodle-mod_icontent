@@ -253,4 +253,4 @@ $string['icontent:editnotes'] = 'Edit note';
 $string['icontent:removenotes'] = 'Remove notes';
 $string['icontent:replynotes'] = 'Reply note';
 $string['icontent:newquestion'] = 'Add a new question';
-$string['icontent:answerquestionstryagain'] = 'Permitir respostas ilimitadas às questões das páginas';
+$string['icontent:answerquestionstryagain'] = 'Allow unlimited answers to the questions on pages';

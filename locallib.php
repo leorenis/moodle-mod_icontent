@@ -161,6 +161,7 @@ function icontent_add_script_load_tooltip(){
  * 
  * @param object $icontent
  * @param object $page
+ * @param object $context
  * @return pagestyle;
  */
 function icontent_get_page_style($icontent, $page, $context){
@@ -213,7 +214,8 @@ function icontent_get_bgimage($context){
 /**
  * Get background image of pages of interactive content plugin <iContent>.
  * 
- * @param object $context 
+ * @param object $context
+ * @param object $page
  * @return string $fullpath
  */
 function icontent_get_page_bgimage($context, $page){
@@ -270,7 +272,7 @@ function icontent_preload_pages($icontent){
  * Returns boolean true or false
  *
  * @param  int $pageid
- * @param  int $noteid
+ * @param  int $pagenoteid
  * @return boolean true or false
  */
 function icontent_remove_notes($pageid, $pagenoteid = null){
@@ -303,7 +305,7 @@ function icontent_remove_notes($pageid, $pagenoteid = null){
  *
  * Returns boolean true or false
  *
- * @param  int $noteid
+ * @param  int $pagenoteid
  * @return boolean true or false
  */
 function icontent_remove_note_likes($pagenoteid){
@@ -371,6 +373,7 @@ function icontent_update_question_attempts($attempt){
  * Returns buttons related pages
  *
  * @param  object $pages
+ * @param  object $cmid
  * @param  int $startwithpage
  * @return string with $pgbuttons
  */
@@ -406,7 +409,10 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
  *
  * Returns buttons previous and next
  *
+ * @param  object $pages
+ * @param  int $cmid
  * @param  int $startwithpage
+ * @param  string $attrid
  * @return string with $controlbuttons
  */
 function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $attrid = 'fgroup_id_buttonar'){
@@ -556,7 +562,7 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
  *
  * @param  object $icontent
  * @param  int $cmid
- * @param  object $grade
+ * @param  object $userid
  * @return boolean $return
  */
 function icontent_set_grade_item(stdClass $icontent, $cmid, $userid){
@@ -598,6 +604,7 @@ function icontent_set_grade_item(stdClass $icontent, $cmid, $userid){
  * @param  int $featured
  * @param  int $doubttutor
  * @param  int $likes
+ * @param  string $tab
  * @return object $notes, otherwhise false.
  */
 function icontent_count_notes_users_instance($cmid, $private = null, $featured = null, $doubttutor = null, $likes = null, $tab = null){
@@ -679,6 +686,7 @@ function icontent_count_attempts_users($cmid){
  * Returns int of total attempts users
  *
  * @param  object $cmid
+ * @param  null $status
  * @return int of $tattemptsusers
  */
 function icontent_count_attempts_users_with_open_answers($cmid, $status = null){
@@ -937,6 +945,7 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
  *
  * @param  int $cmid
  * @param  string $sort
+ * @param  string $status
  * @param  int $page
  * @param  int $perpage
  * @return object $attemptusers, otherwhise false.
@@ -1057,6 +1066,7 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid){
  *
  * @param  int $pageid
  * @param  int $cmid
+ * @param  string $status
  * @return object $qopenanswers
  */
 function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status = null){
@@ -1125,7 +1135,6 @@ function icontent_get_array_options_answerid($answers){
  *
  * @param  int $pageid
  * @param  int $cmid
- * @param  string $userid
  * @return object $pagedisplayed
  */
 function icontent_add_pagedisplayed($pageid, $cmid){
@@ -1146,6 +1155,7 @@ function icontent_add_pagedisplayed($pageid, $cmid){
  *
  * Returns true or false
  *
+ * @param  array $questions
  * @param  int $pageid
  * @param  int $cmid
  * @return boolean true or false
@@ -1322,7 +1332,7 @@ function icontent_get_toggle_area_object($expandarea){
  *
  * Returns count
  *
- * @param  int $pagenotelike
+ * @param  int $pagenoteid
  * @return int count
  */
  function icontent_count_pagenotelike($pagenoteid){
@@ -1365,7 +1375,7 @@ function icontent_get_toggle_area_object($expandarea){
  *
  * Returns object $user
  *
- * @param  int $pageid
+ * @param  int $userid
  * @return object $user
  */
  function icontent_get_user_by_id($userid){
@@ -1492,8 +1502,8 @@ function icontent_check_user_isowner_note($pagenote){
 }
 /**
  * Check if user can remove note
- * @param string $context
  * @param object $pagenote
+ * @param string $context
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_user_can_remove_note($pagenote, $context){
@@ -1509,8 +1519,8 @@ function icontent_user_can_remove_note($pagenote, $context){
 }
 /**
  * Check if user can edit note
- * @param string $context
  * @param object $pagenote
+ * @param string $context
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_user_can_edit_note($pagenote, $context){
@@ -1526,8 +1536,8 @@ function icontent_user_can_edit_note($pagenote, $context){
 }
 /**
  * Check if user can reply note
- * @param string $context
  * @param object $pagenote
+ * @param string $context
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_user_can_reply_note($pagenote, $context){
@@ -1544,8 +1554,8 @@ function icontent_user_can_reply_note($pagenote, $context){
 }
 /**
  * Check if user can like or do not like the note
- * @param string $context
  * @param object $pagenote
+ * @param string $context
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_user_can_likeunlike_note($pagenote, $context){
@@ -1589,7 +1599,8 @@ function icontent_user_can_view_checkbox_field_doubttutor($context){
 }
 /**
  * Check if user can remove attempts answers for try again
- * @param string $context
+ * @param int $pageid
+ * @param int $cmid
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
@@ -1617,6 +1628,8 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
   * Returns button
   *
   * @param  object $button
+  * @param  int $tpages
+  * @param  string $icon
   * @return string with $btnprevious
   */
  function icontent_make_button_previous_page($button, $tpages, $icon = null){
@@ -1636,6 +1649,8 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
   * Returns button
   *
   * @param  object $button
+  * @param  int $tpages
+  * @param  string $icon
   * @return string with $btnnext
   */
  function icontent_make_button_next_page($button, $tpages, $icon = null){
@@ -1978,7 +1993,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * This is the function responsible for creating checkbox field featured.
   *
   * Returns span with checkbox featured
-  *
+  * 
+  * @param string $page
   * @return string $spancheckbox
   */
  function icontent_make_span_checkbox_field_featured($page){
@@ -1995,7 +2011,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * This is the function responsible for creating checkbox field doubttutor.
   *
   * Returns span with checkbox doubttutor
-  *
+  * @param object $page
   * @return string $spancheckbox
   */
  function icontent_make_span_checkbox_field_doubttutor($page){
@@ -2110,7 +2126,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * Returns link
   *
   * @param  object $pagenote
-  * @param  object $icontent
+  * @param  object $context
   * @return string $link
   */
  function icontent_make_link_edit_note($pagenote, $context){
@@ -2125,7 +2141,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   * Returns link
   *
   * @param  object $pagenote
-  * @param  object $icontent
+  * @param  object $context
   * @return string $link
   */
  function icontent_make_link_reply_note($pagenote, $context){
@@ -2139,8 +2155,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  *
  * Returns links
  * 
- * @param  object $page
  * @param  object $pagenote
+ * @param  object $context
  * @return string $likeunlike
  */
  function icontent_make_likeunlike($pagenote, $context){
@@ -2312,7 +2328,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  * 
  * Returns an object with the page content.
  *
- * @param  int 		$pagenum || $startpage
+ * @param  int 		$pagenum or $startpage
  * @param  object 	$icontent
  * @param  object 	$context
  * @return object	$fullpage

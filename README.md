@@ -1,5 +1,5 @@
 # Moodle iContent 1.0
-[![License](https://poser.pugx.org/covex-nn/moodle/license)](https://packagist.org/packages/covex-nn/moodle)
+[![License](https://poser.pugx.org/covex-nn/moodle/license)](http://www.gnu.org/copyleft/gpl.html)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
 
@@ -23,5 +23,5 @@ O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, 
 * Moodle >= 2.6.5+ (Build: 20140918)
 
 ## License / Licença
-* The iContent uses the MIT license, to learn more read the link: [MIT license](http://opensource.org/licenses/MIT).
-* O iContent utiliza a licença MIT, para saber mais leia no link: [MIT license](http://opensource.org/licenses/MIT).
+* The iContent uses the GPL-3.0+ license, to learn more read the link: [GPL license](http://www.gnu.org/copyleft/gpl.html).
+* O iContent utiliza a licença GPL-3.0+, para saber mais leia no link: [GPL license](http://www.gnu.org/copyleft/gpl.html).

@@ -496,7 +496,6 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
  * Delete files 
  *
  * @param 	stdClass $icontent 
- * TODO:	IMPORTANTE: IMPLEMENTAR Metodo para remover arquivos quando a instancia do plugin form removida.
  */
 function icontent_delete_files(stdClass $icontent){
 	
@@ -572,6 +571,7 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, n
  * Retrieve the content page according to the parameters pagenum and icontentid.
  * @param int $pagenum
  * @param object $icontent
+ * @param object $context
  * @return array $pageicontent
  */
 function icontent_ajax_getpage($pagenum, $icontent, $context){
@@ -584,6 +584,7 @@ function icontent_ajax_getpage($pagenum, $icontent, $context){
  * Save a new record in {icontent_pages_notes} and returns a list page notes.
  * @param int $pageid
  * @param object $note
+ * @param object $icontent
  * @return array $pagenotes
  */
 function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
@@ -622,6 +623,7 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
 /**
  * Runs the like or unlike in table {icontent_pages_notes_like}
  * @param object $notelike
+ * @param object $icontent
  * @return array $result
  */
 function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
@@ -663,6 +665,7 @@ function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
 /**
  * Runs update in note at table {icontent_pages_notes_like}
  * @param object $pagenote
+ * @param object $icontent
  * @return string $pagenote
  */
 function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent){
@@ -722,6 +725,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
  * Saves attempts to answers to the questions of the current page in table {icontent_question_attempt}
  * @param string $formdata
  * @param object $cm
+ * @param object $icontent
  * @return string $response
  */
 function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){

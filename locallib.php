@@ -2269,8 +2269,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
   *
   * Returns a string with the cover page.
   *
-  * @param  object 	$objpage
-  * @return string	$coverpage
+  * @param object $icontent
+  * @param object $objpage
+  * @param object $context
+  * @return string $coverpage
   */
  function icontent_make_cover_page($icontent, $objpage, $context){
  	$limitcharshow = 500;

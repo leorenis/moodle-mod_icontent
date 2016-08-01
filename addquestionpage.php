@@ -33,7 +33,7 @@ require_once(dirname(__FILE__).'/lib.php');
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it should be named as the first character of the module.
-$pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID
+$pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID.
 $action = optional_param('action', '', PARAM_BOOL);
 
 $sort = optional_param('sort', '', PARAM_RAW);
@@ -43,18 +43,18 @@ $perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
 if ($id) {
     $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
     $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $icontent  	= $DB->get_record('icontent', array('id' => $cm->instance), '*', MUST_EXIST);
+    $icontent   = $DB->get_record('icontent', array('id' => $cm->instance), '*', MUST_EXIST);
 } else if ($n) {
-    $icontent  	= $DB->get_record('icontent', array('id' => $n), '*', MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $icontent->course), '*', MUST_EXIST);
-    $cm         = get_coursemodule_from_instance('icontent', $icontent->id, $course->id, false, MUST_EXIST);
+    $icontent  = $DB->get_record('icontent', array('id' => $n), '*', MUST_EXIST);
+    $course    = $DB->get_record('course', array('id' => $icontent->course), '*', MUST_EXIST);
+    $cm        = get_coursemodule_from_instance('icontent', $icontent->id, $course->id, false, MUST_EXIST);
 } else {
     print_error('You must specify a course_module ID or an instance ID');
 }
 if(!$pageid) {
     print_error('You must specify a page ID');
 }
-// Require login
+// Require login.
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 $coursecontext = $context->get_course_context(true)->id;
@@ -74,42 +74,42 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
 if ($action){
-	// Receives values
-	$questions = optional_param_array('question', array(), PARAM_RAW);
-	// Save values
-	if(icontent_add_questionpage($questions, $pageid, $cm->id)){
- 		$urlredirect = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
-		redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
-	}
+    // Receives values
+    $questions = optional_param_array('question', array(), PARAM_RAW);
+    // Save values
+    if(icontent_add_questionpage($questions, $pageid, $cm->id)){
+        $urlredirect = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
+        redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
+    }
 }
-// Get info
+// Get info.
 $sort = icontent_check_value_sort($sort);
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
-// Make table questions
+// Make table questions.
 $table = new html_table();
 $table->id = "categoryquestions";
 $table->attributes = array('class'=>'icontentquestions');
 $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
 $table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
 if($questions) foreach ($questions as $question){
-	$checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
-	$disabled = $answerscurrentpage ? array('disabled'=>'disabled') : array();
-	$checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked + $disabled);
-	$qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
-	$qname = html_writer::label($question->name, 'idcheck'.$question->id);
-	$createdby = icontent_get_user_by_id($question->createdby);
-	$modifiedby = icontent_get_user_by_id($question->modifiedby);
-	$table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
+    $checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
+    $disabled = $answerscurrentpage ? array('disabled'=>'disabled') : array();
+    $checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked + $disabled);
+    $qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
+    $qname = html_writer::label($question->name, 'idcheck'.$question->id);
+    $createdby = icontent_get_user_by_id($question->createdby);
+    $modifiedby = icontent_get_user_by_id($question->modifiedby);
+    $table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
 }
 else {
-	echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
-	echo $OUTPUT->footer();
-	exit;
+    echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
+    echo $OUTPUT->footer();
+    exit;
 }
-// Show elements HTML
+// Show elements HTML.
 echo html_writer::div(get_string('infomaxquestionperpage', 'mod_icontent'), 'alert alert-info');
 echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
 echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
@@ -121,6 +121,5 @@ echo html_writer::end_div();
 echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')) + $disabled);
 echo html_writer::end_tag('form');
 
-//$DB->set_debug(true);
 // Finish the page.
 echo $OUTPUT->footer();

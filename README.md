@@ -1,17 +1,17 @@
-# Moodle iContent 1.0.1
+# Moodle iContent 1.0.2
 [![License](https://poser.pugx.org/covex-nn/moodle/license)](http://www.gnu.org/copyleft/gpl.html)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
 
 ## About
-The plugin for Moodle interactive content, was designed so that from it, conteudista, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.
+The plugin for Moodle (Content pages), was designed so that from it, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.
 
 This tool will be responsible for signaling the good practice of adding text, images, multimedia, among others. In it, the content will be distributed in pages, so that the monitoring of the content does not become something exhausting and tiring. The plugin also has a bookmark, so that the participant can be located, based on last logged furthermore allow the inclusion of public or private notes, which the participant can provide feedback on the content studied on the page and enjoy and reply comments from other colleagues.
 
 The plugin also allows the launch of questions about the content addressed, this provides better interaction between the participant and the virtual learning platform, and the feature may become an evaluation item or launch fractional notes on the items available in the course as defined in the plan of action. The described extension is fully responsive and can be accessed by any device.
 
 ## Sobre
-O módulo de conteúdo interativo está sendo desenvolvido para que a partir dele, conteudistas, tutores, pedagogos e técnicos possam acrescentar conteúdo a um determinado curso, seguindo padrões de usabilidade e acessibilidade.
+O módulo de conteúdo interativo (Content pages) está sendo desenvolvido para que a partir dele, conteudistas, tutores, pedagogos e técnicos possam acrescentar conteúdo a um determinado curso, seguindo padrões de usabilidade e acessibilidade.
 Essa ferramenta será responsável por promover boas práticas na inserção de conteúdos no formato texto, imagens, multimídias, entre outros.
 
 O conteúdo será distribuído em paginas, garantindo uma leitura relevante, produtiva e eficaz. Oplugin também conta com um marcador de páginas, para que o participante possa se situar, baseando-se no seu último acesso. Além disso, permite a inserção de anotações públicas ou privadas em cada página, com isso o participante poderá comentar, curtir e responder comentarios de outros colegas ou até mesmo os seus.

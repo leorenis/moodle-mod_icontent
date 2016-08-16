@@ -27,17 +27,17 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'Interactive Content';
-$string['modulenameplural'] = 'Interactive Contents';
-$string['modulename_help'] = 'The plugin for Moodle interactive content, was designed so that from it, conteudista, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.
+$string['modulename'] = 'Content Pages';
+$string['modulenameplural'] = 'Content Pages';
+$string['modulename_help'] = 'The plugin for Moodle (Content Pages), was designed so that from it, conteudista, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.
 This tool will be responsible for signaling the good practice of adding text, images, multimedia, among others. In it, the content will be distributed in pages, so that the monitoring of the content does not become something exhausting and tiring. The plugin also has a bookmark, so that the participant can be located, based on last logged furthermore allow the inclusion of public or private notes, which the participant can provide feedback on the content studied on the page and enjoy and reply comments from other colleagues.
 The plugin also allows the launch of questions about the content addressed, this provides better interaction between the participant and the virtual learning platform, and the feature may become an evaluation item or launch fractional notes on the items available in the course as defined in the plan of action. The described extension is fully responsive and can be accessed by any device.';
 $string['icontentfieldset'] = 'Custom example fieldset';
-$string['icontentname'] = 'Interactive Content name';
+$string['icontentname'] = 'Content Pages name';
 $string['icontentname_help'] = 'This is the icontent of the help tooltip associated with the icontentname field. Markdown syntax is supported.';
-$string['icontent'] = 'Interactive Content';
-$string['pluginadministration'] = 'Interactive Content Administration';
-$string['pluginname'] = 'Interactive Content';
+$string['icontent'] = 'Content Pages';
+$string['pluginadministration'] = 'Content Pages Administration';
+$string['pluginname'] = 'Content Pages';
 $string['maximumdigits'] = 'Maximum of {$a} digits';
 $string['grade'] = 'Grade';
 $string['gradingscale'] = 'Grades (0 - {$a})';
@@ -83,7 +83,7 @@ $string['usemaxgrade'] = 'Maximum points';
 $string['usemaxgrade_help'] = 'If the appeal is an evaluation item, you can then inform the highest grade available in this activity.';
 $string['summary'] = 'Summary';
 $string['summaryattempts'] = 'Summary attempts';
-$string['icontentmenu'] = 'Menu of iteractive content';
+$string['icontentmenu'] = 'Content pages menu';
 $string['save'] = 'Save';
 $string['state'] = 'State';
 $string['strstate'] = 'Finished <br /> Submitted {$a}.';
@@ -239,7 +239,7 @@ $string['eventquestionattemptdeleted'] = 'Question attempt deleted';
 $string['eventquestionpageviewed'] = 'View page addquestionpage';
 $string['eventquestiontoevaluatecreated'] = 'Evaluation manual questions';
 
-$string['icontent:addinstance'] = 'Add a new interactive content';
+$string['icontent:addinstance'] = 'Add a new content pages';
 $string['icontent:grade'] = 'View grade report';
 $string['icontent:manage'] = 'Manage interactive icontent';
 $string['icontent:view'] = 'View interactive icontent';

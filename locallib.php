@@ -521,7 +521,6 @@ function icontent_get_next_pagenum(stdClass $objpage){
  */
 function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-	$limitsql = '';
 	$sort = 'q.name '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
@@ -535,7 +534,6 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 		} else if ($perpage < 1) {
 			$perpage = ICONTENT_PER_PAGE;
 		}
-		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
 	$sql = "SELECT q.id, q.qtype, q.name, q.timecreated, q.timemodified, q.createdby, q.modifiedby, c.contextid
 			FROM {question} q 
@@ -543,17 +541,9 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 			ON c.id = q.category 
 			WHERE c.contextid = ?
 			AND q.qtype IN (?,?,?,?)
-			ORDER BY {$sort} {$limitsql}";
-	return $DB->get_records_sql(
-				$sql,
-				array(
-					$coursecontext,
-					ICONTENT_QTYPE_ESSAY,
-					ICONTENT_QTYPE_MATCH,
-					ICONTENT_QTYPE_MULTICHOICE,
-					ICONTENT_QTYPE_TRUEFALSE
-				)
-			);
+			ORDER BY {$sort}";
+	$params = array($coursecontext, ICONTENT_QTYPE_ESSAY, ICONTENT_QTYPE_MATCH, ICONTENT_QTYPE_MULTICHOICE, ICONTENT_QTYPE_TRUEFALSE);
+	return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
 }
 /**
  * Set updates for grades in table {grade_grades}. Needed by {@link grade_update_mod_grades()}.
@@ -825,7 +815,6 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
  */
 function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $private = null, $featured = null, $doubttutor = null, $likes = null, $tab = null){
 	global $DB, $USER;
-	$limitsql = '';
 	$sortparams = 'pn.path '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
@@ -872,7 +861,6 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
 		} else if ($perpage < 1) {
 			$perpage = ICONTENT_PER_PAGE;
 		}
-		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
 	$ufields = user_picture::fields('u', null, 'userid');
 	$sql = "SELECT pn.id,
@@ -884,8 +872,8 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
 			{$joinfilter}
 			WHERE  pn.cmid = ?
 			{$andfilter}
-			ORDER BY {$sortparams} {$limitsql};";
-	return $DB->get_records_sql($sql, $arrayfilter);
+			ORDER BY {$sortparams}";
+	return $DB->get_records_sql($sql, $arrayfilter, $page * $perpage, $perpage);
 }
 /**
  * Get object with attempts of users by course modules ID <iContent>
@@ -900,7 +888,6 @@ function icontent_get_notes_users_instance($cmid, $sort, $page = 0, $perpage = I
  */
 function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-	$limitsql = '';
 	$sortparams = 'u.firstname '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
@@ -914,7 +901,6 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
 		} else if ($perpage < 1) {
 			$perpage = ICONTENT_PER_PAGE;
 		}
-		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
 	$ufields = user_picture::fields('u');
 	$sql = "SELECT DISTINCT {$ufields},
@@ -935,8 +921,9 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
 			       INNER JOIN {icontent_question_attempts} qa 
 			               ON u.id = qa.userid 
 			WHERE  qa.cmid = ?
-			ORDER BY {$sortparams} {$limitsql};";
-	return $DB->get_records_sql($sql, array($cmid, $cmid, $cmid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, $cmid)); // Field CMID used four times. Check (?).
+			ORDER BY {$sortparams}";
+	$params = array($cmid, $cmid, $cmid, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, $cmid); // Field CMID used four times. Check (?).
+	return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
 }
 /**
  * Get object with attempts of users with answers not evaluated by course modules ID <iContent>
@@ -952,7 +939,6 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
  */
 function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = null, $page = 0, $perpage = ICONTENT_PER_PAGE){
 	global $DB;
-	$limitsql = '';
 	$sortparams = 'u.firstname '.$sort;
 	$page = (int) $page;
 	$perpage = (int) $perpage;
@@ -970,7 +956,6 @@ function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = n
 		} else if ($perpage < 1) {
 			$perpage = ICONTENT_PER_PAGE;
 		}
-		$limitsql = " LIMIT $perpage" . " OFFSET " . $page * $perpage;
 	}
 	$ufields = user_picture::fields('u');
 	$sql = "SELECT DISTINCT {$ufields},
@@ -984,8 +969,9 @@ function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = n
 			               ON u.id = qa.userid 
 			WHERE  qa.cmid = ?
 			AND    qa.rightanswer IN (?)
-			ORDER BY {$sortparams} {$limitsql};";
-	return $DB->get_records_sql($sql, array($cmid, $status, $cmid, $status)); // Field CMID used two times. Check (?).
+			ORDER BY {$sortparams}";
+	$params = array($cmid, $status, $cmid, $status); // Field CMID used two times. Check (?).
+	return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
 }
 /**
  * Get object with attempt summary of user the current page.

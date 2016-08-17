@@ -1209,7 +1209,7 @@ function icontent_get_pagequestions($pageid, $cmid){
 	global $DB;
 	$sql = 'SELECT pq.id AS qpid,
 			       q.id  AS qid,
-			       q.NAME,
+			       q.name,
 			       q.questiontext,
 			       q.questiontextformat,
 			       q.qtype

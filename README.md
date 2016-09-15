@@ -1,4 +1,4 @@
-# Moodle iContent 1.0.3
+# Moodle iContent 1.0.4
 [![License](https://poser.pugx.org/covex-nn/moodle/license)](http://www.gnu.org/copyleft/gpl.html)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).

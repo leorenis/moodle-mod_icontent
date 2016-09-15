@@ -63,7 +63,7 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addHelpButton('name', 'icontentname', 'icontent');
 
         // Adding the standard "intro" and "introformat" fields.
-        $this->add_intro_editor();
+        $this->standard_intro_elements();
 		
 		$mform->addElement('text', 'copyright', get_string('copyright', 'icontent'), array('class'=>'input-xxlarge'));
         $mform->setType('copyright', PARAM_RAW);

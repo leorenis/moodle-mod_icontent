@@ -31,7 +31,9 @@ $(document).ready(function(){
 			.css('opacity', '0.5');
 		// Active link or button the atual page
 		onBtnActiveEnableDisableClick(data.pagenum);
-		
+
+        history.pushState(null, null, '#tab' + $(this).attr('data-pagenum'));
+
 		data = "&" + $.param(data);
 	  	$.ajax({
 	    	type: "POST",
@@ -51,7 +53,7 @@ $(document).ready(function(){
 	    	}
 	    }); // End AJAX
 	} // End onLoad..
-	
+
 	// Checks if the cookie is set.
 	function onChecksHighcontrast(){
 	    if ($.cookie('highcontrast') == "yes") {
@@ -80,11 +82,15 @@ $(document).ready(function(){
 		var pagenum = pagenum;
 		$(".load-page").removeClass("active");
 		$(".btn-icontent-page").removeAttr("disabled");
+        $(".btn-icontent-page").css("font-weight", '' );
+        $(".btn-icontent-page").css("color", '' );
 		$(".page"+ pagenum).addClass("active");
-		$(".page"+ pagenum).prop("disabled", true );
+        $(".page"+ pagenum).prop("disabled", true );
+        $(".page"+ pagenum).css("font-weight", 'bold' );
+		$(".page"+ pagenum).css("color", '#339900' );
 	}
 	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
   	$(".load-page").click(onLoadPageClick);
-  	
+
 }); // End ready

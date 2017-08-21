@@ -331,7 +331,7 @@ function icontent_scale_used_anywhere($scaleid) {
 function icontent_grade_item_update(stdClass $icontent, $reset=false) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
-	
+
     $item = array();
     $item['itemname'] = clean_param($icontent->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
@@ -422,7 +422,7 @@ function icontent_get_file_areas($course, $cm, $context) {
  * @return file_info instance or null if not found
  */
 function icontent_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
-   
+
     return null;
 }
 
@@ -448,14 +448,14 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     }
 
     require_course_login($course, true, $cm);
-	
+
 	$itemid = 0;
 	switch ($filearea) {
 		case 'page':
 		case 'bgpage':
 			$pageid = (int) array_shift($args);
 			$itemid = $pageid;
-			
+
 			if (!$page = $DB->get_record('icontent_pages', array('id'=>$pageid))) {
 		        return false;
 		    }
@@ -485,7 +485,7 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     if ($lifetime > 60*10) {
         $lifetime = 60*10;
     }
-	
+
 	send_stored_file($file, 0, 0, true, $options); // download MUST be forced - security!
     // finally send the file
 
@@ -493,15 +493,15 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
 }
 
 /**
- * Delete files 
+ * Delete files
  *
- * @param 	stdClass $icontent 
+ * @param 	stdClass $icontent
  */
 function icontent_delete_files(stdClass $icontent){
-	
+
 	$fs = get_file_storage();
 	$files = $fs->get_area_files($context->id, 'mod_icontent', 'filearea', 'itemid', 'sortorder DESC, id ASC', false); // TODO: this is not very efficient!!
-	
+
 }
 
 /* Navigation API */
@@ -589,22 +589,22 @@ function icontent_ajax_getpage($pagenum, $icontent, $context){
  */
 function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
 	global $USER, $DB;
-	
+
 	$note->pageid = $pageid;
 	$note->userid = $USER->id;
 	$note->timecreated = time();
 	$note->parent = 0;
-	
+
 	// Insert note
 	$insert = $DB->insert_record('icontent_pages_notes', $note);
-	
+
 	$return = false;
 	if($insert){
 		$note->id = $insert;
 		$note->path = "/".$insert;
 		$note->timemodified = time();
 		$DB->update_record('icontent_pages_notes', $note);
-		
+
 		// Get notes this page
 		require_once(dirname(__FILE__).'/locallib.php');
 		$pagenotes = icontent_get_pagenotes($note->pageid, $note->cmid, $note->tab);
@@ -616,7 +616,7 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
 		// retur object list
 		$return = $list;
 	}
-	
+
 	return $return;
 }
 
@@ -670,10 +670,10 @@ function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
  */
 function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent){
 	global $DB;
-	
+
 	$pagenote->timemodified = time();
 	$update = $DB->update_record('icontent_pages_notes', $pagenote);
-	
+
 	if($update){
 		\mod_icontent\event\note_updated::create_from_note($icontent, context_module::instance($pagenote->cmid), $pagenote)->trigger();
 		return $pagenote;
@@ -688,10 +688,10 @@ function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent){
  */
 function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 	global $DB, $USER;
-	
+
 	// Recovers pagenote father
 	$objparent = $DB->get_record('icontent_pages_notes', array('id'=>$pagenote->parent), 'pageid, tab, path, private, featured, doubttutor');
-	
+
 	$pagenote->userid = $USER->id;
 	$pagenote->timecreated = time();
 	$pagenote->pageid = $objparent->pageid;
@@ -699,10 +699,10 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 	$pagenote->private = $objparent->private;
 	$pagenote->featured = $objparent->featured;
 	$pagenote->doubttutor = $objparent->doubttutor;
-	
+
 	// Insert pagenote
 	$insert = $DB->insert_record('icontent_pages_notes', $pagenote);
-	
+
 	$return = false;
 	if($insert){
 		$pagenote->id = $insert;
@@ -712,7 +712,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
 		\mod_icontent\event\note_replied::create_from_note($icontent, context_module::instance($pagenote->cmid), $pagenote)->trigger();
 		// Get notes reply
 		require_once(dirname(__FILE__).'/locallib.php');
-		
+
 		$return = new stdClass;
 		$return->reply = icontent_make_pagenotereply($pagenote, $icontent);
 		$return->tab = $pagenote->tab;
@@ -766,6 +766,57 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
 	// Create object summary attempt
 	$summary = new stdClass();
 	$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
-	
+
 	return $summary;
+}
+
+function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
+    global $USER, $DB;
+    require_once(dirname(__FILE__).'/locallib.php');
+    // Get form data
+    parse_str($formdata, $data);
+    $pageid = $data['pageid'];
+    // Destroy unused fields
+    unset($data['id']);
+    unset($data['pageid']);
+    unset($data['sesskey']);
+    // Create array object for attempt
+    $i = 0;
+    $records = array();
+    foreach ($data as $key => $value){
+        list($qpage, $question, $qtype) = explode('_', $key);
+        list($strvar, $qpid) = explode('-', $qpage);
+        list($strvar, $qid) = explode('-', $question);
+        //$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
+        $records = new stdClass();
+        $records->pagesquestionsid = (int) $qpid;
+        $records->questionid = (int) $qid;
+        $records->userid = (int) $USER->id;
+        $records->cmid = (int) $cm->id;
+        $records->answertext = $value;
+        $records->timecreated = time();
+
+        $rec = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => (int) $qpid, 'questionid' => (int) $qid, 'userid' => (int) $USER->id, 'cmid' => (int) $cm->id]);
+        if($rec)
+        {
+            $records->id = $rec->id;
+            $DB->update_record('icontent_question_drafts', $records);
+        }
+        else
+        {
+            $DB->insert_records('icontent_question_drafts', [$records], false);
+        }
+        $i ++;
+    }
+    // Save records
+
+    // Update grade
+    //icontent_set_grade_item($icontent, $cm->id, $USER->id);
+    // Event log
+    //\mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
+    // Create object summary attempt
+    //$summary = new stdClass();
+    //$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
+
+    return '';
 }

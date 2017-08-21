@@ -22,7 +22,7 @@
         <FIELD NAME="evaluative" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Says the iContent will be evaluative." />
         <FIELD NAME="maxpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
         <FIELD NAME="progressbar" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of pages viewed." />
-        <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show notes area." />       
+        <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show notes area." />
 	  	<FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum annotation per page." />
       	<FIELD NAME="copyright" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Copyright."/>
 	  </FIELDS>
@@ -33,7 +33,7 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-	
+
 	<TABLE NAME="icontent_pages" COMMENT="Defines icontent pages">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" />
@@ -65,7 +65,7 @@
         <KEY NAME="icontentid" TYPE="foreign" FIELDS="icontentid" REFTABLE="icontent" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    
+
     <TABLE NAME="icontent_pages_notes" COMMENT="Defines icontent_pages_notes">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -90,7 +90,7 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
       </INDEXES>
     </TABLE>
-    
+
 	<TABLE NAME="icontent_pages_notes_like" COMMENT="Defines icontent_pages_notes">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -108,7 +108,7 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
       </INDEXES>
     </TABLE>
-	
+
     <TABLE NAME="icontent_pages_questions" COMMENT="Defines icontent_pages_questions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -126,7 +126,7 @@
         <KEY NAME="pageid" TYPE="foreign" FIELDS="pageid" REFTABLE="icontent_pages" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    
+
     <TABLE NAME="icontent_pages_displayed" COMMENT="Defines icontent_pages_displayed. Says if the page has been viewed.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -143,7 +143,7 @@
         <KEY NAME="pageid" TYPE="foreign" FIELDS="pageid" REFTABLE="icontent_pages" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    
+
     <TABLE NAME="icontent_question_attempts" COMMENT="Defines icontent_question_attempts">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -164,7 +164,26 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
       </INDEXES>
     </TABLE>
-    
+
+    <TABLE NAME="icontent_question_drafts" COMMENT="Defines icontent_question_drafts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="pagesquestionsid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" />
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="answertext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Texto de resposta." />
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Response submission time." />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="pagesquestionsid" TYPE="foreign" FIELDS="pagesquestionsid" REFTABLE="icontent_pages_questions" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
+      </INDEXES>
+    </TABLE>
+
     <TABLE NAME="icontent_grades" COMMENT="Defines icontent_grades">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -182,6 +201,6 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid" />
       </INDEXES>
     </TABLE>
-	
+
   </TABLES>
 </XMLDB>

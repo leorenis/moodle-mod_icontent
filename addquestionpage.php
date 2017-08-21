@@ -32,11 +32,14 @@ require_once(dirname(__FILE__).'/lib.php');
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it should be named as the first character of the module.
 $pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID.
+$category = optional_param('category', 0, PARAM_INT);
 $action = optional_param('action', '', PARAM_BOOL);
 
 $sort = optional_param('sort', '', PARAM_RAW);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
+
+$perpage = $category ? 1000 : $perpage;
 
 if ($id) {
     $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
@@ -81,9 +84,23 @@ if ($action){
     }
 }
 // Get info.
+if(isset($_GET['category']))
+{
+    unset($_GET['category']);
+}
+
+
 $sort = icontent_check_value_sort($sort);
-$questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
+$questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage, $category);
+
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
+
+$categories = icontent_get_questions_categories($coursecontext);
+$categories = [0 => ''] + $categories;
+
+
+
+
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
 // Make table questions.
@@ -92,7 +109,7 @@ $table->id = "categoryquestions";
 $table->attributes = array('class'=>'icontentquestions');
 $table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
 $table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
-if($questions) foreach ($questions as $question){
+if($questions && count($questions)) foreach ($questions as $question){
     $checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
     $disabled = $answerscurrentpage ? array('disabled'=>'disabled') : array();
     $checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked + $disabled);
@@ -103,6 +120,10 @@ if($questions) foreach ($questions as $question){
     $table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
 }
 else {
+    echo html_writer::start_div('choosecategory');
+    echo html_writer::label(get_string('selectacategory', 'question'), 'id_selectacategory');
+    echo html_writer::select($categories, 'category', $category, array(), array('class' => 'searchoptions custom-select', 'id' => 'id_selectacategory', 'onchange' => "location.href='?".http_build_query($_GET, '', '&')."&category=' + this.value"));
+    echo html_writer::end_div() . "\n";
     echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
     echo $OUTPUT->footer();
     exit;
@@ -110,6 +131,14 @@ else {
 // Show elements HTML.
 echo html_writer::div(get_string('infomaxquestionperpage', 'mod_icontent'), 'alert alert-info');
 echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
+
+
+
+echo html_writer::start_div('choosecategory');
+echo html_writer::label(get_string('selectacategory', 'question'), 'id_selectacategory');
+echo html_writer::select($categories, 'category', $category, array(), array('class' => 'searchoptions custom-select', 'id' => 'id_selectacategory', 'onchange' => "location.href='?".http_build_query($_GET, '', '&')."&category=' + this.value"));
+echo html_writer::end_div() . "\n";
+
 echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
 echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'action', 'value'=>true));
 echo html_writer::start_div('categoryquestionscontainer');

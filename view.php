@@ -76,6 +76,9 @@ if ($allowedit and !$pages) {
 $PAGE->set_url('/mod/icontent/view.php', array('id' => $cm->id));
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
+
+//$PAGE->set_pagelayout('embedded');
+
 // Get renderer
 $renderer = $PAGE->get_renderer('mod_icontent');
 // JS

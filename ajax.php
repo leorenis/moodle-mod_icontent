@@ -71,40 +71,46 @@ switch ($action) {
 		// Prepare return
 		$return = icontent_ajax_savereturnnotes($pageid, $note, $icontent);
 		break;
-		
+
 	case 'likenote':
 		require_capability('mod/icontent:likenotes', $context);
 		$notelike = new stdClass;
 		$notelike->pagenoteid 	= required_param('pagenoteid', PARAM_INT);
 		$notelike->cmid 		= required_param('id', PARAM_INT);
-		
+
 		$return = icontent_ajax_likenote($notelike, $icontent);
 		break;
-		
+
 	case 'editnote':
 		require_capability('mod/icontent:editnotes', $context);
 		$pagenote = new stdClass;
 		$pagenote->id 		= required_param('pagenoteid', PARAM_INT);
 		$pagenote->cmid 	= required_param('id', PARAM_INT);
 		$pagenote->comment 	= required_param('comment', PARAM_CLEANHTML);
-		
+
 		$return = icontent_ajax_editnote($pagenote, $icontent);
 	break;
-	
+
 	case 'replynote':
 		require_capability('mod/icontent:replynotes', $context);
 		$pagenote = new stdClass;
 		$pagenote->parent	= required_param('parent', PARAM_INT);
 		$pagenote->cmid 	= required_param('id', PARAM_INT);
 		$pagenote->comment = required_param('comment', PARAM_CLEANHTML);
-		
+
 		$return = icontent_ajax_replynote($pagenote, $icontent);
 		break;
-		
+
 	case 'saveattempt':
+        require_capability('mod/icontent:view', $context);
+        $formdata = required_param('formdata', PARAM_RAW);
+        $return = icontent_ajax_saveattempt($formdata, $cm, $icontent);
+        break;
+
+    case 'savedraft':
 		require_capability('mod/icontent:view', $context);
 		$formdata = required_param('formdata', PARAM_RAW);
-		$return = icontent_ajax_saveattempt($formdata, $cm, $icontent);
+		$return = icontent_ajax_savedraft($formdata, $cm, $icontent);
 		break;
 }
 

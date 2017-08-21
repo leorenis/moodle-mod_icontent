@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
  * TODO create renderer
  */
 class mod_icontent_renderer extends plugin_renderer_base {
-	
+
 	/**
 	 * Renders the iContent page header CSS. {@link http://fontawesome.io}
 	 *
@@ -37,7 +37,7 @@ class mod_icontent_renderer extends plugin_renderer_base {
 	public function icontent_requires_css(){
 		return $this->page->requires->css('/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css');
 	}
-	
+
 	/**
 	 * Renders the iContent page header External JS. {@link http://jqueryui.com}, {@link http://getbootstrap.com}.
 	 *
@@ -48,7 +48,7 @@ class mod_icontent_renderer extends plugin_renderer_base {
 		 $this->page->requires->js('/mod/icontent/js/jquery/jquery.cookie.min.js', true);
 		 $this->page->requires->js('/mod/icontent/js/bootstrap/bootstrap.min.js');
 	}
-	
+
 	/**
 	 * Renders the iContent page header Internal JS.
 	 *

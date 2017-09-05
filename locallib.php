@@ -1776,6 +1776,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
         INNER JOIN mdl_question_attempts qa ON (q.id = qa.questionid)
         INNER JOIN mdl_question_categories qc ON (q.category = qc.id)
         WHERE q.id = ?
+        LIMIT 1
     ";
      $result = $DB->get_record_sql($sql, array($key));
 

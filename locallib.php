@@ -1778,11 +1778,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
         WHERE q.id = ?
         LIMIT 1
     ";
-     $result = $DB->get_record_sql($sql, array($key));
+     $result = @$DB->get_record_sql($sql, array($key));
 
      //print_r($result);
-
-     $text = str_replace('@@PLUGINFILE@@', "/pluginfile.php/{$result->contextid}/question/questiontext/{$result->questionusageid}/1/{$key}/", $text);
+     if($result)
+     {
+        $text = str_replace('@@PLUGINFILE@@', "/pluginfile.php/{$result->contextid}/question/questiontext/{$result->questionusageid}/1/{$key}/", $text);
+     }
      return $text;
  }
 

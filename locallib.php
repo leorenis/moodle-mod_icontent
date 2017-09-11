@@ -1757,7 +1757,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Button send questions
     $qbtnsend = '';//html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('sendanswers', 'mod_icontent')));
     //$qbtnsend2 = html_writer::empty_tag('input', array('type'=>'button', 'id'=>'qbtnsave', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('save', 'mod_icontent')));
- 	//$qbtnsend2 = html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+ 	$qbtnsend2 = html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
     $divbtnsend = html_writer::div($qbtnsend.$qbtnsend2, 'row sendanswers');
  	// Tag form
  	$qform = html_writer::tag('form', $hiddenfields. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));

@@ -2405,7 +2405,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// Elements toolbar
 	$toolbarpage = icontent_make_toolbar($objpage, $icontent);
 	// Add title page
-	$title = $objpage->showtitle ? html_writer::tag('h3', '<i class="fa fa-hand-o-left"></i> '.$objpage->title, array('class'=>'pagetitle')) : false;
+    //$title = $objpage->showtitle ? html_writer::tag('h3', '<i class="fa fa-hand-o-left"></i> '.$objpage->title, array('class'=>'pagetitle')) : false;
+	$title = $objpage->showtitle ? html_writer::tag('h3', $objpage->title, array('class'=>'pagetitle')) : false;
 	// Make content
 	$objpage->pageicontent = file_rewrite_pluginfile_urls($objpage->pageicontent, 'pluginfile.php', $context->id, 'mod_icontent', 'page', $objpage->id);
 

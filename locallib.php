@@ -1829,22 +1829,34 @@ function icontent_make_questions_answers_by_type($question){
             }*/
             //$PAGE = 1;
 
-            $attemptid = 18;
-            $attemptobj = quiz_attempt::create($attemptid);
-            $page = 0;
-            $attemptobj->fire_attempt_viewed_event();
-            $slots = $attemptobj->get_slots($page);
-            $id = 0;
-            if ($attemptobj->is_last_page($page)) {
-                $nextpage = -1;
-            } else {
-                $nextpage = $page + 1;
+            $questionanswers = "";
+
+            $sql = "
+                SELECT qa.id FROM mdl_quiz_slots qs
+                INNER JOIN mdl_quiz_attempts qa ON (qs.quizid = qa.quiz)
+                WHERE qs.questionid = {$question->qid}
+            ";
+            $objAttempt = $DB->get_record_sql($sql);
+
+            if($objAttempt)
+            {
+                $attemptid = $objAttempt->id;
+                $attemptobj = quiz_attempt::create($attemptid);
+                $page = 0;
+                $attemptobj->fire_attempt_viewed_event();
+                $slots = $attemptobj->get_slots($page);
+                $id = 0;
+                if ($attemptobj->is_last_page($page)) {
+                    $nextpage = -1;
+                } else {
+                    $nextpage = $page + 1;
+                }
+
+                $output = $PAGE->get_renderer('mod_quiz');
+
+                $questionanswers = $output->attempt_form($attemptobj, $page, $slots, $id, $nextpage);
+                $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
             }
-
-            $output = $PAGE->get_renderer('mod_quiz');
-
-            $questionanswers = $output->attempt_form($attemptobj, $page, $slots, $id, $nextpage);
-            $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
 
             /*$objQuestion = question_bank::load_question($question->qid);
 

@@ -301,6 +301,33 @@ $(document).ready(function() {
         }
     }
 
+    function onSaveClozeSave(){
+        var formdata = $('#idformquestions').serialize();
+        var cmid = parseInt($( "#idhfieldcmid").val());
+        var sesskey = $( "#idhfieldsesskey").val();
+        var data = {
+            "action" : "saveattempt",
+            "id" : cmid,
+            "sesskey" : sesskey,
+            "formdata" : formdata,
+        };
+        //$('.btn-sendanswers').prop("disabled", true ); // Disable button
+        $("#savediv").modal({'backdrop': false});
+        $.ajax({
+            type : "POST",
+            dataType : "json",
+            //url : "/question/preview.php",
+            url : "/mod/quiz/processattempt.php",
+            data : $('#idformquestions').serialize(),
+            complete : function(data) {
+                //$("#idquestionsarea").html(data.grid);
+                setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+            }
+        });// End AJAX
+
+        return false;
+    }
+
     // Save attemp
     function onSaveAttempAnswers(){
         var formdata = $(this).serialize();
@@ -405,5 +432,6 @@ $(document).ready(function() {
     //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
     $("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
     $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
+    $("#idicontentpages").on('click', '.cloze_save', onSaveClozeSave);
 });
 // End ready

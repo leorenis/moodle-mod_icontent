@@ -1922,7 +1922,7 @@ function icontent_make_questions_answers_by_type($question){
             $questionanswers .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'attempt', 'value'=>18));
             $questionanswers .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'slots', 'value'=>1));
             $questionanswers .= html_writer::start_div('button');
-            $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'cloze_save', 'class'=>'btn-sendanswers btn-primary idformquestions', 'value'=> get_string('send')));
+            $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'cloze_save', 'class'=>'btn-sendanswers btn-primary idformquestions', 'value'=> get_string('savechanges')));
             $questionanswers .= html_writer::end_div();
             $questionanswers .= html_writer::end_div();
             return $questionanswers;

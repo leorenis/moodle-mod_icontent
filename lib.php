@@ -742,20 +742,25 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
 	$i = 0;
 	$records = array();
 	foreach ($data as $key => $value){
-		list($qpage, $question, $qtype) = explode('_', $key);
-		list($strvar, $qpid) = explode('-', $qpage);
-		list($strvar, $qid) = explode('-', $question);
-		$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
-		$records[$i] = new stdClass();
-		$records[$i]->pagesquestionsid = (int) $qpid;
-		$records[$i]->questionid = (int) $qid;
-		$records[$i]->userid = (int) $USER->id;
-		$records[$i]->cmid = (int) $cm->id;
-		$records[$i]->fraction = $infoanswer->fraction;
-		$records[$i]->rightanswer = $infoanswer->rightanswer;
-		$records[$i]->answertext = $infoanswer->answertext;
-		$records[$i]->timecreated = time();
-		$i ++;
+		list($qpage, $question, $qtype, $sub) = explode('_', $key);
+
+        if($qtype)
+        {
+            list($strvar, $qpid) = explode('-', $qpage);
+            list($strvar, $qid) = explode('-', $question);
+		    $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value, $sub);
+		    $records[$i] = new stdClass();
+		    $records[$i]->pagesquestionsid = (int) $qpid;
+		    $records[$i]->questionid = (int) $qid;
+		    $records[$i]->userid = (int) $USER->id;
+		    $records[$i]->cmid = (int) $cm->id;
+		    $records[$i]->fraction = $infoanswer->fraction;
+		    $records[$i]->rightanswer = $infoanswer->rightanswer;
+            $records[$i]->answertext = $infoanswer->answertext;
+		    $records[$i]->sub = $infoanswer->sub;
+		    $records[$i]->timecreated = time();
+		    $i ++;
+        }
 	}
 	// Save records
 	$DB->insert_records('icontent_question_attempts', $records);
@@ -768,6 +773,54 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
 	$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
 
 	return $summary;
+}
+
+function icontent_ajax_savecloze($formdata, stdClass $cm, $icontent){
+    global $USER, $DB;
+    require_once(dirname(__FILE__).'/locallib.php');
+    // Get form data
+    parse_str($formdata, $data);
+    $pageid = $data['pageid'];
+    // Destroy unused fields
+    unset($data['id']);
+    unset($data['pageid']);
+    unset($data['sesskey']);
+    // Create array object for attempt
+    $i = 0;
+    $records = array();
+    foreach ($data as $key => $value){
+        list($qpage, $question, $qtype, $sub) = explode('_', $key);
+
+        if($qtype == 'multianswer')
+        {
+            list($strvar, $qpid) = explode('-', $qpage);
+            list($strvar, $qid) = explode('-', $question);
+            $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value, $sub);
+            $records[$i] = new stdClass();
+            $records[$i]->pagesquestionsid = (int) $qpid;
+            $records[$i]->questionid = (int) $qid;
+            $records[$i]->userid = (int) $USER->id;
+            $records[$i]->cmid = (int) $cm->id;
+            $records[$i]->fraction = $infoanswer->fraction;
+            $records[$i]->rightanswer = $infoanswer->rightanswer;
+            $records[$i]->answertext = $infoanswer->answertext;
+            $records[$i]->sub = $infoanswer->sub;
+            $records[$i]->timecreated = time();
+            $i ++;
+        }
+    }
+    // Save records
+    $DB->delete_records('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
+    $DB->insert_records('icontent_question_attempts', $records);
+    // Update grade
+    icontent_set_grade_item($icontent, $cm->id, $USER->id);
+    // Event log
+    \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
+    // Create object summary attempt
+    $summary = new stdClass();
+    $summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
+
+    return $summary;
 }
 
 function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){

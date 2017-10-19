@@ -22,8 +22,11 @@ if ($id) {
 }
 $objpages = $DB->get_records('icontent_pages', array('icontentid' => $icontent->id), 'pagenum');
 
+
+//echo $objpages->title.date("d.m.Y");
 header("Content-type: application/vnd.ms-word");
-header("Content-Disposition: attachment;Filename=icontent{$id}.doc");
+//header("Content-Disposition: attachment;Filename=".$objpages->title.date("d.m.Y").".doc");
+header("Content-Disposition: attachment;Filename=".date("d.m.Y").".doc");
 
 echo '<html  dir="rtl" lang="he" xml:lang="he">';
 echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";

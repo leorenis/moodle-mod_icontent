@@ -174,6 +174,22 @@ function xmldb_icontent_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2016091605, 'icontent');
     }
 
+    if ($oldversion < 2017101901) {
+
+        $table = new xmldb_table('icontent_question_attempts');
+
+        // Adding fields to table forum_discussion_subs.
+        $table->add_field('sub', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null);
+
+
+        // Conditionally launch create table for forum_discussion_subs.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2017101901, 'icontent');
+    }
+
     /*
      * And that's all. Please, examine and understand the 3 example blocks above. Also
      * it's interesting to look how other modules are using this script. Remember that

@@ -744,7 +744,7 @@ function icontent_get_questions_categories($contextid){
 * @param  string $answer
 * @return object $infoanswer
 */
-function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
+function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer, $sub = null){
     global $DB;
     // Check if var $qtype equals match. If true get $answerid
     if(substr($qtype, 0, 5) === ICONTENT_QTYPE_MATCH){
@@ -821,6 +821,12 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer){
             $infoanswer->answertext = s($answer);
             return $infoanswer;
             break;
+        case ICONTENT_QTYPE_MULTIANSWER:
+            $infoanswer->rightanswer = '';
+            $infoanswer->answertext = s($answer);
+            $infoanswer->sub = $sub;
+            return $infoanswer;
+        break;
     }
     throw new Exception("QTYPE Invalid.");
 }
@@ -1742,7 +1748,8 @@ function icontent_make_questionsarea($objpage, $icontent){
         return false;
     }
     if(icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid)){
-        return icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid);
+        #TEMPRORY CLOSED
+        //return icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid);
     }
     $togglearea = icontent_get_toggle_area_object($objpage->expandquestionsarea);
     // Title page
@@ -1810,7 +1817,7 @@ function icontent_parse_image($key, $text)
 * @return string $answers
 */
 function icontent_make_questions_answers_by_type($question){
-    global $DB, $USER, $CFG, $PAGE;
+    global $DB, $USER, $CFG, $PAGE, $cm;
     switch ($question->qtype){
         case ICONTENT_QTYPE_MULTIANSWES:
             require_once($CFG->libdir . '/questionlib.php');
@@ -1829,16 +1836,16 @@ function icontent_make_questions_answers_by_type($question){
             }*/
             //$PAGE = 1;
 
-            $questionanswers = "";
+            /*$questionanswers = "";
 
             $sql = "
                 SELECT qa.id FROM mdl_quiz_slots qs
                 INNER JOIN mdl_quiz_attempts qa ON (qs.quizid = qa.quiz)
                 WHERE qs.questionid = {$question->qid}
             ";
-            $objAttempt = $DB->get_record_sql($sql);
+            $objAttempt = $DB->get_record_sql($sql);*/
 
-            if($objAttempt)
+            /*if($objAttempt)
             {
                 $attemptid = $objAttempt->id;
                 $attemptobj = quiz_attempt::create($attemptid);
@@ -1856,9 +1863,13 @@ function icontent_make_questions_answers_by_type($question){
 
                 $questionanswers = $output->attempt_form($attemptobj, $page, $slots, $id, $nextpage);
                 $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
-            }
+            }*/
 
-            /*$objQuestion = question_bank::load_question($question->qid);
+            $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+
+            $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_multianswer_';
+
+            $objQuestion = question_bank::load_question($question->qid);
 
             $quba = question_engine::make_questions_usage_by_activity('core_question_preview', context_user::instance($USER->id));
             $options = new question_preview_options($objQuestion);
@@ -1873,6 +1884,36 @@ function icontent_make_questions_answers_by_type($question){
             $quba->start_question($slot, $options->variant);
             $context = $quba->render_question($slot, $options, $displaynumber);
 
+            $context = preg_replace('/name\=\"([A-Za-z0-9:]+_sub)(\d+)_answer\"/', "name=\"{$fieldname}$2\"", $context);
+
+            if($attempts)
+            {
+                preg_match_all('/(<input type=\"(\w+)\" name=\"([A-Za-z0-9\_\-]+\_multianswer\_(\d+))\"[^\>]+)\>/i', $context, $matches);
+                if(!empty($matches))
+                {
+                    foreach ($matches[0] as $key => $val)
+                    {
+                        if($matches[2][$key] == 'radio')
+                        {
+                            if(isset($attempts[$matches[4][$key]]))
+                            {
+                                preg_match('/value=\"(\d+)\"/', $matches[0][$key], $mat);
+                                if($mat && $attempts[$matches[4][$key]] == $mat[1])
+                                {
+                                    $context = str_replace($matches[1][$key], "{$matches[1][$key]} checked ", $context);
+                                }
+                            }
+                        }
+                        elseif($matches[2][$key] == 'text')
+                        {
+                            if(isset($attempts[$matches[4][$key]]))
+                            {
+                                $context = str_replace($matches[1][$key], "{$matches[1][$key]} value=\"{$attempts[$matches[4][$key]]}\" ", $context);
+                            }
+                        }
+                    }
+                }
+            }
 
 
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MULTIANSWES);
@@ -1881,9 +1922,9 @@ function icontent_make_questions_answers_by_type($question){
             $questionanswers .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'attempt', 'value'=>18));
             $questionanswers .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'slots', 'value'=>1));
             $questionanswers .= html_writer::start_div('button');
-            $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'cloze_save', 'class'=>'btn-sendanswers btn-primary', 'value'=> get_string('save', 'grades')));
+            $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'cloze_save', 'class'=>'btn-sendanswers btn-primary idformquestions', 'value'=> get_string('send')));
             $questionanswers .= html_writer::end_div();
-            $questionanswers .= html_writer::end_div();*/
+            $questionanswers .= html_writer::end_div();
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_MULTICHOICE:

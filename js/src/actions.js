@@ -353,6 +353,32 @@ $(document).ready(function() {
         return false;
     }
 
+    function onSaveClozeAnswers(){
+        var formdata = $("#idformquestions").serialize();
+        var cmid = parseInt($( "#idhfieldcmid").val());
+        var sesskey = $( "#idhfieldsesskey").val();
+        var data = {
+            "action" : "savecloze",
+            "id" : cmid,
+            "sesskey" : sesskey,
+            "formdata" : formdata,
+        };
+        //$('.btn-sendanswers').prop("disabled", true ); // Disable button
+        $("#savediv").modal({'backdrop': false});
+        $.ajax({
+            type : "POST",
+            dataType : "json",
+            url : "ajax.php",
+            data : data,
+            success : function(data) {
+                //$("#idquestionsarea").html(data.grid);
+                setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+            }
+        });// End AJAX
+
+        return false;
+    }
+
     function onSaveAttempText()
     {
         clearTimeout (timer);
@@ -432,6 +458,6 @@ $(document).ready(function() {
     //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
     $("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
     $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
-    $("#idicontentpages").on('click', '.cloze_save', onSaveClozeSave);
+    $("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
 });
 // End ready

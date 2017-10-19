@@ -107,6 +107,12 @@ switch ($action) {
         $return = icontent_ajax_saveattempt($formdata, $cm, $icontent);
         break;
 
+    case 'savecloze':
+        require_capability('mod/icontent:view', $context);
+        $formdata = required_param('formdata', PARAM_RAW);
+        $return = icontent_ajax_savecloze($formdata, $cm, $icontent);
+        break;
+
     case 'savedraft':
 		require_capability('mod/icontent:view', $context);
 		$formdata = required_param('formdata', PARAM_RAW);

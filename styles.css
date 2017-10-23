@@ -613,3 +613,8 @@ textarea.answertextarea{
 {
     display: none;
 }
+
+#icontentintro .progress-bar{
+	    display: none;	
+}
+

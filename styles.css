@@ -629,3 +629,7 @@ textarea.answertextarea{
 	float: left;
 } 
 
+
+#page-mod-icontent-view .info{
+	display: none;	
+}

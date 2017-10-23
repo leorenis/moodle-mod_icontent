@@ -617,4 +617,15 @@ textarea.answertextarea{
 #icontentintro .progress-bar{
 	    display: none;	
 }
+#icontentintro .que .content{
+	margin: 0 !ipmortant;
+}
+
+#page-mod-icontent-view .btn-next-page{
+	float: left;
+} 
+
+#page-mod-icontent-view .btn-previous-page{
+	float: left;
+} 
 

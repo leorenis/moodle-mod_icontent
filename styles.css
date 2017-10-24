@@ -653,7 +653,7 @@ textarea.answertextarea{
 	border-color: #018388;
 }
 .full-paging-buttonbar button.active {
-    color: #018388 !important;
-    background-color: #018388;
+    color: white !important;
+    background-color: #018388 !important;
 }
 

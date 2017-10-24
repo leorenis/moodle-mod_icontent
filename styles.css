@@ -657,3 +657,18 @@ textarea.answertextarea{
     background-color: #018388 !important;
 }
 
+.path-mod-icontent .simple-paging-buttonbar button{
+    margin-top: 15px;
+    border-radius: 20px;
+    min-width: 100px;
+}
+.path-mod-icontent .simple-paging-buttonbar button >i {
+    margin: 0 5%;
+}
+.questionsarea .que .content {
+    margin: 0px;
+}
+.formulation .ouil_table input[type="text"] {
+    width: 100%;
+}
+

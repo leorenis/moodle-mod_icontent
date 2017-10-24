@@ -642,6 +642,18 @@ textarea.answertextarea{
 	text-align: right;
 }
 
-.btn-icontent-page{
+.load-page .btn-icontent-page{
+	
 	border-radius: 20px;
 }
+
+.full-paging-buttonbar button:hover {
+	color: #fff; 
+	background-color: #018388;
+	border-color: #018388;
+}
+.full-paging-buttonbar button.active {
+    color: #018388 !important;
+    background-color: #018388;
+}
+

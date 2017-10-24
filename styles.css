@@ -614,10 +614,10 @@ textarea.answertextarea{
     display: none;
 }
 
-#icontentintro .progress-bar{
+#page-mod-icontent-view .progress-bar{
 	    display: none;	
 }
-#icontentintro .que .content{
+#page-mod-icontent-view .que .content{
 	margin: 0 !ipmortant;
 }
 
@@ -632,4 +632,16 @@ textarea.answertextarea{
 
 #page-mod-icontent-view .info{
 	display: none;	
+}
+
+.dir-rtl .icontent-page .pagenum{
+	text-align: right !important;
+}
+
+.formulation input[type="text"], .formulation select{
+	text-align: right;
+}
+
+.btn-icontent-page{
+	border-radius: 20px;
 }

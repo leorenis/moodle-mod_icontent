@@ -53,8 +53,21 @@ foreach($objpages as $page)
     echo "<div class='contentquestionsarea'>";
     foreach($questions as $question)
     {
+        $draft = false;
         echo "<br><br>";
-        $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
+        if($question->qtype == 'multianswer')
+        {
+            $multianswers = $DB->get_records('icontent_question_attempts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
+            foreach($multianswers as $multianswer)
+            {
+                $question->questiontext = str_replace("{#{$multianswer->sub}}", "<i>{$multianswer->answertext}</i>", $question->questiontext);
+            }
+        }
+        else
+        {
+            $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
+        }
+
         echo "<div class='question essay'>";
         echo "<div class='questiontext'>{$question->questiontext}</div>";
         if($draft)

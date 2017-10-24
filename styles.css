@@ -613,3 +613,23 @@ textarea.answertextarea{
 {
     display: none;
 }
+
+#icontentintro .progress-bar{
+	    display: none;	
+}
+#icontentintro .que .content{
+	margin: 0 !ipmortant;
+}
+
+#page-mod-icontent-view .btn-next-page{
+	float: left;
+} 
+
+#page-mod-icontent-view .btn-previous-page{
+	float: right;
+} 
+
+
+#page-mod-icontent-view .info{
+	display: none;	
+}

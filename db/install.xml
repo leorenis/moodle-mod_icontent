@@ -155,6 +155,7 @@
       	<FIELD NAME="rightanswer" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Right answer." />
       	<FIELD NAME="answertext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Texto de resposta." />
       	<FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Response submission time." />
+	<FIELD NAME="sub" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

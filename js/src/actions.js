@@ -460,5 +460,15 @@ $(document).ready(function() {
     $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
     $(".question.multianswer").on('keyup change', 'input, select, textarea', onSaveClozeAnswers);
     //$("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
+
+    var url = window.location;
+    try
+    {
+        var urlAux = url.toString().split('\#');
+        var page_id = urlAux[1].replace('tab', '');
+
+        $(".load-page.btn-icontent-page.page" + page_id).click();
+    }
+    catch(e){}
 });
 // End ready

@@ -24,8 +24,8 @@ $objpages = $DB->get_records('icontent_pages', array('icontentid' => $icontent->
 
 
 $filename = $icontent->name.date("d.m.Y");
-header("Content-type: application/vnd.ms-word");
-header("Content-Disposition: attachment;Filename={$filename}.doc");
+//header("Content-type: application/vnd.ms-word");
+//header("Content-Disposition: attachment;Filename={$filename}.doc");
 
 echo '<html  dir="rtl" lang="he" xml:lang="he">';
 echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
@@ -69,7 +69,8 @@ foreach($objpages as $page)
         }
 
         echo "<div class='question essay'>";
-        echo "<div class='questiontext'>{$question->questiontext}</div>";
+        $questiontext = icontent_parse_image_word($question->qid, $question->questiontext);
+        echo "<div class='questiontext'>{$questiontext}</div>";
         if($draft)
         {
             echo "<div class='question'><i>{$draft->answertext}</i></div>";

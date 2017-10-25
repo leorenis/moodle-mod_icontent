@@ -406,15 +406,15 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
     $objbutton->title = get_string('nextpage', 'mod_icontent');
     $pgbuttons .= icontent_make_button_next_page($objbutton, $tpages);
 
-    $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
-        array(
-            'title' => 'download',//s(get_string('download', 'icontent')),
-            'class'=>'icon icon-file-word-o',
-            'data-toggle'=> 'tooltip',
-            'data-placement'=> 'top'
-        )
+    /*$word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
+    array(
+    'title' => 'download',//s(get_string('download', 'icontent')),
+    'class'=>'icon icon-file-word-o',
+    'data-toggle'=> 'tooltip',
+    'data-placement'=> 'top'
+    )
     );
-    $pgbuttons .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));
+    $pgbuttons .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));*/
     $pgbuttons .= html_writer::end_div();
     return $pgbuttons;
 }
@@ -826,7 +826,7 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer, $su
             $infoanswer->answertext = s($answer);
             $infoanswer->sub = $sub;
             return $infoanswer;
-        break;
+            break;
     }
     throw new Exception("QTYPE Invalid.");
 }
@@ -1797,7 +1797,58 @@ function icontent_parse_image($key, $text)
     return $text;
 }
 
+function icontent_parse_image_word($key, $text)
+{
+    global $DB;
+    $sql = "
+    SELECT qa.questionusageid, qc.contextid FROM mdl_question q
+    INNER JOIN mdl_question_attempts qa ON (q.id = qa.questionid)
+    INNER JOIN mdl_question_categories qc ON (q.category = qc.id)
+    WHERE q.id = ?
+    LIMIT 1
+    ";
+    $result = @$DB->get_record_sql($sql, array($key));
 
+    //print_r($result);
+    if($result)
+    {
+        if(preg_match('/@@PLUGINFILE@@\/([^\"]+)/', $text, $matches))
+        {
+            if(isset($matches[1]))
+            {
+                //echo "<pre>";
+                //print_r(getallheaders());
+                $file = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME']."/pluginfile.php/{$result->contextid}/question/questiontext/{$result->questionusageid}/1/{$key}/".$matches[1];
+                $dataimg = data_uri_get_img($file);
+
+                $text = str_replace($matches[0], $dataimg, $text);
+            }
+        }
+    }
+    return $text;
+}
+
+function data_uri_get_img($file)
+{
+    $mime = 'png';
+    $headers = '';
+    foreach (getallheaders() as $name => $value)
+    {
+        $headers .= "$name: $value\r\n";
+    }
+    $opts = array(
+        'http'=>array(
+            'method'=>"GET",
+            'header'=>$headers
+        )
+    );
+
+    $context = stream_context_create($opts);
+    $contents = file_get_contents($file, false, $context);
+    //echo $contents;exit;
+    $base64 = base64_encode($contents);
+    return ('data:' . $mime . ';base64,' . $base64);
+}
 
 /**
 * This is the function responsible for creating the answers of questions area.
@@ -1839,30 +1890,30 @@ function icontent_make_questions_answers_by_type($question){
             /*$questionanswers = "";
 
             $sql = "
-                SELECT qa.id FROM mdl_quiz_slots qs
-                INNER JOIN mdl_quiz_attempts qa ON (qs.quizid = qa.quiz)
-                WHERE qs.questionid = {$question->qid}
+            SELECT qa.id FROM mdl_quiz_slots qs
+            INNER JOIN mdl_quiz_attempts qa ON (qs.quizid = qa.quiz)
+            WHERE qs.questionid = {$question->qid}
             ";
             $objAttempt = $DB->get_record_sql($sql);*/
 
             /*if($objAttempt)
             {
-                $attemptid = $objAttempt->id;
-                $attemptobj = quiz_attempt::create($attemptid);
-                $page = 0;
-                $attemptobj->fire_attempt_viewed_event();
-                $slots = $attemptobj->get_slots($page);
-                $id = 0;
-                if ($attemptobj->is_last_page($page)) {
-                    $nextpage = -1;
-                } else {
-                    $nextpage = $page + 1;
-                }
+            $attemptid = $objAttempt->id;
+            $attemptobj = quiz_attempt::create($attemptid);
+            $page = 0;
+            $attemptobj->fire_attempt_viewed_event();
+            $slots = $attemptobj->get_slots($page);
+            $id = 0;
+            if ($attemptobj->is_last_page($page)) {
+            $nextpage = -1;
+            } else {
+            $nextpage = $page + 1;
+            }
 
-                $output = $PAGE->get_renderer('mod_quiz');
+            $output = $PAGE->get_renderer('mod_quiz');
 
-                $questionanswers = $output->attempt_form($attemptobj, $page, $slots, $id, $nextpage);
-                $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
+            $questionanswers = $output->attempt_form($attemptobj, $page, $slots, $id, $nextpage);
+            $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
             }*/
 
             $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
@@ -1923,7 +1974,6 @@ function icontent_make_questions_answers_by_type($question){
             //$questionanswers .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'slots', 'value'=>1));
             //$questionanswers .= html_writer::start_div('button');
             //$questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'cloze_save', 'class'=>'btn-sendanswers btn-primary idformquestions', 'value'=> get_string('savechanges')));
-            $questionanswers .= html_writer::end_div();
             $questionanswers .= html_writer::end_div();
             return $questionanswers;
             break;
@@ -2355,7 +2405,7 @@ function icontent_make_likeunlike($pagenote, $context){
 * @return string $toolbar
 */
 function icontent_make_toolbar($page, $icontent){
-    global $USER;
+    global $USER, $id;
     // Icons for all users
     $comments = html_writer::link('#idnotesarea', '<i class="fa fa-comments fa-lg"></i>',
         array(
@@ -2444,6 +2494,15 @@ function icontent_make_toolbar($page, $icontent){
     }
     // Make toolbar
     $toolbar = html_writer::tag('div', $highcontrast. $comments. $displayed. $addquestion. $update. $new, array('class'=>'toolbarpage '));
+    $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
+        array(
+            'title' => 'download',//s(get_string('download', 'icontent')),
+            'class'=>'icon icon-file-word-o',
+            'data-toggle'=> 'tooltip',
+            'data-placement'=> 'top'
+        )
+    );
+    $toolbar .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));
     // Return toolbar
     return $toolbar;
 }

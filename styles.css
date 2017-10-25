@@ -614,10 +614,10 @@ textarea.answertextarea{
     display: none;
 }
 
-#icontentintro .progress-bar{
+#page-mod-icontent-view .progress-bar{
 	    display: none;	
 }
-#icontentintro .que .content{
+#page-mod-icontent-view .que .content{
 	margin: 0 !ipmortant;
 }
 
@@ -633,3 +633,42 @@ textarea.answertextarea{
 #page-mod-icontent-view .info{
 	display: none;	
 }
+
+.dir-rtl .icontent-page .pagenum{
+	text-align: right !important;
+}
+
+.formulation input[type="text"], .formulation select{
+	text-align: right;
+}
+
+.btn-icontent-page{
+	
+	border-radius: 20px;
+}
+
+.full-paging-buttonbar button:hover {
+	color: #fff; 
+	background-color: #018388;
+	border-color: #018388;
+}
+.full-paging-buttonbar button.active {
+    color: white !important;
+    background-color: #018388 !important;
+}
+
+.path-mod-icontent .simple-paging-buttonbar button{
+    margin-top: 15px;
+    border-radius: 20px;
+    min-width: 100px;
+}
+.path-mod-icontent .simple-paging-buttonbar button >i {
+    margin: 0 5%;
+}
+.questionsarea .que .content {
+    margin: 0px;
+}
+.formulation .ouil_table input[type="text"] {
+    width: 100%;
+}
+

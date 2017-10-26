@@ -671,4 +671,10 @@ textarea.answertextarea{
 .formulation .ouil_table input[type="text"] {
     width: 100%;
 }
+.icon-file-word-o{
+	position: absolute;
+    margin-top: -31px;
+    left: 11px;	
+}
+
 

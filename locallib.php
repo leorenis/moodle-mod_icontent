@@ -1313,12 +1313,12 @@ function icontent_get_pagenotelike($pagenoteid, $userid, $cmid){
 */
 function icontent_get_toggle_area_object($expandarea){
     $attrtogglearea = new stdClass();
-    if(!$expandarea){
+    /*if(!$expandarea){
         $attrtogglearea->icon = '<i class="fa fa-caret-right" aria-hidden="true"></i>&nbsp;';
         $attrtogglearea->style = "display: none;";
         $attrtogglearea->class = "closed";
         return $attrtogglearea;
-    }
+    }*/
     $attrtogglearea->icon = '<i class="fa fa-caret-down" aria-hidden="true"></i>&nbsp;';
     $attrtogglearea->style = '';
     $attrtogglearea->class = '';
@@ -1779,7 +1779,7 @@ function icontent_make_questionsarea($objpage, $icontent){
 
 function icontent_parse_image($key, $text)
 {
-    global $DB;
+    global $DB, $course;
     $sql = "
     SELECT qa.questionusageid, qc.contextid FROM mdl_question q
     INNER JOIN mdl_question_attempts qa ON (q.id = qa.questionid)
@@ -1787,9 +1787,40 @@ function icontent_parse_image($key, $text)
     WHERE q.id = ?
     LIMIT 1
     ";
+
+    /*$sql = "
+    SELECT qa.questionusageid, qc.contextid FROM mdl_question q
+    INNER JOIN mdl_question_attempts qa ON (q.id = qa.questionid)
+    INNER JOIN mdl_question_categories qc ON (q.category = qc.id)
+    WHERE q.id = ?
+    UNION
+    SELECT q.id, qc.contextid FROM mdl_question q
+    INNER JOIN mdl_question_categories qc ON (q.category = qc.id)
+    WHERE q.id = ?
+    LIMIT 1
+    ";*/
     $result = @$DB->get_record_sql($sql, array($key));
 
     //print_r($result);
+    if(!$result)
+    {
+        foreach (getallheaders() as $name => $value)
+        {
+            $headers .= "$name: $value\r\n";
+        }
+        $opts = array(
+            'http'=>array(
+                'method'=>"GET",
+                'header'=>$headers
+            )
+        );
+
+        $file = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME']."/question/preview.php?id={$key}&courseid={$course->id}";
+
+        $context = stream_context_create($opts);
+        $contents = file_get_contents($file, false, $context);
+        $result = @$DB->get_record_sql($sql, array($key));
+    }
     if($result)
     {
         $text = str_replace('@@PLUGINFILE@@', "/pluginfile.php/{$result->contextid}/question/questiontext/{$result->questionusageid}/1/{$key}/", $text);

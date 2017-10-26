@@ -102,7 +102,7 @@ $categories = [0 => ''] + $categories;
 
 
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
-$answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
+$answerscurrentpage = 0;//icontent_checks_answers_of_currentpage($pageid, $cm->id);
 // Make table questions.
 $table = new html_table();
 $table->id = "categoryquestions";

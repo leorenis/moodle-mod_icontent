@@ -1848,37 +1848,26 @@ function icontent_parse_image_word($key, $text)
         {
             if(isset($matches[1]))
             {
-                //$fs = get_file_storage();
-                //$files = $fs->get_area_files($context->id, 'user', 'draft', 0, 'sortorder DESC, id ASC', false);
-                //echo "<pre>";
-                //print_r(getallheaders());
-                $file = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME']."/pluginfile.php/{$result->contextid}/question/questiontext/{$result->questionusageid}/1/{$key}/".$matches[1];
-                //$dataimg = data_uri_get_img($file);
+                $fs = get_file_storage();
+                $files = $fs->get_area_files($context->id, 'user', 'draft', 0, 'sortorder DESC, id ASC', false);
+                $objfile = $fs->get_file($result->contextid, 'question', 'questiontext', $key, '/', $matches[1]);
+                if($objfile)
+                {
+                    /*$file = $objfile->filedir.'/'.$matches[1];*/
+                    $dataimg = data_uri_get_img($objfile);
 
-                //text = str_replace($matches[0], $dataimg, $text);
+                    $text = str_replace($matches[0], $dataimg, $text);
+                }
             }
         }
     }
     return $text;
 }
 
-function data_uri_get_img($file)
+function data_uri_get_img($objfile, $mime = 'image/png')
 {
-    $mime = 'png';
-    $headers = '';
-    foreach (getallheaders() as $name => $value)
-    {
-        $headers .= "$name: $value\r\n";
-    }
-    $opts = array(
-        'http'=>array(
-            'method'=>"GET",
-            'header'=>$headers
-        )
-    );
 
-    $context = stream_context_create($opts);
-    $contents = file_get_contents($file, false, $context);
+    $contents = $objfile->get_content();
     //echo $contents;exit;
     $base64 = base64_encode($contents);
     return ('data:' . $mime . ';base64,' . $base64);

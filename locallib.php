@@ -1987,6 +1987,24 @@ function icontent_make_questions_answers_by_type($question){
                         }
                     }
                 }
+
+                if(preg_match_all('/<select [^\>]*name=\"([A-Za-z0-9\_\-]+\_multianswer\_(\d+))\"[^\>]*>(.*?)<\/select>/mi', $context, $matches2))
+                {
+                    foreach ($matches2[3] as $key => $val)
+                    {
+                        if(preg_match_all('/<option value=\"(\d+)\"/im', $val, $mat2))
+                        {
+                            foreach ($mat2[1] as $key2 => $val2)
+                            {
+                                if($attempts[$matches2[2][$key]] == $val2)
+                                {
+                                    $context_tmp = str_replace($mat2[0][$key2], "{$mat2[0][$key2]} selected", $matches2[0][$key]);
+                                    $context = str_replace($matches2[0][$key], $context_tmp, $context);
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
 

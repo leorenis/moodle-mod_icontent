@@ -1818,7 +1818,8 @@ function icontent_parse_image($key, $text)
         $file = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME']."/question/preview.php?id={$key}&courseid={$course->id}";
 
         $context = stream_context_create($opts);
-        $contents = file_get_contents($file, false, $context);
+        //$contents = file_get_contents($file, false, $context);
+
         $result = @$DB->get_record_sql($sql, array($key));
     }
     if($result)
@@ -1830,7 +1831,7 @@ function icontent_parse_image($key, $text)
 
 function icontent_parse_image_word($key, $text)
 {
-    global $DB;
+    global $DB, $context;
     $sql = "
     SELECT qa.questionusageid, qc.contextid FROM mdl_question q
     INNER JOIN mdl_question_attempts qa ON (q.id = qa.questionid)
@@ -1847,12 +1848,14 @@ function icontent_parse_image_word($key, $text)
         {
             if(isset($matches[1]))
             {
+                //$fs = get_file_storage();
+                //$files = $fs->get_area_files($context->id, 'user', 'draft', 0, 'sortorder DESC, id ASC', false);
                 //echo "<pre>";
                 //print_r(getallheaders());
                 $file = $_SERVER['REQUEST_SCHEME']."://".$_SERVER['SERVER_NAME']."/pluginfile.php/{$result->contextid}/question/questiontext/{$result->questionusageid}/1/{$key}/".$matches[1];
-                $dataimg = data_uri_get_img($file);
+                //$dataimg = data_uri_get_img($file);
 
-                $text = str_replace($matches[0], $dataimg, $text);
+                //text = str_replace($matches[0], $dataimg, $text);
             }
         }
     }

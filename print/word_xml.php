@@ -22,6 +22,7 @@ if ($id) {
 }
 $objpages = $DB->get_records('icontent_pages', array('icontentid' => $icontent->id), 'pagenum');
 
+$context = context_module::instance($cm->id);
 
 $filename = $icontent->name.date("d.m.Y");
 //header("Content-type: application/vnd.ms-word");
@@ -70,6 +71,7 @@ foreach($objpages as $page)
 
         echo "<div class='question essay'>";
         $questiontext = icontent_parse_image_word($question->qid, $question->questiontext);
+        $questiontext = $question->questiontext;
         echo "<div class='questiontext'>{$questiontext}</div>";
         if($draft)
         {

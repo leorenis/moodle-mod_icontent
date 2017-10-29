@@ -405,7 +405,7 @@ $(document).ready(function() {
                 }
             });// End AJAX
             }, 2000 );
-        return false;
+        //return false;
     }
     var timer = 0;
     var delay = (function(){
@@ -458,6 +458,8 @@ $(document).ready(function() {
     //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
     $("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
     $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
+    $("#idicontentpages").on('click', '.answercheckbox', onSaveAttempText);
+    $("#idicontentpages").on('change', '.answermatch', onSaveAttempText);
     $(".question.multianswer").on('keyup change', 'input, select, textarea', onSaveClozeAnswers);
     //$("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
 

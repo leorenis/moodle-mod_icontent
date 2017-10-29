@@ -841,23 +841,34 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
         list($strvar, $qpid) = explode('-', $qpage);
         list($strvar, $qid) = explode('-', $question);
         //$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
-        $records = new stdClass();
-        $records->pagesquestionsid = (int) $qpid;
-        $records->questionid = (int) $qid;
-        $records->userid = (int) $USER->id;
-        $records->cmid = (int) $cm->id;
-        $records->answertext = $value;
-        $records->timecreated = time();
 
-        $rec = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => (int) $qpid, 'questionid' => (int) $qid, 'userid' => (int) $USER->id, 'cmid' => (int) $cm->id]);
-        if($rec)
+        if(is_array($value) && $qtype == 'multichoice')
         {
-            $records->id = $rec->id;
-            $DB->update_record('icontent_question_drafts', $records);
+            $DB->delete_records('icontent_question_drafts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
+
+            foreach($value as $val)
+            {
+                list($part1, $part2) = explode('_', $val);
+                list($val0, $vals) = explode('-', $part2);
+                icontent_ajax_savedraft_sql($qpid, $qid, $cm, $vals, 1);
+            }
         }
         else
         {
-            $DB->insert_records('icontent_question_drafts', [$records], false);
+            $flag = 0;
+            if($qtype == 'truefalse')
+            {
+                list($part1, $part2) = explode('_', $value);
+                list($val0, $value) = explode('-', $part2);
+            }
+            elseif(strpos('match', $qtype) !== false)
+            {
+
+            }
+
+            //$DB->delete_records('icontent_question_drafts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
+
+            icontent_ajax_savedraft_sql($qpid, $qid, $cm, $value, $flag);
         }
         $i ++;
     }
@@ -872,4 +883,36 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
     //$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
 
     return '';
+}
+
+function icontent_ajax_savedraft_sql($qpid, $qid, $cm, $value, $flag = 0)
+{
+    global $USER, $DB;
+
+
+    $records = new stdClass();
+    $records->pagesquestionsid = (int) $qpid;
+    $records->questionid = (int) $qid;
+    $records->userid = (int) $USER->id;
+    $records->cmid = (int) $cm->id;
+    $records->answertext = $value;
+    $records->timecreated = time();
+
+    if($flag)
+    {
+        $DB->insert_records('icontent_question_drafts', [$records], false);
+    }
+    else
+    {
+        $rec = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => (int) $qpid, 'questionid' => (int) $qid, 'userid' => (int) $USER->id, 'cmid' => (int) $cm->id]);
+        if($rec)
+        {
+            $records->id = $rec->id;
+            $DB->update_record('icontent_question_drafts', $records);
+        }
+        else
+        {
+            $DB->insert_records('icontent_question_drafts', [$records], false);
+        }
+    }
 }

@@ -1802,6 +1802,7 @@ function icontent_parse_image($key, $text)
     $result = @$DB->get_record_sql($sql, array($key));
 
     //print_r($result);
+    $headers = '';
     if(!$result)
     {
         foreach (getallheaders() as $name => $value)
@@ -2022,6 +2023,10 @@ function icontent_make_questions_answers_by_type($question){
 
             $anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
             $totalrightanwsers = $DB->count_records_select('question_answers', 'question = ? AND fraction > ?', array($question->qid, 0), 'COUNT(fraction)');
+
+            $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
+
+
             if($totalrightanwsers > 1){
                 $type = 'checkbox';
                 $brackets = '[]';
@@ -2040,7 +2045,12 @@ function icontent_make_questions_answers_by_type($question){
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MULTICHOICE.$brackets;
                 $value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
                 $fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
-                $check = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>$type, 'value'=>$value));
+                $arrInput = array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>$type, 'value'=>$value, 'class' => 'answercheckbox');
+                if(in_array($anwswer->id, $draft))
+                {
+                    $arrInput['checked'] = 'checked';
+                }
+                $check = html_writer::empty_tag('input', $arrInput);
                 $label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
                 $questionanswers .= html_writer::div($check. $label);
             }
@@ -2062,7 +2072,7 @@ function icontent_make_questions_answers_by_type($question){
             foreach ($options as $option){
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
                 $qtext = html_writer::tag('td', strip_tags($option->questiontext), array('class'=>'matchoptions'));
-                $answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, null, array('' => 'choosedots'), array('required'=>'required')));
+                $answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, null, array('' => 'choosedots'), array('required'=>'required', 'class'=>'answermatch')));
                 $contenttable .= html_writer::tag('tr', $qtext. $answertext);
             }
             $questionanswers .= html_writer::tag('table', $contenttable);
@@ -2072,6 +2082,8 @@ function icontent_make_questions_answers_by_type($question){
             break;
         case ICONTENT_QTYPE_TRUEFALSE:
             $anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
+            $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
+
             $strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
             $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
@@ -2081,7 +2093,12 @@ function icontent_make_questions_answers_by_type($question){
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_TRUEFALSE;
                 $value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
                 $fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
-                $radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$value));
+                $arrInput = array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$value, 'class' => 'answercheckbox');
+                if(in_array($anwswer->id, $draft))
+                {
+                    $arrInput['checked'] = 'checked';
+                }
+                $radio = html_writer::empty_tag('input', $arrInput);
                 $label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
                 $questionanswers .= html_writer::div($radio. $label, 'options');
             }

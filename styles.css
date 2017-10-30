@@ -676,5 +676,10 @@ textarea.answertextarea{
     margin-top: -31px;
     left: 11px;	
 }
-
+.pagenum{
+	display:none;
+}
+.progress{
+	display:none;
+}
 

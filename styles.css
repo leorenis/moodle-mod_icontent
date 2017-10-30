@@ -683,3 +683,7 @@ textarea.answertextarea{
 	display:none;
 }
 
+#idicontentpages .que{
+text-align:unset !important;
+}
+

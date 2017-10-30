@@ -1766,7 +1766,7 @@ function icontent_make_questionsarea($objpage, $icontent){
     // Button send questions
     $qbtnsend = '';//html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('sendanswers', 'mod_icontent')));
     //$qbtnsend2 = html_writer::empty_tag('input', array('type'=>'button', 'id'=>'qbtnsave', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('save', 'mod_icontent')));
-    $qbtnsend2 = html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+    $qbtnsend2 = '';//html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
     $divbtnsend = html_writer::div($qbtnsend.$qbtnsend2, 'row sendanswers');
     // Tag form
     $qform = html_writer::tag('form', $hiddenfields. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
@@ -2055,10 +2055,16 @@ function icontent_make_questions_answers_by_type($question){
                 $questionanswers .= html_writer::div($check. $label);
             }
             $questionanswers .= html_writer::end_div(); // End div options list
+            if($question->generalfeedback)
+            {
+                $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+                $questionanswers .= html_writer::div($question->generalfeedback, 'generalfeedback');
+            }
             $questionanswers .= html_writer::end_div();
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_MATCH:
+            $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
             $options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
             $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
@@ -2072,11 +2078,18 @@ function icontent_make_questions_answers_by_type($question){
             foreach ($options as $option){
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
                 $qtext = html_writer::tag('td', strip_tags($option->questiontext), array('class'=>'matchoptions'));
-                $answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, null, array('' => 'choosedots'), array('required'=>'required', 'class'=>'answermatch')));
+                $arrInput = array('required'=>'required', 'class'=>'answermatch');
+
+                $answertext = html_writer::tag('td', html_writer::select($arrayanswers, $fieldname, @$draft[$option->id], array('' => 'choosedots'), $arrInput));
                 $contenttable .= html_writer::tag('tr', $qtext. $answertext);
             }
             $questionanswers .= html_writer::tag('table', $contenttable);
             $questionanswers .= html_writer::end_div(); // End div options list
+            if($question->generalfeedback)
+            {
+                $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+                $questionanswers .= html_writer::div($question->generalfeedback, 'generalfeedback');
+            }
             $questionanswers .= html_writer::end_div();
             return $questionanswers;
             break;
@@ -2103,6 +2116,11 @@ function icontent_make_questions_answers_by_type($question){
                 $questionanswers .= html_writer::div($radio. $label, 'options');
             }
             $questionanswers .= html_writer::end_div(); // End div options list
+            if($question->generalfeedback)
+            {
+                $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+                $questionanswers .= html_writer::div($question->generalfeedback, 'generalfeedback');
+            }
             $questionanswers .= html_writer::end_div();
             return $questionanswers;
             break;
@@ -2116,7 +2134,11 @@ function icontent_make_questions_answers_by_type($question){
             //$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
             $questionanswers .= html_writer::div($question->questiontext, 'questiontext');
             $questionanswers .= html_writer::tag('textarea', @$draft->answertext, array('name'=>$fieldname, 'class'=>'span12 answertextarea', 'required'=>'required'));
-            $questionanswers .= html_writer::div($question->generalfeedback, 'generalfeedback');
+            if($question->generalfeedback)
+            {
+                $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+                $questionanswers .= html_writer::div($question->generalfeedback, 'generalfeedback');
+            }
             $questionanswers .= html_writer::end_div();
             return $questionanswers;
             break;

@@ -842,13 +842,23 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
         list($strvar, $qid) = explode('-', $question);
         //$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
 
-        if(is_array($value) && $qtype == 'multichoice')
+        //if(is_array($value) && $qtype == 'multichoice')
+        if($qtype == 'multichoice')
         {
             $DB->delete_records('icontent_question_drafts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
 
-            foreach($value as $val)
+            if(is_array($value))
             {
-                list($part1, $part2) = explode('_', $val);
+                foreach($value as $val)
+                {
+                    list($part1, $part2) = explode('_', $val);
+                    list($val0, $vals) = explode('-', $part2);
+                    icontent_ajax_savedraft_sql($qpid, $qid, $cm, $vals, 1);
+                }
+            }
+            else
+            {
+                list($part1, $part2) = explode('_', $value);
                 list($val0, $vals) = explode('-', $part2);
                 icontent_ajax_savedraft_sql($qpid, $qid, $cm, $vals, 1);
             }
@@ -861,12 +871,20 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
                 list($part1, $part2) = explode('_', $value);
                 list($val0, $value) = explode('-', $part2);
             }
-            elseif(strpos('match', $qtype) !== false)
+            elseif(strpos($qtype, 'match') !== false)
             {
+                list($part1, $part2) = explode('-', $qtype);
+                $value = $part2."_".$value;
+                if(!$i)
+                {
+                    $DB->delete_records('icontent_question_drafts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
+                }
 
+                $flag = 1;
+                $flag2 = 1;
             }
 
-            //$DB->delete_records('icontent_question_drafts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
+
 
             icontent_ajax_savedraft_sql($qpid, $qid, $cm, $value, $flag);
         }

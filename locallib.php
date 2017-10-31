@@ -2026,12 +2026,15 @@ function icontent_make_questions_answers_by_type($question){
 
             $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
 
+            $single = $DB->get_field('qtype_multichoice_options', 'single', array('questionid'=>$question->qid));
 
-            /*if($totalrightanwsers > 1){
+
+            //if($totalrightanwsers > 1){
+            if(!$single){
                 $type = 'checkbox';
                 $brackets = '[]';
                 $strprompt = get_string('choiceoneormore', 'mod_icontent', $totalrightanwsers);
-            }else*/
+            }else
             {
                 $type = 'radio';
                 $brackets = '';

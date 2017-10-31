@@ -687,3 +687,44 @@ textarea.answertextarea{
 text-align:unset !important;
 }
 
+
+/*task 30.10*/
+.que .formulation {
+  background-color: #fff;
+  border: none;
+}
+.path-mod-icontent .questionsarea .question .optionslist
+td.matchoptions {
+    padding-left: 10px;
+}
+.btn-sendanswers {
+    float: none !important;
+}
+textarea.answertextarea {
+    max-width: 100%;
+}
+.load-page.btn-icontent-page {
+    box-sizing: border-box;
+    width: 25px;
+    height: 25px;
+    font-size: 16px;
+    background-color: #fff;
+    border: 1px solid #737373;
+}
+.load-page.btn-icontent-page:hover {
+    background-color: #016a6e;
+    border: 1px solid #025454;
+}
+// .load-page.btn-icontent-page:visited {
+
+//     background-color: #fff;
+//     border: 2px solid #018388;
+// }
+.load-page.btn-icontent-page:active,
+.load-page.btn-icontent-page.active {
+
+    background-color: #018388 !important;
+    border: 1px solid #016a6e;
+}
+/*task 30.10 end*/
+

@@ -221,4 +221,5 @@ $string['usemaxgrade'] = 'ניקוד מירבי';
 $string['usemaxgrade_help'] = 'אם הערעור הוא על פריט הערכה, ניתן להודיע על הציון הגובה לפעילות זאת לאחר מכן.';
 $string['writedoubt'] = 'כתבו ספק';
 $string['writenotes'] = 'כתבו הערה';
+$string['your-answer'] = '(תשובתך)';
 ?>

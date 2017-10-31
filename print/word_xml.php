@@ -70,9 +70,11 @@ foreach($objpages as $page)
                     $rightanswer = '';
                     if(in_array($anwswer->id, $draft))
                     {
-                        $rightanswer = "(answer)";
+                        $rightanswer = get_string("your-answer", "icontent");
+                        $anwswertext .= "<li><i>{$anwswer->answer} {$rightanswer}</i></li>";
+                    }else{
+                        $anwswertext .= "<li>{$anwswer->answer} </li>";
                     }
-                    $anwswertext .= "<li>{$anwswer->answer} {$rightanswer}</li>";
                 }
                 $anwswertext .= "</ul>";
 
@@ -88,8 +90,10 @@ foreach($objpages as $page)
                     if(@$draft[$anwswer->id])
                     {
                         $rightanswer = "({$draft[$anwswer->id]})";
+                        $anwswertext .= "<li><i>{$anwswer->questiontext} {$rightanswer}</i></li>";
+                    }else{
+                        $anwswertext .= "<li>{$anwswer->questiontext} {$rightanswer}</li>";
                     }
-                    $anwswertext .= "<li>{$anwswer->questiontext} {$rightanswer}</li>";
                 }
                 $anwswertext .= "</ul>";
 

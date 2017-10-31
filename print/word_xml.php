@@ -55,8 +55,58 @@ foreach($objpages as $page)
     foreach($questions as $question)
     {
         $draft = false;
+        $anwswertext = '';
         echo "<br><br>";
-        if($question->qtype == 'multianswer')
+        //echo $question->qtype."<br><br>";
+        switch ($question->qtype)
+        {
+            case ICONTENT_QTYPE_MULTICHOICE:
+            case ICONTENT_QTYPE_TRUEFALSE:
+                $anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
+                $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
+                $anwswertext .= "<ul>";
+                foreach($anwswers as $anwswer)
+                {
+                    $rightanswer = '';
+                    if(in_array($anwswer->id, $draft))
+                    {
+                        $rightanswer = "(answer)";
+                    }
+                    $anwswertext .= "<li>{$anwswer->answer} {$rightanswer}</li>";
+                }
+                $anwswertext .= "</ul>";
+
+            break;
+            case ICONTENT_QTYPE_MATCH:
+                $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
+                $anwswers = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
+
+                $anwswertext .= "<ul>";
+                foreach($anwswers as $anwswer)
+                {
+                    $rightanswer = '';
+                    if(@$draft[$anwswer->id])
+                    {
+                        $rightanswer = "({$draft[$anwswer->id]})";
+                    }
+                    $anwswertext .= "<li>{$anwswer->questiontext} {$rightanswer}</li>";
+                }
+                $anwswertext .= "</ul>";
+
+            break;
+
+            case ICONTENT_QTYPE_ESSAY:
+                $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
+                $anwswertext = $draft->answertext;
+            break;
+
+            case ICONTENT_QTYPE_MULTIANSWES:
+                $question->questiontext = '';
+                $anwswertext = '';
+            break;
+
+        }
+        /*if($question->qtype == 'multianswer')
         {
             $multianswers = $DB->get_records('icontent_question_attempts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
             foreach($multianswers as $multianswer)
@@ -67,16 +117,21 @@ foreach($objpages as $page)
         else
         {
             $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
-        }
+        }*/
 
         echo "<div class='question essay'>";
         $questiontext = icontent_parse_image_word($question->qid, $question->questiontext);
         //$questiontext = $question->questiontext;
         echo "<div class='questiontext'>{$questiontext}</div>";
-        if($draft)
+        echo "<div class='anwswertext'>{$anwswertext}</div>";
+        if($question->generalfeedback)
+        {
+            echo "<div class='generalfeedback'>{$question->generalfeedback}</div>";
+        }
+        /*if($draft)
         {
             echo "<div class='question'><i>{$draft->answertext}</i></div>";
-        }
+        }*/
         echo "</div>";
     }
     echo "</div>";

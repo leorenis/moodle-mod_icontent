@@ -785,4 +785,8 @@ textarea.answertextarea {
     color: #016a6e !important;
 
 }
+
+ #generalfeedback {
+ float: none !important;   
+}
 /*task 30.10 end*/

@@ -2042,7 +2042,8 @@ function icontent_make_questions_answers_by_type($question){
             }
             $strpromptinfo = html_writer::span($strprompt, 'label label-info');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MULTICHOICE);
-            $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            //$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            $questionanswers .= html_writer::div($question->questiontext, 'questiontext');
             $questionanswers .= html_writer::div($strpromptinfo, 'prompt');
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list
             foreach ($anwswers as $anwswer){
@@ -2071,7 +2072,8 @@ function icontent_make_questions_answers_by_type($question){
             $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
             $options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
-            $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            //$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            $questionanswers .= html_writer::div($question->questiontext, 'questiontext');
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list
             $contenttable = '';
             $arrayanswers = [];
@@ -2103,7 +2105,8 @@ function icontent_make_questions_answers_by_type($question){
 
             $strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
-            $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            //$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            $questionanswers .= html_writer::div($question->questiontext, 'questiontext');
             $questionanswers .= html_writer::div($strpromptinfo, 'prompt');
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list
             foreach ($anwswers as $anwswer){

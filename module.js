@@ -92,5 +92,20 @@ $(document).ready(function(){
 	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
   	$(".load-page").click(onLoadPageClick);
+  	
+  	
+  	
+  	Y.all('.load-page.btn-next-page').each(function(){
+  	    if(this.get('childElementCount') == 0) {
+  	        this.append(Y.Node.create('<i class="fa fa-chevron-circle-left"></i>'));
+  	    }
+  	});
+  	Y.all('.load-page.btn-previous-page').each(function(){
+  	    if(this.get('childElementCount') == 0) {
+  	        console.dir(this.get('firstChild'));
+  	        // this.append(Y.Node.create('<i class="fa fa-chevron-circle-right"></i>'));
+  	        this.insertBefore(Y.Node.create('<i class="fa fa-chevron-circle-right"></i>'), this.get('firstChild') );
+  	    }
+  	});
 
 }); // End ready

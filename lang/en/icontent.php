@@ -255,5 +255,5 @@ $string['icontent:replynotes'] = 'Reply note';
 $string['icontent:newquestion'] = 'Add a new question';
 $string['icontent:answerquestionstryagain'] = 'Allow unlimited answers to the questions on pages';
 $string['your-answer'] = '(answer)';
-
-
+$string['icontentmenutitle'] = 'Content pages menu';
+?>

@@ -58,7 +58,7 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     global $OUTPUT, $PAGE;
     $toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit, 0);
     $bc = new block_contents();
-    $bc->title = get_string('icontentmenu', 'icontent');
+    $bc->title = get_string('icontentmenutitle', 'icontent');
     $bc->attributes['class'] = 'block block_icontent_toc';
     $bc->content = $toc;
     $defaultregion = $PAGE->blocks->get_default_region();

@@ -222,4 +222,5 @@ $string['usemaxgrade_help'] = 'אם הערעור הוא על פריט הערכה
 $string['writedoubt'] = 'כתבו ספק';
 $string['writenotes'] = 'כתבו הערה';
 $string['your-answer'] = '(תשובתך)';
+$string['icontentmenutitle'] = 'תוכן עניינים';
 ?>

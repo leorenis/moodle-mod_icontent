@@ -746,6 +746,7 @@ textarea.answertextarea {
     background-color: #018388 !important;
     border: 1px solid #016a6e;
 }
+.btn-sendanswers.btn-primary:focus,
 .btn-sendanswers.btn-primary,
 .load-page.btn-previous-page,
 .load-page.btn-next-page,
@@ -765,6 +766,7 @@ textarea.answertextarea {
     padding: 0 4px;
     margin: 0px;
 }
+
 .btn-sendanswers.btn-primary:hover,
 .load-page.btn-previous-page:hover,
 .load-page.btn-next-page:hover

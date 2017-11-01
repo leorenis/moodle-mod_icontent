@@ -708,6 +708,7 @@ text-align:unset !important;
 .fulltextpage .que .formulation {
   background-color: #fff !important;
   border: none !important;
+  padding-left: 0px !important;
 }
 .path-mod-icontent .questionsarea .question .optionslist
 td.matchoptions {
@@ -719,12 +720,17 @@ td.matchoptions {
 textarea.answertextarea {
     max-width: 100%;
 }
+.full-paging-buttonbar .load-page.btn-previous-page,
+.full-paging-buttonbar .load-page.btn-next-page {
+  margin-top: 4px;
+}
+
 .load-page.btn-icontent-page {
     box-sizing: border-box;
     padding: 0px !important;
-    line-height: 25px;
-    width: 25px;
-    height: 25px;
+    line-height: 32px;
+    width: 32px;
+    height: 32px;
     font-size: 16px;
     background-color: #fff;
     border: 1px solid #737373;
@@ -735,7 +741,7 @@ textarea.answertextarea {
     border: 1px solid #025454;
 }
 .load-page.btn-icontent-page.visited {
-    line-height: 23px;
+    line-height: 30px;
     color: #018388;
     background-color: #fff;
     border: 2px solid #018388;
@@ -755,11 +761,16 @@ textarea.answertextarea {
   min-width: unset !important;
   font-size: 16px;
   border: none;
-  /* border: 2px solid #01838A; */
   border-radius: 16px;
   color: #018388;
   background-color: #fff;
   box-shadow: 0 0 0 1.5px #01838A;
+}
+.load-page.btn-previous-page {
+  margin-right: 1.5px;
+}
+.load-page.btn-next-page {
+  margin-left: 1.5px;
 }
 .load-page.btn-previous-page .fa,
 .load-page.btn-next-page .fa {
@@ -815,8 +826,12 @@ label {
     margin-left: 10px;
 
 }
-.mod_btn {
+#page-content .mod_btn {
     padding-bottom: 40px !important;
+}
+#region-main .mod_btn {
+ clear: both;
+ padding-left: 0px;
 }
 
 .prompt span.label {
@@ -826,5 +841,9 @@ label {
   padding: 0 22px;
   border-radius: 4px;
   margin-bottom: 15px;
+}
+.load-page.btn-icontent-page[data-pagenum="15"],
+.load-page.btn-icontent-page[data-pagenum="30"] {
+    margin-left: 77px;
 }
 /*task 30.10 end*/

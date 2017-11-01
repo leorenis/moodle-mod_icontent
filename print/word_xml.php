@@ -90,9 +90,9 @@ foreach($objpages as $page)
                     if(@$draft[$anwswer->id])
                     {
                         $rightanswer = "({$draft[$anwswer->id]})";
-                        $anwswertext .= "<li style='color:#919191;'><i>{$anwswer->questiontext} {$rightanswer}</i></li>";
+                        $anwswertext .= "<li style='color:#919191;'><i>".strip_tags($anwswer->questiontext)." {$rightanswer}</i></li>";
                     }else{
-                        $anwswertext .= "<li>{$anwswer->questiontext}</li>";
+                        $anwswertext .= "<li>".strip_tags($anwswer->questiontext)."</li>";
                     }
                 }
                 $anwswertext .= "</ul>";

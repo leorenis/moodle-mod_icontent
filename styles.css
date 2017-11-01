@@ -699,11 +699,11 @@ text-align:unset !important;
 .path-mod-icontent .full-paging-buttonbar {
   padding: 16px 0 !important;
 }
-.path-mod-icontent .icontent-page
+/*.path-mod-icontent .icontent-page
 .fulltextpage {
 
  padding-right: 30px;
-}
+}*/
 
 .fulltextpage .que .formulation {
   background-color: #fff !important;
@@ -767,10 +767,10 @@ textarea.answertextarea {
   box-shadow: 0 0 0 1.5px #01838A;
 }
 .load-page.btn-previous-page {
-  margin-right: 1.5px;
+  margin-right: 1.5px !important;
 }
 .load-page.btn-next-page {
-  margin-left: 1.5px;
+  margin-left: 1.5px !important;
 }
 .load-page.btn-previous-page .fa,
 .load-page.btn-next-page .fa {
@@ -852,6 +852,10 @@ label {
 .load-page.btn-icontent-page[data-pagenum="46"]
 {
 
-    margin-right: 77px;
+    margin-right: 85px;
+}
+
+.fulltextpage .icon-file-word-o{
+  left: 15px;
 }
 /*task 30.10 end*/

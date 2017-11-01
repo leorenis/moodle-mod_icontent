@@ -50,6 +50,7 @@ $(document).ready(function(){
 	    		}
 	    		onChecksHighcontrast();
 	    		onChangeStateControlButtons(data);
+                //SetPageEvents();
 	    	}
 	    }); // End AJAX
 	} // End onLoad..
@@ -92,9 +93,9 @@ $(document).ready(function(){
 	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
   	$(".load-page").click(onLoadPageClick);
-  	
-  	
-  	
+
+
+
   	Y.all('.load-page.btn-next-page').each(function(){
   	    if(this.get('childElementCount') == 0) {
   	        this.append(Y.Node.create('<i class="fa fa-chevron-circle-left"></i>'));

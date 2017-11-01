@@ -2017,6 +2017,32 @@ function icontent_make_questions_answers_by_type($question){
             //$questionanswers .= html_writer::start_div('button');
             //$questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'cloze_save', 'class'=>'btn-sendanswers btn-primary idformquestions', 'value'=> get_string('savechanges')));
             $questionanswers .= html_writer::end_div();
+            //$questionanswers .= html_writer::script("\$(document).ready(function(){\$('.question.multianswer').on('keyup change', 'input, select, textarea', onSaveClozeAnswers);});");
+
+            $questionanswers .= html_writer::script("function onSaveClozeAnswersIn(){
+                var formdata = $(\"#idformquestions\").serialize();
+                var cmid = parseInt($(\"#idhfieldcmid\").val());
+                var sesskey = $(\"#idhfieldsesskey\").val();
+                var data = {
+                    \"action\" : \"savecloze\",
+                    \"id\" : cmid,
+                    \"sesskey\" : sesskey,
+                    \"formdata\" : formdata,
+                };
+                $(\"#savediv\").modal({'backdrop': false});
+                $.ajax({
+                    type : \"POST\",
+                    dataType : \"json\",
+                    url : \"ajax.php\",
+                    data : data,
+                    success : function(data) {
+                        setTimeout(function(){ $(\"#savediv\").modal('hide')}, 1000);
+                    }
+                });// End AJAX
+
+                return false;
+            }");
+            $questionanswers .= html_writer::script("$('.question.multianswer').on('keyup change', 'input, select, textarea', onSaveClozeAnswersIn);");
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_MULTICHOICE:

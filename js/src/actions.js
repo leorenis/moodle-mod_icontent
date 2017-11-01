@@ -443,26 +443,32 @@ $(document).ready(function() {
         $('.suspension-points').show();
         $('.read-more-state-on').show();
     }
+
+    SetPageEvents();
+    function SetPageEvents()
+    {
     // Events
-    $("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
-    $("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
-    $("#idicontentpages").on('click', '#idtitlenotes', {idtogle: '#idfulltab'}, onTogleElementClick);
-    $("#idicontentpages").on('click', '#idtitlequestionsarea', {idtogle: '#idcontentquestionsarea'}, onTogleElementClick);
-    $("#idicontentpages").on('click', '.read-more-state-on', onReadMoreStateOnClick);
-    $("#idicontentpages").on('click', '.read-more-state-off', onReadMoreStateOffClick);
-    $("#idicontentpages").on('click', '.likenote', onLikeNoteClick);
-    $("#idicontentpages").on('click', '.editnote', onEditNoteClick);
-    $("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
-    $("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
-    $("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);
-    //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
-    //$("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
-    $("#idicontentpages").on('click', '#generalfeedback', function(){$(this).parent().children('.generalfeedback').toggle();});
-    $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
-    $("#idicontentpages").on('click', '.answercheckbox', onSaveAttempText);
-    $("#idicontentpages").on('change', '.answermatch', onSaveAttempText);
-    $(".question.multianswer").on('keyup change', 'input, select, textarea', onSaveClozeAnswers);
+        $("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
+        $("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
+        $("#idicontentpages").on('click', '#idtitlenotes', {idtogle: '#idfulltab'}, onTogleElementClick);
+        $("#idicontentpages").on('click', '#idtitlequestionsarea', {idtogle: '#idcontentquestionsarea'}, onTogleElementClick);
+        $("#idicontentpages").on('click', '.read-more-state-on', onReadMoreStateOnClick);
+        $("#idicontentpages").on('click', '.read-more-state-off', onReadMoreStateOffClick);
+        $("#idicontentpages").on('click', '.likenote', onLikeNoteClick);
+        $("#idicontentpages").on('click', '.editnote', onEditNoteClick);
+        $("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
+        $("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
+        $("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);
+        //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
+        //$("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
+        $("#idicontentpages").on('click', '#generalfeedback', function(){$(this).parent().children('.generalfeedback').toggle();});
+        $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
+        $("#idicontentpages").on('click', '.answercheckbox', onSaveAttempText);
+        $("#idicontentpages").on('change', '.answermatch', onSaveAttempText);
+        //$(".question.multianswer").on('keyup change', 'input, select, textarea', onSaveClozeAnswers);
+        console.log($(".question.multianswer"));
     //$("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
+    }
 
     var url = window.location;
     try

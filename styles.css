@@ -858,11 +858,10 @@ label {
 .fulltextpage .icon-file-word-o{
   left: 15px;
 }
-/*task 30.10 end*/
-
 .dir-rtl.has_dock #page, .dir-rtl.has_dock .moodleheader{
-	
-	padding-left: 0px !important;
-	padding-right: 0px !important;
-	
+
+ padding-left: 0px !important;
+ padding-right: 0px !important;
+
 }
+/*task 30.10 end*/

@@ -843,7 +843,15 @@ label {
   margin-bottom: 15px;
 }
 .load-page.btn-icontent-page[data-pagenum="15"],
-.load-page.btn-icontent-page[data-pagenum="30"] {
+.load-page.btn-icontent-page[data-pagenum="30"],
+.load-page.btn-icontent-page[data-pagenum="45"] {
     margin-left: 77px;
+}
+.load-page.btn-icontent-page[data-pagenum="16"],
+.load-page.btn-icontent-page[data-pagenum="31"],
+.load-page.btn-icontent-page[data-pagenum="46"]
+{
+
+    margin-right: 77px;
 }
 /*task 30.10 end*/

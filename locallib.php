@@ -1800,6 +1800,20 @@ function icontent_parse_image($key, $text)
     LIMIT 1
     ";*/
     $result = @$DB->get_record_sql($sql, array($key));
+    
+    
+    
+    if (!function_exists('getallheaders')) {
+        function getallheaders() {
+            $headers = [];
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                }
+            }
+            return $headers;
+        }
+    }
 
     //print_r($result);
     $headers = '';

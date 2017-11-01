@@ -687,7 +687,7 @@ textarea.answertextarea{
 text-align:unset !important;
 }
 /*task 30.10*/
-.category-2 h2
+.category-2 div[role="main"] h2
 {
     background-color: #fff;
     margin: 0px;
@@ -695,17 +695,18 @@ text-align:unset !important;
     padding-right: 30px;
     border: 1px solid #dbdfe4;
     color: #018388;
-    margin-bottom: 20px;
+}
+.path-mod-icontent .full-paging-buttonbar {
+  padding: 16px 0 !important;
 }
 .path-mod-icontent .icontent-page
 .fulltextpage {
-    margin-top: 10px;
  padding-right: 30px;
 }
 
-.que .formulation {
-  background-color: #fff;
-  border: none;
+.fulltextpage[data-pagenum="7"] .que .formulation {
+  background-color: #fff !important;
+  border: none !important;
 }
 .path-mod-icontent .questionsarea .question .optionslist
 td.matchoptions {
@@ -740,18 +741,21 @@ textarea.answertextarea {
 }
 .load-page.btn-icontent-page:active,
 .load-page.btn-icontent-page.active {
-
+    opacity: 1 !important;
     background-color: #018388 !important;
     border: 1px solid #016a6e;
 }
 .btn-sendanswers.btn-primary,
 .load-page.btn-previous-page,
-.load-page.btn-next-page {
+.load-page.btn-next-page,
+.load-page.btn-previous-page:disabled:hover,
+.load-page.btn-next-page:disabled:hover{
     min-width: unset !important;
     font-size: 16px;
-    border: 1px solid #018388;
-    border-radius: 15px;
+    border: 2px solid #018388;
+    border-radius: 16px;
     color: #018388;
+    background-color: #fff;
 }
 .load-page.btn-previous-page .fa,
 .load-page.btn-next-page .fa {
@@ -771,12 +775,12 @@ textarea.answertextarea {
 }
 .icontent_toc .load-page {
     color: #016a6e !important;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: normal !important;
 }
 .icontent_toc .load-page:hover {
     color: #3c3c3c !important;
-    font-size: 16px;
+
 }
 .icontent_toc .load-page.active,
 .icontent_toc .load-page:active {
@@ -787,6 +791,26 @@ textarea.answertextarea {
 }
 
  #generalfeedback {
- float: none !important;   
+ float: none !important;
+ margin-top: 15px;
+}
+
+.optionslist > div {
+    display: flex;
+}
+.path-mod-icontent .questionsarea .question .optionslist
+label {
+    font-size: 15px;
+}
+.optionslist input[type="radio"],
+.optionslist input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 6px;
+    margin-left: 10px;
+
+}
+#page {
+    padding-bottom: 40px;
 }
 /*task 30.10 end*/

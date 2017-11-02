@@ -954,9 +954,9 @@ label {
 .questionsarea .question.multianswer {
   border-bottom: none; 
 }
-.path-mod-icontent .questionsarea.question{
+.path-mod-icontent .questionsarea .question{
 	border-bottom:none;
-	background-color:none !important;
+	background-color:#FCFCFC !important;
 }
 
 #idformquestions .sendanswers{

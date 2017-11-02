@@ -951,4 +951,7 @@ label {
 .fulltextpage .answercheckbox[type="checkbox"]:checked ~ label::before {
     display: block;
 }
+.questionsarea .question.multianswer {
+  border-bottom: none; 
+}
 /*task 30.10 end*/

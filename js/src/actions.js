@@ -89,6 +89,11 @@ $(document).ready(function() {
             .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
         )
         .css('opacity', '0.5');
+        
+        $(".btn-next-page").attr("disabled", true);
+        $(".btn-previous-page").attr("disabled", true);
+        $(".btn-icontent-page").attr("disabled", true);
+       
     }
     // Hide loading icon
     function removeIconLoad($this){
@@ -99,6 +104,17 @@ $(document).ready(function() {
         .css('opacity', '1')
         .children('.loading').remove();
         $this.removeAttr('disabled');
+        var numpages = $(".btn-previous-page").attr("data-totalpages");
+        var currentpage = $('.btn-icontent-page.active').attr('data-pagenum');
+        
+        if (currentpage!=1){
+        	$(".btn-previous-page").attr("disabled", false);	
+        }
+        
+        if (currentpage!=numpages){
+            $(".btn-next-page").attr("disabled", false);
+        }
+        $(".btn-icontent-page").attr("disabled", false);
     }
     // Like note
     function onLikeNoteClick() {

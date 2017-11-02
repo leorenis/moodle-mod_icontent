@@ -2623,7 +2623,7 @@ function icontent_make_toolbar($page, $icontent){
     $toolbar = html_writer::tag('div', $highcontrast. $comments. $displayed. $addquestion. $update. $new, array('class'=>'toolbarpage '));
     $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
         array(
-            'title' => 'download',//s(get_string('download', 'icontent')),
+            'title' => get_string('downloadword', 'icontent'),
             'class'=>'icon icon-file-word-o',
             'data-toggle'=> 'tooltip',
             'data-placement'=> 'top'

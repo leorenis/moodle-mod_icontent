@@ -82,7 +82,7 @@
     letter-spacing: 0.1px;
     line-height: 1.8em;
     word-spacing: 0.3px;
-    padding: 15px;
+    padding: 15px 30px !important;
 }
 .path-mod-icontent .icontent-page .fulltextpage ul li{
     line-height: 1.8em;
@@ -687,7 +687,7 @@ textarea.answertextarea{
 text-align:unset !important;
 }
 /*task 30.10*/
-.category-2 div[role="main"] h2
+#page-mod-icontent-view div[role="main"] h2
 {
     background-color: #fff;
     margin: 0px;
@@ -709,6 +709,7 @@ text-align:unset !important;
   background-color: #fff !important;
   border: none !important;
   padding-left: 0px !important;
+  padding-right: 0px !important;
 }
 .path-mod-icontent .questionsarea .question .optionslist
 td.matchoptions {
@@ -719,6 +720,7 @@ td.matchoptions {
 }
 textarea.answertextarea {
     max-width: 100%;
+    min-width: 100%;
 }
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page {
@@ -856,12 +858,15 @@ label {
 }
 
 .fulltextpage .icon-file-word-o{
-  left: 15px;
+  left: 30px;
 }
 .dir-rtl.has_dock #page, .dir-rtl.has_dock .moodleheader{
 
  padding-left: 0px !important;
  padding-right: 0px !important;
 
+}
+.path-mod-icontent .questionsarea .question {
+  padding: 0px !important;
 }
 /*task 30.10 end*/

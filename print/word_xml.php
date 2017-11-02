@@ -8,6 +8,7 @@ $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it should be named as the first character of the module.
 $edit = optional_param('edit', -1, PARAM_BOOL);    // Edit mode
 $pageid = optional_param('pageid', 0, PARAM_INT);
+$ishtml = optional_param('ishtml', 0, PARAM_INT);
 
 if ($id) {
     $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
@@ -24,9 +25,11 @@ $objpages = $DB->get_records('icontent_pages', array('icontentid' => $icontent->
 
 $context = context_module::instance($cm->id);
 
-$filename = $icontent->name.date("d.m.Y");
-header("Content-type: application/vnd.ms-word");
-header("Content-Disposition: attachment;Filename={$filename}.doc");
+if (empty($ishtml)){
+    $filename = $icontent->name.date("d.m.Y");
+    header("Content-type: application/vnd.ms-word");
+    header("Content-Disposition: attachment;Filename={$filename}.doc");
+}
 
 
 echo '<html  dir="rtl" lang="he" xml:lang="he">';

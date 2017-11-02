@@ -697,7 +697,8 @@ text-align:unset !important;
     color: #018388;
 }
 .path-mod-icontent .full-paging-buttonbar {
-  padding: 16px 0 !important;
+  padding: 16px 130px !important;
+  position: relative !important;
 }
 /*.path-mod-icontent .icontent-page
 .fulltextpage {
@@ -725,6 +726,17 @@ textarea.answertextarea {
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page {
   margin-top: 4px;
+}
+
+.full-paging-buttonbar .load-page.btn-previous-page,
+.full-paging-buttonbar .load-page.btn-next-page{
+  position: absolute;
+  top: 16px;
+  left: 0;
+}
+.full-paging-buttonbar .load-page.btn-previous-page {
+  left: auto;
+  right: 0;
 }
 
 .load-page.btn-icontent-page {
@@ -844,7 +856,7 @@ label {
   border-radius: 4px;
   margin-bottom: 15px;
 }
-.load-page.btn-icontent-page[data-pagenum="15"],
+/*.load-page.btn-icontent-page[data-pagenum="15"],
 .load-page.btn-icontent-page[data-pagenum="30"],
 .load-page.btn-icontent-page[data-pagenum="45"] {
     margin-left: 77px;
@@ -855,7 +867,7 @@ label {
 {
 
     margin-right: 85px;
-}
+}*/
 
 .fulltextpage .icon-file-word-o{
   left: 30px;
@@ -869,4 +881,74 @@ label {
 .path-mod-icontent .questionsarea .question {
   padding: 0px !important;
 }
-/*task 30.10 end*/\
+
+
+ .fulltextpage .answercheckbox[type="radio"] {
+    display: none;
+}
+ .fulltextpage .answercheckbox[type="radio"] ~ label {
+    position: relative;
+    padding-right: 30px;
+    cursor: pointer;
+
+}
+ .fulltextpage .answercheckbox[type="radio"] ~ label::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 5px;
+    right: 0px;
+    border: 2px solid #525252;
+    border-radius: 50%;
+ }
+ .fulltextpage .answercheckbox[type="radio"] ~ label::before{
+    content: '';
+    display: none;
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    top: 9px;
+    right: 4px;
+    background-color: #525252;
+    border-radius: 50%;
+ }
+  .fulltextpage .answercheckbox[type="radio"]:checked ~ label::before {
+     display: block;
+ }
+
+.fulltextpage .answercheckbox[type="checkbox"] {
+   display: none;
+}
+.fulltextpage .answercheckbox[type="checkbox"] ~ label {
+   position: relative;
+   padding-right: 30px;
+   cursor: pointer;
+
+}
+.fulltextpage .answercheckbox[type="checkbox"] ~ label::after {
+   content: '';
+   position: absolute;
+   width: 20px;
+   height: 20px;
+   top: 5px;
+   right: 0px;
+   border: 2px solid #525252;
+   border-radius: 3px;
+}
+.fulltextpage .answercheckbox[type="checkbox"] ~ label::before{
+   content: '';
+   display: none;
+   position: absolute;
+   width: 14px;
+   height: 8px;
+   top: 9px;
+   right: 3px;
+   transform: rotate(-41deg);
+   border-left: 3px solid black;
+   border-bottom: 3px solid black;
+}
+.fulltextpage .answercheckbox[type="checkbox"]:checked ~ label::before {
+    display: block;
+}
+/*task 30.10 end*/

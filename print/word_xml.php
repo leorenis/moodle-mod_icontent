@@ -105,7 +105,50 @@ foreach($objpages as $page)
             break;
 
             case ICONTENT_QTYPE_MULTIANSWES:
-                $question->questiontext = '';
+                //$question->questiontext = '';
+                $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+                $sequence = $DB->get_field('question_multianswer', 'sequence', array('question'=>$question->qid));
+                if($sequence)
+                {
+                    $arrSequence = explode(',', $sequence);
+                    //$subquestions = $DB->get_records_menu('question', array('id' => $arrSequence), '', 'id, questiontext');
+                    $subquestions = $DB->get_records_menu('question', array('parent' => $question->qid), '', 'id, questiontext');
+                    foreach($arrSequence as $key => $id)
+                    {
+                        $curr = $subquestions[$id];
+                        $curr = str_replace(['{', '}', '~'], '', $curr);
+                        list($num, $type, $anws) = explode(':', $curr);
+                        $anwstr = preg_split('/\%\d+\%/', $anws);
+
+                        if(strpos($type, 'MULTICHOICE') !== false)
+                        {
+                            $stransw = "<br><ul>";
+
+                            foreach($anwstr as $i => $prt)
+                            {
+                                $rightanswer = '';
+                                $anwprt = explode('#', $prt);
+                                if(isset($attempts[$key + 1]) && $attempts[$key + 1] != '' && $attempts[$key + 1] == $i)
+                                {
+                                    $rightanswer = get_string("your-answer", "icontent");
+                                }
+                                $stransw .= "<li style='color:#919191;'><i>{$anwprt[0]} {$rightanswer}</i></li>";
+
+
+                            }
+                            $stransw .= "</ul>";
+                        }
+                        else
+                        {
+                            $stransw = "<br><i style='color:#919191;'>".$attempts[$key + 1]."</i><br>";
+                        }
+
+
+                        $question->questiontext = str_replace("{#".($key + 1)."}", $stransw, $question->questiontext);
+                    }
+                }
+
+
                 $anwswertext = '';
             break;
 

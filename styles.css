@@ -954,4 +954,14 @@ label {
 .questionsarea .question.multianswer {
   border-bottom: none; 
 }
+.path-mod-icontent .questionsarea.question{
+	border-bottom:none;
+	background-color:none !important;
+}
+
+#idformquestions .sendanswers{
+display:none;
+}
+
+
 /*task 30.10 end*/

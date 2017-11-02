@@ -5,30 +5,29 @@
 * @copyright  2016 Leo Santos {@link http://github.com/leorenis}
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
-$(document).ready(function() {
-	
-	
-	function blockButtons(){
+function blockButtons(){
         $("button.btn-next-page").attr("disabled", true);
         $("button.btn-previous-page").attr("disabled", true);
         $("button.btn-icontent-page").attr("disabled", true);
         console.log('block');
 	}
 	
-	function unblockButtons(){
-	     var numpages = $("button.btn-previous-page").attr("data-totalpages");
-	     var currentpage = $('button.btn-icontent-page.active').attr('data-pagenum');
-	        
-        if (currentpage!=1){
-        	$("button.btn-previous-page").attr("disabled", false);	
-        }
+function unblockButtons(){
+     var numpages = $("button.btn-previous-page").attr("data-totalpages");
+     var currentpage = $('button.btn-icontent-page.active').attr('data-pagenum');
         
-        if (currentpage!=numpages){
-            $("button.btn-next-page").attr("disabled", false);
-        }
-        $("button.btn-icontent-page").attr("disabled", false);
-        console.log('unblock');
-	}
+    if (currentpage!=1){
+    	$("button.btn-previous-page").attr("disabled", false);	
+    }
+    
+    if (currentpage!=numpages){
+        $("button.btn-next-page").attr("disabled", false);
+    }
+    $("button.btn-icontent-page").attr("disabled", false);
+    console.log('unblock');
+}
+
+$(document).ready(function() {
 
 
     // List of the named functions

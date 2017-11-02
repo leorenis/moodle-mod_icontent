@@ -9,24 +9,25 @@ $(document).ready(function() {
 	
 	
 	function blockButtons(){
-        $(".btn-next-page").attr("disabled", true);
-        $(".btn-previous-page").attr("disabled", true);
-        $(".btn-icontent-page").attr("disabled", true);
+        $("button.btn-next-page").attr("disabled", true);
+        $("button.btn-previous-page").attr("disabled", true);
+        $("button.btn-icontent-page").attr("disabled", true);
         console.log('block');
 	}
 	
 	function unblockButtons(){
-	     var numpages = $(".btn-previous-page").attr("data-totalpages");
-	     var currentpage = $('.btn-icontent-page.active').attr('data-pagenum');
+	     var numpages = $("button.btn-previous-page").attr("data-totalpages");
+	     var currentpage = $('button.btn-icontent-page.active').attr('data-pagenum');
 	        
         if (currentpage!=1){
-        	$(".btn-previous-page").attr("disabled", false);	
+        	$("button.btn-previous-page").attr("disabled", false);	
         }
         
         if (currentpage!=numpages){
-            $(".btn-next-page").attr("disabled", false);
+            $("button.btn-next-page").attr("disabled", false);
         }
-        $(".btn-icontent-page").attr("disabled", false);
+        $("button.btn-icontent-page").attr("disabled", false);
+        console.log('unblock');
 	}
 
 

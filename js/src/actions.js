@@ -12,6 +12,7 @@ $(document).ready(function() {
         $(".btn-next-page").attr("disabled", true);
         $(".btn-previous-page").attr("disabled", true);
         $(".btn-icontent-page").attr("disabled", true);
+        console.log('block');
 	}
 	
 	function unblockButtons(){
@@ -418,7 +419,8 @@ $(document).ready(function() {
                 "formdata" : formdata,
             };
             //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-            $("#savediv").modal({'backdrop': false}); blockButtons();
+            blockButtons();
+            $("#savediv").modal({'backdrop': false}); 
             $.ajax({
                 type : "POST",
                 dataType : "json",

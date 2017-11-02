@@ -347,7 +347,7 @@ $(document).ready(function() {
             data : $('#idformquestions').serialize(),
             complete : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                unblockButtons();setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+               setTimeout(function(){$("#savediv").modal('hide'); unblockButtons();}, 1000);
             }
         });// End AJAX
 
@@ -398,7 +398,7 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                unblockButtons();setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                setTimeout(function(){$("#savediv").modal('hide');unblockButtons();}, 1000);
             }
         });// End AJAX
 
@@ -428,7 +428,7 @@ $(document).ready(function() {
                 data : data,
                 success : function(data) {
                     $("#idquestionsarea").html(data.grid);
-                    unblockButtons();setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                    setTimeout(function(){$("#savediv").modal('hide');unblockButtons();}, 1000);
                 }
             });// End AJAX
             }, 2000 );

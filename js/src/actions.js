@@ -6,6 +6,28 @@
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 $(document).ready(function() {
+	
+	
+	function blockButtons(){
+        $(".btn-next-page").attr("disabled", true);
+        $(".btn-previous-page").attr("disabled", true);
+        $(".btn-icontent-page").attr("disabled", true);
+	}
+	
+	function unblockButtons(){
+	     var numpages = $(".btn-previous-page").attr("data-totalpages");
+	     var currentpage = $('.btn-icontent-page.active').attr('data-pagenum');
+	        
+        if (currentpage!=1){
+        	$(".btn-previous-page").attr("disabled", false);	
+        }
+        
+        if (currentpage!=numpages){
+            $(".btn-next-page").attr("disabled", false);
+        }
+        $(".btn-icontent-page").attr("disabled", false);
+	}
+
 
     // List of the named functions
     // Save note tab type 'note'
@@ -89,10 +111,7 @@ $(document).ready(function() {
             .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
         )
         .css('opacity', '0.5');
-        
-        $(".btn-next-page").attr("disabled", true);
-        $(".btn-previous-page").attr("disabled", true);
-        $(".btn-icontent-page").attr("disabled", true);
+       
        
     }
     // Hide loading icon
@@ -104,17 +123,7 @@ $(document).ready(function() {
         .css('opacity', '1')
         .children('.loading').remove();
         $this.removeAttr('disabled');
-        var numpages = $(".btn-previous-page").attr("data-totalpages");
-        var currentpage = $('.btn-icontent-page.active').attr('data-pagenum');
-        
-        if (currentpage!=1){
-        	$(".btn-previous-page").attr("disabled", false);	
-        }
-        
-        if (currentpage!=numpages){
-            $(".btn-next-page").attr("disabled", false);
-        }
-        $(".btn-icontent-page").attr("disabled", false);
+   
     }
     // Like note
     function onLikeNoteClick() {
@@ -328,7 +337,7 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-        $("#savediv").modal({'backdrop': false});
+        $("#savediv").modal({'backdrop': false}); blockButtons();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -337,7 +346,7 @@ $(document).ready(function() {
             data : $('#idformquestions').serialize(),
             complete : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                unblockButtons();setTimeout(function(){$("#savediv").modal('hide')}, 1000);
             }
         });// End AJAX
 
@@ -380,7 +389,7 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-        $("#savediv").modal({'backdrop': false});
+        $("#savediv").modal({'backdrop': false}); blockButtons();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -388,7 +397,7 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                unblockButtons();setTimeout(function(){$("#savediv").modal('hide')}, 1000);
             }
         });// End AJAX
 
@@ -409,7 +418,7 @@ $(document).ready(function() {
                 "formdata" : formdata,
             };
             //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-            $("#savediv").modal({'backdrop': false});
+            $("#savediv").modal({'backdrop': false}); blockButtons();
             $.ajax({
                 type : "POST",
                 dataType : "json",
@@ -417,7 +426,7 @@ $(document).ready(function() {
                 data : data,
                 success : function(data) {
                     $("#idquestionsarea").html(data.grid);
-                    setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                    unblockButtons();setTimeout(function(){$("#savediv").modal('hide')}, 1000);
                 }
             });// End AJAX
             }, 2000 );

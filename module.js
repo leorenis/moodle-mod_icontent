@@ -51,6 +51,7 @@ $(document).ready(function(){
 	    		onChecksHighcontrast();
 	    		onChangeStateControlButtons(data);
                 //SetPageEvents();
+                $('[data-toggle="tooltip"]').tooltip();
 	    	}
 	    }); // End AJAX
 	} // End onLoad..

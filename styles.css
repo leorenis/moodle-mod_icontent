@@ -963,5 +963,17 @@ label {
 display:none;
 }
 
+#idicontentpages .icon-displayed{
+    display:none;
+}
+
+#idicontentpages .icon-comments{
+    display:none;
+}
+
+
+#idicontentpages .icon-highcontrast{
+    display:none;
+}
 
 /*task 30.10 end*/

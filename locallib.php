@@ -2043,6 +2043,7 @@ function icontent_make_questions_answers_by_type($question){
                     \"sesskey\" : sesskey,
                     \"formdata\" : formdata,
                 };
+                blockButtons();
                 $(\"#savediv\").modal({'backdrop': false});
                 $.ajax({
                     type : \"POST\",
@@ -2050,7 +2051,7 @@ function icontent_make_questions_answers_by_type($question){
                     url : \"ajax.php\",
                     data : data,
                     success : function(data) {
-                        setTimeout(function(){ $(\"#savediv\").modal('hide')}, 1000);
+                        setTimeout(function(){ $(\"#savediv\").modal('hide');unblockButtons();}, 1000);
                     }
                 });// End AJAX
 

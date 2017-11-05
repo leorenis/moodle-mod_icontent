@@ -5,7 +5,30 @@
 * @copyright  2016 Leo Santos {@link http://github.com/leorenis}
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
+function blockButtons(){
+        $("button.btn-next-page").attr("disabled", true);
+        $("button.btn-previous-page").attr("disabled", true);
+        $("button.btn-icontent-page").attr("disabled", true);
+        console.log('block');
+	}
+	
+function unblockButtons(){
+     var numpages = $("button.btn-previous-page").attr("data-totalpages");
+     var currentpage = $('button.btn-icontent-page.active').attr('data-pagenum');
+        
+    if (currentpage!=1){
+    	$("button.btn-previous-page").attr("disabled", false);	
+    }
+    
+    if (currentpage!=numpages){
+        $("button.btn-next-page").attr("disabled", false);
+    }
+    $("button.btn-icontent-page").attr("disabled", false);
+    console.log('unblock');
+}
+
 $(document).ready(function() {
+
 
     // List of the named functions
     // Save note tab type 'note'
@@ -89,6 +112,8 @@ $(document).ready(function() {
             .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
         )
         .css('opacity', '0.5');
+       
+       
     }
     // Hide loading icon
     function removeIconLoad($this){
@@ -99,6 +124,7 @@ $(document).ready(function() {
         .css('opacity', '1')
         .children('.loading').remove();
         $this.removeAttr('disabled');
+   
     }
     // Like note
     function onLikeNoteClick() {
@@ -312,7 +338,7 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-        $("#savediv").modal({'backdrop': false});
+        $("#savediv").modal({'backdrop': false}); blockButtons();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -321,7 +347,7 @@ $(document).ready(function() {
             data : $('#idformquestions').serialize(),
             complete : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+               setTimeout(function(){$("#savediv").modal('hide'); unblockButtons();}, 1000);
             }
         });// End AJAX
 
@@ -364,7 +390,7 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-        $("#savediv").modal({'backdrop': false});
+        $("#savediv").modal({'backdrop': false}); blockButtons();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -372,7 +398,7 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                setTimeout(function(){$("#savediv").modal('hide');unblockButtons();}, 1000);
             }
         });// End AJAX
 
@@ -393,7 +419,8 @@ $(document).ready(function() {
                 "formdata" : formdata,
             };
             //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-            $("#savediv").modal({'backdrop': false});
+            blockButtons();
+            $("#savediv").modal({'backdrop': false}); 
             $.ajax({
                 type : "POST",
                 dataType : "json",
@@ -401,7 +428,7 @@ $(document).ready(function() {
                 data : data,
                 success : function(data) {
                     $("#idquestionsarea").html(data.grid);
-                    setTimeout(function(){$("#savediv").modal('hide')}, 1000);
+                    setTimeout(function(){$("#savediv").modal('hide');unblockButtons();}, 1000);
                 }
             });// End AJAX
             }, 2000 );

@@ -8,6 +8,7 @@ $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it should be named as the first character of the module.
 $edit = optional_param('edit', -1, PARAM_BOOL);    // Edit mode
 $pageid = optional_param('pageid', 0, PARAM_INT);
+$ishtml = optional_param('ishtml', 0, PARAM_INT);
 
 if ($id) {
     $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
@@ -24,9 +25,12 @@ $objpages = $DB->get_records('icontent_pages', array('icontentid' => $icontent->
 
 $context = context_module::instance($cm->id);
 
-$filename = $icontent->name.date("d.m.Y");
-header("Content-type: application/vnd.ms-word");
-header("Content-Disposition: attachment;Filename={$filename}.doc");
+if (empty($ishtml)){
+    $filename = $icontent->name.date("d.m.Y");
+    header("Content-type: application/vnd.ms-word");
+    header("Content-Disposition: attachment;Filename={$filename}.doc");
+}
+
 
 echo '<html  dir="rtl" lang="he" xml:lang="he">';
 echo "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
@@ -50,7 +54,7 @@ foreach($objpages as $page)
     $page->pageicontent = preg_replace(['/<audio.*?<\/audio>/'], '', $page->pageicontent);
     $questions = icontent_get_pagequestions($page->id, $page->cmid);
     echo "<h3>{$page->title}</h3>";
-    echo "<div class='page-layout columns-1'>".strip_tags($page->pageicontent)."</div>";
+    //echo "<div class='page-layout columns-1'>".$page->pageicontent."</div>";
     echo "<div class='contentquestionsarea'>";
     foreach($questions as $question)
     {
@@ -89,7 +93,7 @@ foreach($objpages as $page)
                     $rightanswer = '';
                     if(@$draft[$anwswer->id])
                     {
-                        $rightanswer = "({$draft[$anwswer->id]})";
+                        $rightanswer = "(".get_string("youranswer", "icontent")." - {$draft[$anwswer->id]})";
                         $anwswertext .= "<li style='color:#919191;'><i>".strip_tags($anwswer->questiontext)." {$rightanswer}</i></li>";
                     }else{
                         $anwswertext .= "<li>".strip_tags($anwswer->questiontext)."</li>";
@@ -140,7 +144,7 @@ foreach($objpages as $page)
                         }
                         else
                         {
-                            $stransw = "<br><i style='color:#919191;'>".$attempts[$key + 1]."</i><br>";
+                            $stransw = "<br><i style='color:#919191;'>".(isset($attempts[$key + 1])?$attempts[$key + 1]:"")."</i><br>";
                         }
 
 

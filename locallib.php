@@ -2043,6 +2043,7 @@ function icontent_make_questions_answers_by_type($question){
                     \"sesskey\" : sesskey,
                     \"formdata\" : formdata,
                 };
+                blockButtons();
                 $(\"#savediv\").modal({'backdrop': false});
                 $.ajax({
                     type : \"POST\",
@@ -2050,7 +2051,7 @@ function icontent_make_questions_answers_by_type($question){
                     url : \"ajax.php\",
                     data : data,
                     success : function(data) {
-                        setTimeout(function(){ $(\"#savediv\").modal('hide')}, 1000);
+                        setTimeout(function(){ $(\"#savediv\").modal('hide');unblockButtons();}, 1000);
                     }
                 });// End AJAX
 
@@ -2623,7 +2624,7 @@ function icontent_make_toolbar($page, $icontent){
     $toolbar = html_writer::tag('div', $highcontrast. $comments. $displayed. $addquestion. $update. $new, array('class'=>'toolbarpage '));
     $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
         array(
-            'title' => 'download',//s(get_string('download', 'icontent')),
+            'title' => get_string('downloadword', 'icontent'),
             'class'=>'icon icon-file-word-o',
             'data-toggle'=> 'tooltip',
             'data-placement'=> 'top'

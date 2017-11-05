@@ -19,7 +19,7 @@ $(document).ready(function(){
 			"sesskey": $(this).attr('data-sesskey')
 		};
 		// Destroy all tooltips
-		$('[data-toggle="tooltip"]').tooltip('destroy');
+		//$('[data-toggle="tooltip"]').tooltip('destroy');
 		// Loading page
 		$(".icontent-page")
 			.children('.fulltextpage')

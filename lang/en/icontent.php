@@ -258,5 +258,7 @@ $string['your-answer'] = '(answer)';
 $string['youranswer'] = 'answer';
 $string['icontentmenutitle'] = 'Content pages menu';
 $string['downloadword'] = 'Download Word';
+$string['true'] = 'True';
+$string['false'] = 'False';
 
 ?>

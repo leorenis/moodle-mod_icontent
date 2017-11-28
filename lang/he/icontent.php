@@ -225,4 +225,6 @@ $string['your-answer'] = '(תשובתך)';
 $string['youranswer'] = 'תשובתך';
 $string['icontentmenutitle'] = 'תוכן עניינים';
 $string['downloadword'] = 'הורדת מחברת אישית';
+$string['true'] = 'נכון';
+$string['false'] = 'לא נכון';
 ?>

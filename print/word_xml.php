@@ -142,7 +142,18 @@ foreach($objpages as $page)
                             }
                             $stransw .= "</ul>";
                         }
-                        else
+                        else if  (strpos($type, 'MCV') !== false){
+
+                            $selectedValue= isset($attempts[$key + 1])?$attempts[$key + 1]:"-1";
+                            $rightanswer="";
+                            if ($selectedValue==0){
+                                $rightanswer=get_string("true", "icontent");
+                            }
+                            if ($selectedValue==1){
+                                $rightanswer=get_string("false","icontent");
+                            }
+                            $stransw = "<br><i style='color:#919191;'>".$rightanswer."</i><br>";
+                        }else
                         {
                             $stransw = "<br><i style='color:#919191;'>".(isset($attempts[$key + 1])?$attempts[$key + 1]:"")."</i><br>";
                         }

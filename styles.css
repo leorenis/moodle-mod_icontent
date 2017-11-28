@@ -882,7 +882,6 @@ label {
   padding: 0px !important;
 }
 
-
  .fulltextpage .answercheckbox[type="radio"] {
     display: none;
 }
@@ -963,17 +962,37 @@ label {
 display:none;
 }
 
-/*#idicontentpages .icon-displayed{*/
-    /*display:none;*/
-/*}*/
 
-/*#idicontentpages .icon-comments{*/
-    /*display:none;*/
-/*}*/
+.answer input[type="radio"] {
+    display: none;
+}
+.answer input[type="radio"] ~ label {
+    position: relative;
+    padding-right: 30px;
+    cursor: pointer;
 
-
-/*#idicontentpages .icon-highcontrast{*/
-    /*display:none;*/
-/*}*/
-
-/*task 30.10 end*/
+}
+.answer input[type="radio"] ~ label::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 5px;
+    right: 0px;
+    border: 2px solid #525252;
+    border-radius: 50%;
+}
+.answer input[type="radio"] ~ label::before{
+    content: '';
+    display: none;
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    top: 9px;
+    right: 4px;
+    background-color: #525252;
+    border-radius: 50%;
+}
+.answer input[type="radio"]:checked ~ label::before {
+    display: block;
+}

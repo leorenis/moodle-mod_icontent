@@ -2058,6 +2058,11 @@ function icontent_make_questions_answers_by_type($question){
                 return false;
             }");
             $questionanswers .= html_writer::script("$('.question.multianswer').on('keyup change', 'input, select, textarea', onSaveClozeAnswersIn);");
+            if($question->generalfeedback)
+            {
+                $questionanswers .= html_writer::empty_tag('input', array('type'=>'button', 'id'=>'generalfeedback', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('feedback', 'grades')));
+                $questionanswers .= html_writer::div($question->generalfeedback, 'generalfeedback');
+            }
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_MULTICHOICE:

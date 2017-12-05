@@ -138,9 +138,9 @@ $string['maxnotesperpageshelp_help'] = 'הזנת מספר ההערות המרב�
 $string['maxpages'] = 'מספר מירבי של עמודים';
 $string['maxpageshelp'] = 'מספר מירבי של עמודים';
 $string['maxpageshelp_help'] = 'הזנת מספר הדפים המרבי המותר. יש להזין רק מספרים שלמים. המלצה: עד 35 עמודים';
-$string['modulename'] = 'עמודי תוכן';
+$string['modulename'] = 'שיעור אינטראקטיבי';
 $string['modulename_help'] = 'תוסף זה (content page) מאפשר למרצה להוסיף תוכן לקורסים בצרה נגישה ושמישה. תוסף זה מאפשר להוסיף מלל, תמונות מולטימדיה ושאלות ממאגר השאלות. התוכן מחולק לעמודים. ישנה אפשרות לסמן את העמוד בסימנייה, כך שהמשתמש יוכל לחזור לאותו מקום בתוסף בכל פעם שהוא מתחבר. בנוסף, משתמש יכול להוסיף פתקים (הערות) פרטיות או ציבוריות על התוכן, ולקבל תגובות מעמיתים וגם מהמרצה. תוכן התוסף מוצג באופן חזותי גמיש אשר ניתן להפעלה ותצוגה מכל מכשיר.';
-$string['modulenameplural'] = 'עמוד תוכן';
+$string['modulenameplural'] = 'שיעור אינטראקטיבי';
 $string['msgaddquestionpage'] = 'השאלה נוספה בהצלחה!';
 $string['msgconfirmdeleteattempt'] = '<i class="fa fa-exclamation-triangle"></i> <span class="label label-warning"> {$a->totalanswers} תגובות </span>נמצא בניסיון. האם אתה בטוח שברצונך להסיר את הניסיון בדף זה?';
 $string['msgstatusdisplay'] = 'לא ניתן להוסיף או להסיר שאלות מאחר וקיימים נסיונות מענה.';
@@ -163,7 +163,7 @@ $string['pagenotfound'] = '<i class="fa fa-exclamation-triangle" aria-hidden="tr
 $string['pagetitle'] = 'כותרת עמוד';
 $string['partialresult'] = 'תוצאה חלקית';
 $string['pluginadministration'] = 'ניהול עמוד תוכן';
-$string['pluginname'] = 'עמוד תוכן';
+$string['pluginname'] = 'שיעור אינטראקטיבי';
 $string['preview'] = 'הקודם';
 $string['previous'] = 'הקודם';
 $string['previouspage'] = 'עמוד קודם';
@@ -225,6 +225,4 @@ $string['your-answer'] = '(תשובתך)';
 $string['youranswer'] = 'תשובתך';
 $string['icontentmenutitle'] = 'תוכן עניינים';
 $string['downloadword'] = 'הורדת מחברת אישית';
-$string['true'] = 'נכון';
-$string['false'] = 'לא נכון';
 ?>

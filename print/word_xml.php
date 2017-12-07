@@ -133,7 +133,7 @@ foreach($objpages as $page)
             case ICONTENT_QTYPE_MULTIANSWES:
 
                 //$question->questiontext = '';
-                $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext',0,1);
+                $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
 
                $sequence = $DB->get_field('question_multianswer', 'sequence', array('question'=>$question->qid));
                 if($sequence)
@@ -170,6 +170,8 @@ foreach($objpages as $page)
                         else if  (strpos($type, 'MCV') !== false){
 
                             $result = splitMVC($subquestions[$id]);
+                          // print_r($result);
+                            
                             $rightanswer=isset($result[$attempts[$key+1]])?$result[$attempts[$key+1]]['label']:"";
                             if($rightanswer) {
                                 $rightanswer = get_string("your-answer", "icontent")." - ".$rightanswer;

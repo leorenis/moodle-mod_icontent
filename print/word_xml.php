@@ -162,20 +162,21 @@ foreach($objpages as $page)
                                     $rightanswer = get_string("your-answer", "icontent");
                                 }
                                 $stransw .= "<li style='color:#919191;'><i>{$anwprt[0]} {$rightanswer}</i></li>";
-
-
+                                
                             }
                             $stransw .= "</ul>";
                         }
                         else if  (strpos($type, 'MCV') !== false){
 
                             $result = splitMVC($subquestions[$id]);
-                          // print_r($result);
+                        
                             
-                            $rightanswer=isset($result[$attempts[$key+1]])?$result[$attempts[$key+1]]['label']:"";
-                            if($rightanswer) {
-                                $rightanswer = get_string("your-answer", "icontent")." - ".$rightanswer;
-                                $stransw = "<br><i style='color:#919191;'>" . $rightanswer . "</i><br>";
+                            $rightanswermcv=isset($result[$attempts[$key+1]])?$result[$attempts[$key+1]]['label']:"";
+
+                          // $stransw=$attempts[$key+1].print_r($result,1);
+                            if($rightanswermcv) {
+                                $rightanswermcv = get_string("your-answer", "icontent")." - ".$rightanswermcv;
+                                $stransw = "<br><i style='color:#919191;'>" .$attempts[$key+1]. $rightanswermcv . "</i><br>";
                             }
                         }else
                         {

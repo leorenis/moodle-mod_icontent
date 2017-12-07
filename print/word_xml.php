@@ -175,7 +175,7 @@ foreach($objpages as $page)
 
                           // $stransw=$attempts[$key+1].print_r($result,1);
                             if($rightanswermcv) {
-                                $rightanswermcv = get_string("your-answer", "icontent")." - ".$rightanswermcv;
+                                $rightanswermcv = get_string("youranswer", "icontent")." - ".$rightanswermcv;
                                 $stransw = "<br><i style='color:#919191;'>" . $rightanswermcv . "</i><br>";
                             }
                         }else

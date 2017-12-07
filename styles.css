@@ -996,3 +996,12 @@ display:none;
 .answer input[type="radio"]:checked ~ label::before {
     display: block;
 }
+
+.displaynone{
+    display: none;
+}
+
+#generalfeedback_close {
+    float: none !important;
+    margin-top: 15px;
+}

@@ -489,6 +489,7 @@ $(document).ready(function() {
         //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
         //$("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
         $("#idicontentpages").on('click', '#generalfeedback', function(){$(this).parent().children('.generalfeedback').toggle();});
+        $("#idicontentpages").on('click', '#generalfeedback_close', function(){$('.generalfeedback_close_'+$(this).attr('data')).toggle();});
         $("#idicontentpages").on('keyup', '.answertextarea', onSaveAttempText);
         $("#idicontentpages").on('click', '.answercheckbox', onSaveAttempText);
         $("#idicontentpages").on('change', '.answermatch', onSaveAttempText);

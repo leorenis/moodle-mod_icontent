@@ -9,7 +9,7 @@ function blockButtons(){
         $("button.btn-next-page").attr("disabled", true);
         $("button.btn-previous-page").attr("disabled", true);
         $("button.btn-icontent-page").attr("disabled", true);
-        console.log('block');
+       // console.log('block');
 	}
 	
 function unblockButtons(){
@@ -24,7 +24,7 @@ function unblockButtons(){
         $("button.btn-next-page").attr("disabled", false);
     }
     $("button.btn-icontent-page").attr("disabled", false);
-    console.log('unblock');
+   // console.log('unblock');
 }
 
 $(document).ready(function() {

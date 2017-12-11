@@ -51,23 +51,36 @@ echo "<body dir='rtl' style='font-family: Arial;'>";
 echo "<center><h2>{$icontent->name}</h2></center>";
 
 function splitMVC($raw){
-    $curr = str_replace(['{', '}', '~'], '', $raw);
+
+    $curr = str_replace(['{', '}'], '', $raw);
     list($num, $type, $anws) = explode(':', $curr);
-    $anwstr = preg_split('/\%\d+\%/', $anws);
+    $anws = explode('~',$anws);
     $arrResult=array();
-    foreach($anwstr as $valItem){
-        if (empty($valItem)){
+    foreach($anws as $strItem){
+
+        if (empty($strItem))
             continue;
+
+        $grade="";
+        if (strpos($strItem, '%') !== false) {
+
+            preg_match("%(-?[0-9]+)%", $strItem, $arrGrade);
+            $grade = isset($arrGrade[0]) ? $arrGrade[0] : "";
+            $anwstr = preg_split('/\%\d+\%/', $strItem);
+            $strItem=$anwstr[1];
+
         }
-        $values = explode("#",$valItem);
-        $mashov=isset($values[1])?$values[1]:"";
-        $answer=isset($values[0])?$values[0]:"";
+        $arrQ = explode("#",$strItem);
+        $answer=isset($arrQ[0])?$arrQ[0]:"";
+        $mashov=isset($arrQ[1])?$arrQ[1]:"";
         $arrResult[]=array(
             "mashov"=>$mashov,
             "label"=>$answer,
-            "grade"=>'',
+            "grade"=>$grade,
         );
+
     }
+
     return $arrResult;
 }
 
@@ -153,15 +166,19 @@ foreach($objpages as $page)
                         {
                             $stransw = "<br><ul>";
 
-                            foreach($anwstr as $i => $prt)
+                            $result = splitMVC($subquestions[$id]);
+
+                            $rightanswermcv=isset($result[$attempts[$key+1]])?$result[$attempts[$key+1]]['label']:"";
+                            foreach($result as $i => $prt)
                             {
                                 $rightanswer = '';
-                                $anwprt = explode('#', $prt);
-                                if(isset($attempts[$key + 1]) && $attempts[$key + 1] != '' && $attempts[$key + 1] == $i)
-                                {
+
+                                if  ($rightanswermcv==$prt['label']){
+
                                     $rightanswer = get_string("your-answer", "icontent");
                                 }
-                                $stransw .= "<li style='color:#919191;'><i>{$anwprt[0]} {$rightanswer}</i></li>";
+
+                                $stransw .= "<li style='color:#919191;'><i>{$prt['label']} {$rightanswer}</i></li>";
 
                             }
                             $stransw .= "</ul>";
@@ -169,8 +186,7 @@ foreach($objpages as $page)
                         else if  (strpos($type, 'MCV') !== false){
 
                             $result = splitMVC($subquestions[$id]);
-                        
-                            
+
                             $rightanswermcv=isset($result[$attempts[$key+1]])?$result[$attempts[$key+1]]['label']:"";
 
                           // $stransw=$attempts[$key+1].print_r($result,1);

@@ -1005,3 +1005,6 @@ display:none;
     float: none !important;
     margin-top: 15px;
 }
+body{
+    padding-right: 0px !important;
+}

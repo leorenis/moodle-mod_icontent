@@ -1026,7 +1026,7 @@ function icontent_get_attempt_summary_by_page($pageid, $cmid){
     WHERE  pq.pageid = ?
     AND pq.cmid = ?
     AND qa.userid = ?
-    GROUP BY qa.timecreated;";
+    GROUP BY qa.timecreated limit 1;";
     // Get record
     $attemptsummary = $DB->get_record_sql($sql, array($pageid, $cmid, $USER->id));
     // Checks if a property isn't empty.

@@ -172,7 +172,9 @@ foreach($objpages as $page)
 
                             $result = splitMVC($subquestions[$id]);
 
-                            $rightanswermcv=isset($result[$attempts[$key+1]]['label'])?$result[$attempts[$key+1]]['label']:"";
+
+
+                            $rightanswermcv=(isset($attempts[$key+1])&&isset($result[$attempts[$key+1]]['label']))?$result[$attempts[$key+1]]['label']:"";
                             foreach($result as $i => $prt)
                             {
                                 $rightanswer = '';
@@ -191,7 +193,7 @@ foreach($objpages as $page)
 
                             $result = splitMVC($subquestions[$id]);
 
-                            $rightanswermcv=isset($result[$attempts[$key+1]]['label'])?$result[$attempts[$key+1]]['label']:"";
+                            $rightanswermcv=(isset($attempts[$key+1])&&isset($result[$attempts[$key+1]]['label']))?$result[$attempts[$key+1]]['label']:"";
 
                           // $stransw=$attempts[$key+1].print_r($result,1);
                             if($rightanswermcv) {

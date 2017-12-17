@@ -119,7 +119,7 @@ foreach($objpages as $page)
 
             break;
             case ICONTENT_QTYPE_MATCH:
-                $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
+                $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)",0,1);
                 $anwswers = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
 
                 $anwswertext .= "<br><ul>";
@@ -139,8 +139,12 @@ foreach($objpages as $page)
             break;
 
             case ICONTENT_QTYPE_ESSAY:
-                $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid]);
-                $anwswertext = "<br><i style='color:#919191;'>".$draft->answertext."</i>";
+                if (!empty($question->qpid)&&!empty($question->cmid)) {
+                    $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int)$USER->id, 'cmid' => $question->cmid]);
+                    if (!empty($draft->answertext)) {
+                        $anwswertext = "<br><i style='color:#919191;'>" . $draft->answertext . "</i>";
+                    }
+                }
             break;
 
             case ICONTENT_QTYPE_MULTIANSWES:
@@ -187,7 +191,7 @@ foreach($objpages as $page)
 
                             $result = splitMVC($subquestions[$id]);
 
-                            $rightanswermcv=isset($result[$attempts[$key+1]])?$result[$attempts[$key+1]]['label']:"";
+                            $rightanswermcv=isset($result[$attempts[$key+1]]['label'])?$result[$attempts[$key+1]]['label']:"";
 
                           // $stransw=$attempts[$key+1].print_r($result,1);
                             if($rightanswermcv) {

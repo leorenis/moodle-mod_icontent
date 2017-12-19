@@ -2794,7 +2794,7 @@ function get_records_menu($table, array $conditions=null, $sort='', $fields='*',
     return $menu;
 }
 
-function get_records_menu_substring($table, array $values=null) {
+function get_records_menu_substring($table, array $values) {
     global $DB;
     $menu = array();
 
@@ -2804,7 +2804,7 @@ function get_records_menu_substring($table, array $values=null) {
     WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
     ";
 
-    if ($records = $DB->get_record_sql($sql,array($values))) {
+    if ($records = $DB->get_record_sql($sql,$values)) {
         foreach ($records as $record) {
             $record = (array)$record;
             $key   = array_shift($record);

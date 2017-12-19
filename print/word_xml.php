@@ -119,7 +119,8 @@ foreach($objpages as $page)
 
             break;
             case ICONTENT_QTYPE_MATCH:
-                $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)",0,1);
+//                $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)",0,1);
+                $draft = get_records_menu_substring('icontent_question_drafts',[$question->qpid, $question->qid,(int)$USER->id, $question->cmid]);
                 $anwswers = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
 
                 $anwswertext .= "<br><ul>";

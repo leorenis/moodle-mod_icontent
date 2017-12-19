@@ -2115,7 +2115,8 @@ function icontent_make_questions_answers_by_type($question){
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_MATCH:
-            $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
+          //  $draft = get_records_menu_substring('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
+            $draft = get_records_menu_substring('icontent_question_drafts',[$question->qpid, $question->qid,(int)$USER->id, $question->cmid]);
             $options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
             //$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
@@ -2791,4 +2792,26 @@ function get_records_menu($table, array $conditions=null, $sort='', $fields='*',
         }
     }
     return $menu;
+}
+
+function get_records_menu_substring($table, array $values=null) {
+    global $DB;
+    $menu = array();
+
+    $sql = "
+    SELECT SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)
+    from {$table}
+    WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
+    ";
+
+    if ($records = $DB->get_record_sql($sql,array($values))) {
+        foreach ($records as $record) {
+            $record = (array)$record;
+            $key   = array_shift($record);
+            $value = array_shift($record);
+            $menu[$key] = $value;
+        }
+    }
+    return $menu;
+
 }

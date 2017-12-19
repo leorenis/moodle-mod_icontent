@@ -2800,7 +2800,7 @@ function get_records_menu_substring($table, array $values) {
 
     $sql = "
     SELECT SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)
-    from {$CFG->prefix.$table}
+    from {$CFG->prefix}{$table}
     WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
     ";
 

@@ -102,7 +102,7 @@ foreach($objpages as $page)
             case ICONTENT_QTYPE_MULTICHOICE:
             case ICONTENT_QTYPE_TRUEFALSE:
                 $anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
-                $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
+                $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
                 $anwswertext .= "<br><ul>";
                 foreach($anwswers as $anwswer)
                 {
@@ -119,7 +119,7 @@ foreach($objpages as $page)
 
             break;
             case ICONTENT_QTYPE_MATCH:
-                $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)",0,1);
+                $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)",0,1);
                 $anwswers = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
 
                 $anwswertext .= "<br><ul>";
@@ -150,14 +150,14 @@ foreach($objpages as $page)
             case ICONTENT_QTYPE_MULTIANSWES:
 
                 //$question->questiontext = '';
-                $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+                $attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
 
                $sequence = $DB->get_field('question_multianswer', 'sequence', array('question'=>$question->qid));
                 if($sequence)
                 {
                     $arrSequence = explode(',', $sequence);
-                    //$subquestions = $DB->get_records_menu('question', array('id' => $arrSequence), '', 'id, questiontext');
-                    $subquestions = $DB->get_records_menu('question', array('parent' => $question->qid), '', 'id, questiontext');
+                    //$subquestions = get_records_menu('question', array('id' => $arrSequence), '', 'id, questiontext');
+                    $subquestions = get_records_menu('question', array('parent' => $question->qid), '', 'id, questiontext');
                     foreach($arrSequence as $key => $id)
                     {
                         $curr = $subquestions[$id];

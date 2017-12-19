@@ -732,7 +732,7 @@ function icontent_get_questions_of_currentpage($pageid, $cmid){
 
 function icontent_get_questions_categories($contextid){
     global $DB;
-    return $DB->get_records_menu('question_categories', array('contextid'=>$contextid), null, 'id, name');
+    return get_records_menu('question_categories', array('contextid'=>$contextid), null, 'id, name');
 }
 /**
 * Get info answers by questionid.
@@ -1954,7 +1954,7 @@ function icontent_make_questions_answers_by_type($question){
             $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
             }*/
 
-            $attempts = $DB->get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+            $attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
 
             $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_multianswer_';
 
@@ -2070,7 +2070,7 @@ function icontent_make_questions_answers_by_type($question){
             $anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
             $totalrightanwsers = $DB->count_records_select('question_answers', 'question = ? AND fraction > ?', array($question->qid, 0), 'COUNT(fraction)');
 
-            $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
+            $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
 
             $single = $DB->get_field('qtype_multichoice_options', 'single', array('questionid'=>$question->qid));
 
@@ -2115,7 +2115,7 @@ function icontent_make_questions_answers_by_type($question){
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_MATCH:
-            $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
+            $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', "SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)");
             $options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
             //$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
@@ -2147,7 +2147,7 @@ function icontent_make_questions_answers_by_type($question){
             break;
         case ICONTENT_QTYPE_TRUEFALSE:
             $anwswers = $DB->get_records('question_answers', array('question'=>$question->qid));
-            $draft = $DB->get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
+            $draft = get_records_menu('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int) $USER->id, 'cmid' => $question->cmid], '', 'id, answertext');
 
             $strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
@@ -2777,4 +2777,18 @@ function icontent_get_user_image($context){
         return false;
     }
     return false;
+}
+
+function get_records_menu($table, array $conditions=null, $sort='', $fields='*', $limitfrom=0, $limitnum=0) {
+    global $DB;
+    $menu = array();
+    if ($records = $DB->get_records($table, $conditions, $sort, $fields, $limitfrom, $limitnum)) {
+        foreach ($records as $record) {
+            $record = (array)$record;
+            $key   = array_shift($record);
+            $value = array_shift($record);
+            $menu[$key] = $value;
+        }
+    }
+    return $menu;
 }

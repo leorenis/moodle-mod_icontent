@@ -2795,7 +2795,7 @@ function get_records_menu($table, array $conditions=null, $sort='', $fields='*',
 }
 
 function get_records_menu_substring($table, array $values) {
-    global $DB;
+    global $DB,$CFG;
     $menu = array();
 
     $sql = "

@@ -2800,11 +2800,11 @@ function get_records_menu_substring($table, array $values) {
 
     $sql = "
     SELECT SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)
-    from {$table}
+    from {$CFG->prefix.$table}
     WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
     ";
 
-    if ($records = $DB->get_record_sql($sql,$values)) {
+    if ($records = $DB->get_record_sql($sql,($values))) {
         foreach ($records as $record) {
             $record = (array)$record;
             $key   = array_shift($record);

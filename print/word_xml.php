@@ -151,7 +151,8 @@ foreach($objpages as $page)
             case ICONTENT_QTYPE_MULTIANSWES:
 
                 //$question->questiontext = '';
-                $attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+//                $attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+                $attempts = get_records_menu_attempts('icontent_question_attempts', [$question->qpid, $question->qid,(int)$USER->id, $question->cmid]);
 
                $sequence = $DB->get_field('question_multianswer', 'sequence', array('question'=>$question->qid));
                 if($sequence)

@@ -1954,7 +1954,8 @@ function icontent_make_questions_answers_by_type($question){
             $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
             }*/
 
-            $attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+          //  $attempts = get_records_menu_attempts('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+            $attempts = get_records_menu_attempts('icontent_question_attempts', [$question->qpid, $question->qid,(int)$USER->id, $question->cmid]);
 
             $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_multianswer_';
 
@@ -2011,7 +2012,7 @@ function icontent_make_questions_answers_by_type($question){
                         {
                             foreach ($mat2[1] as $key2 => $val2)
                             {
-                                if($attempts[$matches2[2][$key]] == $val2)
+                                if(isset($attempts[$matches2[2][$key]])&&$attempts[$matches2[2][$key]] == $val2)
                                 {
                                     $context_tmp = str_replace($mat2[0][$key2], "{$mat2[0][$key2]} selected", $matches2[0][$key]);
                                     $context = str_replace($matches2[0][$key], $context_tmp, $context);
@@ -2799,17 +2800,40 @@ function get_records_menu_substring($table, array $values) {
     $menu = array();
 
     $sql = "
-    SELECT SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)
+    SELECT id, SUBSTRING_INDEX(answertext, '_', 1) as `key`, SUBSTRING_INDEX(answertext, '_', -1) as 'text'
     from {$CFG->prefix}{$table}
     WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
     ";
 
-    if ($records = $DB->get_record_sql($sql,($values))) {
+    if ($records = $DB->get_records_sql($sql,($values))) {
+//        foreach ($records as $record) {
+//            $record = (array)$record;
+//            $key   = array_shift($record);
+//            $value = array_shift($record);
+//            $menu[$key] = $value;
+//        }
         foreach ($records as $record) {
-            $record = (array)$record;
-            $key   = array_shift($record);
-            $value = array_shift($record);
-            $menu[$key] = $value;
+            $menu[$record->key] = $record->text;
+        }
+    }
+    return $menu;
+
+}
+
+function get_records_menu_attempts($table, array $values) {
+
+    global $DB,$CFG;
+    $menu = array();
+
+    $sql = "
+    SELECT id,sub,answertext
+    from {$CFG->prefix}{$table}
+    WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
+    ";
+
+    if ($records = $DB->get_records_sql($sql,($values))) {
+        foreach ($records as $record) {
+            $menu[$record->sub] = $record->answertext;
         }
     }
     return $menu;

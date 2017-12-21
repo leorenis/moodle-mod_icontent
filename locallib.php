@@ -1954,7 +1954,8 @@ function icontent_make_questions_answers_by_type($question){
             $questionanswers = str_replace('mod_quiz-next-nav', 'cloze_save', $questionanswers);
             }*/
 
-            $attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+            //$attempts = get_records_menu('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id), '', 'sub,answertext');
+            $attempts = get_records_menu_attemps( array('cmid' => $cm->id, 'pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => $USER->id));
 
             $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_multianswer_';
 
@@ -2794,7 +2795,7 @@ function get_records_menu($table, array $conditions=null, $sort='', $fields='*',
     return $menu;
 }
 
-function get_records_menu_substring($table, array $values) {
+function get_records_menu_substring( array $values) {
     global $DB,$CFG;
     $menu = array();
 
@@ -2814,6 +2815,29 @@ function get_records_menu_substring($table, array $values) {
 //            $key   = array_shift($record);
 //            $value = array_shift($record);
 //            $menu[$key] = $value;
+        }
+    }
+    return $menu;
+
+}
+
+function get_records_menu_attemps(array $values) {
+    global $DB,$CFG;
+    $menu = array();
+    $table = 'icontent_question_attempts';
+    $sql = "
+    SELECT id,sub,answertext
+    from {$CFG->prefix}{$table}
+    WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=? 
+    ";
+
+    if ($records = $DB->get_records_sql($sql,($values))) {
+
+        foreach ($records as $record) {
+            if (!empty($record->sub)){
+                $menu[$record->sub]=$record->answertext;
+            }
+
         }
     }
     return $menu;

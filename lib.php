@@ -789,12 +789,12 @@ function icontent_ajax_savecloze($formdata, stdClass $cm, $icontent){
     $i = 0;
     $records = array();
     foreach ($data as $key => $value){
-        list($qpage, $question, $qtype, $sub) = explode('_', $key);
+        @list($qpage, $question, $qtype, $sub) = explode('_', $key);
 
         if($qtype == 'multianswer')
         {
-            list($strvar, $qpid) = explode('-', $qpage);
-            list($strvar, $qid) = explode('-', $question);
+            @list($strvar, $qpid) = explode('-', $qpage);
+            @list($strvar, $qid) = explode('-', $question);
             $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value, $sub);
             $records[$i] = new stdClass();
             $records[$i]->pagesquestionsid = (int) $qpid;
@@ -837,9 +837,9 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
     $i = 0;
     $records = array();
     foreach ($data as $key => $value){
-        list($qpage, $question, $qtype) = explode('_', $key);
-        list($strvar, $qpid) = explode('-', $qpage);
-        list($strvar, $qid) = explode('-', $question);
+        @list($qpage, $question, $qtype) = explode('_', $key);
+        @list($strvar, $qpid) = explode('-', $qpage);
+        @list($strvar, $qid) = explode('-', $question);
         //$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
 
         //if(is_array($value) && $qtype == 'multichoice')

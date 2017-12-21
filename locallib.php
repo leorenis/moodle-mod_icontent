@@ -2806,8 +2806,6 @@ function get_records_menu_substring($table, array $values) {
 
     if ($records = $DB->get_records_sql($sql,($values))) {
 
-        echo "<pre>";
-        print_r($records);
         foreach ($records as $record) {
             if (!empty($record->key)){
                 $menu[$record->key]=$record->text;

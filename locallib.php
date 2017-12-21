@@ -2799,17 +2799,23 @@ function get_records_menu_substring($table, array $values) {
     $menu = array();
 
     $sql = "
-    SELECT SUBSTRING_INDEX(answertext, '_', 1), SUBSTRING_INDEX(answertext, '_', -1)
+    SELECT id,SUBSTRING_INDEX(answertext, '_', 1) AS `key`, SUBSTRING_INDEX(answertext, '_', -1) AS `text`
     from {$CFG->prefix}{$table}
-    WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=?
+    WHERE pagesquestionsid = ? and questionid=? and userid=? and cmid=? 
     ";
 
-    if ($records = $DB->get_record_sql($sql,($values))) {
+    if ($records = $DB->get_records_sql($sql,($values))) {
+
+        echo "<pre>";
+        print_r($records);
         foreach ($records as $record) {
-            $record = (array)$record;
-            $key   = array_shift($record);
-            $value = array_shift($record);
-            $menu[$key] = $value;
+            if (!empty($record->key)){
+                $menu[$record->key]=$record->text;
+            }
+//            $record = (array)$record;
+//            $key   = array_shift($record);
+//            $value = array_shift($record);
+//            $menu[$key] = $value;
         }
     }
     return $menu;

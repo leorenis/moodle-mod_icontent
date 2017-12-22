@@ -43,10 +43,11 @@ class mod_icontent_renderer extends plugin_renderer_base {
 	 *
 	 */
 	public function icontent_requires_external_js(){
-		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-1.11.3.min.js', true);
-		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-ui-1.11.4.min.js', true);
-		 $this->page->requires->js('/mod/icontent/js/jquery/jquery.cookie.min.js', true);
-		 $this->page->requires->js('/mod/icontent/js/bootstrap/bootstrap.min.js');
+        /*$this->page->requires->js('/mod/icontent/js/jquery/jquery-1.11.3.min.js', true); //jquery-3.1.0.min
+        $this->page->requires->js('/mod/icontent/js/jquery/jquery-ui-1.11.4.min.js', true);
+        $this->page->requires->js('/mod/icontent/js/jquery/jquery.cookie.min.js', true);*/
+		//$this->page->requires->js('/mod/icontent/js/bootstrap/bootstrap.min.js');
+        //$this->page->requires->js('/mod/icontent/js/effects.js');
 	}
 	
 	/**
@@ -54,7 +55,8 @@ class mod_icontent_renderer extends plugin_renderer_base {
 	 *
 	 */
 	public function icontent_requires_internal_js(){
-		$this->page->requires->js('/mod/icontent/module.js', true);
-		$this->page->requires->js('/mod/icontent/js/src/actions.js', true);
+        $this->page->requires->js_call_amd('mod_icontent/module', 'init');
+        $this->page->requires->js_call_amd('mod_icontent/actions', 'init');
+
 	}
 }

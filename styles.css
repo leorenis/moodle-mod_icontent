@@ -609,7 +609,7 @@ textarea.answertextarea{
     color: #FFF
 }
 
-.generalfeedback
+#page-mod-icontent-view .generalfeedback
 {
     display: none;
 }
@@ -1006,5 +1006,5 @@ display:none;
     margin-top: 15px;
 }
 body{
-    padding-right: 0px !important;
+    padding-right: 5px !important;
 }

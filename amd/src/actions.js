@@ -19,7 +19,7 @@
  * @author     Johannes Burk & Vincent Schneider 2017
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery','jqueryui'], function($, jqui) {
+define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c) {
     // List of the named functions
     // Save note tab type 'note'
     function onSaveNoteClick() {
@@ -299,20 +299,18 @@ define(['jquery','jqueryui'], function($, jqui) {
 
     // Switch high contrast
     function onToggleHightContrastClick(){
-        // Remove hightcontrast
-
-        /*if (cookie('highcontrast') == "yes") {
-            cookie("highcontrast", null, {
+        if (c.cookie('highcontrast') == "yes") {
+            c.cookie("highcontrast", null, {
                 path: '/'
             });
             $('.fulltextpage').removeClass('highcontrast').css('background-color', '#FCFCFC');
         } else {
-            cookie('highcontrast', 'yes', {
+            c.cookie('highcontrast', 'yes', {
                 expires: 7,
                 path: '/'
             });
             $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
-        }*/
+        }
     }
 
     // Save attemp
@@ -368,17 +366,18 @@ define(['jquery','jqueryui'], function($, jqui) {
     }
     return {
         init: function() {
-            $("#idicontentpages").on('click','#idbtnsavenote', onSaveNoteClick);
-            $("#idicontentpages").on('click', '#idbtnsavedoubt', onSaveDoubtClick);
-            $("#idicontentpages").on('click', '#idtitlenotes', {idtogle: '#idfulltab'}, onTogleElementClick);
-            $("#idicontentpages").on('click', '#idtitlequestionsarea', {idtogle: '#idcontentquestionsarea'}, onTogleElementClick);
-            $("#idicontentpages").on('click', '.read-more-state-on', onReadMoreStateOnClick);
-            $("#idicontentpages").on('click', '.read-more-state-off', onReadMoreStateOffClick);
-            $("#idicontentpages").on('click', '.likenote', onLikeNoteClick);
-            $("#idicontentpages").on('click', '.editnote', onEditNoteClick);
-            $("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
-            $("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
-            $("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);
+            var pageid =  $("#idicontentpages");
+            pageid.on('click', '#idbtnsavenote', onSaveNoteClick);
+            pageid.on('click', '#idbtnsavedoubt', onSaveDoubtClick);
+            pageid.on('click', '#idtitlenotes', {idtogle: '#idfulltab'}, onTogleElementClick);
+            pageid.on('click', '#idtitlequestionsarea', {idtogle: '#idcontentquestionsarea'}, onTogleElementClick);
+            pageid.on('click', '.read-more-state-on', onReadMoreStateOnClick);
+            pageid.on('click', '.read-more-state-off', onReadMoreStateOffClick);
+            pageid.on('click', '.likenote', onLikeNoteClick);
+            pageid.on('click', '.editnote', onEditNoteClick);
+            pageid.on('click', '.replynote', onReplyNoteClick);
+            pageid.on('click', '.togglehighcontrast', onToggleHightContrastClick);
+            pageid.on('submit', '#idformquestions', onSaveAttempAnswers);
         }
     };
 });

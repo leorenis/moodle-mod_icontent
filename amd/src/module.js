@@ -19,7 +19,7 @@
  * @author     Johannes Burk & Vincent Schneider 2017
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['jquery','jqueryui'], function($, jqui) {
+define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c) {
     // Loads page
     function onLoadPageClick(){
         var data = {
@@ -64,9 +64,9 @@ define(['jquery','jqueryui'], function($, jqui) {
 
     // Checks if the cookie is set.
     function onChecksHighcontrast(){
-        /*if (cookie('highcontrast') == "yes") {
+        if (c.cookie('highcontrast') == "yes") {
             $(".fulltextpage").addClass("highcontrast").css({"background-color":"#000000", "background-image": "none"});
-        }*/
+        }
     }
     // Change state the control buttons
     function onChangeStateControlButtons($data){

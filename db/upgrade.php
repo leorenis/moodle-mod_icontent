@@ -175,15 +175,15 @@ function xmldb_icontent_upgrade($oldversion) {
     }
 
     if ($oldversion < 2017101905) {
-        
+
         $table = new xmldb_table('icontent_question_attempts');
         $field = new xmldb_field('sub', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, '0');
-        
+
         // Add field sub.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        
+
         // Adding fields to table forum_discussion_subs.
        // $table->add_field('sub', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null);
 
@@ -195,6 +195,7 @@ function xmldb_icontent_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2017101905, 'icontent');
     }
+
 
     /*
      * And that's all. Please, examine and understand the 3 example blocks above. Also

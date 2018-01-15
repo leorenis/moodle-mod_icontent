@@ -1800,9 +1800,9 @@ function icontent_parse_image($key, $text)
     LIMIT 1
     ";*/
     $result = @$DB->get_record_sql($sql, array($key));
-    
-    
-    
+
+
+
     if (!function_exists('getallheaders')) {
         function getallheaders() {
             $headers = [];
@@ -2629,15 +2629,15 @@ function icontent_make_toolbar($page, $icontent){
     }
     // Make toolbar
     $toolbar = html_writer::tag('div', $highcontrast. $comments. $displayed. $addquestion. $update. $new, array('class'=>'toolbarpage '));
-    $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
-        array(
-            'title' => get_string('downloadword', 'icontent'),
-            'class'=>'icon icon-file-word-o',
-            'data-toggle'=> 'tooltip',
-            'data-placement'=> 'top'
-        )
-    );
-    $toolbar .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));
+    // $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
+    //     array(
+    //         'title' => get_string('downloadword', 'icontent'),
+    //         'class'=>'icon icon-file-word-o',
+    //         'data-toggle'=> 'tooltip',
+    //         'data-placement'=> 'top'
+    //     )
+    // );
+    // $toolbar .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));
     // Return toolbar
     return $toolbar;
 }
@@ -2694,7 +2694,7 @@ function icontent_make_cover_page($icontent, $objpage, $context){
 * @param  object 	$context
 * @return object	$fullpage
 */
-function icontent_get_fullpageicontent($pagenum, $icontent, $context){
+function icontent_get_fullpageicontent($pagenum, $icontent, $context, $edit){
     //print_r($context);
     global $DB, $CFG;
     // Get page
@@ -2715,7 +2715,10 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     // Add tooltip
     $script = icontent_add_script_load_tooltip();
     // Elements toolbar
-    $toolbarpage = icontent_make_toolbar($objpage, $icontent);
+    $toolbarpage = '';
+    if ($edit) {
+      $toolbarpage = icontent_make_toolbar($objpage, $icontent);
+    }
     // Add title page
     //$title = $objpage->showtitle ? html_writer::tag('h3', '<i class="fa fa-hand-o-left"></i> '.$objpage->title, array('class'=>'pagetitle')) : false;
     $title = $objpage->showtitle ? html_writer::tag('h3', $objpage->title, array('class'=>'pagetitle')) : false;
@@ -2837,5 +2840,29 @@ function get_records_menu_attempts($table, array $values) {
         }
     }
     return $menu;
+
+}
+
+function icontent_make_wrapper_heading($heading){
+  global $id;
+  $word_icon_wrap = '';
+  $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
+
+      array(
+          'title' => get_string('downloadword', 'icontent'),
+          'class'=>'icon icon-file-word-o word-icon',
+          'data-toggle'=> 'tooltip',
+          'data-placement'=> 'top'
+      )
+  );
+  $word_icon_wrap .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));
+
+  $cover_heading = html_writer::start_div('heading__wrapper');
+  // echo $OUTPUT->heading($icontent->name);
+  $cover_heading .= $heading;
+  $cover_heading .= $word_icon;
+  $cover_heading .= html_writer::end_div();
+
+  return $cover_heading;
 
 }

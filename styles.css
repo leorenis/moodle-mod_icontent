@@ -82,7 +82,7 @@
     letter-spacing: 0.1px;
     line-height: 1.8em;
     word-spacing: 0.3px;
-    padding: 15px 30px !important;
+    padding: 5px 30px 15px 30px !important;
 }
 .path-mod-icontent .icontent-page .fulltextpage ul li{
     line-height: 1.8em;
@@ -672,9 +672,11 @@ textarea.answertextarea{
     width: 100%;
 }
 .icon-file-word-o{
-	position: absolute;
-    margin-top: -31px;
-    left: 11px;
+  position: absolute;
+  left: 20px;
+  line-height: 41px;
+  font-size: 30px;
+  top: 10px;
 }
 .pagenum{
 	display:none;
@@ -693,11 +695,12 @@ text-align:unset !important;
     margin: 0px;
     line-height: 60px;
     padding-right: 30px;
+    padding-left: 74px;
     border: 1px solid #dbdfe4;
     color: #018388;
 }
 .path-mod-icontent .full-paging-buttonbar {
-  padding: 16px 130px !important;
+  padding: 16px 100px 13px 100px !important;
   position: relative !important;
 }
 /*.path-mod-icontent .icontent-page
@@ -726,17 +729,22 @@ textarea.answertextarea {
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page {
   margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page{
   position: absolute;
-  top: 16px;
-  left: 0;
+  top: 15px;
+  left: 10px;
+  padding-right: 19px;
+  padding-left: 10px;
 }
 .full-paging-buttonbar .load-page.btn-previous-page {
   left: auto;
-  right: 0;
+  right: 10px;
+  padding-right: 8px;
+  padding-left: 19px;
 }
 
 .load-page.btn-icontent-page {
@@ -951,7 +959,7 @@ label {
     display: block;
 }
 .questionsarea .question.multianswer {
-  border-bottom: none; 
+  border-bottom: none;
 }
 .path-mod-icontent .questionsarea .question{
 	border-bottom:none;
@@ -1007,4 +1015,11 @@ display:none;
 }
 body{
     padding-right: 0px !important;
+}
+@media (max-width: 767px) {
+  #page-mod-icontent-view  .heading__wrapper  > h2{
+    line-height: 40px !important;
+    padding-bottom: 8px;
+    padding-top: 5px;s
+  }
 }

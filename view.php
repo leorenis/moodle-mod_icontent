@@ -88,7 +88,7 @@ $renderer->icontent_requires_internal_js();
 $renderer->icontent_requires_css();
 // Get first page to be presented
 $startwithpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);
-$showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context);
+$showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context, $edit);
 
 icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //Add block sumary
 
@@ -99,8 +99,24 @@ icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //Add bl
 // Output starts here.
 echo $OUTPUT->header();
 // Replace the following lines with you own code.
-echo $OUTPUT->heading($icontent->name);
+// $word_icon_wrap = '';
+// $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg word-icon"></i>',
+//
+//     array(
+//         'title' => get_string('downloadword', 'icontent'),
+//         'class'=>'icon icon-file-word-o',
+//         'data-toggle'=> 'tooltip',
+//         'data-placement'=> 'top'
+//     )
+// );
+// $word_icon_wrap .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));
+//
+// echo html_writer::start_div('heading__wrapper');
+// echo $OUTPUT->heading($icontent->name);
+// echo $word_icon;
+// echo html_writer::end_div();
 
+echo icontent_make_wrapper_heading ($OUTPUT->heading($icontent->name));
 // Conditions to show the intro.
 if ($icontent->intro) {
     echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');

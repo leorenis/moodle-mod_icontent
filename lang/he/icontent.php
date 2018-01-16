@@ -225,4 +225,15 @@ $string['your-answer'] = '(תשובתך)';
 $string['youranswer'] = 'תשובתך';
 $string['icontentmenutitle'] = 'תוכן עניינים';
 $string['downloadword'] = 'הורדת מחברת אישית';
+
+$string['no'] = 'ללא';
+$string['circle'] = 'מעגל';
+$string['disk'] = 'דיסק';
+$string['decimal'] = 'מספר';
+$string['square'] = 'מרובע';
+$string['listtype'] = 'תציג את המצביע';
+$string['listtype_help'] = 'תציג את המצביע';
+
+$string['addindent'] = 'הספת רווח';
+$string['addindent_help'] = 'הוספת הזחה לפני כל מחרוזת';
 ?>

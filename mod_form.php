@@ -72,6 +72,17 @@ class mod_icontent_mod_form extends moodleform_mod {
 		// Appearance.
         $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 
+    $alloptions = array(
+      '0' => get_string('no','icontent'),
+      '1' => get_string('circle','icontent'),
+      '2' => get_string('disk','icontent'),
+      '3' => get_string('decimal','icontent'),
+      '4' => get_string('square','icontent'),
+    );
+    $mform->addElement('select', 'listtype', get_string('listtype', 'icontent'), $alloptions);
+    $mform->addHelpButton('listtype', 'listtype', 'icontent');
+    $mform->setDefault('listtype', '1');
+
 		$filemanager_options = array();
         $filemanager_options['accepted_types'] = array('.jpg', '.png');
         $filemanager_options['maxbytes'] = $COURSE->maxbytes;

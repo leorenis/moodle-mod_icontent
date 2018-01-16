@@ -257,3 +257,14 @@ $string['icontent:removenotes'] = 'Remover anotação';
 $string['icontent:replynotes'] = 'Responder anotação';
 $string['icontent:newquestion'] = 'Adicionar uma nova questão';
 $string['icontent:answerquestionstryagain'] = 'Responder as questões ilimitadamente';
+
+$string['no'] = 'No';
+$string['circle'] = 'Circle';
+$string['disk'] = 'Disk';
+$string['decimal'] = 'Number';
+$string['square'] = 'Square';
+$string['listtype'] = 'show the pointer';
+$string['listtype_help'] = 'Show the pointer of the list';
+
+$string['addindent'] = 'Add indent';
+$string['addindent_help'] = 'Adding an indentation before each substring';

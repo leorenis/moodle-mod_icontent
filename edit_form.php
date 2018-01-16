@@ -106,6 +106,11 @@ class icontent_pages_edit_form extends moodleform {
 		$mform->setType('showbgimage', PARAM_INT);
         $mform->setDefault('showbgimage', 1);
 
+    $mform->addElement('advcheckbox', 'addindent', get_string('addindent', 'icontent'));
+        $mform->addHelpButton('addindent', 'addindent', 'icontent');
+    $mform->setType('addindent', PARAM_INT);
+        $mform->setDefault('addindent', 0);
+
 		$filemanager_options = array();
         $filemanager_options['accepted_types'] = array('.jpg', '.png');
         $filemanager_options['maxbytes'] = $COURSE->maxbytes;

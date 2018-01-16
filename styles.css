@@ -20,19 +20,33 @@
 .path-mod-icontent .icontent_toc{
     font-size: 0.8em;
 }
+.path-mod-icontent .block_icontent_toc .icontent_toc li.addindent {
+  margin-right: 20px !important;
+}
 .path-mod-icontent .block_icontent_toc .icontent_toc li {
-    list-style: outside none none;
+    color: #018388;
+    list-style-type: none;
+    margin-top: 0.5em;
+}
+.path-mod-icontent .block_icontent_toc.listtype_circle .icontent_toc li {
+    list-style-type: circle;
+}
+.path-mod-icontent .block_icontent_toc.listtype_disk .icontent_toc li {
+    list-style-type: disc;
+}
+.path-mod-icontent .block_icontent_toc.listtype_square .icontent_toc li {
+    list-style-type: square;
+}
+.path-mod-icontent .block_icontent_toc.listtype_number .icontent_toc li {
+    list-style-type: decimal;
+    margin-right: 10px;
 }
 .path-mod-icontent .block_icontent_toc .icontent_toc ul {
     margin: 0 0 0 5px;
     padding-left: 0;
     padding-right: 0;
 }
-.path-mod-icontent .block_icontent_toc .icontent_toc li {
-    clear: both;
-    list-style: none;
-    margin-top: 0.5em;
-}
+
 .path-mod-icontent .block_icontent_toc .icontent_toc ul li .active{
     cursor: default;
     font-weight: bolder;
@@ -748,6 +762,7 @@ textarea.answertextarea {
 }
 
 .load-page.btn-icontent-page {
+    display: inline-block;
     box-sizing: border-box;
     padding: 0px !important;
     line-height: 32px;
@@ -762,6 +777,7 @@ textarea.answertextarea {
     background-color: #016a6e;
     border: 1px solid #025454;
 }
+
 .load-page.btn-icontent-page.visited {
     line-height: 30px;
     color: #018388;
@@ -770,6 +786,7 @@ textarea.answertextarea {
 }
 .load-page.btn-icontent-page:active,
 .load-page.btn-icontent-page.active {
+    line-height: 32px !important;
     opacity: 1 !important;
     background-color: #018388 !important;
     border: 1px solid #016a6e;

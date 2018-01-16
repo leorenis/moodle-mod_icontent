@@ -59,7 +59,23 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     $toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit, 0);
     $bc = new block_contents();
     $bc->title = get_string('icontentmenutitle', 'icontent');
-    $bc->attributes['class'] = 'block block_icontent_toc';
+    switch ($icontent->listtype) {
+      case 1:
+          $listtype ='listtype_circle';
+          break;
+      case 2:
+          $listtype ='listtype_disk';
+          break;
+      case 3:
+          $listtype ='listtype_number';
+          break;
+      case 4:
+          $listtype ='listtype_square';
+          break;
+      default:
+         $listtype ='atik';
+    }
+    $bc->attributes['class'] = 'block block_icontent_toc '.$listtype;
     $bc->content = $toc;
     $defaultregion = $PAGE->blocks->get_default_region();
     $PAGE->blocks->add_fake_block($bc, $defaultregion);
@@ -85,9 +101,10 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
         $toc .= html_writer::start_tag('ul');
         $i = 0;
         foreach ($pages as $pg) {
+            $page_title_indent = ($pg->addindent)? 'addindent' : '';
             $i ++;
             $title = trim(format_string($pg->title, true, array('context'=>$context)));
-            $toc .= html_writer::start_tag('li', array('class' => 'clearfix')); // Inicio <li>
+            $toc .= html_writer::start_tag('li', array('class' => $page_title_indent)); // Inicio <li>
             $toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
             // Actions
             $toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
@@ -121,9 +138,11 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
         // Visualization to students
         $toc .= html_writer::start_tag('ul');
         foreach ($pages as $pg) {
+
+            $page_title_indent = ($pg->addindent)? 'addindent' : '';
             if(!$pg->hidden){
                 $title = trim(format_string($pg->title, true, array('context'=>$context)));
-                $toc .= html_writer::start_tag('li', array('class' => 'clearfix'));
+                $toc .= html_writer::start_tag('li', array('class' => $page_title_indent));
                 $toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
                 $toc .= html_writer::end_tag('li');
             }
@@ -247,7 +266,7 @@ function icontent_get_page_bgimage($context, $page){
 */
 function icontent_preload_pages($icontent){
     global $DB;
-    $pages = $DB->get_records('icontent_pages', array('icontentid'=>$icontent->id), 'pagenum', 'id, icontentid, cmid, pagenum, coverpage, title, hidden');
+    $pages = $DB->get_records('icontent_pages', array('icontentid'=>$icontent->id), 'pagenum', 'id, icontentid, cmid, pagenum, coverpage, title, hidden, addindent');
     if (!$pages) {
         return array();
     }
@@ -399,6 +418,7 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
     foreach ($pages as $page) {
         if(!$page->hidden){
             $npage ++;
+            // $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
             $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
         }
     }

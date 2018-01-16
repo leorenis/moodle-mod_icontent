@@ -196,6 +196,32 @@ function xmldb_icontent_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017101905, 'icontent');
     }
 
+    if ($oldversion < 2018010819) {
+
+        $table = new xmldb_table('icontent');
+        $field = new xmldb_field('listtype', XMLDB_TYPE_INTEGER, '4', null, null, null, '0');
+
+        // Add field sub.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2018010819, 'icontent');
+    }
+    if ($oldversion < 2018011604) {
+
+        $table = new xmldb_table('icontent_pages');
+        $field = new xmldb_field('addindent', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+
+        // Add field sub.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2018011604, 'icontent');
+    }
+
+
 
     /*
      * And that's all. Please, examine and understand the 3 example blocks above. Also

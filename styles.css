@@ -26,6 +26,9 @@
     list-style-type: none;
     margin-top: 0.5em;
 }
+.path-mod-icontent .block_icontent_toc .icontent_toc li.addindent {
+    margin-right: 20px;
+}
 .path-mod-icontent .block_icontent_toc.listtype_circle .icontent_toc li.addindent {
     list-style-type: circle;
     margin-right: 20px;

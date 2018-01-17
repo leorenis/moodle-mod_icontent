@@ -87,9 +87,8 @@ $(document).ready(function(){
         $(".btn-icontent-page").css("font-weight", '' );
         $(".btn-icontent-page").css("color", '' );
 		$(".page"+ pagenum).addClass("active");
+		$(".page"+ pagenum).addClass("visited");
         $(".page"+ pagenum).prop("disabled", true );
-    //     $(".page"+ pagenum).css("font-weight", 'bold' );
-		// $(".page"+ pagenum).css("color", '#339900' );
 	}
 	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));

@@ -138,7 +138,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
     }else{
         // Visualization to students
         $toc .= html_writer::start_tag('ul');
-        foreach ($pages as $pg) {echo '<pre>'.icontent_get_pagedisplayed($pg->id, $pg->cmid).'</pre>'; exit();
+        foreach ($pages as $pg) {
             $visited_page = (!empty(icontent_get_pagedisplayed($pg->id, $pg->cmid))) ? 'visited' : '';
             $page_title_indent = ($pg->addindent)? 'addindent' : '';
             if(!$pg->hidden){

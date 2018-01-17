@@ -88,7 +88,7 @@ $renderer->icontent_requires_internal_js();
 $renderer->icontent_requires_css();
 // Get first page to be presented
 $startwithpage  = $pageid ? icontent_get_pagenum_by_pageid($pageid) : icontent_get_startpagenum($icontent, $context);
-$showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context, $edit);
+$showpage = icontent_get_fullpageicontent($startwithpage, $icontent, $context);
 
 icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); //Add block sumary
 
@@ -130,4 +130,3 @@ echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
 
 // Finish the page.
 echo $OUTPUT->footer();
-// echo '<script src = "js/actions.js">';

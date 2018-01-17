@@ -32,7 +32,6 @@ require_once('lib.php');
 
 
 $id = required_param('id', PARAM_INT);
-$edit = required_param('edit', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
 $sesskey = optional_param('sesskey', false, PARAM_TEXT);
 #$itemorder = optional_param('itemorder', false, PARAM_SEQUENCE);
@@ -57,7 +56,7 @@ switch ($action) {
 	case 'loadpage':
 		require_capability('mod/icontent:view', $context);
 		$pagenum = required_param('pagenum', PARAM_INT);
-		$return = icontent_ajax_getpage($pagenum, $icontent, $context, $edit);
+		$return = icontent_ajax_getpage($pagenum, $icontent, $context);
 		break;
 	// Save and return records table {pages_notes}
 	case 'savereturnpagenotes':

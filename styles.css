@@ -38,6 +38,10 @@
     list-style-type: square;
     margin-right: 20px;
 }
+.path-mod-icontent .block_icontent_toc.listtype_number .icontent_toc li.addindent {
+    list-style-type: decimal;
+    margin-right: 20px;
+}
 
 .path-mod-icontent .block_icontent_toc .icontent_toc ul {
     margin: 0 0 0 5px;
@@ -924,6 +928,7 @@ label {
     position: relative;
     padding-right: 30px;
     cursor: pointer;
+    display: inline-block;
 
 }
  .fulltextpage .answercheckbox[type="radio"] ~ label::after {

@@ -56,7 +56,7 @@ require_once(dirname(__FILE__).'/lib.php');
 */
 function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     global $OUTPUT, $PAGE;
-    $toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit, 0);
+    $toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit);
     $bc = new block_contents();
     $bc->title = get_string('icontentmenutitle', 'icontent');
     switch ($icontent->listtype) {
@@ -67,13 +67,13 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
           $listtype ='listtype_disk';
           break;
       case 3:
-          $listtype ='listtype_number';
-          break;
-      case 4:
           $listtype ='listtype_square';
           break;
+      // case 4:
+      //     $listtype ='listtype_number';
+      //     break;
       default:
-         $listtype ='atik';
+         $listtype ='';
     }
     $bc->attributes['class'] = 'block block_icontent_toc '.$listtype;
     $bc->content = $toc;
@@ -101,10 +101,11 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
         $toc .= html_writer::start_tag('ul');
         $i = 0;
         foreach ($pages as $pg) {
+            $visited_page = (!empty(icontent_get_pagedisplayed($pg->id, $pg->cmid))) ? 'visited' : '';
             $page_title_indent = ($pg->addindent)? 'addindent' : '';
             $i ++;
             $title = trim(format_string($pg->title, true, array('context'=>$context)));
-            $toc .= html_writer::start_tag('li', array('class' => 'load-page page'.$pg->pagenum.' '.$page_title_indent, 'title' => s($title), 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages)); // Inicio <li>
+            $toc .= html_writer::start_tag('li', array('class' => 'load-page page'.$pg->pagenum.' '.$page_title_indent.' '.$visited_page, 'title' => s($title), 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages)); // Inicio <li>
             $toc .= html_writer::link('#', $title);
             // Actions
             $toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
@@ -137,12 +138,12 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
     }else{
         // Visualization to students
         $toc .= html_writer::start_tag('ul');
-        foreach ($pages as $pg) {
-
+        foreach ($pages as $pg) {echo '<pre>'.icontent_get_pagedisplayed($pg->id, $pg->cmid).'</pre>'; exit();
+            $visited_page = (!empty(icontent_get_pagedisplayed($pg->id, $pg->cmid))) ? 'visited' : '';
             $page_title_indent = ($pg->addindent)? 'addindent' : '';
             if(!$pg->hidden){
                 $title = trim(format_string($pg->title, true, array('context'=>$context)));
-                $toc .= html_writer::start_tag('li', array('class' =>'load-page page'.$pg->pagenum.' '.$page_title_indent, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
+                $toc .= html_writer::start_tag('li', array('class' =>'load-page page'.$pg->pagenum.' '.$page_title_indent.' '.$visited_page, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
                 $toc .= html_writer::link('#', $title );
                 $toc .= html_writer::end_tag('li');
             }
@@ -416,10 +417,11 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 
     $pgbuttons .= icontent_make_button_previous_page($objbutton, $tpages);
     foreach ($pages as $page) {
+        $visited_page = (!empty(icontent_get_pagedisplayed($page->id, $page->cmid))) ? 'visited' : '';
         if(!$page->hidden){
             $npage ++;
             // $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
-            $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
+            $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum.' '.$visited_page , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
         }
     }
     $objbutton->name = get_string('next', 'mod_icontent');
@@ -2742,9 +2744,9 @@ function icontent_make_cover_page($icontent, $objpage, $context){
 * @param  object 	$context
 * @return object	$fullpage
 */
-function icontent_get_fullpageicontent($pagenum, $icontent, $context, $edit = 0){
+function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     //print_r($context);
-    global $DB, $CFG;
+    global $DB, $CFG, $PAGE;
     // Get page
     $objpage = $DB->get_record('icontent_pages', array('pagenum' => $pagenum, 'icontentid' => $icontent->id));
     if(!$objpage){
@@ -2764,7 +2766,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context, $edit = 0)
     $script = icontent_add_script_load_tooltip();
     // Elements toolbar
     $toolbarpage = '';
-    if ($edit) {
+    if ($PAGE->user_is_editing()) {
       $toolbarpage = icontent_make_toolbar($objpage, $icontent);
     }
     // Add title page

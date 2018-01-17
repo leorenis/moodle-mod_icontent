@@ -105,7 +105,6 @@ $(document).ready(function() {
         $this.hide();
       }
         // Loading
-        region-main
         $(".icontent-page")
         .children('.fulltextpage')
         .prepend(

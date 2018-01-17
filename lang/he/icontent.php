@@ -228,10 +228,10 @@ $string['downloadword'] = 'הורדת מחברת אישית';
 
 $string['no'] = 'ללא';
 $string['circle'] = 'מעגל';
-$string['disk'] = 'דיסק';
+$string['disk'] = 'תבליטים';
 $string['decimal'] = 'מספר';
 $string['square'] = 'מרובע';
-$string['listtype'] = 'תציג את המצביע';
+$string['listtype'] = 'תסדיר פרק';
 $string['listtype_help'] = 'תציג את המצביע';
 
 $string['addindent'] = 'תת פרק';

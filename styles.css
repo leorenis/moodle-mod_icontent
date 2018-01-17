@@ -20,27 +20,25 @@
 .path-mod-icontent .icontent_toc{
     font-size: 0.8em;
 }
-.path-mod-icontent .block_icontent_toc .icontent_toc li.addindent {
-  margin-right: 20px !important;
-}
+
 .path-mod-icontent .block_icontent_toc .icontent_toc li {
-    color: #018388;
+    /* color: #018388; */
     list-style-type: none;
     margin-top: 0.5em;
 }
-.path-mod-icontent .block_icontent_toc.listtype_circle .icontent_toc li {
+.path-mod-icontent .block_icontent_toc.listtype_circle .icontent_toc li.addindent {
     list-style-type: circle;
+    margin-right: 20px;
 }
-.path-mod-icontent .block_icontent_toc.listtype_disk .icontent_toc li {
+.path-mod-icontent .block_icontent_toc.listtype_disk .icontent_toc li.addindent {
     list-style-type: disc;
+    margin-right: 20px;
 }
-.path-mod-icontent .block_icontent_toc.listtype_square .icontent_toc li {
+.path-mod-icontent .block_icontent_toc.listtype_square .icontent_toc li.addindent {
     list-style-type: square;
+    margin-right: 20px;
 }
-.path-mod-icontent .block_icontent_toc.listtype_number .icontent_toc li {
-    list-style-type: decimal;
-    margin-right: 10px;
-}
+
 .path-mod-icontent .block_icontent_toc .icontent_toc ul {
     margin: 0 0 0 5px;
     padding-left: 0;
@@ -184,10 +182,10 @@
     position: relative;
 }
 .path-mod-icontent .icontent-page .fulltextpage .loading .img-loading{
-    left: 50%;
-    margin-top: 25%;
-    position: absolute;
-    margin-left: -35px;
+    left: 45%;
+    top: 45%;
+    position: fixed;
+
 }
 /** BOOTSTRAP IMGs*/
 .path-mod-icontent .img-thumbnail {
@@ -748,6 +746,7 @@ textarea.answertextarea {
 
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page{
+  width: 89px;
   position: absolute;
   top: 15px;
   left: 10px;
@@ -772,6 +771,8 @@ textarea.answertextarea {
     background-color: #fff;
     border: 1px solid #737373;
     color: #737373;
+    margin: 3px;
+    margin-top: 0px;
 }
 .load-page.btn-icontent-page:hover {
     background-color: #016a6e;
@@ -829,19 +830,28 @@ textarea.answertextarea {
     margin-left: 0px;
 }
 .icontent_toc .load-page {
-    color: #016a6e !important;
+  outline: none !important;
+    border: none !important;
+    color: #3c3c3c;
     font-size: 15px;
-    font-weight: normal !important;
+    font-weight: normal;
+}
+.icontent_toc .load-page > a {
+  color: inherit;
+  outline: none !important;
+  border: none !important;
 }
 .icontent_toc .load-page:hover {
-    color: #3c3c3c !important;
+    color: #016a6e;
 
+}.icontent_toc .load-page.visited {
+    color: #016a6e;
 }
 .icontent_toc .load-page.active,
 .icontent_toc .load-page:active {
-    border: none;
-    font-weight: bold !important;
-    color: #016a6e !important;
+    /* border: none; */
+    font-weight: bold;
+    color: #016a6e;
 
 }
 
@@ -1030,9 +1040,7 @@ display:none;
     float: none !important;
     margin-top: 15px;
 }
-body{
-    padding-right: 0px !important;
-}
+
 @media (max-width: 767px) {
   #page-mod-icontent-view  .heading__wrapper  > h2{
     line-height: 40px !important;

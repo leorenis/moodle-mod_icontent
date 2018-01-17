@@ -234,6 +234,6 @@ $string['square'] = 'מרובע';
 $string['listtype'] = 'תציג את המצביע';
 $string['listtype_help'] = 'תציג את המצביע';
 
-$string['addindent'] = 'הספת רווח';
+$string['addindent'] = 'תת פרק';
 $string['addindent_help'] = 'הוספת הזחה לפני כל מחרוזת';
 ?>

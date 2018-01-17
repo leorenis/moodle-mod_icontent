@@ -12,8 +12,10 @@ $(document).ready(function(){
 	onChecksHighcontrast();
 	// Loads page
 	function onLoadPageClick(){
+		var edit = ($('body.editing').length) ?  1 : '';
 		var data = {
 			"action": "loadpage",
+			"edit": edit,
 			"id": $(this).attr('data-cmid'),
 			"pagenum": $(this).attr('data-pagenum'),
 			"sesskey": $(this).attr('data-sesskey')
@@ -89,8 +91,8 @@ $(document).ready(function(){
 		$(".page"+ pagenum).addClass("active");
 		$(".page"+ pagenum).addClass("visited");
         $(".page"+ pagenum).prop("disabled", true );
-        $(".page"+ pagenum).css("font-weight", 'bold' );
-		$(".page"+ pagenum).css("color", '#339900' );
+    //     $(".page"+ pagenum).css("font-weight", 'bold' );
+		// $(".page"+ pagenum).css("color", '#339900' );
 	}
 	// Call events
 	onBtnActiveEnableDisableClick($(".fulltextpage").attr('data-pagenum'));
@@ -105,7 +107,7 @@ $(document).ready(function(){
   	});
   	Y.all('.load-page.btn-previous-page').each(function(){
   	    if(this.get('childElementCount') == 0) {
-  	        console.dir(this.get('firstChild'));
+
   	        // this.append(Y.Node.create('<i class="fa fa-chevron-circle-right"></i>'));
   	        this.insertBefore(Y.Node.create('<i class="fa fa-chevron-circle-right"></i>'), this.get('firstChild') );
   	    }

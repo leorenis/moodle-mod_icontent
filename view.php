@@ -130,3 +130,4 @@ echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
 
 // Finish the page.
 echo $OUTPUT->footer();
+// echo '<script src = "js/actions.js">';

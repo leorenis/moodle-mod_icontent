@@ -76,8 +76,7 @@ class mod_icontent_mod_form extends moodleform_mod {
       '0' => get_string('no','icontent'),
       '1' => get_string('circle','icontent'),
       '2' => get_string('disk','icontent'),
-      '3' => get_string('decimal','icontent'),
-      '4' => get_string('square','icontent'),
+      '3' => get_string('square','icontent')
     );
     $mform->addElement('select', 'listtype', get_string('listtype', 'icontent'), $alloptions);
     $mform->addHelpButton('listtype', 'listtype', 'icontent');

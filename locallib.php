@@ -104,8 +104,8 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
             $page_title_indent = ($pg->addindent)? 'addindent' : '';
             $i ++;
             $title = trim(format_string($pg->title, true, array('context'=>$context)));
-            $toc .= html_writer::start_tag('li', array('class' => $page_title_indent)); // Inicio <li>
-            $toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
+            $toc .= html_writer::start_tag('li', array('class' => 'load-page page'.$pg->pagenum.' '.$page_title_indent, 'title' => s($title), 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages)); // Inicio <li>
+            $toc .= html_writer::link('#', $title);
             // Actions
             $toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
             if ($i != 1) {
@@ -142,8 +142,8 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
             $page_title_indent = ($pg->addindent)? 'addindent' : '';
             if(!$pg->hidden){
                 $title = trim(format_string($pg->title, true, array('context'=>$context)));
-                $toc .= html_writer::start_tag('li', array('class' => $page_title_indent));
-                $toc .= html_writer::link('#', $title, array('title' => s($title), 'class'=>'load-page page'.$pg->pagenum, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
+                $toc .= html_writer::start_tag('li', array('class' =>'load-page page'.$pg->pagenum.' '.$page_title_indent, 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages));
+                $toc .= html_writer::link('#', $title );
                 $toc .= html_writer::end_tag('li');
             }
         }
@@ -2054,7 +2054,30 @@ function icontent_make_questions_answers_by_type($question){
             $questionanswers .= html_writer::end_div();
             //$questionanswers .= html_writer::script("\$(document).ready(function(){\$('.question.multianswer').on('keyup change', 'input, select, textarea', onSaveClozeAnswers);});");
 
-            $questionanswers .= html_writer::script("function onSaveClozeAnswersIn(){
+            $questionanswers .= html_writer::script(
+              "function show_iconLoad(){
+                    // Loading
+                  $('.icontent-page')
+                  .children('.fulltextpage')
+                  .prepend(
+                      $('<div />')
+                      .addClass('loading')
+                      .html('<img src=\"pix/loading.gif\" alt=\"Loading\" class=\"img-loading\" />')
+                  )
+                  .css('opacity', '0.5');
+
+
+              }
+              // Hide loading icon
+              function remove_iconLoad(){
+                  // Loading
+                  $('.icontent-page')
+                  .children('.fulltextpage')
+                  .css('opacity', '1')
+                  .children('.loading').remove();
+              }
+
+              function onSaveClozeAnswersIn(){
                 var formdata = $(\"#idformquestions\").serialize();
                 var cmid = parseInt($(\"#idhfieldcmid\").val());
                 var sesskey = $(\"#idhfieldsesskey\").val();
@@ -2065,14 +2088,19 @@ function icontent_make_questions_answers_by_type($question){
                     \"formdata\" : formdata,
                 };
                 blockButtons();
-                $(\"#savediv\").modal({'backdrop': false});
+                show_iconLoad();
+                // $(\"#savediv\").modal({'backdrop': false});
                 $.ajax({
                     type : \"POST\",
                     dataType : \"json\",
                     url : \"ajax.php\",
                     data : data,
                     success : function(data) {
-                        setTimeout(function(){ $(\"#savediv\").modal('hide');unblockButtons();}, 1000);
+                        setTimeout(function(){
+                          // $(\"#savediv\").modal('hide');
+                          unblockButtons();
+                          remove_iconLoad();
+                        }, 1000);
                     }
                 });// End AJAX
 
@@ -2714,7 +2742,7 @@ function icontent_make_cover_page($icontent, $objpage, $context){
 * @param  object 	$context
 * @return object	$fullpage
 */
-function icontent_get_fullpageicontent($pagenum, $icontent, $context, $edit){
+function icontent_get_fullpageicontent($pagenum, $icontent, $context, $edit = 0){
     //print_r($context);
     global $DB, $CFG;
     // Get page

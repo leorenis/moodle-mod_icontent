@@ -9,22 +9,21 @@ function blockButtons(){
         $("button.btn-next-page").attr("disabled", true);
         $("button.btn-previous-page").attr("disabled", true);
         $("button.btn-icontent-page").attr("disabled", true);
-       // console.log('block');
 	}
-	
+
 function unblockButtons(){
      var numpages = $("button.btn-previous-page").attr("data-totalpages");
      var currentpage = $('button.btn-icontent-page.active').attr('data-pagenum');
-        
+
     if (currentpage!=1){
-    	$("button.btn-previous-page").attr("disabled", false);	
+    	$("button.btn-previous-page").attr("disabled", false);
     }
-    
+
     if (currentpage!=numpages){
         $("button.btn-next-page").attr("disabled", false);
     }
     $("button.btn-icontent-page").attr("disabled", false);
-   // console.log('unblock');
+
 }
 
 $(document).ready(function() {
@@ -102,8 +101,11 @@ $(document).ready(function() {
     }
     // Show loading icon
     function showIconLoad($this){
+      if ($this) {
         $this.hide();
+      }
         // Loading
+        region-main
         $(".icontent-page")
         .children('.fulltextpage')
         .prepend(
@@ -112,19 +114,23 @@ $(document).ready(function() {
             .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
         )
         .css('opacity', '0.5');
-       
-       
+
+
     }
     // Hide loading icon
     function removeIconLoad($this){
+      if ($this) {
         $this.show();
+      }
         // Loading
         $(".icontent-page")
         .children('.fulltextpage')
         .css('opacity', '1')
         .children('.loading').remove();
-        $this.removeAttr('disabled');
-   
+        if ($this) {
+          $this.removeAttr('disabled');
+        }
+
     }
     // Like note
     function onLikeNoteClick() {
@@ -327,6 +333,7 @@ $(document).ready(function() {
         }
     }
 
+    // dont call
     function onSaveClozeSave(){
         var formdata = $('#idformquestions').serialize();
         var cmid = parseInt($( "#idhfieldcmid").val());
@@ -338,13 +345,14 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-        $("#savediv").modal({'backdrop': false}); blockButtons();
+        $("#savediv").modal({'backdrop': false});
+        blockButtons();
         $.ajax({
             type : "POST",
             dataType : "json",
             //url : "/question/preview.php",
             url : "/mod/quiz/processattempt.php",
-            data : $('#idformquestions').serialize(),
+            data : formdata,
             complete : function(data) {
                 //$("#idquestionsarea").html(data.grid);
                setTimeout(function(){$("#savediv").modal('hide'); unblockButtons();}, 1000);
@@ -390,7 +398,9 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
-        $("#savediv").modal({'backdrop': false}); blockButtons();
+        // $("#savediv").modal({'backdrop': false});
+        blockButtons();
+        showIconLoad();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -398,15 +408,18 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 //$("#idquestionsarea").html(data.grid);
-                setTimeout(function(){$("#savediv").modal('hide');unblockButtons();}, 1000);
+                setTimeout(function(){
+                  // $("#savediv").modal('hide');
+                  unblockButtons();
+                  removeIconLoad();
+                }, 1000);
             }
         });// End AJAX
 
         return false;
     }
 
-    function onSaveAttempText()
-    {
+    function onSaveAttempText()  {
         clearTimeout (timer);
         delay(function(){
             var formdata = $('#idformquestions').serialize();
@@ -420,7 +433,8 @@ $(document).ready(function() {
             };
             //$('.btn-sendanswers').prop("disabled", true ); // Disable button
             blockButtons();
-            $("#savediv").modal({'backdrop': false}); 
+            // $("#savediv").modal({'backdrop': false});
+            showIconLoad();
             $.ajax({
                 type : "POST",
                 dataType : "json",
@@ -428,7 +442,11 @@ $(document).ready(function() {
                 data : data,
                 success : function(data) {
                     $("#idquestionsarea").html(data.grid);
-                    setTimeout(function(){$("#savediv").modal('hide');unblockButtons();}, 1000);
+                    setTimeout(function(){
+                      // $("#savediv").modal('hide');
+                      unblockButtons();
+                      removeIconLoad();
+                    }, 1000);
                 }
             });// End AJAX
             }, 2000 );
@@ -485,7 +503,7 @@ $(document).ready(function() {
         $("#idicontentpages").on('click', '.editnote', onEditNoteClick);
         $("#idicontentpages").on('click', '.replynote', onReplyNoteClick);
         $("#idicontentpages").on('click', '.togglehighcontrast', onToggleHightContrastClick);
-        $("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);
+        $("#idicontentpages").on('submit', '#idformquestions', onSaveAttempAnswers);  // submit all form
         //$("#idicontentpages").on('click', '#qbtnsave', onSaveAttempText);
         //$("#idicontentpages").on('click', '#generalfeedback', function(){$('.generalfeedback').toggle();});
         $("#idicontentpages").on('click', '#generalfeedback', function(){$(this).parent().children('.generalfeedback').toggle();});
@@ -494,8 +512,7 @@ $(document).ready(function() {
         $("#idicontentpages").on('click', '.answercheckbox', onSaveAttempText);
         $("#idicontentpages").on('change', '.answermatch', onSaveAttempText);
         //$(".question.multianswer").on('keyup change', 'input, select, textarea', onSaveClozeAnswers);
-        console.log($(".question.multianswer"));
-    //$("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
+        //$("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
     }
 
     var url = window.location;

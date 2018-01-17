@@ -574,9 +574,9 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, n
  * @param object $context
  * @return array $pageicontent
  */
-function icontent_ajax_getpage($pagenum, $icontent, $context){
+function icontent_ajax_getpage($pagenum, $icontent, $context, $edit){
 	require_once(dirname(__FILE__).'/locallib.php');
-	$objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context);
+	$objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context, $edit);
 	return $objpage;
 }
 

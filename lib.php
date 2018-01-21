@@ -767,7 +767,7 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
 	// Update grade
 	icontent_set_grade_item($icontent, $cm->id, $USER->id);
 	// Event log
-	\mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
+	//\mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
 	// Create object summary attempt
 	$summary = new stdClass();
 	$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
@@ -815,7 +815,7 @@ function icontent_ajax_savecloze($formdata, stdClass $cm, $icontent){
     // Update grade
     icontent_set_grade_item($icontent, $cm->id, $USER->id);
     // Event log
-    \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
+   // \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
     // Create object summary attempt
     $summary = new stdClass();
     $summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);

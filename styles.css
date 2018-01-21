@@ -782,15 +782,17 @@ textarea.answertextarea {
     margin-top: 0px;
 }
 .load-page.btn-icontent-page:hover {
-    background-color: #016a6e;
-    border: 1px solid #025454;
+    background-color: #016a6e !important;
+    border: 1px solid #025454 !important;
+    color: #fff !important;
 }
 
 .load-page.btn-icontent-page.visited {
-    line-height: 30px;
-    color: #018388;
-    background-color: #fff;
-    border: 2px solid #018388;
+  line-height: 30px;
+  color: #017b80;
+  background-color: #fafdfd;
+  border: 2px solid #018388;
+  box-shadow: 0 0 0 0.02px #01838A;
 }
 .load-page.btn-icontent-page:active,
 .load-page.btn-icontent-page.active {
@@ -798,6 +800,7 @@ textarea.answertextarea {
     opacity: 1 !important;
     background-color: #018388 !important;
     border: 1px solid #016a6e;
+    font-weight: bold;
 }
 .btn-sendanswers.btn-primary:focus,
 .btn-sendanswers.btn-primary,

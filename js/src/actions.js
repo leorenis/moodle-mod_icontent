@@ -5,6 +5,21 @@
 * @copyright  2016 Leo Santos {@link http://github.com/leorenis}
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
+
+`use strict`;
+
+const showSavingMessage = () => {
+  const body = document.querySelector(`body`);
+  const container = document.createElement(`div`);
+  container.className = `saving_message`;
+  container.innerHTML = `<span class = "saving_message_text">שומר</span><i class="fa fa-spinner spinner" aria-hidden="true"></i>`;
+  body.appendChild(container);
+}
+const hideSavingMessage = () => {
+  const container = document.querySelector(`.saving_message`);
+  container.remove();
+}
+
 function blockButtons(){
         $("button.btn-next-page").attr("disabled", true);
         $("button.btn-previous-page").attr("disabled", true);
@@ -37,6 +52,7 @@ $(document).ready(function() {
             $("#idcommentnote").focus().val("");
             return false;
         }
+        showSavingMessage();
         var $this = $(this);
         var data = {
             "action" : "savereturnpagenotes",
@@ -49,7 +65,7 @@ $(document).ready(function() {
             "featured" : $("#idfeatured").is(":checked") ? 1 : 0,
             "doubttutor" : 0,
         };
-        showIconLoad($this);
+        // showIconLoad($this);
         data = "&" + $.param(data);
 
         $.ajax({
@@ -58,10 +74,11 @@ $(document).ready(function() {
             url : "ajax.php",
             data : data,
             success : function(data) {
+                hideSavingMessage();
                 $("#idpagenotesnote").html(data.notes);
                 $("#idcommentnote").val("");
                 $("#messagenotes").text(data.totalnotes);
-                removeIconLoad($this);
+                // removeIconLoad($this);
             }
         });	// End AJAX
     }
@@ -72,6 +89,7 @@ $(document).ready(function() {
             $("#idcommentdoubt").focus().val("");
             return false;
         }
+        showSavingMessage();
         var $this = $(this);
         var data = {
             "action" : "savereturnpagenotes",
@@ -84,7 +102,7 @@ $(document).ready(function() {
             "private" : 0,
             "featured" : 0,
         };
-        showIconLoad($this);
+        // showIconLoad($this);
         data = "&" + $.param(data);
         $.ajax({
             type : "POST",
@@ -95,44 +113,44 @@ $(document).ready(function() {
                 $("#idpagenotesdoubt").html(data.notes);
                 $("#idcommentdoubt").val("");
                 $("#messagedoubt").text(data.totalnotes);
-                removeIconLoad($this);
+                // removeIconLoad($this);
+                hideSavingMessage();
             }
         });	// End AJAX
     }
     // Show loading icon
-    function showIconLoad($this){
-      if ($this) {
-        $this.hide();
-      }
-        // Loading
-        $(".icontent-page")
-        .children('.fulltextpage')
-        .prepend(
-            $('<div />')
-            .addClass('loading')
-            .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
-        )
-        .css('opacity', '0.5');
-
-
-    }
+    // function showIconLoad($this){
+    //   if ($this) {
+    //     $this.hide();
+    //   }
+    //     // Loading
+    //     $(".icontent-page")
+    //     .children('.fulltextpage')
+    //     .prepend(
+    //         $('<div />')
+    //         .addClass('loading')
+    //         .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
+    //     )
+    //     .css('opacity', '0.5');
+    // }
     // Hide loading icon
-    function removeIconLoad($this){
-      if ($this) {
-        $this.show();
-      }
-        // Loading
-        $(".icontent-page")
-        .children('.fulltextpage')
-        .css('opacity', '1')
-        .children('.loading').remove();
-        if ($this) {
-          $this.removeAttr('disabled');
-        }
-
-    }
+    // function removeIconLoad($this){
+    //   if ($this) {
+    //     $this.show();
+    //   }
+    //     // Loading
+    //     $(".icontent-page")
+    //     .children('.fulltextpage')
+    //     .css('opacity', '1')
+    //     .children('.loading').remove();
+    //     if ($this) {
+    //       $this.removeAttr('disabled');
+    //     }
+    //
+    // }
     // Like note
     function onLikeNoteClick() {
+
         var $like = $(this).children("span");
         var data = {
             "action" : "likenote",
@@ -142,7 +160,7 @@ $(document).ready(function() {
         };
 
         data = "&" + $.param(data);
-
+        showSavingMessage();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -150,6 +168,7 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 $like.text(data.likes);
+                hideSavingMessage();
             }
         });
         // End AJAX
@@ -165,6 +184,7 @@ $(document).ready(function() {
 
     // Save editing annotation
     function onEditNoteSaveClick(){
+
         var $notecomment = $(this).parent('.buttonscomment').parent('.notecomment');
         var textnotecomment = $notecomment.children('.textnotecomment').val();
         // Validates input data
@@ -180,7 +200,7 @@ $(document).ready(function() {
             "sesskey" : $notecomment.attr('data-sesskey'),
             "comment" : textnotecomment,
         };
-
+        showSavingMessage();
         data = "&" + $.param(data);
         $(this).prop("disabled", true );
         $.ajax({
@@ -190,6 +210,7 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 $notecomment.text(data.comment);
+                hideSavingMessage();
             }
         });
         // End AJAX
@@ -256,7 +277,7 @@ $(document).ready(function() {
             "sesskey" : $notecomment.attr('data-sesskey'),
             "comment" : textnotecomment,
         };
-
+        showSavingMessage();
         data = "&" + $.param(data);
         $(this).prop("disabled", true );
 
@@ -266,6 +287,7 @@ $(document).ready(function() {
             url : "ajax.php",
             data : data,
             success : function(data) {
+                hideSavingMessage();
                 $("#message"+data.tab).text(data.totalnotes);
                 $("#pnote"+ parseInt(data.parent)).after(data.reply);
                 $notecomment.children('.replynotecomment').remove();
@@ -346,6 +368,7 @@ $(document).ready(function() {
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
         $("#savediv").modal({'backdrop': false});
         blockButtons();
+        showSavingMessage();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -353,8 +376,8 @@ $(document).ready(function() {
             url : "/mod/quiz/processattempt.php",
             data : formdata,
             complete : function(data) {
-                //$("#idquestionsarea").html(data.grid);
-               setTimeout(function(){$("#savediv").modal('hide'); unblockButtons();}, 1000);
+              hideSavingMessage();
+              setTimeout(function(){$("#savediv").modal('hide'); unblockButtons();}, 1000);
             }
         });// End AJAX
 
@@ -373,6 +396,7 @@ $(document).ready(function() {
             "formdata" : formdata,
         };
         $('.btn-sendanswers').prop("disabled", true ); // Disable button
+        showSavingMessage();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -380,6 +404,7 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 $("#idquestionsarea").html(data.grid);
+                hideSavingMessage();
             }
         });// End AJAX
 
@@ -399,7 +424,7 @@ $(document).ready(function() {
         //$('.btn-sendanswers').prop("disabled", true ); // Disable button
         // $("#savediv").modal({'backdrop': false});
         blockButtons();
-        showIconLoad();
+        showSavingMessage();
         $.ajax({
             type : "POST",
             dataType : "json",
@@ -410,7 +435,7 @@ $(document).ready(function() {
                 setTimeout(function(){
                   // $("#savediv").modal('hide');
                   unblockButtons();
-                  removeIconLoad();
+                  hideSavingMessage();
                 }, 1000);
             }
         });// End AJAX
@@ -433,7 +458,7 @@ $(document).ready(function() {
             //$('.btn-sendanswers').prop("disabled", true ); // Disable button
             blockButtons();
             // $("#savediv").modal({'backdrop': false});
-            showIconLoad();
+            showSavingMessage();
             $.ajax({
                 type : "POST",
                 dataType : "json",
@@ -444,7 +469,7 @@ $(document).ready(function() {
                     setTimeout(function(){
                       // $("#savediv").modal('hide');
                       unblockButtons();
-                      removeIconLoad();
+                      hideSavingMessage();
                     }, 1000);
                 }
             });// End AJAX

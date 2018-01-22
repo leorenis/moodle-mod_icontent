@@ -753,18 +753,18 @@ textarea.answertextarea {
 
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page{
-  width: 89px;
+  /* width: 89px; */
   position: absolute;
   top: 15px;
   left: 10px;
   padding-right: 19px;
-  padding-left: 10px;
+  padding-left: 8px;
 }
 .full-paging-buttonbar .load-page.btn-previous-page {
   left: auto;
   right: 10px;
   padding-right: 8px;
-  padding-left: 19px;
+  padding-left: 10px;
 }
 
 .load-page.btn-icontent-page {
@@ -788,10 +788,9 @@ textarea.answertextarea {
 }
 
 .load-page.btn-icontent-page.visited {
-  line-height: 30px;
   color: #017b80;
   background-color: #fafdfd;
-  border: 2px solid #018388;
+  border: 1px solid #018388;
   box-shadow: 0 0 0 0.02px #01838A;
 }
 .load-page.btn-icontent-page:active,
@@ -1058,4 +1057,37 @@ display:none;
     padding-bottom: 8px;
     padding-top: 5px;s
   }
+}
+#page-mod-icontent-view .saving_message{
+  position: fixed;
+  /* top: -40px; */
+  top: 0px;
+  right: 0;
+  left: 0;
+  width: 100%;
+  background-color: #016a6e;
+  color: #fff;
+  text-align: center;
+  font-size: 20px;
+  /* animation-name: showBanner;
+  animation-duration: .8s; */
+}
+#page-mod-icontent-view .saving_message_text{
+  font: normal 25px/40px 'Arial';
+  display: inline-block;
+  margin: 0 10px;
+}
+@keyframes spinner {
+    from {transform: rotate(0);}
+    to {transform: rotate(360deg);}
+}
+/* @keyframes showBanner {
+    from {top: -40px;}
+    to {top: 0;}
+} */
+#page-mod-icontent-view .spinner{
+  animation-name: spinner;
+  animation-timing-function: linear;
+  animation-duration: .7s;
+  animation-iteration-count: infinite;
 }

@@ -32,20 +32,11 @@ $(document).ready(function(){
 		};
 		// Destroy all tooltips
 		$('[data-toggle="tooltip"]').tooltip('destroy');
-		// Loading page
-		$(".icontent-page")
-			.children('.fulltextpage')
-			.prepend(
-				$('<div />')
-					.addClass('loading')
-					.html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
-			)
-			.css('opacity', '0.5');
 		// Active link or button the atual page
 		onBtnActiveEnableDisableClick(data.pagenum);
 
         history.pushState(null, null, '#tab' + $(this).attr('data-pagenum'));
-
+		showSavingMessage();
 		data = "&" + $.param(data);
 	  	$.ajax({
 	    	type: "POST",
@@ -53,6 +44,7 @@ $(document).ready(function(){
 	    	url: "ajax.php", // Relative or absolute path to ajax.php file
 	    	data: data,
 	    	success: function(data) {
+					hideSavingMessage();
 	    		if(data.transitioneffect !== "0"){
 	    			$(".icontent-page").hide();
 		    		$(".icontent-page").html(data.fullpageicontent);

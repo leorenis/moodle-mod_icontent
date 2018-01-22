@@ -2057,27 +2057,7 @@ function icontent_make_questions_answers_by_type($question){
             //$questionanswers .= html_writer::script("\$(document).ready(function(){\$('.question.multianswer').on('keyup change', 'input, select, textarea', onSaveClozeAnswers);});");
 
             $questionanswers .= html_writer::script(
-              "function show_iconLoad(){
-                    // Loading
-                  $('.icontent-page')
-                  .children('.fulltextpage')
-                  .prepend(
-                      $('<div />')
-                      .addClass('loading')
-                      .html('<img src=\"pix/loading.gif\" alt=\"Loading\" class=\"img-loading\" />')
-                  )
-                  .css('opacity', '0.5');
-
-
-              }
-              // Hide loading icon
-              function remove_iconLoad(){
-                  // Loading
-                  $('.icontent-page')
-                  .children('.fulltextpage')
-                  .css('opacity', '1')
-                  .children('.loading').remove();
-              }
+              "
 
               function onSaveClozeAnswersIn(){
                 var formdata = $(\"#idformquestions\").serialize();
@@ -2090,7 +2070,7 @@ function icontent_make_questions_answers_by_type($question){
                     \"formdata\" : formdata,
                 };
                 blockButtons();
-                show_iconLoad();
+                showSavingMessage();
                 // $(\"#savediv\").modal({'backdrop': false});
                 $.ajax({
                     type : \"POST\",
@@ -2101,7 +2081,7 @@ function icontent_make_questions_answers_by_type($question){
                         setTimeout(function(){
                           // $(\"#savediv\").modal('hide');
                           unblockButtons();
-                          remove_iconLoad();
+                          hideSavingMessage();
                         }, 1000);
                     }
                 });// End AJAX

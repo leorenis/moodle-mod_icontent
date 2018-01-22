@@ -83,6 +83,7 @@ $string['eventpagecreated'] = 'עמוד נוצר';
 $string['eventpagedeleted'] = 'עמוד נמחק';
 $string['eventpageupdated'] = 'עמוד עודכן';
 $string['eventpageviewed'] = 'עמוד נצפה';
+$string['eventpagetransitione'] = 'עבור אל הדף';
 $string['eventquestionattemptcreated'] = 'נוצר נסיון מענה לשאלה';
 $string['eventquestionattemptdeleted'] = 'נמחק נסיון מענה לשאלה';
 $string['eventquestionpageviewed'] = 'הצגת עמוד "הוספת שאלה"';

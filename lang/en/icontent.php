@@ -228,6 +228,7 @@ $string['eventpagecreated'] = 'Page created';
 $string['eventpagedeleted'] = 'Page deleted';
 $string['eventpageupdated'] = 'Page updated';
 $string['eventpageviewed'] = 'Page viewed';
+$string['eventpagetransitione'] = 'Go to page';
 $string['eventnotecreated'] = 'Note created';
 $string['eventnotedeleted'] = 'Note deleted';
 $string['eventnotereplied'] = 'Note replied';

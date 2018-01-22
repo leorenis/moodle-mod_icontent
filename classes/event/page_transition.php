@@ -1,4 +1,4 @@
-<?php
+n<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -62,9 +62,8 @@ class page_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
-
-        return "The user with id '$this->userid' viewed the page with id '$this->objectid' for the icontent with " .
-            "course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' navigation null/next/preview/top/toc viewed the page with id '$this->objectid'
+        step'999' from page id '24' step'999' of for the icontent with " ."course module id '$this->contextinstanceid'.";
     }
 
     /**
@@ -73,7 +72,7 @@ class page_viewed extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'icontent', 'view page', 'view.php?id=' . $this->contextinstanceid .
+        return array($this->courseid, 'icontent', 'transition page', 'view.php?id=' . $this->contextinstanceid .
             '&amp;pageid=' . $this->objectid, $this->objectid, $this->contextinstanceid);
     }
 
@@ -83,7 +82,7 @@ class page_viewed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventpageviewed', 'mod_icontent');
+        return get_string('eventpagetransitione', 'mod_icontent');
     }
 
     /**
@@ -103,7 +102,6 @@ class page_viewed extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages';
+        $this->data['objecttable'] = 'icontent_pages_transition';
     }
-
 }

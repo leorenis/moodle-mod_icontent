@@ -231,6 +231,7 @@ $string['eventpagecreated'] = 'Criação de página';
 $string['eventpagedeleted'] = 'Exclusão de página';
 $string['eventpageupdated'] = 'Atualização de página';
 $string['eventpageviewed'] = 'Visualização de página';
+$string['eventpagetransitione'] = 'Go to page';
 $string['eventnotecreated'] = 'Criação de anotação';
 $string['eventnotedeleted'] = 'Exclusão de anotação';
 $string['eventnotereplied'] = 'Resposta de anotação';

@@ -9,6 +9,10 @@
 `use strict`;
 
 const showSavingMessage = () => {
+  const oldIcon = document.querySelector(`saving_message`);
+  if (oldIcon) {
+    oldIcon.remove();
+  }
   const body = document.querySelector(`body`);
   const container = document.createElement(`div`);
   container.className = `saving_message`;

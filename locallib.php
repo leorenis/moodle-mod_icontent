@@ -152,7 +152,7 @@ function icontent_add_properties_css($pagestyle){
  * @return void
  */
 function icontent_add_script_load_tooltip(){
-	return html_writer::script("$(function() { $('[data-toggle=\"tooltip\"]').tooltip(); })");
+	return html_writer::script(""); //$(function() { $('[data-toggle="tooltip"]').tooltip(); })
 }
  /**
  * Get page style. 

@@ -779,11 +779,13 @@ textarea.answertextarea {
   margin-left: 0px;
 }
 .simple-paging-buttonbar .load-page.btn-previous-page {
+  margin-right: 10px !important;
   padding-right: 8px;
   padding-left: 10px;
   width: 80px;
 }
 .simple-paging-buttonbar .load-page.btn-next-page {
+  margin-left: 10px !important;
   padding-right: 19px;
   padding-left: 8px;
 }
@@ -1114,4 +1116,7 @@ display:none;
 }
 #page-mod-icontent-view .block .header .title h2 {
   margin: 0;
+}
+#page-mod-icontent-view .mform fieldset.collapsible legend a.fheader {
+  margin-right: 0 !important;
 }

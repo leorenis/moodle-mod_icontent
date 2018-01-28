@@ -44,7 +44,6 @@ $(document).ready(function(){
 	    	url: "ajax.php", // Relative or absolute path to ajax.php file
 	    	data: data,
 	    	success: function(data) {
-					hideSavingMessage();
 	    		if(data.transitioneffect !== "0"){
 	    			$(".icontent-page").hide();
 		    		$(".icontent-page").html(data.fullpageicontent);
@@ -56,7 +55,10 @@ $(document).ready(function(){
 	    		onChangeStateControlButtons(data);
                 //SetPageEvents();
                 $('[data-toggle="tooltip"]').tooltip();
-	    	}
+	    	},
+				complete: function() {
+					 hideSavingMessage();
+				}
 	    }); // End AJAX
 	} // End onLoad..
 

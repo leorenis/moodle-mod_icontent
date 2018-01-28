@@ -2083,8 +2083,10 @@ function icontent_make_questions_answers_by_type($question){
                         setTimeout(function(){
                           // $(\"#savediv\").modal('hide');
                           unblockButtons();
-                          hideSavingMessage();
                         }, 1000);
+                    },
+                    complete: function() {
+                       hideSavingMessage();
                     }
                 });// End AJAX
 

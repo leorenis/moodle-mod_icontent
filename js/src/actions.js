@@ -47,7 +47,6 @@ function unblockButtons(){
 
 $(document).ready(function() {
 
-
     // List of the named functions
     // Save note tab type 'note'
     function onSaveNoteClick() {
@@ -78,12 +77,15 @@ $(document).ready(function() {
             url : "ajax.php",
             data : data,
             success : function(data) {
-                hideSavingMessage();
                 $("#idpagenotesnote").html(data.notes);
                 $("#idcommentnote").val("");
                 $("#messagenotes").text(data.totalnotes);
                 // removeIconLoad($this);
+            },
+            complete: function() {
+               hideSavingMessage();
             }
+
         });	// End AJAX
     }
     // Save note tab type 'doubts'
@@ -117,41 +119,12 @@ $(document).ready(function() {
                 $("#idpagenotesdoubt").html(data.notes);
                 $("#idcommentdoubt").val("");
                 $("#messagedoubt").text(data.totalnotes);
-                // removeIconLoad($this);
-                hideSavingMessage();
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });	// End AJAX
     }
-    // Show loading icon
-    // function showIconLoad($this){
-    //   if ($this) {
-    //     $this.hide();
-    //   }
-    //     // Loading
-    //     $(".icontent-page")
-    //     .children('.fulltextpage')
-    //     .prepend(
-    //         $('<div />')
-    //         .addClass('loading')
-    //         .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
-    //     )
-    //     .css('opacity', '0.5');
-    // }
-    // Hide loading icon
-    // function removeIconLoad($this){
-    //   if ($this) {
-    //     $this.show();
-    //   }
-    //     // Loading
-    //     $(".icontent-page")
-    //     .children('.fulltextpage')
-    //     .css('opacity', '1')
-    //     .children('.loading').remove();
-    //     if ($this) {
-    //       $this.removeAttr('disabled');
-    //     }
-    //
-    // }
     // Like note
     function onLikeNoteClick() {
 
@@ -172,7 +145,9 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 $like.text(data.likes);
-                hideSavingMessage();
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });
         // End AJAX
@@ -214,7 +189,9 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 $notecomment.text(data.comment);
-                hideSavingMessage();
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });
         // End AJAX
@@ -291,11 +268,13 @@ $(document).ready(function() {
             url : "ajax.php",
             data : data,
             success : function(data) {
-                hideSavingMessage();
                 $("#message"+data.tab).text(data.totalnotes);
                 $("#pnote"+ parseInt(data.parent)).after(data.reply);
                 $notecomment.children('.replynotecomment').remove();
                 $notecomment.children('.buttonscomment').remove();
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });
         // End AJAX
@@ -380,8 +359,10 @@ $(document).ready(function() {
             url : "/mod/quiz/processattempt.php",
             data : formdata,
             complete : function(data) {
-              hideSavingMessage();
               setTimeout(function(){$("#savediv").modal('hide'); unblockButtons();}, 1000);
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });// End AJAX
 
@@ -408,7 +389,9 @@ $(document).ready(function() {
             data : data,
             success : function(data) {
                 $("#idquestionsarea").html(data.grid);
-                hideSavingMessage();
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });// End AJAX
 
@@ -439,8 +422,10 @@ $(document).ready(function() {
                 setTimeout(function(){
                   // $("#savediv").modal('hide');
                   unblockButtons();
-                  hideSavingMessage();
                 }, 1000);
+            },
+            complete: function() {
+               hideSavingMessage();
             }
         });// End AJAX
 
@@ -473,8 +458,10 @@ $(document).ready(function() {
                     setTimeout(function(){
                       // $("#savediv").modal('hide');
                       unblockButtons();
-                      hideSavingMessage();
                     }, 1000);
+                },
+                complete: function() {
+                   hideSavingMessage();
                 }
             });// End AJAX
             }, 2000 );

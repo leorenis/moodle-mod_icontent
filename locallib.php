@@ -139,6 +139,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
         // Visualization to students
         $toc .= html_writer::start_tag('ul');
         foreach ($pages as $pg) {
+
             $visited_page = (!empty(icontent_get_pagedisplayed($pg->id, $pg->cmid))) ? 'visited' : '';
             $page_title_indent = ($pg->addindent)? 'addindent' : '';
             if(!$pg->hidden){
@@ -424,9 +425,10 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
             $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum.' '.$visited_page , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
         }
     }
-    $objbutton->name = get_string('next', 'mod_icontent');
+    $objbutton->name = get_string('nextp', 'mod_icontent');
     $objbutton->title = get_string('nextpage', 'mod_icontent');
     $pgbuttons .= icontent_make_button_next_page($objbutton, $tpages);
+
 
     /*$word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
     array(
@@ -460,7 +462,7 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
     $objbutton->startwithpage = $startwithpage;
     // Go back
     $controlbuttons = icontent_make_button_previous_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right')));
-    $objbutton->name = get_string('next', 'mod_icontent');
+    $objbutton->name = get_string('nextp', 'mod_icontent');
     $objbutton->title = get_string('nextpage', 'mod_icontent');
     // Advance
     $controlbuttons .= icontent_make_button_next_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left')));

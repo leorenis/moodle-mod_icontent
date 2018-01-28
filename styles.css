@@ -690,12 +690,23 @@ textarea.answertextarea{
 .formulation .ouil_table input[type="text"] {
     width: 100%;
 }
-.icon-file-word-o{
+.heading__wrapper {
+  position: relative;
+}
+#page-mod-icontent-view .icon-file-word-o{
   position: absolute;
-  left: 20px;
-  line-height: 41px;
-  font-size: 30px;
-  top: 10px;
+  left: 22px;
+  line-height: 60px;
+  font-size: 34px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+}
+#page-mod-icontent-view .fa-lg {
+  font-size: inherit;
+  line-height: 34px;
+  vertical-align: inherit;
 }
 .pagenum{
 	display:none;
@@ -753,7 +764,6 @@ textarea.answertextarea {
 
 .full-paging-buttonbar .load-page.btn-previous-page,
 .full-paging-buttonbar .load-page.btn-next-page{
-  /* width: 89px; */
   position: absolute;
   top: 15px;
   left: 10px;
@@ -765,8 +775,18 @@ textarea.answertextarea {
   right: 10px;
   padding-right: 8px;
   padding-left: 10px;
+  width: 80px;
+  margin-left: 0px;
 }
-
+.simple-paging-buttonbar .load-page.btn-previous-page {
+  padding-right: 8px;
+  padding-left: 10px;
+  width: 80px;
+}
+.simple-paging-buttonbar .load-page.btn-next-page {
+  padding-right: 19px;
+  padding-left: 8px;
+}
 .load-page.btn-icontent-page {
     display: inline-block;
     box-sizing: border-box;
@@ -1053,13 +1073,14 @@ display:none;
 
 @media (max-width: 767px) {
   #page-mod-icontent-view  .heading__wrapper  > h2{
-    line-height: 40px !important;
+    line-height: 35px !important;
     padding-bottom: 8px;
     padding-top: 5px;s
   }
 }
 #page-mod-icontent-view .saving_message{
   position: fixed;
+  z-index: 9999;
   /* top: -40px; */
   top: 0px;
   right: 0;
@@ -1090,4 +1111,7 @@ display:none;
   animation-timing-function: linear;
   animation-duration: .7s;
   animation-iteration-count: infinite;
+}
+#page-mod-icontent-view .block .header .title h2 {
+  margin: 0;
 }

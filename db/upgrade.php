@@ -196,6 +196,7 @@ function xmldb_icontent_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017101905, 'icontent');
     }
 
+
     if ($oldversion < 2018010819) {
 
         $table = new xmldb_table('icontent');
@@ -219,6 +220,32 @@ function xmldb_icontent_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2018011604, 'icontent');
+
+}
+
+    if ($oldversion < 2018011520) {
+    	
+    	add_shoham_capability();
+    	add_mashov_capability();
+    	add_manager_capability();
+    	add_studentsupport_capability();
+    	add_superguest_1_capability();
+    	add_superguest_capability();
+    	add_extended_openu_guest_capability();
+    	add_teacher_capability();
+    	add_editingteacher_capability();
+    	add_racaztecher_capability();
+    	add_guest_capability();
+    	add_user_capability();
+    	add_openu_guest_capability();
+    	
+    	remove_teacher_capability();
+    	remove_extended_openu_guest_capability();
+    	remove_rakaz_tikshuv_capability();
+    	remove_editing_teacher_capability();
+    	remove_mashov_capability();
+    	
+    	upgrade_mod_savepoint(true, 2018011520, 'icontent');
     }
 
 

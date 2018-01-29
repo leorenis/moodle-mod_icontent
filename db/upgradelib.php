@@ -8,8 +8,7 @@ function add_racaztecher_capability(){
 		$context = context_system::instance();
 	
 		assign_capability('mod/icontent:likenote', CAP_ALLOW, $rakaz_tikshuv, $context);
-	
-	
+		
 	
 	}
 }
@@ -32,6 +31,7 @@ function add_manager_capability(){
 		$context = context_system::instance();
 		
 		assign_capability('mod/icontent:likenotes', CAP_ALLOW, $manger, $context);
+		assign_capability('mod/icontent:addinstance', CAP_ALLOW, $manger, $context);
 		
 	}
 }
@@ -66,7 +66,6 @@ function add_mashov_capability(){
 	if ($mashov = $DB->get_field('role', 'id', array('shortname'=>'msho_b'))) {
 		$context = context_system::instance();
 	
-		assign_capability('mod/icontent:addinstance', CAP_ALLOW, $mashov, $context);
 		assign_capability('mod/icontent:edit', CAP_ALLOW, $mashov, $context);
 		assign_capability('mod/icontent:grade', CAP_ALLOW, $mashov, $context);
 		assign_capability('mod/icontent:manage', CAP_ALLOW, $mashov, $context);
@@ -81,7 +80,7 @@ function add_mashov_capability(){
 		assign_capability('mod/icontent:checkboxdoubttutornotes', CAP_ALLOW, $mashov , $context);
 		assign_capability('mod/icontent:newquestion', CAP_ALLOW, $mashov, $context);
 		assign_capability('mod/icontent:answerquestionstryagain', CAP_ALLOW, $mashov, $context);
-	
+		
 	
 	}
 }
@@ -232,6 +231,41 @@ function add_mashov_capability(){
 		
 	}
 	
+	
+	function remove_mashov_capability(){
+		global $DB;
+		
+		if ($mashov = $DB->get_field('role', 'id', array('shortname'=>'msho_b'))) {
+			$context = context_system::instance();
+				
+			unassign_capability('mod/icontent:addinstance', $mashov, $context);
+		
+				
+		}
+	}
+	function remove_editing_teacher_capability(){
+		global $DB;
+		
+		if ($editingteacher = $DB->get_field('role', 'id', array('shortname'=>'editingteacher'))) {
+			$context = context_system::instance();
+			
+			unassign_capability('mod/icontent:addinstance', $editingteacher, $context);
+				
+			
+		}
+		
+	}
+	function remove_rakaz_tikshuv_capability(){
+		global $DB;
+		
+		if ($rakaz_tikshuv = $DB->get_field('role', 'id', array('shortname'=>'rakaz_tikshuv'))) {
+			$context = context_system::instance();
+			
+			unassign_capability('mod/icontent:addinstance', $rakaz_tikshuv, $context);
+				
+		}
+		
+	}
 	function remove_teacher_capability(){
 		
 		global $DB;

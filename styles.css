@@ -723,11 +723,14 @@ text-align:unset !important;
 {
     background-color: #fff;
     margin: 0px;
-    line-height: 60px;
+    line-height: 35px;
     padding-right: 30px;
     padding-left: 74px;
     border: 1px solid #dbdfe4;
     color: #018388;
+    display: flex;
+    align-items: center;
+    min-height: 60px;
 }
 .path-mod-icontent .full-paging-buttonbar {
   padding: 16px 100px 13px 100px !important;
@@ -1075,15 +1078,14 @@ display:none;
 
 @media (max-width: 767px) {
   #page-mod-icontent-view  .heading__wrapper  > h2{
-    line-height: 35px !important;
     padding-bottom: 8px;
     padding-top: 5px;s
   }
 }
+
 #page-mod-icontent-view .saving_message{
   position: fixed;
   z-index: 9999;
-  /* top: -40px; */
   top: 0px;
   right: 0;
   left: 0;
@@ -1092,8 +1094,6 @@ display:none;
   color: #fff;
   text-align: center;
   font-size: 20px;
-  /* animation-name: showBanner;
-  animation-duration: .8s; */
 }
 #page-mod-icontent-view .saving_message_text{
   font: normal 25px/40px 'Arial';

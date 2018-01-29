@@ -71,20 +71,40 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('timecreated', PARAM_INT);
 		$mform->setDefault('timecreated', $timecreated);
 
-        $mform->addElement('text', 'title', get_string('pagetitle', 'icontent'), array('class'=>'input-xxlarge'));
-        $mform->setType('title', PARAM_RAW);
-        $mform->addRule('title', null, 'required', null, 'client');
+    $mform->addElement('text', 'title', get_string('pagetitle', 'icontent'), array('class'=>'input-xxlarge'));
+    $mform->setType('title', PARAM_RAW);
+    $mform->addRule('title', null, 'required', null, 'client');
 
-        $mform->addElement('advcheckbox', 'coverpage', get_string('coverpage', 'icontent'));
-		$mform->addHelpButton('coverpage', 'coverpage', 'icontent');
-		$mform->setType('coverpage', PARAM_INT);
-        $mform->setDefault('coverpage', 0);
+    $mform->addElement('advcheckbox', 'addindent', get_string('addindent', 'icontent'));
+    $mform->addHelpButton('addindent', 'addindent', 'icontent');
+    $mform->setType('addindent', PARAM_INT);
+    $mform->setDefault('addindent', 0);
+
+    $mform->addElement('advcheckbox', 'showtitle', get_string('showtitle', 'icontent'));
+    $mform->addHelpButton('showtitle', 'showtitle', 'icontent');
+    $mform->setType('showtitle', PARAM_INT);
+    $mform->setDefault('showtitle', 1);
+
+    // $mform->addElement('advcheckbox', 'coverpage', get_string('coverpage', 'icontent'));
+    // $mform->addHelpButton('coverpage', 'coverpage', 'icontent');
+    // $mform->setType('coverpage', PARAM_INT);
+    // $mform->setDefault('coverpage', 0);
 
 		$mform->addElement('editor', 'pageicontent_editor', get_string('icontent', 'mod_icontent'), null, $pageicontentoptions);
         $mform->setType('pageicontent_editor', PARAM_RAW);
         $mform->addRule('pageicontent_editor', get_string('required'), 'required', null, 'client');
 
 		$mform->addElement('header', 'appearance', get_string('appearance'));
+
+    // $mform->addElement('advcheckbox', 'addindent', get_string('addindent', 'icontent'));
+    // $mform->addHelpButton('addindent', 'addindent', 'icontent');
+    // $mform->setType('addindent', PARAM_INT);
+    // $mform->setDefault('addindent', 0);
+
+    $mform->addElement('advcheckbox', 'coverpage', get_string('coverpage', 'icontent'));
+    $mform->addHelpButton('coverpage', 'coverpage', 'icontent');
+    $mform->setType('coverpage', PARAM_INT);
+    $mform->setDefault('coverpage', 0);
 
 		$layouts = array(
 			'1' => get_string('fluid','icontent'),
@@ -96,20 +116,10 @@ class icontent_pages_edit_form extends moodleform {
 		$mform->addElement('select', 'layout', get_string('layout','icontent'), $layouts);
 		$mform->addHelpButton('layout', 'layouthelp', 'icontent');
 
-		$mform->addElement('advcheckbox', 'showtitle', get_string('showtitle', 'icontent'));
-        $mform->addHelpButton('showtitle', 'showtitle', 'icontent');
-		$mform->setType('showtitle', PARAM_INT);
-        $mform->setDefault('showtitle', 1);
-
 		$mform->addElement('advcheckbox', 'showbgimage', get_string('showbgimage', 'icontent'));
         $mform->addHelpButton('showbgimage', 'showbgimage', 'icontent');
 		$mform->setType('showbgimage', PARAM_INT);
         $mform->setDefault('showbgimage', 1);
-
-    $mform->addElement('advcheckbox', 'addindent', get_string('addindent', 'icontent'));
-        $mform->addHelpButton('addindent', 'addindent', 'icontent');
-    $mform->setType('addindent', PARAM_INT);
-        $mform->setDefault('addindent', 0);
 
 		$filemanager_options = array();
         $filemanager_options['accepted_types'] = array('.jpg', '.png');

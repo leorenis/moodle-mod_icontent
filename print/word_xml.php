@@ -132,7 +132,7 @@ foreach($objpages as $page)
                         $rightanswer = "(".get_string("youranswer", "icontent")." - {$draft[$anwswer->id]})";
                         $anwswertext .= "<li style='color:#919191;'><i>".strip_tags($anwswer->questiontext)." {$rightanswer}</i></li>";
                     }else{
-                        $anwswertext .= "<li>".strip_tags($anwswer->questiontext)."</li>";
+                        $anwswertext .= "<li>"strip_tags($anwswer->questiontext)."</li>";
                     }
                 }
                 $anwswertext .= "</ul>";
@@ -143,7 +143,7 @@ foreach($objpages as $page)
                 if (!empty($question->qpid)&&!empty($question->cmid)) {
                     $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int)$USER->id, 'cmid' => $question->cmid]);
                     if (!empty($draft->answertext)) {
-                        $anwswertext = "<br><i style='color:#919191;'>" . $draft->answertext . "</i>";
+                        $anwswertext = "<br>".get_string("youranswer", "icontent")."<i style='color:#919191;'>" . $draft->answertext . "</i>";
                     }
                 }
             break;
@@ -204,7 +204,7 @@ foreach($objpages as $page)
                             }
                         }else
                         {
-                            $stransw = "<br><i style='color:#919191;'>".(isset($attempts[$key + 1])?$attempts[$key + 1]:"")."</i><br>";
+                            $stransw = "<br><i style='color:#919191;'>"(isset($attempts[$key + 1])?$attempts[$key + 1]:"")."</i><br>";
                         }
 
 

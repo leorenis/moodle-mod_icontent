@@ -723,14 +723,17 @@ text-align:unset !important;
 {
     background-color: #fff;
     margin: 0px;
-    line-height: 35px;
+    line-height: 34px;
     padding-right: 30px;
+    padding-top: 13px;
+    padding-bottom: 13px;
     padding-left: 74px;
     border: 1px solid #dbdfe4;
     color: #018388;
     display: flex;
     align-items: center;
     min-height: 60px;
+
 }
 .path-mod-icontent .full-paging-buttonbar {
   padding: 16px 100px 13px 100px !important;

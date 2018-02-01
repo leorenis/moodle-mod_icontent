@@ -80,19 +80,20 @@ class copy_icontent extends copy_activity_task {
 		$this->set_mapping('context',$sourcecontext->id, $targetcontext->id );
 
 		$this->add_related_files('mod_icontent', 'intro', $sourcecontext->id, $targetcontext->id);
-
-		list($copied_icontent_pages) = $this->copy_icontent_pages($source_icontent->id,$this->activityid);
-		$this->copy_icontent_grades($source_icontent->id,$this->activityid);
+//echo '*******'.$source_icontent->id.'**********************'.$this->activityid.'**********';
+//echo '*******'.$sourcecontext->id.'**********************'.$cm->id.'**********';
+		list($copied_icontent_pages) = $this->copy_icontent_pages($cm->id,$source_icontent->id,$this->activityid);
+		//$this->copy_icontent_grades($cm->id,$source_icontent->id,$this->activityid);
 		if($copied_icontent_pages){
-			$this->copy_icontent_pages_dspl($copied_icontent_pages);
-			list($copied_icontent_pages_notes) = $this->copy_icontent_pages_notes($copied_icontent_pages);
+			$this->copy_icontent_pages_dspl($cm->id,$copied_icontent_pages);
+			list($copied_icontent_pages_notes) = $this->copy_icontent_pages_notes($cm->id,$copied_icontent_pages);
 			if($copied_icontent_pages_notes){
-				$this->copy_icontent_pages_notes_like($copied_icontent_pages_notes);
+				$this->copy_icontent_pages_notes_like($cm->id,$copied_icontent_pages_notes);
 			};
-			list($copied_icontent_pages_questions) = $this->copy_icontent_pages_questions($copied_icontent_pages);	
+			list($copied_icontent_pages_questions) = $this->copy_icontent_pages_questions($cm->id,$copied_icontent_pages);	
 			if($copied_icontent_pages_questions){
-				$this->copy_icontent_quest_attempt($copied_icontent_pages_questions);
-				$this->copy_icontent_quest_drafts($copied_icontent_pages_questions);
+				//$this->copy_icontent_quest_attempt($cm->id,$copied_icontent_pages_questions);
+				$this->copy_icontent_quest_drafts($cm->id,$copied_icontent_pages_questions);
 			}
 		}
 	}
@@ -210,7 +211,7 @@ class copy_icontent extends copy_activity_task {
 		return $record;
 	}
 
-	private function copy_icontent_pages($copied_icontent_record_old,$copied_icontent_record_new){
+	private function copy_icontent_pages($targetcontext,$copied_icontent_record_old,$copied_icontent_record_new){
 	    	global $DB;
 	    	$copied_icontent_pages = null;
 	    	
@@ -223,6 +224,7 @@ class copy_icontent extends copy_activity_task {
 	    			$oldid = $record->id;
 	    			unset($record->id);
 	    			$record->icontentid = $copied_icontent_record_new;
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_pages',$record);
 	    			$copied_icontent_pages[$oldid] = $newid;
 				$this->add_related_files('mod_icontent', 'page', $oldid, $newid);
@@ -238,7 +240,7 @@ class copy_icontent extends copy_activity_task {
 	    	}
 	}
 
-	private function copy_icontent_pages_notes($copied_icontent_pages){
+	private function copy_icontent_pages_notes($targetcontext,$copied_icontent_pages){
 	    	global $DB;
 		$flipped_pages = array_flip($copied_icontent_pages);
 	    	$copied_icontent_pages_notes = null;
@@ -253,6 +255,7 @@ class copy_icontent extends copy_activity_task {
 	    			$oldid = $record->id;
 	    			unset($record->id);
 				$old_page_id = $record->pageid;
+				$record->cmid = $targetcontext;
 				$record->pageid = $copied_icontent_pages[$old_page_id];
 	    			$newid = $DB->insert_record('icontent_pages_notes',$record);
 	    			$copied_icontent_pages_notes[$oldid] = $newid;
@@ -267,23 +270,23 @@ class copy_icontent extends copy_activity_task {
 	    	}
 	}
 
-	private function copy_icontent_pages_questions($copied_icontent_pages){
+	private function copy_icontent_pages_questions($targetcontext,$copied_icontent_pages){
 	    	global $DB;
 		$flipped_pages = array_flip($copied_icontent_pages);
 	    	$copied_icontent_pages_questions = null;
 	    	
 	    	$query = "SELECT *  FROM {icontent_pages_questions}  WHERE pageid = ?";
 	    	
-	    	$records = $DB->get_records_sql($query,$copied_icontent_pages);
+	    	$records = $DB->get_records_sql($query,$flipped_pages);
 	    	
 	    	if($records){
 	    		$copied_icontent_pages_questions = array();
-	    		$copy_icontent_pages_questions_details =array();
 	    		foreach($records as $record){
 	    			$oldid = $record->id;
 	    			unset($record->id);
 				$old_page_id = $record->pageid;
 				$record->pageid = $copied_icontent_pages[$old_page_id];
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_pages_questions',$record);
 	    			$copied_icontent_pages_questions[$oldid] = $newid;
 	    		}
@@ -297,7 +300,7 @@ class copy_icontent extends copy_activity_task {
 	    	}
 	}
 
-	private function copy_icontent_grades($copied_icontent_record_old,$copied_icontent_record_new){
+	private function copy_icontent_grades($targetcontext,$copied_icontent_record_old,$copied_icontent_record_new){
 		global $DB;
 		
 		$query = "SELECT *  FROM {icontent_grades} WHERE icontentid = ?";
@@ -308,6 +311,7 @@ class copy_icontent extends copy_activity_task {
 	    		foreach($records as $record){
 	    			$oldid = $record->id;
 	    			unset($record->id);
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_grades',$record);
 	    			if(!$newid){
 					$this->loger->logit("Failed to add record to icontent_grades table. The record: " . $record);
@@ -316,7 +320,7 @@ class copy_icontent extends copy_activity_task {
 	    	}
 	}
 
-	private function copy_icontent_pages_dspl($copied_icontent_pages){
+	private function copy_icontent_pages_dspl($targetcontext,$copied_icontent_pages){
 		global $DB;
 		$flipped_pages = array_flip($copied_icontent_pages);
 		$query = "SELECT *  FROM {icontent_pages_displayed} WHERE pageid = ?";
@@ -329,6 +333,7 @@ class copy_icontent extends copy_activity_task {
 	    			unset($record->id);
 				$old_page_id = $record->pageid;
 				$record->pageid = $copied_icontent_pages[$old_page_id];
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_pages_displayed',$record);
 				if(!$newid){
 					$this->loger->logit("Failed to add record to icontent_pages_displayed table. The record: " . $record);
@@ -337,7 +342,7 @@ class copy_icontent extends copy_activity_task {
 	    	}
 	}
 
-	private function copy_icontent_pages_notes_like($copied_icontent_pages_notes){
+	private function copy_icontent_pages_notes_like($targetcontext,$copied_icontent_pages_notes){
 		global $DB;
 		$flipped_pages = array_flip($copied_icontent_pages_notes);
 		$query = "SELECT *  FROM {icontent_pages_notes_like} WHERE pagenoteid = ?";
@@ -350,6 +355,7 @@ class copy_icontent extends copy_activity_task {
 	    			unset($record->id);
 				$old_page_note_id = $record->pagenoteid;
 				$record->pagenoteid = $copied_icontent_pages_notes[$old_page_note_id ];
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_pages_notes_like',$record);
 				if(!$newid){
 					$this->loger->logit("Failed to add record to icontent_pages_displayed table. The record: " . $record);
@@ -358,7 +364,7 @@ class copy_icontent extends copy_activity_task {
 	    	}
 	}
 
-	private function copy_icontent_quest_attempt($copied_icontent_pages_questions){
+	private function copy_icontent_quest_attempt($targetcontext,$copied_icontent_pages_questions){
 		global $DB;
 		$flipped_pages = array_flip($copied_icontent_pages_questions);
 		$query = "SELECT *  FROM {icontent_question_attempts} WHERE pagesquestionsid = ?";
@@ -371,6 +377,7 @@ class copy_icontent extends copy_activity_task {
 	    			unset($record->id);
 				$old_page_q_id = $record->pagesquestionsid;
 				$record->pagesquestionsid = $copied_icontent_pages_questions[$old_page_q_id];
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_question_attempts',$record);
 				if(!$newid){
 					$this->loger->logit("Failed to add record to icontent_question_attempts` table. The record: " . $record);
@@ -378,7 +385,7 @@ class copy_icontent extends copy_activity_task {
 	    		}
 	    	}
 	}
-	private function copy_icontent_quest_drafts($copied_icontent_pages_questions){
+	private function copy_icontent_quest_drafts($targetcontext,$copied_icontent_pages_questions){
 		global $DB;
 		$flipped_pages = array_flip($copied_icontent_pages_questions);
 		$query = "SELECT *  FROM {icontent_question_drafts} WHERE pagesquestionsid = ?";
@@ -391,6 +398,7 @@ class copy_icontent extends copy_activity_task {
 	    			unset($record->id);
 				$old_page_q_id = $record->pagesquestionsid;
 				$record->pagesquestionsid = $copied_icontent_pages_questions[$old_page_q_id];
+				$record->cmid = $targetcontext;
 	    			$newid = $DB->insert_record('icontent_question_drafts',$record);
 				if(!$newid){
 					$this->loger->logit("Failed to add record to icontent_question_drafts` table. The record: " . $record);

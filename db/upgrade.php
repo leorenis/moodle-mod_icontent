@@ -30,6 +30,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+require_once("$CFG->dirroot/mod/icontent/db/upgradelib.php");
 
 /**
  * Execute icontent upgrade from the given old version

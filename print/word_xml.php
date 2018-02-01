@@ -143,7 +143,7 @@ foreach($objpages as $page)
                 if (!empty($question->qpid)&&!empty($question->cmid)) {
                     $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int)$USER->id, 'cmid' => $question->cmid]);
                     if (!empty($draft->answertext)) {
-                        $anwswertext = "<br>".get_string("youranswer", "icontent")."<br><i style='color:#919191;'>" . $draft->answertext . "</i>";
+                        $anwswertext = "<br><i style='color:#919191;'>".get_string("youranswer", "icontent")."<br>" . $draft->answertext . "</i>";
                     }
                 }
             break;

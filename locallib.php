@@ -161,6 +161,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
 */
 function icontent_add_properties_css($pagestyle){
     $style = "background-color: #{$pagestyle->bgcolor}; ";
+	$style .= "background-position: right top;";
     $style .= "min-height: ". ICONTENT_PAGE_MIN_HEIGHT ."px; ";
     $style .= "border: {$pagestyle->borderwidth}px solid #{$pagestyle->bordercolor};";
     if($pagestyle->bgimage){

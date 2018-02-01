@@ -1123,3 +1123,17 @@ display:none;
 #page-mod-icontent-view .mform fieldset.collapsible legend a.fheader {
   margin-right: 0 !important;
 }
+
+ .path-mod-icontent .toolbarpage {
+    font-size: 25px;
+}
+
+.path-mod-icontent .toolbarpage a:nth-child(1) {
+    display:none;
+}
+.path-mod-icontent .toolbarpage a:nth-child(2) {
+    display:none;
+}
+.path-mod-icontent .toolbarpage a:nth-child(3) {
+    display:none;
+}

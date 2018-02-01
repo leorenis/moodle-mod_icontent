@@ -204,7 +204,7 @@ foreach($objpages as $page)
                             }
                         }else
                         {
-                            $stransw = "<br><i style='color:#919191;'>"(isset($attempts[$key + 1])?(get_string("youranswer", "icontent")."<br>".$attempts[$key + 1]):"")."</i><br>";
+                            $stransw = "<br><i style='color:#919191;'>".(isset($attempts[$key + 1])?(get_string("youranswer", "icontent")."<br>".$attempts[$key + 1]):"")."</i><br>";
                         }
 
 

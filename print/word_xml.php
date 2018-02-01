@@ -132,7 +132,7 @@ foreach($objpages as $page)
                         $rightanswer = "(".get_string("youranswer", "icontent")." - {$draft[$anwswer->id]})";
                         $anwswertext .= "<li style='color:#919191;'><i>".strip_tags($anwswer->questiontext)." {$rightanswer}</i></li>";
                     }else{
-                        $anwswertext .= "<li>"strip_tags($anwswer->questiontext)."</li>";
+                        $anwswertext .= "<li>".strip_tags($anwswer->questiontext)."</li>";
                     }
                 }
                 $anwswertext .= "</ul>";

@@ -637,7 +637,7 @@ textarea.answertextarea{
 	    display: none;
 }
 #page-mod-icontent-view .que .content{
-	margin: 0 !ipmortant;
+	margin: 0px !ipmortant;
 }
 
 #page-mod-icontent-view .btn-next-page{
@@ -755,9 +755,10 @@ text-align:unset !important;
 td.matchoptions {
     padding-left: 10px;
 }
-.btn-sendanswers {
+#page-mod-icontent-view .btn-sendanswers {
     float: none !important;
 }
+#page-mod-icontent-view
 textarea.answertextarea {
     max-width: 100%;
     min-width: 100%;
@@ -1036,16 +1037,16 @@ display:none;
 }
 
 
-.answer input[type="radio"] {
+#page-mod-icontent-view .answer input[type="radio"] {
     display: none;
 }
-.answer input[type="radio"] ~ label {
+#page-mod-icontent-view .answer input[type="radio"] ~ label {
     position: relative;
     padding-right: 30px;
     cursor: pointer;
 
 }
-.answer input[type="radio"] ~ label::after {
+#page-mod-icontent-view .answer input[type="radio"] ~ label::after {
     content: '';
     position: absolute;
     width: 20px;
@@ -1055,7 +1056,7 @@ display:none;
     border: 2px solid #525252;
     border-radius: 50%;
 }
-.answer input[type="radio"] ~ label::before{
+#page-mod-icontent-view .answer input[type="radio"] ~ label::before{
     content: '';
     display: none;
     position: absolute;
@@ -1066,7 +1067,7 @@ display:none;
     background-color: #525252;
     border-radius: 50%;
 }
-.answer input[type="radio"]:checked ~ label::before {
+#page-mod-icontent-view .answer input[type="radio"]:checked ~ label::before {
     display: block;
 }
 

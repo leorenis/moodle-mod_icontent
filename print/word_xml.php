@@ -143,7 +143,7 @@ foreach($objpages as $page)
                 if (!empty($question->qpid)&&!empty($question->cmid)) {
                     $draft = $DB->get_record('icontent_question_drafts', ['pagesquestionsid' => $question->qpid, 'questionid' => $question->qid, 'userid' => (int)$USER->id, 'cmid' => $question->cmid]);
                     if (!empty($draft->answertext)) {
-                        $anwswertext = "<br>".get_string("youranswer", "icontent")."<i style='color:#919191;'>" . $draft->answertext . "</i>";
+                        $anwswertext = "<br>".get_string("youranswer", "icontent")."<br><i style='color:#919191;'>" . $draft->answertext . "</i>";
                     }
                 }
             break;
@@ -204,7 +204,7 @@ foreach($objpages as $page)
                             }
                         }else
                         {
-                            $stransw = "<br><i style='color:#919191;'>"(isset($attempts[$key + 1])?$attempts[$key + 1]:"")."</i><br>";
+                            $stransw = "<br><i style='color:#919191;'>"(isset($attempts[$key + 1])?(get_string("youranswer", "icontent")."<br>".$attempts[$key + 1]):"")."</i><br>";
                         }
 
 

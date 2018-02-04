@@ -884,13 +884,39 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
                 $flag2 = 1;
             }
 
-
-
             icontent_ajax_savedraft_sql($qpid, $qid, $cm, $value, $flag);
         }
         $i ++;
     }
     // Save records
+
+    /** Log Attempt ----------------------------------------*/
+    $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
+
+    switch ($devicetype){
+        case "tablet":
+            $devicetype=tablet;
+            break;
+        case "mobile":
+            $devicetype=mobile;
+            break;
+        default:
+            $devicetype = "desktop";
+            break;
+    }
+    $objpagefrom = $DB->get_record('icontent_pages', array('id' => $pageid));
+    $other =array(
+        "devicetype"=>$devicetype,
+        "pagesquestionsid"=>$qpid,
+        "questionid"=>$qid,
+        "pageid"=>$pageid,
+        "step"=>$objpagefrom->pagenum,
+    );
+
+    $question = $DB->get_record('question', array('id' => $qid));
+    \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id),$question, $other)->trigger();
+
+    /**  --------------------------------------------- */
 
     // Update grade
     //icontent_set_grade_item($icontent, $cm->id, $USER->id);

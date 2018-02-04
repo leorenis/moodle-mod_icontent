@@ -2800,9 +2800,13 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
 
     $frompage= optional_param('frompage', '0', PARAM_INT);
     $objpagefrom = $DB->get_record('icontent_pages', array('pagenum' => $frompage, 'icontentid' => $icontent->id));
+    $frompageid=0;
+    if (!empty($objpagefrom->id)){
+        $frompageid=$objpagefrom->id;
+    }
     $other =array(
         "devicetype"=>$devicetype,
-        "pageid"=>$objpagefrom->id,
+        "pageid"=>$frompageid,
         "frompage"=>$frompage,
         "navigation"=>optional_param('navigation', 'icontent', PARAM_TEXT),
     );

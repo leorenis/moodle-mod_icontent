@@ -44,14 +44,16 @@ class question_attempt_created extends \core\event\base {
      * @param \stdClass $questionattempt
      * @return question_attempt_created
      */
-    public static function create_from_question_attempt(\stdClass $icontent, \context_module $context, $pageid) {
+    public static function create_from_question_attempt(\stdClass $icontent, \context_module $context,$question, $other=array()) {
         $data = array(
             'context' => $context,
-        	'other' => array('pageid'=>$pageid),
+           // 'objectid' =>$question->id,
+        	'other' => $other
         );
         /** @var question_attempt_created $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
+   //     $event->add_record_snapshot('question', $question);
         return $event;
     }
 
@@ -61,9 +63,14 @@ class question_attempt_created extends \core\event\base {
      * @return string
      */
     public function get_description() {
-    	$pageid = $this->other['pageid'];
-        return "The user with id '$this->userid' created the question attempts for pageid '$pageid' the icontent with " .
-            "course module id '$this->contextinstanceid'.";
+        $devicetype=isset($this->other['devicetype'])?$this->other['devicetype']:"";
+        $questionid=isset($this->other['questionid'])?$this->other['questionid']:"";
+        $pageid=isset($this->other['pageid'])?$this->other['pageid']:"";
+        $step=isset($this->other['step'])?$this->other['step']:"";
+
+        return "The user with id '$this->userid' device '$devicetype' interacted with question id 'questionid' in pageid '$pageid' (step'$step') of the icontent with course module id '$this->contextinstanceid'.";
+//        return "The user with id '$this->userid' created the question attempts for pageid '$pageid' the icontent with " .
+//            "course module id '$this->contextinstanceid'.";
     }
 
     /**

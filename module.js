@@ -14,7 +14,7 @@ $(document).ready(function(){
 	function onLoadPageClick(){
 		var btnType = 'toc';
 		if ( $(this).hasClass('btn-previous-page')){
-			var btnType = 'prev';
+			var btnType = 'previous';
 		} else if ($(this).hasClass('btn-next-page')) {
 			var btnType = 'next';
 		} else if ($(this).hasClass('btn-icontent-page')) {

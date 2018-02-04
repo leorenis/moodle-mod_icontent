@@ -45,6 +45,15 @@ function unblockButtons(){
 
 }
 
+function exportword(){
+    var step=$(".btn-icontent-page.active").attr("data-pagenum");
+    var id=$(".btn-icontent-page.active").attr("data-cmid");
+    var url ="print/word_xml.php?id="+id+ "&step="+step;
+    window.location.href=url;
+}
+
+
+
 $(document).ready(function() {
 
     // List of the named functions

@@ -1,4 +1,5 @@
 <?php
+//namespace mod_icontent;
 require_once(dirname(dirname(dirname(__FILE__))).'/../config.php');
 require_once(dirname(__FILE__).'/../locallib.php');
 require_once(dirname(__FILE__).'/../lib.php');
@@ -9,6 +10,7 @@ $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it shoul
 $edit = optional_param('edit', -1, PARAM_BOOL);    // Edit mode
 $pageid = optional_param('pageid', 0, PARAM_INT);
 $ishtml = optional_param('ishtml', 0, PARAM_INT);
+$step = optional_param('step', 0, PARAM_INT);
 
 if ($id) {
     $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
@@ -24,6 +26,36 @@ if ($id) {
 $objpages = $DB->get_records('icontent_pages', array('icontentid' => $icontent->id), 'pagenum');
 
 $context = context_module::instance($cm->id);
+
+
+foreach ($objpages as $objPage){
+    if ($objPage->pagenum==$step){
+        $pageid=  $objPage->id;
+    }
+}
+
+$devicetype = core_useragent::get_device_type(); // In moodlelib.php.
+
+switch ($devicetype){
+    case "tablet":
+        $devicetype=tablet;
+        break;
+    case "mobile":
+        $devicetype=mobile;
+        break;
+    default:
+        $devicetype = "desktop";
+        break;
+}
+
+$other =array(
+    "devicetype"=>$devicetype,
+    "pageid"=>$pageid,
+    "id"=>$id,
+    "step"=>$step,
+);
+
+\mod_icontent\event\word_viewed::create_from_page($icontent, $context,$other)->trigger();
 
 if (empty($ishtml)){
     $filename = $icontent->name.date("d.m.Y");

@@ -2881,13 +2881,14 @@ function get_records_menu_attempts($table, array $values) {
 function icontent_make_wrapper_heading($heading){
   global $id;
   $word_icon_wrap = '';
-  $word_icon = html_writer::link('print/word_xml.php?id='.$id, '<i class="fa fa-file-word-o fa-lg"></i>',
+  $word_icon = html_writer::link('javascript:void(0)', '<i class="fa fa-file-word-o fa-lg"></i>',
 
       array(
           'title' => get_string('downloadword', 'icontent'),
           'class'=>'icon icon-file-word-o word-icon',
           'data-toggle'=> 'tooltip',
-          'data-placement'=> 'top'
+          'data-placement'=> 'top',
+          'onclick' => 'exportword();'
       )
   );
   $word_icon_wrap .= html_writer::div($word_icon, '', array('style' => 'text-align: left; float: left;'));

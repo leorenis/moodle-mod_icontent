@@ -1,4 +1,4 @@
-n<?php
+<?php
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,14 +26,14 @@ namespace mod_icontent\event;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_icontent page viewed event class.
+ * The mod_icontent word viewed event class.
  *
  * @package    mod_icontent
  * @since      Moodle 3.0
  * @copyright  2016 Leo Santos <leorenis@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class page_viewed extends \core\event\base {
+class word_viewed extends \core\event\base {
     /**
      * Create instance of event.
      *
@@ -44,15 +44,18 @@ class page_viewed extends \core\event\base {
      * @param \stdClass $page
      * @return page_viewed
      */
-    public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page) {
+    public static function create_from_page(\stdClass $icontent, \context_module $context,$other=array()) {
         $data = array(
             'context' => $context,
-            'objectid' => $page->id,
+            'objectid' => $icontent->id,
+            'other' => $other
         );
+
         /** @var page_viewed $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
-        $event->add_record_snapshot('icontent_pages', $page);
+
+
         return $event;
     }
 
@@ -62,8 +65,13 @@ class page_viewed extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' navigation null/next/preview/top/toc viewed the page with id '$this->objectid'
-        step'999' from page id '24' step'999' of for the icontent with " ."course module id '$this->contextinstanceid'.";
+
+        $pageid=isset($this->other['pageid'])?$this->other['pageid']:"";
+        $step=isset($this->other['step'])?$this->other['step']:"";
+        return "The user with id '$this->userid' device '".$this->other['devicetype']."' downloaded presonal notes from pageid '$pageid' (step '$step') of the icontent with course module id '$this->objectid'.";
+
+//        return "The user with id '$this->userid' viewed the page with id '$this->objectid' for the icontent with " .
+//            "course module id '$this->contextinstanceid'.";
     }
 
     /**
@@ -72,7 +80,7 @@ class page_viewed extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'icontent', 'transition page', 'view.php?id=' . $this->contextinstanceid .
+        return array($this->courseid, 'icontent', 'view page', 'view.php?id=' . $this->contextinstanceid .
             '&amp;pageid=' . $this->objectid, $this->objectid, $this->contextinstanceid);
     }
 
@@ -82,7 +90,7 @@ class page_viewed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventpagetransitione', 'mod_icontent');
+        return get_string('eventwordviewed', 'mod_icontent');
     }
 
     /**
@@ -102,6 +110,7 @@ class page_viewed extends \core\event\base {
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages_transition';
+        $this->data['objecttable'] = 'icontent_pages';
     }
+
 }

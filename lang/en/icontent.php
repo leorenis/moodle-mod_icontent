@@ -274,5 +274,6 @@ $string['addindent'] = 'Add indent';
 $string['addindent_help'] = 'Adding an indentation before each substring';
 $string['eventwordviewed'] = 'Word Download';
 $string['eventquestionattempt'] = 'question interecatio';
+$string['eventicontentview'] = 'view icontent';
 
 ?>

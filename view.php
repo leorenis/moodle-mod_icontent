@@ -61,6 +61,31 @@ $event->add_record_snapshot('course', $PAGE->course);
 $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
+//Log this request and customize it
+/**-----------------------------------------------------*/
+$devicetype = core_useragent::get_device_type(); // In moodlelib.php.
+switch ($devicetype){
+    case "tablet":
+        $devicetype=tablet;
+        break;
+    case "mobile":
+        $devicetype=mobile;
+        break;
+    default:
+        $devicetype = "desktop";
+        break;
+}
+
+$event = \mod_icontent\event\course_module_viewedc::create(array(
+    'objectid' => $PAGE->cm->instance,
+    'context' => $PAGE->context,
+    'other' => array("devicetype"=>$devicetype)
+));
+$event->add_record_snapshot('course', $PAGE->course);
+$event->add_record_snapshot($PAGE->cm->modname, $icontent);
+$event->trigger();
+/**-----------------------------------------------------*/
+
 // check permissions
 $allowedit  = has_capability('mod/icontent:edit', $context);
 $edit = icontent_has_permission_edition($allowedit, $edit);

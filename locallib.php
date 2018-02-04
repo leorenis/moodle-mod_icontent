@@ -2782,6 +2782,34 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
     \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
 
+
+    //Log this request and customize it
+    /**-----------------------------------------------------*/
+    $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
+    switch ($devicetype){
+        case "tablet":
+            $devicetype=tablet;
+            break;
+        case "mobile":
+            $devicetype=mobile;
+            break;
+        default:
+            $devicetype = "desktop";
+            break;
+    }
+
+    $frompage= optional_param('frompage', '0', PARAM_INT);
+    $objpagefrom = $DB->get_record('icontent_pages', array('pagenum' => $frompage, 'icontentid' => $icontent->id));
+    $other =array(
+        "devicetype"=>$devicetype,
+        "pageid"=>$objpagefrom->id,
+        "frompage"=>$frompage,
+        "navigation"=>optional_param('navigation', 'icontent', PARAM_TEXT),
+    );
+    $event = \mod_icontent\event\page_viewedc::create_from_page($icontent, $context, $objpage,$other)->trigger();
+
+    /**-----------------------------------------------------*/
+
     //$userctx = context_user::instance($this->editingteachers[0]->id)->id;
     //$draftid = file_get_unused_draft_itemid();
 

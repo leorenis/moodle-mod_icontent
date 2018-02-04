@@ -12,13 +12,13 @@ $(document).ready(function(){
 	onChecksHighcontrast();
 	// Loads page
 	function onLoadPageClick(){
-		var btnType = 'top';
+		var btnType = 'toc';
 		if ( $(this).hasClass('btn-previous-page')){
 			var btnType = 'prev';
 		} else if ($(this).hasClass('btn-next-page')) {
 			var btnType = 'next';
 		} else if ($(this).hasClass('btn-icontent-page')) {
-			var btnType = 'toc';
+			var btnType = 'top';
 		}
 
 		var data = {

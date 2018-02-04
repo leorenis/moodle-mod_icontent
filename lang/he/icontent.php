@@ -239,4 +239,5 @@ $string['addindent'] = 'תת פרק';
 $string['addindent_help'] = 'הוספת הזחה לפני כל מחרוזת';
 $string['eventwordviewed'] = 'הורדת מחברת אישית';
 $string['eventquestionattempt'] = 'אינטראקציה עם שאלה';
+$string['eventicontentview'] = 'רכיב קורס נצפה';
 ?>

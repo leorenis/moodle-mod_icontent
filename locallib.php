@@ -2798,10 +2798,10 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
     switch ($devicetype){
         case "tablet":
-            $devicetype=tablet;
+            $devicetype="tablet";
             break;
         case "mobile":
-            $devicetype=mobile;
+            $devicetype="mobile";
             break;
         default:
             $devicetype = "desktop";

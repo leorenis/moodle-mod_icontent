@@ -835,10 +835,10 @@ function icontent_ajax_savecloze($formdata, stdClass $cm, $icontent){
     if ($createlog) {
         switch ($devicetype) {
             case "tablet":
-                $devicetype = tablet;
+                $devicetype = "tablet";
                 break;
             case "mobile":
-                $devicetype = mobile;
+                $devicetype = "mobile";
                 break;
             default:
                 $devicetype = "desktop";
@@ -941,10 +941,10 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
     if ($createlog) {
         switch ($devicetype) {
             case "tablet":
-                $devicetype = tablet;
+                $devicetype = "tablet";
                 break;
             case "mobile":
-                $devicetype = mobile;
+                $devicetype = "mobile";
                 break;
             default:
                 $devicetype = "desktop";

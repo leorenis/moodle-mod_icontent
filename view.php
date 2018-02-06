@@ -57,10 +57,10 @@ $context = context_module::instance($cm->id);
 $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
 switch ($devicetype){
     case "tablet":
-        $devicetype=tablet;
+        $devicetype="tablet";
         break;
     case "mobile":
-        $devicetype=mobile;
+        $devicetype="mobile";
         break;
     default:
         $devicetype = "desktop";

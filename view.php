@@ -52,15 +52,6 @@ if ($id) {
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-// Log this request.
-$event = \mod_icontent\event\course_module_viewed::create(array(
-    'objectid' => $PAGE->cm->instance,
-    'context' => $PAGE->context,
-));
-$event->add_record_snapshot('course', $PAGE->course);
-$event->add_record_snapshot($PAGE->cm->modname, $icontent);
-$event->trigger();
-
 //Log this request and customize it
 /**-----------------------------------------------------*/
 $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
@@ -76,7 +67,7 @@ switch ($devicetype){
         break;
 }
 
-$event = \mod_icontent\event\course_module_viewedc::create(array(
+$event = \mod_icontent\event\course_module_viewed::create(array(
     'objectid' => $PAGE->cm->instance,
     'context' => $PAGE->context,
     'other' => array("devicetype"=>$devicetype)

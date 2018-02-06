@@ -45,4 +45,14 @@ class course_module_viewed extends \core\event\course_module_viewed {
         $this->data['objecttable'] = 'icontent';
         parent::init();
     }
+
+    public static function get_name() {
+        return get_string('eventicontentview', 'mod_icontent');
+    }
+
+    public function get_description() {
+        $devicetype=isset($this->other['devicetype'])?$this->other['devicetype']:"";
+        return "The user with id '$this->userid' device '$devicetype' viewed the 'icontent' activity with course module id '$this->contextinstanceid'.";
+
+    }
 }

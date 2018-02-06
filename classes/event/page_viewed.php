@@ -44,10 +44,11 @@ class page_viewed extends \core\event\base {
      * @param \stdClass $page
      * @return page_viewed
      */
-    public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page) {
+    public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page,$other=array()) {
         $data = array(
             'context' => $context,
             'objectid' => $page->id,
+            'other'=>$other
         );
         /** @var page_viewed $event */
         $event = self::create($data);
@@ -63,8 +64,16 @@ class page_viewed extends \core\event\base {
      */
     public function get_description() {
 
-        return "The user with id '$this->userid' viewed the page with id '$this->objectid' for the icontent with " .
-            "course module id '$this->contextinstanceid'.";
+        $devicetype=isset($this->other['devicetype'])?$this->other['devicetype']:"";
+        $navigation=isset($this->other['navigation'])?$this->other['navigation']:"icontent";
+        $frompage=isset($this->other['frompage'])?$this->other['frompage']:"";
+        $frompageid=isset($this->other['frompageid'])?$this->other['frompageid']:"";
+        $pageid=isset($this->other['pageid'])?$this->other['pageid']:"";
+        $step=isset($this->other['step'])?$this->other['step']:"";
+
+        //return "The user with id '$this->userid' device '$devicetype' navigated from '$navigation' viewed the page with id '$pageid' (step'$frompage') of the icontent with course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' device '$devicetype' navigated from page with  id '$frompageid' (step)'$frompage' clicked '$navigation' viewed the page with id '$pageid' (step)'$step' of the icontent with course module id '$this->contextinstanceid'.";
+
     }
 
     /**

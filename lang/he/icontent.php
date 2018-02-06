@@ -240,4 +240,8 @@ $string['addindent_help'] = 'הוספת הזחה לפני כל מחרוזת';
 $string['eventwordviewed'] = 'הורדת מחברת אישית';
 $string['eventquestionattempt'] = 'אינטראקציה עם שאלה';
 $string['eventicontentview'] = 'רכיב קורס נצפה';
+$string['eventquestionattemptcreatedcustom'] = 'אינטרקציה עם שאלה';
+$string['questioncloseerror'] = 'לא ניתן להוסיף שתי שאלות מסוג CLOZE בדף אחד' ;
+$string['deletequestionbutton'] = 'אפס בחירת שאלות';
+$string['icontentquestiondeletemessage'] = 'פעולה זו תמחוק את כל השאלות המוצגות לסטודנטים בדף זה.';
 ?>

@@ -1208,6 +1208,18 @@ function icontent_add_questionpage($questions, $pageid, $cmid){
     global $DB;
     $records = array();
     if($questions) {
+
+        //do not set multiple answer
+        $query ="SELECT COUNT(*) as count
+                 FROM {question}
+                 WHERE id IN (".implode(',',$questions).") AND qtype = ?
+                 ";
+
+        $recs =$DB->get_record_sql($query,array('multianswer'));
+        if (isset($recs->count) && $recs->count>1){
+            return false;
+        }
+
         // Remove questions this page
         $DB->delete_records('icontent_pages_questions', array('pageid'=>$pageid, 'cmid'=>$cmid));
         // Create array of objects questionpage
@@ -2716,7 +2728,7 @@ function icontent_make_cover_page($icontent, $objpage, $context){
     $coverpage = html_writer::tag('div', $header. $content. $script, array('class'=>'fulltextpage coverpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
     // Set page preview, log event and return page
     icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
-    \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
+    //\mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
     return $coverpage;
 }
 /**
@@ -2780,8 +2792,6 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     $objpage->fullpageicontent = html_writer::tag('div', $toolbarpage. $title. $objpage->pageicontent . $npage. $progbar. $qtsareas. $notesarea. $script, array('class'=>'fulltextpage', 'data-pagenum' => $objpage->pagenum, 'style'=> icontent_get_page_style($icontent, $objpage, $context)));
     // Set page preview, log event and return page
     icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
-    \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
-
 
     //Log this request and customize it
     /**-----------------------------------------------------*/
@@ -2806,11 +2816,13 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     }
     $other =array(
         "devicetype"=>$devicetype,
-        "pageid"=>$frompageid,
+        "pageid"=>$objpage->id,
+        "step"=>$pagenum,
+        "frompageid"=>$frompageid,
         "frompage"=>$frompage,
         "navigation"=>optional_param('navigation', 'icontent', PARAM_TEXT),
     );
-    $event = \mod_icontent\event\page_viewedc::create_from_page($icontent, $context, $objpage,$other)->trigger();
+    $event = \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage,$other)->trigger();
 
     /**-----------------------------------------------------*/
 

@@ -275,5 +275,9 @@ $string['addindent_help'] = 'Adding an indentation before each substring';
 $string['eventwordviewed'] = 'Word Download';
 $string['eventquestionattempt'] = 'question interecatio';
 $string['eventicontentview'] = 'view icontent';
+$string['eventquestionattemptcreatedcustom'] = 'Question interaction';
+$string['questioncloseerror'] = 'Can not add 2 question with type CLOZE in one page';
+$string['deletequestionbutton'] = 'Delete selected questions';
+$string['icontentquestiondeletemessage'] = 'Are you sure you want to delete all shown questions in this page?';
 
 ?>

@@ -44,16 +44,16 @@ class question_attempt_created extends \core\event\base {
      * @param \stdClass $questionattempt
      * @return question_attempt_created
      */
-    public static function create_from_question_attempt(\stdClass $icontent, \context_module $context,$question, $other=array()) {
+    public static function create_from_question_attempt(\stdClass $icontent, \context_module $context, \stdClass $page, $other=array()) {
         $data = array(
             'context' => $context,
-           // 'objectid' =>$question->id,
+            'objectid' => $page->id,
         	'other' => $other
         );
         /** @var question_attempt_created $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
-   //     $event->add_record_snapshot('question', $question);
+        $event->add_record_snapshot('icontent_pages', $page);
         return $event;
     }
 
@@ -68,7 +68,7 @@ class question_attempt_created extends \core\event\base {
         $pageid=isset($this->other['pageid'])?$this->other['pageid']:"";
         $step=isset($this->other['step'])?$this->other['step']:"";
 
-        return "The user with id '$this->userid' device '$devicetype' interacted with question id 'questionid' in pageid '$pageid' (step'$step') of the icontent with course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' device '$devicetype' interacted with one of the questions in pageid '$pageid' (step'$step') of the icontent with course module id '$this->contextinstanceid'.";
 //        return "The user with id '$this->userid' created the question attempts for pageid '$pageid' the icontent with " .
 //            "course module id '$this->contextinstanceid'.";
     }
@@ -89,7 +89,7 @@ class question_attempt_created extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventquestionattemptcreated', 'mod_icontent');
+        return get_string('eventquestionattemptcreatedcustom', 'mod_icontent');
     }
 
     /**
@@ -110,7 +110,8 @@ class question_attempt_created extends \core\event\base {
      * @return void
      */
     protected function init() {
-        $this->data['crud'] = 'c';
+        $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'icontent_pages';
     }
 }

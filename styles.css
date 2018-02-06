@@ -1138,3 +1138,17 @@ display:none;
 .path-mod-icontent .toolbarpage a:nth-child(3) {
     display:none;
 }
+
+#page-mod-icontent-view .multianswer input{
+    width: 100%;
+    max-width: none;
+}
+#page-mod-icontent-addquestionpage .icontent_delete_question{
+    background-color: red;
+    color: white;
+    float: left;
+}
+#page-mod-icontent-addquestionpage .icontent_add_question{
+    color: white;
+    background-color: forestgreen;
+}

@@ -820,6 +820,43 @@ function icontent_ajax_savecloze($formdata, stdClass $cm, $icontent){
     $summary = new stdClass();
     $summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
 
+
+    /** Log Attempt ----------------------------------------*/
+    $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
+
+    $contextinstanceid=context_module::instance($cm->id);
+    $objlogrows = $DB->get_records('logstore_standard_log', array('userid' => $USER->id,'target' => 'question_attempt','contextinstanceid' => $contextinstanceid->instanceid,'objectid'=>$pageid, 'contextid'=>$contextinstanceid->id),'','id');
+    $createlog=true;
+
+    if (!empty($objlogrows)&&count($objlogrows)) {
+        $createlog=false;
+    }
+
+    if ($createlog) {
+        switch ($devicetype) {
+            case "tablet":
+                $devicetype = tablet;
+                break;
+            case "mobile":
+                $devicetype = mobile;
+                break;
+            default:
+                $devicetype = "desktop";
+                break;
+        }
+        $objpagefrom = $DB->get_record('icontent_pages', array('id' => $pageid));
+        $other = array(
+            "devicetype" => $devicetype,
+            "pagesquestionsid" => $qpid,
+            "questionid" => $qid,
+            "pageid" => $pageid,
+            "step" => $objpagefrom->pagenum,
+        );
+        \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $objpagefrom, $other)->trigger();
+
+    }
+    /**  --------------------------------------------- */
+
     return $summary;
 }
 
@@ -893,29 +930,37 @@ function icontent_ajax_savedraft($formdata, stdClass $cm, $icontent){
     /** Log Attempt ----------------------------------------*/
     $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
 
-    switch ($devicetype){
-        case "tablet":
-            $devicetype=tablet;
-            break;
-        case "mobile":
-            $devicetype=mobile;
-            break;
-        default:
-            $devicetype = "desktop";
-            break;
+    $contextinstanceid=context_module::instance($cm->id);
+    $objlogrows = $DB->get_records('logstore_standard_log', array('userid' => $USER->id,'target' => 'question_attempt','contextinstanceid' => $contextinstanceid->instanceid,'objectid'=>$pageid, 'contextid'=>$contextinstanceid->id),'','id');
+    $createlog=true;
+
+    if (!empty($objlogrows)&&count($objlogrows)) {
+          $createlog=false;
     }
-    $objpagefrom = $DB->get_record('icontent_pages', array('id' => $pageid));
-    $other =array(
-        "devicetype"=>$devicetype,
-        "pagesquestionsid"=>$qpid,
-        "questionid"=>$qid,
-        "pageid"=>$pageid,
-        "step"=>$objpagefrom->pagenum,
-    );
 
-    $question = $DB->get_record('question', array('id' => $qid));
-    \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id),$question, $other)->trigger();
+    if ($createlog) {
+        switch ($devicetype) {
+            case "tablet":
+                $devicetype = tablet;
+                break;
+            case "mobile":
+                $devicetype = mobile;
+                break;
+            default:
+                $devicetype = "desktop";
+                break;
+        }
+        $objpagefrom = $DB->get_record('icontent_pages', array('id' => $pageid));
+        $other = array(
+            "devicetype" => $devicetype,
+            "pagesquestionsid" => $qpid,
+            "questionid" => $qid,
+            "pageid" => $pageid,
+            "step" => $objpagefrom->pagenum,
+        );
+        \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $objpagefrom, $other)->trigger();
 
+    }
     /**  --------------------------------------------- */
 
     // Update grade

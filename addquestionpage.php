@@ -34,6 +34,7 @@ $n  = optional_param('n', 0, PARAM_INT);  // ... icontent instance ID - it shoul
 $pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID.
 $category = optional_param('category', 0, PARAM_INT);
 $action = optional_param('action', '', PARAM_BOOL);
+$reset = optional_param('reset', '', PARAM_BOOL);
 
 $sort = optional_param('sort', '', PARAM_RAW);
 $page = optional_param('page', 0, PARAM_INT);
@@ -74,13 +75,23 @@ echo $OUTPUT->header();
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
+$messageerrortext='';
+$messagesuccess='';
 if ($action){
-    // Receives values
-    $questions = optional_param_array('question', array(), PARAM_RAW);
-    // Save values
-    if(icontent_add_questionpage($questions, $pageid, $cm->id)){
-        $urlredirect = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
+    if ($reset){
+        $DB->delete_records('icontent_pages_questions', array('pageid'=>$pageid, 'cmid'=> $cm->id));
+        $urlredirect = new moodle_url('/mod/icontent/view.php', array('id' => $cm->id, 'pageid' => $pageid));
         redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
+    }else {
+        // Receives values
+        $questions = optional_param_array('question', array(), PARAM_RAW);
+        // Save values
+        if (icontent_add_questionpage($questions, $pageid, $cm->id)) {
+            $urlredirect = new moodle_url('/mod/icontent/view.php', array('id' => $cm->id, 'pageid' => $pageid));
+            redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
+        } else {
+            $messageerrortext = get_string('questioncloseerror', 'mod_icontent');
+        }
     }
 }
 // Get info.
@@ -89,7 +100,6 @@ if(isset($_GET['category']))
     unset($_GET['category']);
 }
 
-
 $sort = icontent_check_value_sort($sort);
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage, $category);
 
@@ -97,9 +107,6 @@ $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 
 $categories = icontent_get_questions_categories($coursecontext);
 $categories = [0 => ''] + $categories;
-
-
-
 
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = 0;//icontent_checks_answers_of_currentpage($pageid, $cm->id);
@@ -128,24 +135,30 @@ else {
     echo $OUTPUT->footer();
     exit;
 }
-// Show elements HTML.
-echo html_writer::div(get_string('infomaxquestionperpage', 'mod_icontent'), 'alert alert-info');
-echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
 
-
+if ($messageerrortext) {
+    echo html_writer::div($messageerrortext, 'alert alert-danger');
+}
 
 echo html_writer::start_div('choosecategory');
 echo html_writer::label(get_string('selectacategory', 'question'), 'id_selectacategory');
 echo html_writer::select($categories, 'category', $category, array(), array('class' => 'searchoptions custom-select', 'id' => 'id_selectacategory', 'onchange' => "location.href='?".http_build_query($_GET, '', '&')."&category=' + this.value"));
 echo html_writer::end_div() . "\n";
 
-echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
+echo html_writer::start_tag('form', array('id'=>'icontent_questions_form' ,  'action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
 echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'action', 'value'=>true));
+echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'reset', 'value'=>0, 'id'=>'icontent_reset'));
 echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tquestions, $page, $perpage, $url);
 echo html_writer::end_div();
-echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')) + $disabled);
+echo html_writer::empty_tag('input', array('class'=>'icontent_add_question','type'=>'submit', 'value'=>get_string('add')) + $disabled);
+$jsfunction="
+if (confirm('".get_string('icontentquestiondeletemessage', 'mod_icontent')."')){
+ $('#icontent_reset').val(1); $('#icontent_questions_form').submit(); 
+}
+";
+echo html_writer::empty_tag('input', array('class'=> 'icontent_delete_question',  'type'=>'button', 'value'=>get_string('deletequestionbutton','mod_icontent') , 'onclick'=> $jsfunction) + $disabled);
 echo html_writer::end_tag('form');
 
 // Finish the page.

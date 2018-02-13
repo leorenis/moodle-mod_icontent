@@ -106,7 +106,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
             $i ++;
             $title = trim(format_string($pg->title, true, array('context'=>$context)));
             $toc .= html_writer::start_tag('li', array('class' => 'load-page page'.$pg->pagenum.' '.$page_title_indent.' '.$visited_page, 'title' => s($title), 'data-pagenum' => $pg->pagenum, 'data-cmid' => $pg->cmid, 'data-sesskey' => sesskey(), 'data-totalpages' => $tpages)); // Inicio <li>
-            $toc .= html_writer::link('#tab'.$pg->pagenum, $title);
+            // $toc .= html_writer::link('#tab'.$pg->pagenum, $title);
             // Actions
             $toc .= html_writer::start_tag('div', array('class' => 'action-list')); // Inicio <div>
             if ($i != 1) {
@@ -132,6 +132,7 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
             $toc .= html_writer::link(new moodle_url('edit.php', array('cmid' => $pg->cmid, 'pagenum' => $pg->pagenum, 'sesskey' => $USER->sesskey)),
                 $OUTPUT->pix_icon('add', get_string('addafter', 'mod_icontent'), 'mod_icontent'), array('title' => get_string('addafter', 'mod_icontent')));
             $toc .= html_writer::end_tag('div'); 	// End </div>
+            $toc .= html_writer::link('#tab'.$pg->pagenum, $title);
             $toc .= html_writer::end_tag('li'); // End </li>
         }
         $toc .= html_writer::end_tag('ul');

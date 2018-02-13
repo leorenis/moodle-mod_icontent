@@ -81,7 +81,7 @@ class mod_icontent_mod_form extends moodleform_mod {
     );
     $mform->addElement('select', 'listtype', get_string('listtype', 'icontent'), $alloptions);
     $mform->addHelpButton('listtype', 'listtype', 'icontent');
-    $mform->setDefault('listtype', '1');
+    $mform->setDefault('listtype', 2);
 
 		$filemanager_options = array();
         $filemanager_options['accepted_types'] = array('.jpg', '.png');
@@ -93,7 +93,7 @@ class mod_icontent_mod_form extends moodleform_mod {
 		$mform->setType('bgimage', PARAM_INT);
 		$mform->addHelpButton('bgimage', 'bgimagehelp', 'icontent');
 
-		$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), array('class' => 'color', 'value'=>'FCFCFC'));
+		$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), array('class' => 'color', 'value'=>'FFFFFF'));
 		$mform->setType('bgcolor', PARAM_TEXT);
 		$mform->addHelpButton('bgcolor', 'bgcolorhelp', 'icontent');
 

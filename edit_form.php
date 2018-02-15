@@ -132,7 +132,7 @@ class icontent_pages_edit_form extends moodleform {
 		$mform->addHelpButton('bgimage', 'bgimagepagehelp', 'icontent');
 		//$mform->disabledIf('bgimage', 'showbgimage');
 
-		$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), array('class' => 'color', 'value'=>'FCFCFC'));
+		$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), array('class' => 'color', 'value'=>'FFFFFF'));
 		$mform->setType('bgcolor', PARAM_TEXT);
 		$mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');
 

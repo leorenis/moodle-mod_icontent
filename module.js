@@ -55,6 +55,7 @@ $(document).ready(function(){
 	    		onChangeStateControlButtons(data);
                 //SetPageEvents();
                 $('[data-toggle="tooltip"]').tooltip();
+				setEventOnLinks();
 	    	},
 				complete: function() {
 					 hideSavingMessage();

@@ -24,6 +24,22 @@ const hideSavingMessage = () => {
   container.remove();
 }
 
+function setEventOnLinks(){
+
+    $("#idicontentpages a").each(function() {
+        var url = $(this).attr('href');
+        if (url.indexOf("#tab")!=-1){
+            var urlAux = url.toString().split('\#');
+            var page_id = urlAux[1].replace('tab', '');
+
+            $(this).bind('click', function () {
+                $(".load-page.btn-icontent-page.page" + page_id).click();
+            });
+        }
+    });
+
+}
+
 function blockButtons(){
         $("button.btn-next-page").attr("disabled", true);
         $("button.btn-previous-page").attr("disabled", true);
@@ -537,6 +553,7 @@ $(document).ready(function() {
         $("#idicontentpages").on('change', '.answermatch', onSaveAttempText);
         //$(".question.multianswer").on('keyup change', 'input, select, textarea', onSaveClozeAnswers);
         //$("#idicontentpages").on('click', '#cloze_save', onSaveClozeAnswers);
+
     }
 
     var url = window.location;
@@ -548,5 +565,10 @@ $(document).ready(function() {
         $(".load-page.btn-icontent-page.page" + page_id).click();
     }
     catch(e){}
+
+
+
+
+
 });
 // End ready

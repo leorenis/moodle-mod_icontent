@@ -2758,6 +2758,41 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
         // Control button
         $objpage->previous = icontent_get_prev_pagenum($objpage);
         $objpage->next = icontent_get_next_pagenum($objpage);
+
+        //Log this request and customize it
+        /**-----------------------------------------------------*/
+        $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
+        switch ($devicetype){
+            case "tablet":
+                $devicetype="tablet";
+                break;
+            case "mobile":
+                $devicetype="mobile";
+                break;
+            default:
+                $devicetype = "desktop";
+                break;
+        }
+
+        ///TOOO: duplicated code
+        $frompage= optional_param('frompage', '0', PARAM_INT);
+        $objpagefrom = $DB->get_record('icontent_pages', array('pagenum' => $frompage, 'icontentid' => $icontent->id));
+        $frompageid=0;
+        if (!empty($objpagefrom->id)){
+            $frompageid=$objpagefrom->id;
+        }
+        $other =array(
+            "devicetype"=>$devicetype,
+            "pageid"=>$objpage->id,
+            "step"=>$pagenum,
+            "frompageid"=>$frompageid,
+            "frompage"=>$frompage,
+            "navigation"=>optional_param('navigation', 'icontent', PARAM_TEXT),
+        );
+        $event = \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage,$other)->trigger();
+
+        /**-----------------------------------------------------*/
+
         return $objpage;
     }
     // Add tooltip
@@ -2794,7 +2829,9 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context){
     // Set page preview, log event and return page
     icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
 
+
     //Log this request and customize it
+    //TOOO: duplicated code
     /**-----------------------------------------------------*/
     $devicetype = core_useragent::get_device_type(); // In moodlelib.php.
     switch ($devicetype){

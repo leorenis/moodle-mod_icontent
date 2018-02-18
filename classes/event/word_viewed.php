@@ -68,7 +68,7 @@ class word_viewed extends \core\event\base {
 
         $pageid=isset($this->other['pageid'])?$this->other['pageid']:"";
         $step=isset($this->other['step'])?$this->other['step']:"";
-        return "The user with id '$this->userid' device '".$this->other['devicetype']."' downloaded presonal notes from pageid '$pageid' (step '$step') of the icontent with course module id '$this->contextinstanceid'.";
+        return "The user with id '$this->userid' device '".$this->other['devicetype']."' downloaded presonal notes from page id '$pageid' (step)'$step' of the icontent with course module id '$this->contextinstanceid'.";
 
 //        return "The user with id '$this->userid' viewed the page with id '$this->objectid' for the icontent with " .
 //            "course module id '$this->contextinstanceid'.";

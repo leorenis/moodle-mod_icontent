@@ -812,8 +812,10 @@ function icontent_ajax_savecloze($formdata, stdClass $cm, $icontent){
     // Save records
     $DB->delete_records('icontent_question_attempts', array('cmid' => $cm->id, 'pagesquestionsid' => $qpid, 'questionid' => $qid, 'userid' => $USER->id));
     $DB->insert_records('icontent_question_attempts', $records);
+
     // Update grade
-    icontent_set_grade_item($icontent, $cm->id, $USER->id);
+    //DISABLE gRADES
+    //icontent_set_grade_item($icontent, $cm->id, $USER->id);
     // Event log
    // \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
     // Create object summary attempt

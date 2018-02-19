@@ -10,16 +10,20 @@
  */
 $(document).ready(function(){
 	onChecksHighcontrast();
+	setEventOnLinks();
 	// Loads page
-	function onLoadPageClick(){
+	function onLoadPageClick(event){
+
 		var btnType = 'toc';
-		if ( $(this).hasClass('btn-previous-page')){
-			var btnType = 'previous';
+		if (!event.originalEvent){
+				var btnType = 'link';
 		} else if ($(this).hasClass('btn-next-page')) {
 			var btnType = 'next';
 		} else if ($(this).hasClass('btn-icontent-page')) {
 			var btnType = 'top';
-		}
+		}	else if ($(this).hasClass('btn-previous-page')) {
+		 var btnType = 'previous';
+	 	}
 
 		var data = {
 			"action": "loadpage",
@@ -54,8 +58,8 @@ $(document).ready(function(){
 	    		onChecksHighcontrast();
 	    		onChangeStateControlButtons(data);
                 //SetPageEvents();
-                $('[data-toggle="tooltip"]').tooltip();
-				setEventOnLinks();
+          $('[data-toggle="tooltip"]').tooltip();
+					setEventOnLinks();
 	    	},
 				complete: function() {
 					 hideSavingMessage();

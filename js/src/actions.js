@@ -28,7 +28,7 @@ function setEventOnLinks(){
 
     $("#idicontentpages a").each(function() {
         var url = $(this).attr('href');
-        if (url.indexOf("#tab")!=-1){
+        if (url.indexOf("#tab") != -1){
             var urlAux = url.toString().split('\#');
             var page_id = urlAux[1].replace('tab', '');
 

@@ -1192,6 +1192,12 @@ function icontent_add_pagedisplayed($pageid, $cmid){
         $pagedisplayed->userid 		= $USER->id;
         $pagedisplayed->timecreated	= time();
         return $DB->insert_record('icontent_pages_displayed', $pagedisplayed);
+    }else{
+        $pagedisplayedupdate = new stdClass;
+        $pagedisplayedupdate->id= $pagedisplayed->id;
+        $pagedisplayedupdate->timecreated	= time();
+        $pagedisplayed->timecreated = $pagedisplayedupdate->timecreated;
+        $DB->update_record('icontent_pages_displayed', $pagedisplayedupdate);
     }
     return $pagedisplayed;
 }

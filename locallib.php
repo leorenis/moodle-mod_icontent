@@ -59,21 +59,24 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     $toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit);
     $bc = new block_contents();
     $bc->title = get_string('icontentmenutitle', 'icontent');
-    switch ($icontent->listtype) {
-      case 1:
-          $listtype ='listtype_circle';
-          break;
-      case 2:
-          $listtype ='listtype_disk';
-          break;
-      case 3:
-          $listtype ='listtype_square';
-          break;
-      // case 4:
-      //     $listtype ='listtype_number';
-      //     break;
-      default:
-         $listtype ='';
+    $listtype="";
+    if (!empty($icontent->listtype)) {
+        switch ($icontent->listtype) {
+            case 1:
+                $listtype = 'listtype_circle';
+                break;
+            case 2:
+                $listtype = 'listtype_disk';
+                break;
+            case 3:
+                $listtype = 'listtype_square';
+                break;
+            // case 4:
+            //     $listtype ='listtype_number';
+            //     break;
+            default:
+                $listtype = '';
+        }
     }
     $bc->attributes['class'] = 'block block_icontent_toc '.$listtype;
     $bc->content = $toc;

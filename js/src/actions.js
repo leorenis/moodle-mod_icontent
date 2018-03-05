@@ -6,22 +6,21 @@
 * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
-`use strict`;
-
-const showSavingMessage = () => {
-  const oldIcon = document.querySelector(`saving_message`);
+function showSavingMessage(){
+  var oldIcon = document.querySelector("saving_message");
   if (oldIcon) {
-    oldIcon.remove();
+    oldIcon.parentNode.removeChild(oldIcon);
+   // oldIcon.remove();
   }
-  const body = document.querySelector(`body`);
-  const container = document.createElement(`div`);
-  container.className = `saving_message`;
-  container.innerHTML = `<span class = "saving_message_text">שומר</span><i class="fa fa-spinner spinner" aria-hidden="true"></i>`;
+  var body = document.querySelector("body");
+  var container = document.createElement("div");
+  container.className = "saving_message";
+  container.innerHTML = '<span class = "saving_message_text">שומר</span><i class="fa fa-spinner spinner" aria-hidden="true"></i>';
   body.appendChild(container);
 }
-const hideSavingMessage = () => {
-  const container = document.querySelector(`.saving_message`);
-  container.remove();
+function hideSavingMessage (){
+  var container = document.querySelector('.saving_message');
+  container.parentNode.removeChild(container);
 }
 
 function setEventOnLinks(){
@@ -37,7 +36,6 @@ function setEventOnLinks(){
             });
         }
     });
-
 }
 
 function blockButtons(){

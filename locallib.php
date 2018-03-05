@@ -495,9 +495,9 @@ function icontent_get_startpagenum($icontent, $context){
     $pagedisplay = $DB->get_record_sql("SELECT MAX(timecreated) AS maxtimecreated FROM {icontent_pages_displayed} WHERE cmid IN(?) AND userid IN(?);", array($cm->id, $USER->id));
     $totalpagesvieweduser = $DB->count_records('icontent_pages_displayed', array('cmid'=>$cm->id, 'userid'=>$USER->id));
     $totalpagesavailable = $DB->count_records('icontent_pages', array('cmid'=>$cm->id, 'hidden'=> 0));
-//    if(!$pagedisplay->maxtimecreated || $totalpagesvieweduser === $totalpagesavailable){
-//        return icontent_get_minpagenum($icontent);
-//    }
+    if(!$pagedisplay->maxtimecreated){
+        return icontent_get_minpagenum($icontent);
+    }
     $lastpagedisplay = $DB->get_record("icontent_pages_displayed", array('cmid'=>$cm->id, 'userid'=> $USER->id, 'timecreated'=> $pagedisplay->maxtimecreated), 'id, pageid');
     $page = $DB->get_record("icontent_pages", array('id'=>$lastpagedisplay->pageid), "id, pagenum");
     return $page->pagenum;

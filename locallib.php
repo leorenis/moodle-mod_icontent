@@ -486,9 +486,9 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
 */
 function icontent_get_startpagenum($icontent, $context){
     global $DB;
-    if(has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
-        return icontent_get_minpagenum($icontent);
-    }
+//    if(has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $context)){
+//        return icontent_get_minpagenum($icontent);
+//    }
     // Discover page to be presented to the student
     global $USER;
     $cm = get_coursemodule_from_instance('icontent', $icontent->id);

@@ -820,7 +820,8 @@ textarea.answertextarea {
   color: #017b80;
   background-color: #fafdfd;
   border: 1px solid #018388;
-  box-shadow: 0 0 0 0.5px #01838A;
+  /*box-shadow: 0 0 0 0.5px #01838A;*/
+  box-shadow: inset 0 0 0 0.5px #01838A
 }
 .load-page.btn-icontent-page:active,
 .load-page.btn-icontent-page.active {

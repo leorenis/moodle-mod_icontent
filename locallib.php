@@ -427,7 +427,7 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
         if(!$page->hidden){
             $npage ++;
             // $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
-            $pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum.' '.$visited_page , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
+            $pgbuttons .= html_writer::tag('button', $npage, array('id'=>'icontent_button_tab'.$page->pagenum, 'title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum.' '.$visited_page , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
         }
     }
     $objbutton->name = get_string('nextp', 'mod_icontent');

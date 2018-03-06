@@ -44,7 +44,7 @@ class mod_icontent_renderer extends plugin_renderer_base {
 	 */
 	public function icontent_requires_external_js(){
 	//	 $this->page->requires->js('/mod/icontent/js/jquery/jquery-1.11.3.min.js', true);
-		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-1.12.1.min', true);
+		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-1.12.1.min.js', true);
 		 $this->page->requires->js('/mod/icontent/js/jquery/jquery-ui-1.11.4.min.js', true);
 		 $this->page->requires->js('/mod/icontent/js/jquery/jquery.cookie.min.js', true);
 		 $this->page->requires->js('/mod/icontent/js/bootstrap/bootstrap.min.js');

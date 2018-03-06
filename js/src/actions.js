@@ -27,13 +27,15 @@ function setEventOnLinks(){
 
     $("#idicontentpages a").each(function() {
         var url = $(this).attr('href');
-        if (url.indexOf("#tab") != -1){
-            var urlAux = url.toString().split('\#');
-            var page_id = urlAux[1].replace('tab', '');
+        if (url) {
+            if (url.indexOf("#tab") != -1) {
+                var urlAux = url.toString().split('\#');
+                var page_id = urlAux[1].replace('tab', '');
 
-            $(this).bind('click', function () {
-                $(".load-page.btn-icontent-page.page" + page_id).click();
-            });
+                $(this).bind('click', function () {
+                    $(".load-page.btn-icontent-page.page" + page_id).click();
+                });
+            }
         }
     });
 }

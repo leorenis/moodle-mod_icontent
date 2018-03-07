@@ -223,9 +223,7 @@ function xmldb_icontent_upgrade($oldversion) {
     	upgrade_mod_savepoint(true, 2018011520, 'icontent');
     }
 
-
-
-    if ($oldversion < 2018030505) {
+    if ($oldversion < 2018030507) {
 
         $table = new xmldb_table('icontent');
         $field = new xmldb_field('listtype', XMLDB_TYPE_INTEGER, '4', null, null, null, '0');
@@ -235,10 +233,6 @@ function xmldb_icontent_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2018030505, 'icontent');
-    }
-    if ($oldversion < 2018030505) {
-
         $table = new xmldb_table('icontent_pages');
         $field = new xmldb_field('addindent', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
 
@@ -247,10 +241,9 @@ function xmldb_icontent_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2018030505, 'icontent');
+        upgrade_mod_savepoint(true, 2018030507, 'icontent');
 
     }
-
 
 
     /*

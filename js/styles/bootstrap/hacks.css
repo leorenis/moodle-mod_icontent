@@ -1,0 +1,88 @@
+/*Navs Tabs*/
+#idicontentpages .span1,
+#idicontentpages .span2,
+#idicontentpages .span3,
+#idicontentpages .span4,
+#idicontentpages .span5,
+#idicontentpages .span6,
+#idicontentpages .span7,
+#idicontentpages .span8,
+#idicontentpages .span9,
+#idicontentpages .span10,
+#idicontentpages .span11,
+#idicontentpages .span12 {
+    position: relative;
+    min-height: 1px;
+}
+#idicontentpages .span1 {
+    width: 8.33%;
+    float: left;
+}
+#idicontentpages .span2 {
+    width: 16.66%;
+}
+#idicontentpages .span3 {
+    width: 25%;
+}
+#idicontentpages .span4 {
+    width: 33.33%;
+}
+#idicontentpages .span5 {
+    width: 41.66%;
+}
+#idicontentpages .span6 {
+    width: 50%;
+}
+#idicontentpages .span7 {
+    width: 58.33%;
+}
+#idicontentpages .span8 {
+    width: 66.66%;
+}
+
+#idicontentpages .span9 {
+    width: 75%;
+}
+#idicontentpages .span10 {
+    width: 83.33%;
+}
+#idicontentpages .span11 {
+    width: 91.66%;
+}
+#idicontentpages .span12 {
+    width: 100%;
+}
+
+/*
+#idicontentpages .ifloat-left {
+    float: left;
+}*/
+
+/** TABs */
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs{
+    list-style: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 0;
+    float: left;
+    width: 100%;
+}
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-note,
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-doubt{
+    float: left;
+}
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-note #note-tab,
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-doubt #doubt-tab {
+    border-radius: 5px 4px 0px 0px;
+    border-bottom-color: transparent;
+    cursor: pointer;
+    padding: 10px 35px;
+}
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .active  #note-tab,
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .active  #doubt-tab {
+    background-color: #ddd;
+}

@@ -1923,7 +1923,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Title page
 	$title = html_writer::tag('h4', $togglearea->icon. get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes text-uppercase '.$togglearea->class, 'id'=>'idtitlenotes'));
 	// user image
-	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'col-md-1 userpicture'));
+	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'col-md-1 userpicture ifloat-left'));
 	// fields
 	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'col-md-12 form-control', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
 	$spanprivate = icontent_make_span_checkbox_field_private($objpage);
@@ -1938,23 +1938,23 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage), 'pagenotesnote', array('id'=>'idpagenotesnote'));
 	$pagenotesdoubt = html_writer::div(icontent_make_listnotespage($datapagenotesdoubt, $icontent, $objpage), 'pagenotesdoubt', array('id'=>'idpagenotesdoubt'));
 	// Filds
-	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'col-md-11'));
-	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'col-md-11'));
+	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'col-md-11 ifloat-left'));
+	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'col-md-11 ifloat-left'));
 	// Forms
 	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'fields'));
 	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'fields'));
 	// TAB NAVS
 	$note = html_writer::tag('li', 
-		html_writer::link(null, get_string('note', 'icontent', count($datapagenotesnote)), array('id'=>'note-tab')), 
+		html_writer::link('#note', get_string('note', 'icontent', count($datapagenotesnote)), array('id'=>'note-tab', 'aria-expanded' => 'true', 'aria-controls'=>'note' ,'role'=>'tab', 'data-toggle'=>'tab')), 
 	array('class'=>'active itab-note', 'role'=>'presentation'));
 	$doubt = html_writer::tag('li', 
-		html_writer::link(null, get_string('doubt', 'icontent', count($datapagenotesdoubt)), array('id'=>'doubt-tab')), 
+		html_writer::link('#doubt', get_string('doubt', 'icontent', count($datapagenotesdoubt)), array('id'=>'doubt-tab', 'aria-expanded' => 'false', 'aria-controls'=>'doubt' ,'role'=>'tab', 'data-toggle'=>'tab')), 
 	array('class'=>'itab-doubt', 'role'=>'presentation'));
 	$tabnav = html_writer::tag('ul', $note .$doubt, array('class'=> 'inav inav-tabs', 'id'=>'tabnav'));
 	// TAB CONTENT
 	$icontentnote = html_writer::div($formnote,'tab-pane active', array('role'=>'tabpanel', 'id'=>'note'));
-	$icontentdoubt = html_writer::div($formdoubt, 'tab-pane', array('role'=>'tabpanel', 'id'=>'doubt' , 'style'=>'display: none'));
-	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'itab-content', array('id'=>'idtabicontent'));
+	$icontentdoubt = html_writer::div($formdoubt, 'tab-pane', array('role'=>'tabpanel', 'id'=>'doubt'));
+	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'tab-content', array('id'=>'idtabicontent'));
 	$fulltab = html_writer::div($tabnav. $tabicontent, 'fulltab', array('id'=> 'idfulltab', 'style'=> $togglearea->style));
  	// return notes area
  	return html_writer::tag('div', $title. $fulltab, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));

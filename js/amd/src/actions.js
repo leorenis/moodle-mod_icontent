@@ -319,9 +319,9 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
         var $noteTab = $("#idfulltab .itab-content #note");
         $doubtTab.css({"display":"none"});
         $noteTab.css({"display":"block"});
-        
-        $("#idfulltab .inav-tabs .itab-doubt").removeClass('active');
+
         $("#idfulltab .inav-tabs .itab-note").addClass('active');
+        $("#idfulltab .inav-tabs .itab-doubt").removeClass('active');
     }
 
     // Open doubt Tab Click
@@ -331,8 +331,8 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
         $noteTab.css({"display":"none"});
         $doubtTab.css({"display":"block"});
 
-        $("#idfulltab .inav-tabs .itab-note").removeClass('active');
         $("#idfulltab .inav-tabs .itab-doubt").addClass('active');
+        $("#idfulltab .inav-tabs .itab-note").removeClass('active');
     }
 
     // Save attemp

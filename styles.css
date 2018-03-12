@@ -62,6 +62,12 @@
 .path-mod-icontent .simple-paging-buttonbar{
 	text-align: center;
 }
+.icontent-buttonbar button{
+    margin-right: 3px;
+}
+.icontent-buttonbar button i{
+    margin: 3px;
+}
 .path-mod-icontent .simple-paging-buttonbar button{
 	min-width: 120px;
 }
@@ -200,16 +206,19 @@
 	margin-right: 15px;
 }
 .path-mod-icontent .notesarea #tabnav #messagenotes{
- 	background: #6DB143 none repeat scroll 0 0;
+    background: #6db143 none repeat scroll 0 0;
     border-radius: 10px;
-    font-size: 0.7em;
+    font-size: .7em;
     line-height: 1.2em;
     text-align: center;
-    color: #FFFFFF;
+    color: #fff;
     float: right;
-    margin-left: 3px;
+    margin-left: -17px;
     margin-top: -5px;
     padding: 4px 5px 2px;
+    position: relative;
+    left: -5px;
+    top: 6px;
 }
 .path-mod-icontent .notesarea #tabnav #messagedoubt{
  	background: #238BC7 none repeat scroll 0 0;
@@ -219,9 +228,12 @@
     text-align: center;
     color: #FFFFFF;
     float: right;
-    margin-left: 3px;
+    margin-left: -17px;
     margin-top: -5px;
     padding: 4px 5px 2px;
+    position: relative;
+    left: -5px;
+    top: 6px;
 }
 .path-mod-icontent .notesarea #tabnav #messagedoubt:hover,
 .path-mod-icontent .notesarea #tabnav #messagenotes:hover{
@@ -276,6 +288,37 @@
 .path-mod-icontent .questionsarea .question .optionslist td.matchoptions{
 	font-size: 13px;
 	padding-right: 10px;
+}
+.path-mod-icontent .icontent-page .notesarea .inav-tabs{
+    list-style: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 0;
+    float: left;
+    width: 100%;
+}
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-note,
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-doubt{
+    float: left;
+}
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-note #note-tab,
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .itab-doubt #doubt-tab {
+    border-radius: 5px 4px 0px 0px;
+    border-bottom-color: transparent;
+    cursor: pointer;
+    padding: 10px 35px;
+}
+
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .active  #note-tab,
+.path-mod-icontent .icontent-page .notesarea .inav-tabs .active  #doubt-tab {
+    background-color: #ddd;
+}
+
+.icontent-page .itab-content #idbtnsavenote,
+.icontent-page .itab-content #idbtnsavedoubt {
+    margin-top: 5px;
 }
 /** List of anotations **/
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent{
@@ -576,3 +619,5 @@
 	background:#036;
 	color:#FFF;
 }
+
+

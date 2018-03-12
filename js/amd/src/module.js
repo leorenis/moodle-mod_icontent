@@ -30,7 +30,6 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
         };
         // Destroy all tooltips
         //$('[data-toggle="tooltip"]').tooltip('destroy');
-        onHandleFloat({float: 'none', mBotton: '0'});
         // Loading page
         $(".icontent-page")
             .children('.fulltextpage')
@@ -40,7 +39,6 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
                     .html('<img src="pix/loading.gif" alt="Loading" class="img-loading" />')
             )
             .css('opacity', '0.5');
-
         // Active link or button the atual page
         onBtnActiveEnableDisableClick(data.pagenum);
         data = "&" + $.param(data);
@@ -59,7 +57,7 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
                 }
                 onChecksHighcontrast();
                 onChangeStateControlButtons(data);
-                onHandleFloat({float: 'left', mBotton: '21px'});
+                onHandleFloat('left');
             }
         }); // End AJAX
 
@@ -72,11 +70,8 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
         }
     }
 
-    function onHandleFloat(options){
-        $(".fulltextpage").css({
-            "float": options.float, 
-            "margin-bottom": options.mBotton
-        });
+    function onHandleFloat(option){
+        $(".fulltextpage").css({"float": option});
     }
 
     // Change state the control buttons

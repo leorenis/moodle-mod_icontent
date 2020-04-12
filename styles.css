@@ -243,7 +243,6 @@
 }
 .path-mod-icontent .notesarea .titlenotes{
 	cursor: pointer;
-	cursor: hand;
 	border-bottom: 1px solid #dddddd;
     padding: 12px;
     margin-top: 0;

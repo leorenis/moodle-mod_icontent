@@ -1923,13 +1923,13 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Title page
 	$title = html_writer::tag('h4', $togglearea->icon. get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes text-uppercase '.$togglearea->class, 'id'=>'idtitlenotes'));
 	// user image
-	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'span1 userpicture'));
+	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'col-2 userpicture'));
 	// fields
-	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'span12', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
+	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'col-12', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
 	$spanprivate = icontent_make_span_checkbox_field_private($objpage);
 	$spanfeatured = icontent_make_span_checkbox_field_featured($objpage);
 	$btnsavenote = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavenote', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
-	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'span12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
+	$textareadoubt = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentdoubt', 'class'=>'col-12','maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writedoubt', 'mod_icontent')));
 	$spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage);
 	$btnsavedoubt = html_writer::tag('button', get_string('save','mod_icontent'), array('class'=>'btn btn-primary pull-right', 'id' => 'idbtnsavedoubt', 'data-pageid'=>$objpage->id,'data-cmid'=>$objpage->cmid, 'data-sesskey' => sesskey()));
 	// Data page
@@ -1938,11 +1938,11 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage), 'pagenotesnote', array('id'=>'idpagenotesnote'));
 	$pagenotesdoubt = html_writer::div(icontent_make_listnotespage($datapagenotesdoubt, $icontent, $objpage), 'pagenotesdoubt', array('id'=>'idpagenotesdoubt'));
 	// Filds
-	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'span11'));
-	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'span11'));
+	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'col-10'));
+	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'col-10'));
 	// Forms
-	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'fields'));
-	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'fields'));
+	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'row fields'));
+	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'row fields'));
 	// TAB NAVS
 	$note = html_writer::tag('li', 
 		html_writer::link('#note', get_string('note', 'icontent', count($datapagenotesnote)), array('id'=>'note-tab', 'aria-expanded' => 'true', 'aria-controls'=>'note' ,'role'=>'tab', 'data-toggle'=>'tab')), 
@@ -1957,7 +1957,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$tabicontent = html_writer::div($icontentnote. $icontentdoubt, 'tab-content', array('id'=>'idtabicontent'));
 	$fulltab = html_writer::div($tabnav. $tabicontent, 'fulltab', array('id'=> 'idfulltab', 'style'=> $togglearea->style));
  	// return notes area
- 	return html_writer::tag('div', $title. $fulltab, array('class'=>'row-fluid notesarea', 'id'=>'idnotesarea'));
+ 	return html_writer::tag('div', $title. $fulltab, array('class'=>'notesarea', 'id'=>'idnotesarea'));
  }
  /**
   * This is the function responsible for creating checkbox field private.

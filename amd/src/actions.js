@@ -185,7 +185,7 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
         $notecomment.text('')
             .append(
                 $('<textarea />')
-                    .addClass('textnotecomment span11')
+                    .addClass('textnotecomment col-11')
                     .text(textcomment)
             )
             .append(
@@ -269,7 +269,7 @@ define(['jquery','jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c)
             $notecomment
                 .append(
                     $('<textarea />')
-                        .addClass('replynotecomment span')
+                        .addClass('replynotecomment col')
                         .attr('required', 'required')
                         .attr('maxlength', 1024)
                 )

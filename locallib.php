@@ -423,11 +423,11 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
 	$objbutton->cmid  = $cmid;
 	$objbutton->startwithpage = $startwithpage;
 	// Go back
-	$controlbuttons = icontent_make_button_previous_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left')));
+	$controlbuttons = icontent_make_button_previous_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-left mr-2')));
 	$objbutton->name = get_string('advance', 'mod_icontent');
 	$objbutton->title = get_string('nextpage', 'mod_icontent');
 	// Advance
-	$controlbuttons .= icontent_make_button_next_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right')));
+	$controlbuttons .= icontent_make_button_next_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right ml-2')));
 	return html_writer::div($controlbuttons, "simple-paging-buttonbar icontent-buttonbar", array('id' => $attrid));
 }
 

@@ -86,6 +86,7 @@
 }
 .path-mod-icontent .icontent-page .fulltextpage ul li{
 	line-height: 1.8em;
+    margin-right: 12px;
 }
 /*Hightcontrast */
 .path-mod-icontent .icontent-page .highcontrast h1,

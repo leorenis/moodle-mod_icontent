@@ -1923,7 +1923,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	// Title page
 	$title = html_writer::tag('h4', $togglearea->icon. get_string('doubtandnotes', 'mod_icontent'), array('class'=>'titlenotes text-uppercase '.$togglearea->class, 'id'=>'idtitlenotes'));
 	// user image
-	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=>60, 'class'=> 'img-thumbnail')), array('class'=>'col-2 userpicture'));
+	$picture = html_writer::tag('div', $OUTPUT->user_picture($USER, array('size'=> 120, 'class'=> 'img-thumbnail')), array('class'=>'col-2 userpicture'));
 	// fields
 	$textareanote = html_writer::tag('textarea', null, array('name'=>'comment', 'id'=>'idcommentnote', 'class'=>'col-12', 'maxlength'=> '1024', 'required'=> 'required', 'placeholder'=> get_string('writenotes', 'mod_icontent')));
 	$spanprivate = icontent_make_span_checkbox_field_private($objpage);
@@ -1941,8 +1941,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$fieldsnote = html_writer::tag('div', $textareanote. $spanprivate. $spanfeatured. $btnsavenote. $pagenotesnote, array('class'=>'col-10'));
 	$fieldsdoubt = html_writer::tag('div', $textareadoubt. $spandoubttutor. $btnsavedoubt. $pagenotesdoubt, array('class'=>'col-10'));
 	// Forms
-	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'row fields'));
-	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'row fields'));
+	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'row fields mt-2'));
+	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'row fields mt-2'));
 	// TAB NAVS
 	$note = html_writer::tag('li', 
 		html_writer::link('#note', get_string('note', 'icontent', count($datapagenotesnote)), array('id'=>'note-tab', 'aria-expanded' => 'true', 'aria-controls'=>'note' ,'role'=>'tab', 'data-toggle'=>'tab')), 

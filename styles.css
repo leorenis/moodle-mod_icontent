@@ -86,7 +86,6 @@
 }
 .path-mod-icontent .icontent-page .fulltextpage ul li{
 	line-height: 1.8em;
-    margin-right: 12px;
 }
 /*Hightcontrast */
 .path-mod-icontent .icontent-page .highcontrast h1,
@@ -210,7 +209,7 @@
     float: right;
     margin-left: 3px;
     margin-top: -5px;
-    padding: 4px 5px 2px;
+    padding: 3px 6px 3px;
 }
 .path-mod-icontent .notesarea #tabnav #messagedoubt{
  	background: #238BC7 none repeat scroll 0 0;
@@ -222,7 +221,7 @@
     float: right;
     margin-left: 3px;
     margin-top: -5px;
-    padding: 4px 5px 2px;
+    padding: 3px 6px 3px;
 }
 .path-mod-icontent .notesarea #tabnav #messagedoubt:hover,
 .path-mod-icontent .notesarea #tabnav #messagenotes:hover{

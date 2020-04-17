@@ -395,7 +395,7 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1){
 	foreach ($pages as $page) {
 		if(!$page->hidden){
 			$npage ++;
-			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page btn-icontent-page page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
+			$pgbuttons .= html_writer::tag('button', $npage, array('title' => s($page->title), 'class'=>'load-page mr-1 btn-icontent-page btn btn-secondary page'.$page->pagenum , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $page->pagenum, 'data-cmid' => $page->cmid, 'data-sesskey' => sesskey()));
 		}
 	}
 	$objbutton->name = get_string('next', 'mod_icontent');
@@ -1624,7 +1624,7 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
  	$objpage->pagenum = $button->startwithpage;
  	$objpage->cmid = $button->cmid;
  	$pageprevious = icontent_get_prev_pagenum($objpage);
- 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-previous-page', 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pageprevious, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-previous-page btn btn-secondary mr-1', 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $pageprevious, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
  	if(!$pageprevious){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}
@@ -1645,7 +1645,7 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid){
  	$objpage->pagenum = $button->startwithpage;
  	$objpage->cmid = $button->cmid;
  	$nextpage = icontent_get_next_pagenum($objpage);
- 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-next-page' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $nextpage, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
+ 	$attributes = array('title' => $button->title, 'class'=>'load-page btn-next-page btn btn-secondary' , 'data-toggle'=> 'tooltip', 'data-totalpages' => $tpages, 'data-placement'=> 'top', 'data-pagenum' => $nextpage, 'data-cmid' => $button->cmid, 'data-sesskey' => sesskey());
  	if(!$nextpage){
  		$attributes = $attributes + array('disabled' => 'disabled');
  	}
@@ -1943,13 +1943,16 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	// Forms
 	$formnote = html_writer::tag('div', $picture . $fieldsnote, array('class'=>'row fields mt-2'));
 	$formdoubt = html_writer::tag('div', $picture . $fieldsdoubt, array('class'=>'row fields mt-2'));
+
 	// TAB NAVS
-	$note = html_writer::tag('li', 
-		html_writer::link('#note', get_string('note', 'icontent', count($datapagenotesnote)), array('id'=>'note-tab', 'aria-expanded' => 'true', 'aria-controls'=>'note' ,'role'=>'tab', 'data-toggle'=>'tab')), 
-	array('class'=>'active', 'role'=>'presentation'));
+	$note = html_writer::tag('li',
+		html_writer::link('#note', get_string('note', 'icontent', count($datapagenotesnote)),
+            array('id'=>'note-tab', 'aria-controls'=>'note' ,'role'=>'tab', 'data-toggle'=>'tab', 'class' => 'nav-link active')),
+        array('class'=>'nav-item', 'role'=>'presentation'));
 	$doubt = html_writer::tag('li', 
-		html_writer::link('#doubt', get_string('doubt', 'icontent', count($datapagenotesdoubt)), array('id'=>'doubt-tab', 'aria-expanded' => 'false', 'aria-controls'=>'doubt' ,'role'=>'tab', 'data-toggle'=>'tab')), 
-	array('class'=>'', 'role'=>'presentation'));
+		html_writer::link('#doubt', get_string('doubt', 'icontent', count($datapagenotesdoubt)),
+            array('id'=>'doubt-tab', 'aria-controls'=>'doubt' ,'role'=>'tab', 'data-toggle'=>'tab', 'class' => 'nav-link')),
+        array('class'=>'nav-item', 'role'=>'presentation'));
 	$tabnav = html_writer::tag('ul', $note .$doubt, array('class'=> 'nav nav-tabs', 'id'=>'tabnav'));
 	// TAB CONTENT
 	$icontentnote = html_writer::div($formnote,'tab-pane active', array('role'=>'tabpanel', 'id'=>'note'));
@@ -1969,10 +1972,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_span_checkbox_field_private($page){
  	$context = context_module::instance($page->cmid);
  	if (icontent_user_can_view_checkbox_field_private($context)) {
- 		$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate', 'class'=>'icontent-checkbox'));
+ 		$checkprivate = html_writer::tag('input', null, array('name'=>'private', 'type'=>'checkbox', 'id'=>'idprivate', 'class'=>'icontent-checkbox mr-2'));
 	 	$labelprivate = html_writer::tag('label', get_string('private', 'mod_icontent'), array('for'=>'idprivate', 'class'=> 'icontent-label'));
 	 	// Return span
-	 	return html_writer::tag('span', $checkprivate. $labelprivate, array('class'=>'fieldprivate'));
+	 	return html_writer::tag('span', $checkprivate. $labelprivate, array('class'=>'fieldprivate font-weight-light'));
  	}
  	return false;
  }
@@ -1987,10 +1990,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_span_checkbox_field_featured($page){
  	$context = context_module::instance($page->cmid);
  	if (icontent_user_can_view_checkbox_field_featured($context)) {
-	 	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured', 'class'=>'icontent-checkbox'));
+	 	$checkfeatured = html_writer::tag('input', null, array('name'=>'featured', 'type'=>'checkbox', 'id'=>'idfeatured', 'class'=>'icontent-checkbox mr-2'));
 	 	$labelfeatured = html_writer::tag('label', get_string('featured', 'mod_icontent'), array('for'=>'idfeatured', 'class'=> 'icontent-label'));
 	 	// Return span
-	 	return html_writer::tag('span', $checkfeatured. $labelfeatured, array('class'=>'fieldfeatured'));
+	 	return html_writer::tag('span', $checkfeatured. $labelfeatured, array('class'=>'fieldfeatured font-weight-light'));
  	}
  	return false;
  }
@@ -2004,10 +2007,10 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  function icontent_make_span_checkbox_field_doubttutor($page){
  	$context = context_module::instance($page->cmid);
  	if (icontent_user_can_view_checkbox_field_doubttutor($context)) {
- 		$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor', 'class'=>'icontent-checkbox'));
+ 		$checkdoubttutor = html_writer::tag('input', null, array('name'=>'doubttutor', 'type'=>'checkbox', 'id'=>'iddoubttutor', 'class'=>'icontent-checkbox mr-2'));
  		$labeldoubttutor = html_writer::tag('label', get_string('doubttutor', 'mod_icontent'), array('for'=>'iddoubttutor', 'class'=>'icontent-label'));
  		// Return span
- 		return html_writer::tag('span', $checkdoubttutor. $labeldoubttutor, array('class'=>'fielddoubttutor'));
+ 		return html_writer::tag('span', $checkdoubttutor. $labeldoubttutor, array('class'=>'fielddoubttutor font-weight-light'));
  	}
  	return false;
  }

@@ -576,3 +576,8 @@
 	background:#036;
 	color:#FFF;
 }
+
+/* Overrides externals css */
+.path-mod-icontent .icontent-page .fulltextpage .userpicture {
+    margin: 0 !important;
+}

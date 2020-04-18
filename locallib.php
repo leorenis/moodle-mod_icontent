@@ -428,7 +428,7 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
 	$objbutton->title = get_string('nextpage', 'mod_icontent');
 	// Advance
 	$controlbuttons .= icontent_make_button_next_page($objbutton, count($pages), html_writer::tag('i', null, array('class'=> 'fa fa-chevron-circle-right ml-2')));
-	return html_writer::div($controlbuttons, "simple-paging-buttonbar icontent-buttonbar", array('id' => $attrid));
+	return html_writer::div($controlbuttons, "simple-paging-buttonbar icontent-buttonbar mt-2", array('id' => $attrid));
 }
 
 /**

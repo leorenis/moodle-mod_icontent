@@ -288,6 +288,7 @@
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a{
 	color: #aaa;
 	font-size: 12px;
+    margin-right: 4px;
 }
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a{
 	cursor: pointer;

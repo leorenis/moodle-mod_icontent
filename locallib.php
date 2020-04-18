@@ -2036,8 +2036,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 			$picture = $OUTPUT->user_picture($user, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
 			// Note header
 			$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$user->id, 'course'=>$icontent->course)), $user->firstname, array('title'=>$user->firstname));
- 			$noteon = html_writer::tag('em', get_string('notedon', 'icontent'), array('class'=>'noteon'));
- 			$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
+ 			$noteon = html_writer::tag('em', get_string('notedon', 'icontent'), array('class'=>'noteon mr-2 ml-2'));
+ 			$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon mr-2 ml-2'));
 			$notepagetitle = html_writer::span($page->title, 'notepagetitle');
  			$noteheader = $pagenote->parent ? html_writer::div($linkfirstname. $replyon, 'noteheader') : html_writer::div($linkfirstname. $noteon. $notepagetitle, 'noteheader');
 			// Note comments
@@ -2077,7 +2077,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
 	$picture = $OUTPUT->user_picture($user, array('size'=>30, 'class'=> 'img-thumbnail pull-left'));
 	// Note header
 	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$user->id, 'course'=>$icontent->course)), $user->firstname, array('title'=>$user->firstname));
-	$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon'));
+	$replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ', array('class'=>'noteon mr-2 ml-2'));
 	$noteheader = html_writer::div($linkfirstname. $replyon, 'noteheader');
 	// Note comments
 	$notecomment = html_writer::div($pagenote->comment, 'notecomment', array('data-pagenoteid'=>$pagenote->id, 'data-cmid'=>$pagenote->cmid, 'data-sesskey' => sesskey()));

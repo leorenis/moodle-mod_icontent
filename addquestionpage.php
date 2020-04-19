@@ -116,7 +116,7 @@ echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tquestions, $page, $perpage, $url);
 echo html_writer::end_div();
-echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add')) + $disabled);
+echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add'), 'class'=>'btn btn-primary') + $disabled);
 echo html_writer::end_tag('form');
 
 // Finish the page.

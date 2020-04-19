@@ -1727,7 +1727,8 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	$hiddenfields .= html_writer::empty_tag('input', array('type'=> 'hidden', 'name'=>'sesskey', 'value'=>sesskey(), 'id'=>'idhfieldsesskey'));
  	// Button send questions
  	$qbtnsend = html_writer::empty_tag('input', array('type'=>'submit', 'name'=>'qbtnsend', 'class'=>'btn-sendanswers btn-primary pull-right', 'value'=> get_string('sendanswers', 'mod_icontent')));
- 	$divbtnsend = html_writer::div($qbtnsend, 'row sendanswers');
+ 	$coldivbtnsend = html_writer::div($qbtnsend, 'col align-self-end');
+ 	$divbtnsend = html_writer::div($coldivbtnsend, 'row sendanswers mb-2');
  	// Tag form
  	$qform = html_writer::tag('form', $hiddenfields. $qlist. $divbtnsend, array('action'=>'', 'method'=>'POST', 'id'=>'idformquestions'));
  	$divcontent = html_writer::div($qform, 'contentquestionsarea', array('id'=>'idcontentquestionsarea', 'style' => $togglearea->style));
@@ -1774,7 +1775,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MULTICHOICE.$brackets;
  				$value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
- 				$check = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>$type, 'value'=>$value));
+ 				$check = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>$type, 'value'=>$value, 'class'=>'mr-2'));
  				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
  				$questionanswers .= html_writer::div($check. $label);
  			}
@@ -1785,7 +1786,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  		case ICONTENT_QTYPE_MATCH:
  			$options = $DB->get_records('qtype_match_subquestions', array('questionid'=>$question->qid), 'answertext');
  			$questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_MATCH);
- 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+ 			$questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext mr-2');
  			$questionanswers .= html_writer::start_div('optionslist'); // Start div options list
  			$contenttable = '';
  			$arrayanswers = [];
@@ -1815,7 +1816,7 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  				$fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_TRUEFALSE;
  				$value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
  				$fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
- 				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$value));
+ 				$radio = html_writer::empty_tag('input', array('id'=> $fieldid, 'name'=> $fieldname, 'type'=>'radio', 'value'=>$value, 'class'=>'mr-2'));
  				$label = html_writer::label(strip_tags($anwswer->answer), $fieldid);
  				$questionanswers .= html_writer::div($radio. $label, 'options');
  			}

@@ -74,6 +74,7 @@ if ($allowedit and !$pages) {
 
 // Print the page header.
 $PAGE->set_url('/mod/icontent/view.php', array('id' => $cm->id));
+$PAGE->force_settings_menu();
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
 // Get renderer

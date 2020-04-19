@@ -567,6 +567,11 @@
 	text-transform: uppercase;
 }
 
+.highcontrast .nav-tabs .nav-link.active, .highcontrast .nav-tabs .nav-item.show .nav-link {
+    background-color: inherit;
+    border-bottom: 1px solid black !important;
+}
+
 /* CHANGING COLOR OF SELECTED TEXT */
 ::-moz-selection {
 	background:#036;

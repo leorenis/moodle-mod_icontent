@@ -1,4 +1,4 @@
-# Moodle iContent 1.0.4
+# Moodle iContent 1.0.6
 [![License](https://poser.pugx.org/covex-nn/moodle/license)](http://www.gnu.org/copyleft/gpl.html)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
@@ -19,7 +19,7 @@ O conteúdo será distribuído em paginas, garantindo uma leitura relevante, pro
 O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, isso proporciona melhor interação entre o participante e a plataforma virtual de aprendizagem, sendo que o recurso poderá se tornar um item avaliativo ou lançar notas fracionadas nos itens disponíveis no curso conforme definido no plano de ação. A extensão descrita é devidamente responsiva e poderá ser acessada por qualquer dispositivo.
 
 ## Compatibility / Compatibilidade
-* PHP >= 5.4
+* PHP >= 5.6
 * Moodle >= 2.6.5+ (Build: 20140918)
 
 ## License / Licença

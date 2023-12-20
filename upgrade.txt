@@ -1,0 +1,15 @@
+This files describes API changes and other work in the iContent code.
+=== Deferred until fixed. ===
+
+=== 1.0.6.2 === Pending
+
+
+=== 1.0.6.1 === 20231220
+20231220 iContent_1133v - String [grade,core] is deprecated. Modified line 150 of the
+    edit_form.php file, to use string, gradenoun, instead of just grade.
+
+
+=== 1.0.6 === 20231220
+20231220 iContent_1132v - Created clone of the leorenis/moodle_mod_icontent repository.
+    Compared all my moodledev/mod/icontent files and pushed my changes to my new
+    icontent repo. Bumped version and started making changes.

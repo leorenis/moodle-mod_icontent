@@ -134,8 +134,8 @@ function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
  /**
  * Add dynamic attributes in page loading screen.
  * @param object $pagestyle
- * @return string
-  */
+ * @return void
+ */
 function icontent_add_properties_css($pagestyle){
 	$style = "background-color: #{$pagestyle->bgcolor}; ";
 	$style .= "min-height: ". ICONTENT_PAGE_MIN_HEIGHT ."px; ";
@@ -149,7 +149,7 @@ function icontent_add_properties_css($pagestyle){
 /**
  * Add script that load tooltip twiter bootstrap.
  * @param string $script
- * @return string
+ * @return void
  */
 function icontent_add_script_load_tooltip(){
 	return html_writer::script(""); //$(function() { $('[data-toggle="tooltip"]').tooltip(); })
@@ -162,7 +162,7 @@ function icontent_add_script_load_tooltip(){
  * @param object $icontent
  * @param object $page
  * @param object $context
- * @return string;
+ * @return pagestyle;
  */
 function icontent_get_page_style($icontent, $page, $context){
 	$pagestyle = new stdClass;
@@ -2141,16 +2141,14 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	}
  	return false;
  }
-
 /**
  * This is the function responsible for creating links like and do not like.
  *
  * Returns links
- *
- * @param object $pagenote
- * @param object $context
+ * 
+ * @param  object $pagenote
+ * @param  object $context
  * @return string $likeunlike
- * @throws coding_exception
  */
  function icontent_make_likeunlike($pagenote, $context){
  	global $USER;
@@ -2173,14 +2171,12 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	return false;
  }
 
-/**
+ /**
  * This is the function responsible for creating the toolbar.
  *
- * @param object $page
- * @param object $icontent
+ * @param  object $page
+ * @param  object $icontent
  * @return string $toolbar
- * @throws coding_exception
- * @throws moodle_exception
  */
  function icontent_make_toolbar($page, $icontent){
  	global $USER;
@@ -2318,7 +2314,6 @@ function icontent_make_list_group_notesdaughters($notesdaughters){
  	\mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
  	return $coverpage;
  }
-
 /**
  * This is the function responsible for creating the content of a page.
  * 

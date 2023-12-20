@@ -25,7 +25,7 @@
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-$id     = required_param('id', PARAM_INT);      // Course Module ID
+$id = required_param('id', PARAM_INT); // Course Module ID
 $pageid = required_param('pageid', PARAM_INT); // page ID
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);

@@ -2,7 +2,18 @@ This files describes API changes and other work in the iContent code.
 === Deferred until fixed. ===
 
 === 1.0.6.2 === Pending
-
+20231220 iContent_1134 - Need to run codechecker and fix as needed.
+20231220 iContent_1135 - Cannot add a question to a slide.
+20231221 iContent_1136 - Error re:user_picture, when trying to add a question to a
+    slide. See ticket for details, but changed SQL and now testing.
+20231222 iContent_1137 - In edit.php file, need to rewrite $event to use $params. See
+    the ticket for details, but changed code and testing.
+20231223 iContent_1138 - There does not seem to be a way to get to the index.php page.
+    Spoke too soon. It is there, just not as convienient as the way I do it in Diary.
+20231223 iContent_1140 - Multiple $features missing from the,
+    function icontent_supports($feature) {. Added the missing features and now testing.
+20231224 iContent_1141 - Need to create a monologo.png file.
+ 
 
 === 1.0.6.1 === 20231220
 20231220 iContent_1133v - String [grade,core] is deprecated. Modified line 150 of the

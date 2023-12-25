@@ -23,7 +23,8 @@
  */
 
 namespace mod_icontent\event;
-defined('MOODLE_INTERNAL') || die();
+
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent page deleted event class.
@@ -45,10 +46,9 @@ class page_deleted extends \core\event\base {
      * @return page_deleted
      */
     public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page) {
-        $data = array(
-            'context' => $context,
+        $data = ['context' => $context,
             'objectid' => $page->id,
-        );
+        ];
         /** @var page_deleted $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
@@ -73,7 +73,13 @@ class page_deleted extends \core\event\base {
      */
     protected function get_legacy_logdata() {
         $page = $this->get_record_snapshot('icontent_pages', $this->objectid);
-        return array($this->courseid, 'icontent', 'update', 'view.php?id='.$this->contextinstanceid, $page->icontentid, $this->contextinstanceid);
+        return [$this->courseid,
+            'icontent',
+            'update',
+            'view.php?id='.$this->contextinstanceid,
+            $page->icontentid,
+            $this->contextinstanceid,
+        ];
     }
 
     /**
@@ -91,7 +97,7 @@ class page_deleted extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php', array('id' => $this->contextinstanceid));
+        return new \moodle_url('/mod/icontent/view.php', ['id' => $this->contextinstanceid]);
     }
 
     /**

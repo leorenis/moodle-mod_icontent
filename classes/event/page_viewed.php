@@ -23,7 +23,8 @@
  */
 
 namespace mod_icontent\event;
-defined('MOODLE_INTERNAL') || die();
+
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent page viewed event class.
@@ -45,10 +46,9 @@ class page_viewed extends \core\event\base {
      * @return page_viewed
      */
     public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page) {
-        $data = array(
-            'context' => $context,
+        $data = ['context' => $context,
             'objectid' => $page->id,
-        );
+        ];
         /** @var page_viewed $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
@@ -72,8 +72,13 @@ class page_viewed extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'icontent', 'view page', 'view.php?id=' . $this->contextinstanceid .
-            '&amp;pageid=' . $this->objectid, $this->objectid, $this->contextinstanceid);
+        return [$this->courseid,
+            'icontent',
+            'view page',
+            'view.php?id='.$this->contextinstanceid.'&amp;pageid='.$this->objectid,
+            $this->objectid,
+            $this->contextinstanceid,
+        ];
     }
 
     /**
@@ -91,7 +96,11 @@ class page_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php', array('id' => $this->contextinstanceid, 'pageid' => $this->objectid));
+        return new \moodle_url('/mod/icontent/view.php',
+            ['id' => $this->contextinstanceid,
+                'pageid' => $this->objectid,
+            ]
+        );
     }
 
     /**

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Move icontent page
+ * Move icontent page.
  *
  * @package    mod_icontent
  * @copyright  2015-2016 Leo Santos {@link http://github.com/leorenis}
@@ -25,13 +25,13 @@
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-$id        = required_param('id', PARAM_INT);        // Course Module ID
-$pageid = required_param('pageid', PARAM_INT); // page ID
-$up        = optional_param('up', 0, PARAM_BOOL);
+$id = required_param('id', PARAM_INT); // Course Module ID.
+$pageid = required_param('pageid', PARAM_INT); // Page ID.
+$up = optional_param('up', 0, PARAM_BOOL);
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
-$icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$icontent = $DB->get_record('icontent', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 require_sesskey();
@@ -39,19 +39,19 @@ require_sesskey();
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:edit', $context);
 
-$page = $DB->get_record('icontent_pages', array('id'=>$pageid, 'icontentid'=>$icontent->id), '*', MUST_EXIST);
+$page = $DB->get_record('icontent_pages', ['id' => $pageid, 'icontentid' => $icontent->id], '*', MUST_EXIST);
 
 
-$oldpages = $DB->get_records('icontent_pages', array('icontentid'=>$icontent->id), 'pagenum', 'id, pagenum');
+$oldpages = $DB->get_records('icontent_pages', ['icontentid' => $icontent->id], 'pagenum', 'id, pagenum');
 
 $nothing = 0;
 
-$pages = array();
+$pages = [];
 $pgs = 0;
 $pge = 0;
 $ts = 0;
 $te = 0;
-// create new ordered array and find pages to be moved
+// Create new ordered array and find pages to be moved.
 $i = 1;
 $found = 0;
 foreach ($oldpages as $pg) {
@@ -59,7 +59,6 @@ foreach ($oldpages as $pg) {
     if ($page->id == $pg->id) {
         $pgs = $i;
         $pge = $pgs;
-        
     } else if ($pgs) {
         if ($found) {
             // Nothing.
@@ -77,7 +76,7 @@ if ($up) { // Up.
         $nothing = 1; // Already first.
     } else {
         $te = $pgs - 1;
-        for ($i = $pgs-1; $i >= 1; $i--) {
+        for ($i = $pgs - 1; $i >= 1; $i--) {
             $ts = $i;
             break;
         }
@@ -88,7 +87,7 @@ if ($up) { // Up.
     } else {
         $ts = $pge + 1;
         $found = 0;
-        for ($i = $pge+1; $i <= count($pages); $i++) {
+        for ($i = $pge + 1; $i <= count($pages); $i++) {
             if ($found) {
                 break;
             } else {
@@ -101,39 +100,39 @@ if ($up) { // Up.
 
 // Recreated newly sorted list of pages.
 if (!$nothing) {
-    $newpages = array();
+    $newpages = [];
 
     if ($up) {
         if ($ts > 1) {
-            for ($i=1; $i<$ts; $i++) {
+            for ($i = 1; $i < $ts; $i++) {
                 $newpages[] = $pages[$i];
             }
         }
-        for ($i=$pgs; $i<=$pge; $i++) {
+        for ($i = $pgs; $i <= $pge; $i++) {
             $newpages[$i] = $pages[$i];
         }
-        for ($i=$ts; $i<=$te; $i++) {
+        for ($i = $ts; $i <= $te; $i++) {
             $newpages[$i] = $pages[$i];
         }
-        if ($pge<count($pages)) {
-            for ($i=$pge; $i<=count($pages); $i++) {
+        if ($pge < count($pages)) {
+            for ($i = $pge; $i <= count($pages); $i++) {
                 $newpages[$i] = $pages[$i];
             }
         }
     } else {
         if ($pgs > 1) {
-            for ($i=1; $i<$pgs; $i++) {
+            for ($i = 1; $i < $pgs; $i++) {
                 $newpages[] = $pages[$i];
             }
         }
-        for ($i=$ts; $i<=$te; $i++) {
+        for ($i = $ts; $i <= $te; $i++) {
             $newpages[$i] = $pages[$i];
         }
-        for ($i=$pgs; $i<=$pge; $i++) {
+        for ($i = $pgs; $i <= $pge; $i++) {
             $newpages[$i] = $pages[$i];
         }
-        if ($te<count($pages)) {
-            for ($i=$te; $i<=count($pages); $i++) {
+        if ($te < count($pages)) {
+            for ($i = $te; $i <= count($pages); $i++) {
                 $newpages[$i] = $pages[$i];
             }
         }
@@ -144,13 +143,12 @@ if (!$nothing) {
     foreach ($newpages as $pg) {
         $pg->pagenum = $i;
         $DB->update_record('icontent_pages', $pg);
-        $pg = $DB->get_record('icontent_pages', array('id' => $pg->id));
+        $pg = $DB->get_record('icontent_pages', ['id' => $pg->id]);
 
-       // \mod_icontent\event\page_updated::create_from_page($icontent, $context, $pg)->trigger();
+        \mod_icontent\event\page_updated::create_from_page($icontent, $context, $pg)->trigger();
 
         $i++;
     }
 }
 
 redirect('view.php?id='.$cm->id.'&pageid='.$page->id);
-

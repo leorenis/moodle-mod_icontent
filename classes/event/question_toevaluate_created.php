@@ -23,7 +23,8 @@
  */
 
 namespace mod_icontent\event;
-defined('MOODLE_INTERNAL') || die();
+
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent question_toevaluate created event class.
@@ -45,10 +46,9 @@ class question_toevaluate_created extends \core\event\base {
      * @return question_toevaluate_created
      */
     public static function create_from_question_toevaluate(\stdClass $icontent, \context_module $context, \stdClass $user) {
-        $data = array(
-            'context' => $context,
-            'other' => array('useridevaluated' => $user->id),
-        );
+        $data = ['context' => $context,
+            'other' => ['useridevaluated' => $user->id],
+        ];
         /** @var question_toevaluate_created $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
@@ -61,9 +61,9 @@ class question_toevaluate_created extends \core\event\base {
      * @return string
      */
     public function get_description() {
-    	$useridevaluated = $this->other['useridevaluated'];
-        return "The user with id '$this->userid' evaluated manual question(s) answered by the participant with id '$useridevaluated' in activity with " .
-            "course module id '$this->contextinstanceid'.";
+        $useridevaluated = $this->other['useridevaluated'];
+        return "The user with id '$this->userid' evaluated manual question(s) answered by the participant with id ".
+            "'$useridevaluated' in activity with course module id '$this->contextinstanceid'.";
     }
 
     /**
@@ -72,8 +72,13 @@ class question_toevaluate_created extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'icontent', 'add question to evaluate', 'view.php?id=' . $this->contextinstanceid . '&pagesid=' .
-            null, null, $this->contextinstanceid);
+        return [$this->courseid,
+            'icontent',
+            'add question to evaluate',
+            'view.php?id='.$this->contextinstanceid.'&pagesid='.null,
+            null,
+            $this->contextinstanceid,
+        ];
     }
 
     /**
@@ -91,9 +96,10 @@ class question_toevaluate_created extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php', array(
-            'id' => $this->contextinstanceid,
-        ));
+        return new \moodle_url('/mod/icontent/view.php',
+            ['id' => $this->contextinstanceid,
+            ]
+        );
     }
 
     /**

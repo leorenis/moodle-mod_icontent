@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the icontent module
+ * This file keeps track of upgrades to the icontent module.
  *
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
@@ -29,10 +29,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
- * Execute icontent upgrade from the given old version
+ * Execute icontent upgrade from the given old version.
  *
  * @param int $oldversion
  * @return bool
@@ -130,7 +130,7 @@ function xmldb_icontent_upgrade($oldversion) {
 
         // Define index course (not unique) to be added to icontent.
         $table = new xmldb_table('icontent');
-        $index = new xmldb_index('courseindex', XMLDB_INDEX_NOTUNIQUE, array('course'));
+        $index = new xmldb_index('courseindex', XMLDB_INDEX_NOTUNIQUE, ['course']);
 
         // Add index to course field.
         if (!$dbman->index_exists($table, $index)) {

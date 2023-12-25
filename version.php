@@ -34,4 +34,4 @@ $plugin->requires = 2015102300; // Moodle 2.3.
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 0; // Period for cron to check this module (secs).
 $plugin->supported = [23, 403];
-$plugin->dependencies = array();
+$plugin->dependencies = [];

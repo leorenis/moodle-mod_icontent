@@ -23,7 +23,8 @@
  */
 
 namespace mod_icontent\event;
-defined('MOODLE_INTERNAL') || die();
+
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent note deleted event class.
@@ -45,11 +46,10 @@ class note_deleted extends \core\event\base {
      * @return note_deleted
      */
     public static function create_from_note(\stdClass $icontent, \context_module $context, \stdClass $note) {
-        $data = array(
-            'context' => $context,
+        $data = ['context' => $context,
             'objectid' => $note->id,
-        	'other' => array('pageid'=>$note->pageid),
-        );
+            'other' => ['pageid' => $note->pageid],
+            ];
         /** @var note_deleted $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
@@ -63,7 +63,7 @@ class note_deleted extends \core\event\base {
      * @return string
      */
     public function get_description() {
-        return "The user with id '$this->userid' deleted the note with id '$this->objectid' for the icontent with " .
+        return "The user with id '$this->userid' deleted the note with id '$this->objectid' for the icontent with ".
             "course module id '$this->contextinstanceid'.";
     }
 
@@ -74,8 +74,12 @@ class note_deleted extends \core\event\base {
      */
     protected function get_legacy_logdata() {
         $note = $this->get_record_snapshot('icontent_pages_notes', $this->objectid);
-        return array($this->courseid, 'icontent', 'update', 'view.php?id='.$this->contextinstanceid. '&pageid=' .
-            $this->other['pageid'], $this->contextinstanceid, $this->contextinstanceid);
+        return [$this->courseid,
+            'icontent',
+            'update',
+            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
+            $this->contextinstanceid, $this->contextinstanceid,
+        ];
     }
 
     /**
@@ -93,12 +97,13 @@ class note_deleted extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php', array(
-			'id' => $this->contextinstanceid,
-			'pageid' => $this->other['pageid']
-		));
+        return new \moodle_url('/mod/icontent/view.php',
+            ['id' => $this->contextinstanceid,
+            'pageid' => $this->other['pageid'],
+            ]
+        );
     }
-    
+
     /**
      * Init method.
      *

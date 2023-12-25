@@ -23,7 +23,8 @@
  */
 
 namespace mod_icontent\event;
-defined('MOODLE_INTERNAL') || die();
+
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent note like deleted event class.
@@ -44,11 +45,10 @@ class question_attempt_deleted extends \core\event\base {
      * @param \stdClass $questionattempt
      * @return question_attempt_deleted
      */
-	public static function create_from_question_attempt(\stdClass $icontent, \context_module $context, $pageid) {
-        $data = array(
-            'context' => $context,
-        	'other' => array('pageid'=>$pageid),
-        );
+    public static function create_from_question_attempt(\stdClass $icontent, \context_module $context, $pageid) {
+        $data = ['context' => $context,
+            'other' => ['pageid' => $pageid],
+        ];
         /** @var question_attempt_created $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
@@ -61,7 +61,7 @@ class question_attempt_deleted extends \core\event\base {
      * @return string
      */
     public function get_description() {
-    	$pageid = $this->other['pageid'];
+        $pageid = $this->other['pageid'];
         return "The user with id '$this->userid' deleted the question attempts for pageid '$pageid' the icontent with " .
             "course module id '$this->contextinstanceid'.";
     }
@@ -73,8 +73,13 @@ class question_attempt_deleted extends \core\event\base {
      */
     protected function get_legacy_logdata() {
         $questionattempt = $this->get_record_snapshot('icontent_question_attempts', null);
-        return array($this->courseid, 'icontent', 'update', 'view.php?id='.$this->contextinstanceid. '&pageid=' .
-            $this->other['pageid'], $this->contextinstanceid, $this->contextinstanceid);
+        return [$this->courseid,
+            'icontent',
+            'update',
+            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
+            $this->contextinstanceid,
+            $this->contextinstanceid,
+        ];
     }
 
     /**
@@ -92,12 +97,13 @@ class question_attempt_deleted extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php', array(
-			'id' => $this->contextinstanceid,
-			'pageid' => $this->other['pageid']
-		));
+        return new \moodle_url('/mod/icontent/view.php',
+            ['id' => $this->contextinstanceid,
+                'pageid' => $this->other['pageid'],
+            ]
+        );
     }
-    
+
     /**
      * Init method.
      *

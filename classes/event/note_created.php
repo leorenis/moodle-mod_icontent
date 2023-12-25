@@ -23,7 +23,8 @@
  */
 
 namespace mod_icontent\event;
-defined('MOODLE_INTERNAL') || die();
+
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent note created event class.
@@ -45,11 +46,10 @@ class note_created extends \core\event\base {
      * @return note_created
      */
     public static function create_from_note(\stdClass $icontent, \context_module $context, \stdClass $note) {
-        $data = array(
-            'context' => $context,
+        $data = ['context' => $context,
             'objectid' => $note->id,
-            'other' => array('pageid'=>$note->pageid),
-        );
+            'other' => ['pageid' => $note->pageid],
+        ];
         /** @var note_created $event */
         $event = self::create($data);
         $event->add_record_snapshot('icontent', $icontent);
@@ -73,8 +73,13 @@ class note_created extends \core\event\base {
      * @return array|null
      */
     protected function get_legacy_logdata() {
-        return array($this->courseid, 'icontent', 'add note', 'view.php?id=' . $this->contextinstanceid . '&pageid=' .
-            $this->other['pageid'], $this->objectid, $this->contextinstanceid);
+        return [$this->courseid,
+            'icontent',
+            'add note',
+            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
+            $this->objectid,
+            $this->contextinstanceid,
+        ];
     }
 
     /**
@@ -92,12 +97,13 @@ class note_created extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php', array(
-            'id' => $this->contextinstanceid,
-            'pageid' => $this->other['pageid']
-        ));
+        return new \moodle_url('/mod/icontent/view.php',
+            ['id' => $this->contextinstanceid,
+            'pageid' => $this->other['pageid'],
+            ]
+        );
     }
-    
+
     /**
      * Init method.
      *
@@ -108,5 +114,4 @@ class note_created extends \core\event\base {
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'icontent_pages_notes';
     }
-
 }

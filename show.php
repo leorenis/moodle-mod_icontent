@@ -25,12 +25,12 @@
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-$id = required_param('id', PARAM_INT); // Course Module ID
-$pageid = required_param('pageid', PARAM_INT); // page ID
+$id = required_param('id', PARAM_INT); // Course Module ID.
+$pageid = required_param('pageid', PARAM_INT); // Page ID.
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
-$icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$icontent = $DB->get_record('icontent', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 require_sesskey();
@@ -38,9 +38,9 @@ require_sesskey();
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:edit', $context);
 
-$PAGE->set_url('/mod/icontent/show.php', array('id'=>$id, 'pageid'=>$pageid));
+$PAGE->set_url('/mod/icontent/show.php', ['id' => $id, 'pageid' => $pageid]);
 
-$page = $DB->get_record('icontent_pages', array('id'=>$pageid, 'icontentid'=>$icontent->id), '*', MUST_EXIST);
+$page = $DB->get_record('icontent_pages', ['id' => $pageid, 'icontentid' => $icontent->id], '*', MUST_EXIST);
 
 // Switch hidden state.
 $page->hidden = $page->hidden ? 0 : 1;
@@ -48,6 +48,6 @@ $page->hidden = $page->hidden ? 0 : 1;
 // Update record.
 $DB->update_record('icontent_pages', $page);
 
-icontent_preload_pages($icontent); // fix structure
-$url = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id));
+icontent_preload_pages($icontent); // Fix structure.
+$url = new moodle_url('/mod/icontent/view.php', ['id' => $cm->id]);
 redirect($url);

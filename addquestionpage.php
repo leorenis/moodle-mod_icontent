@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Prints a particular instance of icontent
+ * Prints a particular instance of icontent.
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -39,18 +39,18 @@ $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
 
 if ($id) {
-    $cm         = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
-    $course     = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $icontent   = $DB->get_record('icontent', array('id' => $cm->instance), '*', MUST_EXIST);
+    $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+    $icontent = $DB->get_record('icontent', ['id' => $cm->instance], '*', MUST_EXIST);
 } else if ($n) {
-    $icontent  = $DB->get_record('icontent', array('id' => $n), '*', MUST_EXIST);
-    $course    = $DB->get_record('course', array('id' => $icontent->course), '*', MUST_EXIST);
-    $cm        = get_coursemodule_from_instance('icontent', $icontent->id, $course->id, false, MUST_EXIST);
+    $icontent = $DB->get_record('icontent', ['id' => $n], '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $icontent->course], '*', MUST_EXIST);
+    $cm = get_coursemodule_from_instance('icontent', $icontent->id, $course->id, false, MUST_EXIST);
 } else {
-    print_error('You must specify a course_module ID or an instance ID');
+    throw new moodle_exception(get_string('incorrectmodule', 'icontent'));
 }
-if(!$pageid) {
-    print_error('You must specify a page ID');
+if (!$pageid) {
+    throw new moodle_exception(get_string('incorrectpage', 'icontent'));
 }
 // Require login.
 require_login($course, true, $cm);
@@ -60,23 +60,30 @@ require_capability('mod/icontent:newquestion', $context);
 // Log event.
 \mod_icontent\event\question_page_viewed::create_from_question_page($icontent, $context, $pageid)->trigger();
 // Print the page header.
-$PAGE->set_url('/mod/icontent/addquestionpage.php', array('id' => $cm->id, 'pageid'=>$pageid));
+$PAGE->set_url('/mod/icontent/addquestionpage.php', ['id' => $cm->id, 'pageid' => $pageid]);
 $PAGE->set_title(format_string($icontent->name));
 $PAGE->set_heading(format_string($course->fullname));
-// CSS
+// CSS.
 $PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css'));
-$url = new moodle_url('/mod/icontent/addquestionpage.php', array('id'=>$id, 'pageid'=> $pageid, 'page' => $page, 'perpage' => $perpage));;
+$url = new moodle_url('/mod/icontent/addquestionpage.php',
+    [
+        'id' => $id,
+        'pageid' => $pageid,
+        'page' => $page,
+        'perpage' => $perpage,
+    ]
+);
 // Output starts here.
 echo $OUTPUT->header();
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
-if ($action){
-    // Receives values
-    $questions = optional_param_array('question', array(), PARAM_RAW);
-    // Save values
-    if(icontent_add_questionpage($questions, $pageid, $cm->id)){
-        $urlredirect = new moodle_url('/mod/icontent/view.php', array('id'=>$cm->id, 'pageid'=>$pageid));
+if ($action) {
+    // Receives values.
+    $questions = optional_param_array('question', [], PARAM_RAW);
+    // Save values.
+    if (icontent_add_questionpage($questions, $pageid, $cm->id)) {
+        $urlredirect = new moodle_url('/mod/icontent/view.php', ['id' => $cm->id, 'pageid' => $pageid]);
         redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
     }
 }
@@ -89,20 +96,31 @@ $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
 // Make table questions.
 $table = new html_table();
 $table->id = "categoryquestions";
-$table->attributes = array('class'=>'icontentquestions');
-$table->colclasses = array('checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername');
-$table->head  = array(null, get_string('type', 'mod_icontent'), get_string('question'), get_string('createdby', 'mod_icontent'), get_string('lastmodifiedby', 'mod_icontent'));
-if($questions) foreach ($questions as $question){
-    $checked = isset($qtscurrentpage[$question->id]) ? array('checked'=>'checked') : array();
-    $disabled = $answerscurrentpage ? array('disabled'=>'disabled') : array();
-    $checkbox = html_writer::empty_tag('input', array('type'=>'checkbox', 'name'=>'question[]', 'value'=>$question->id, 'id'=>'idcheck'.$question->id) + $checked + $disabled);
-    $qtype = html_writer::empty_tag('img', array('src'=> $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'), 'class'=> 'smallicon', 'alt'=> get_string($question->qtype, 'mod_icontent'), 'title'=> get_string($question->qtype, 'mod_icontent')));
-    $qname = html_writer::label($question->name, 'idcheck'.$question->id);
-    $createdby = icontent_get_user_by_id($question->createdby);
-    $modifiedby = icontent_get_user_by_id($question->modifiedby);
-    $table->data[] = array($checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname);
-}
-else {
+$table->attributes = ['class' => 'icontentquestions'];
+$table->colclasses = ['checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername'];
+$table->head  = [null, get_string('type', 'mod_icontent'),
+    get_string('question'),
+    get_string('createdby', 'mod_icontent'),
+    get_string('lastmodifiedby', 'mod_icontent'),
+    ];
+if ($questions) {
+    foreach ($questions as $question) {
+        $checked = isset($qtscurrentpage[$question->id]) ? ['checked' => 'checked'] : [];
+        $disabled = $answerscurrentpage ? ['disabled' => 'disabled'] : [];
+        $checkbox = html_writer::empty_tag('input', ['type' => 'checkbox',
+            'name' => 'question[]',
+            'value' => $question->id,
+            'id' => 'idcheck'.$question->id] + $checked + $disabled);
+        $qtype = html_writer::empty_tag('img', ['src' => $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'),
+            'class' => 'smallicon', 'alt' => get_string($question->qtype, 'mod_icontent'),
+            'title' => get_string($question->qtype, 'mod_icontent')]
+        );
+        $qname = html_writer::label($question->name, 'idcheck'.$question->id);
+        $createdby = icontent_get_user_by_id($question->createdby);
+        $modifiedby = icontent_get_user_by_id($question->modifiedby);
+        $table->data[] = [$checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname];
+    }
+} else {
     echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
     echo $OUTPUT->footer();
     exit;
@@ -110,13 +128,17 @@ else {
 // Show elements HTML.
 echo html_writer::div(get_string('infomaxquestionperpage', 'mod_icontent'), 'alert alert-info');
 echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
-echo html_writer::start_tag('form', array('action'=> new moodle_url('addquestionpage.php', array('id'=>$id, 'pageid'=>$pageid)), 'method'=>'POST'));
-echo html_writer::empty_tag('input', array('type'=>'hidden', 'name'=>'action', 'value'=>true));
+echo html_writer::start_tag('form',
+    ['action' => new moodle_url('addquestionpage.php',
+    ['id' => $id, 'pageid' => $pageid]),
+    'method' => 'POST']
+    );
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => true]);
 echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tquestions, $page, $perpage, $url);
 echo html_writer::end_div();
-echo html_writer::empty_tag('input', array('type'=>'submit', 'value'=>get_string('add'), 'class'=>'btn btn-primary') + $disabled);
+echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('add'), 'class' => 'btn btn-primary'] + $disabled);
 echo html_writer::end_tag('form');
 
 // Finish the page.

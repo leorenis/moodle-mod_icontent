@@ -24,7 +24,7 @@
 
 namespace mod_icontent\event;
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * The mod_icontent instance list viewed event class

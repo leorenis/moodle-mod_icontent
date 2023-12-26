@@ -23,14 +23,12 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
-defined('MOODLE_INTERNAL') || die();
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once('lib.php');
 
 if (!defined('AJAX_SCRIPT')) {
     define('AJAX_SCRIPT', true);
 }
-
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once('lib.php');
 
 $id = required_param('id', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);

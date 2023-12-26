@@ -31,7 +31,7 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     /**
      * Defines structure of path elements to be processed during the restore.
      *
-     * @return array of {@link restore_path_element}
+     * @return restore_path_element $structure
      */
     protected function define_structure() {
 
@@ -63,7 +63,10 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
     /**
      * Process the given restore path element data.
      *
-     * @param array $data Parsed element data.
+     * @param array|object $data
+     * @throws base_step_exception
+     * @throws dml_exception
+     * @throws restore_step_exception
      */
     protected function process_icontent($data) {
         global $DB;
@@ -90,6 +93,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Restore an icontent page.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_page($data) {
         global $DB;
 
@@ -108,6 +117,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->set_mapping('icontent_page', $oldid, $newitemid);
     }
 
+    /**
+     * Restore an icontent_page_question.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_page_question($data) {
         global $DB;
 
@@ -115,7 +130,6 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
 
         $data->pageid = $this->get_new_parentid('icontent_page');
-        // ...$this->get_mappingid('icontent_page', $data->pageid);.
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
         $data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -125,6 +139,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->set_mapping('icontent_page_question', $oldid, $newitemid);
     }
 
+    /**
+     * Restore an icontent_page_note.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_page_note($data) {
         global $DB;
 
@@ -132,7 +152,6 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
 
         $data->pageid = $this->get_new_parentid('icontent_page');
-        // ...$this->get_mappingid('icontent_page', $data->pageid);.
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
         $data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -142,6 +161,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->set_mapping('icontent_page_note', $oldid, $newitemid);
     }
 
+    /**
+     * Restore an icontent_page_note_like.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_page_note_like($data) {
         global $DB;
 
@@ -149,7 +174,6 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
 
         $data->pagenoteid = $this->get_new_parentid('icontent_page_note');
-        // ...$data->pagenoteid = $this->get_mappingid('icontent_page_note', $data->pagenoteid);.
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
@@ -158,6 +182,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->set_mapping('icontent_page_note_like', $oldid, $newitemid);
     }
 
+    /**
+     * Restore an icontent_page_displayed.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_page_displayed($data) {
         global $DB;
 
@@ -165,7 +195,6 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
 
         $data->pageid = $this->get_new_parentid('icontent_page');
-        // ...$data->pageid = $this->get_mappingid('icontent_page', $data->pageid);.
         $data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -174,6 +203,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->set_mapping('icontent_page_displayed', $oldid, $newitemid);
     }
 
+    /**
+     * Restore an icontent_page_attempt.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_question_attempt($data) {
         global $DB;
 
@@ -181,7 +216,6 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $oldid = $data->id;
 
         $data->pagesquestionsid = $this->get_new_parentid('icontent_page_question');
-        // ...$data->pagesquestionsid = $this->get_mappingid('icontent_page_question', $data->pagesquestionsid);.
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->cmid = $this->get_mappingid('icontent_page', $data->cmid);
@@ -191,6 +225,12 @@ class restore_icontent_activity_structure_step extends restore_activity_structur
         $this->set_mapping('icontent_question_attempt', $oldid, $newitemid);
     }
 
+    /**
+     * Restore an icontent_grade.
+     * @param array|object $data
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_icontent_grade($data) {
         global $DB;
 

@@ -40,9 +40,9 @@ class question_attempt_created extends \core\event\base {
      *
      * @since Moodle 3.0
      *
-     * @param \stdClass $icontent
+     * @param stdClass $icontent
      * @param \context_module $context
-     * @param \stdClass $questionattempt
+     * @param stdClass $pageid
      * @return question_attempt_created
      */
     public static function create_from_question_attempt(\stdClass $icontent, \context_module $context, $pageid) {

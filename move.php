@@ -60,9 +60,7 @@ foreach ($oldpages as $pg) {
         $pgs = $i;
         $pge = $pgs;
     } else if ($pgs) {
-        if ($found) {
-            // Nothing.
-        } else {
+        if (!$found) {
             $found = 1;
         }
     }

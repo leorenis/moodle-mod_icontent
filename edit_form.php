@@ -27,8 +27,16 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir.'/formslib.php');
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jscolor/jscolor.js'));
 
+/**
+ * Class mod_icontent_pages_edit_form
+ */
 class icontent_pages_edit_form extends moodleform {
 
+    /**
+     * Define form elements
+     * @throws coding_exception
+     * @throws dml_exception
+     */
     public function definition() {
         global $CFG, $COURSE;
 
@@ -115,7 +123,6 @@ class icontent_pages_edit_form extends moodleform {
         $mform->addElement('filemanager', 'bgimage', get_string('bgimage', 'icontent'), null, $filemanageroptions);
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagepagehelp', 'icontent');
-        // ...$mform->disabledIf('bgimage', 'showbgimage');.
 
         $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
         $mform->setType('bgcolor', PARAM_TEXT);

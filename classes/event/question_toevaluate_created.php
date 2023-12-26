@@ -40,12 +40,12 @@ class question_toevaluate_created extends \core\event\base {
      *
      * @since Moodle 3.0
      *
-     * @param \stdClass $icontent
+     * @param stdClass $icontent
      * @param \context_module $context
-     * @param \stdClass $question_toevaluate
+     * @param stdClass $user
      * @return question_toevaluate_created
      */
-    public static function create_from_question_toevaluate(\stdClass $icontent, \context_module $context, \stdClass $user) {
+    public static function create_from_question_toevaluate(stdClass $icontent, \context_module $context, stdClass $user) {
         $data = ['context' => $context,
             'other' => ['useridevaluated' => $user->id],
         ];

@@ -132,6 +132,8 @@ class mod_icontent_mod_form extends moodleform_mod {
 
     /**
      * Defines form pre-processing elements.
+     *
+     * @param array $defaultvalues
      */
     public function data_preprocessing(&$defaultvalues) {
         if ($this->current->instance) {

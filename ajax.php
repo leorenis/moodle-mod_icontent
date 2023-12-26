@@ -23,6 +23,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 if (!defined('AJAX_SCRIPT')) {
     define('AJAX_SCRIPT', true);
 }
@@ -33,7 +35,6 @@ require_once('lib.php');
 $id = required_param('id', PARAM_INT);
 $action = optional_param('action', '', PARAM_ALPHA);
 $sesskey = optional_param('sesskey', false, PARAM_TEXT);
-// ...$itemorder = optional_param('itemorder', false, PARAM_SEQUENCE);
 
 if ($id) {
     $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);

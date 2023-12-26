@@ -212,8 +212,8 @@ function icontent_add_properties_css($pagestyle) {
 }
 
 /**
- * Add script that load tooltip twiter bootstrap.
- * @param string $script
+ * Add script that load tooltip twitter bootstrap.
+ *
  * @return void
  */
 function icontent_add_script_load_tooltip() {
@@ -246,9 +246,9 @@ function icontent_get_page_style($icontent, $page, $context) {
 }
 
 /**
- * Add border options
- * @param void
- * @return array $options
+ * Add border options.
+ *
+ * @return array $arr
  */
 function icontent_add_borderwidth_options() {
     $arr = [];
@@ -331,7 +331,7 @@ function icontent_get_page_bgimage($context, $page) {
  * Returns array of pages.
  * Please note the icontent/text of pages is not included.
  *
- * @param  object $icontent
+ * @param object $icontent
  * @return array of id=>icontent
  */
 function icontent_preload_pages($icontent) {
@@ -375,8 +375,8 @@ function icontent_preload_pages($icontent) {
  *
  * Returns boolean true or false.
  *
- * @param  int $pageid
- * @param  int $pagenoteid
+ * @param int $pageid
+ * @param int $pagenoteid
  * @return boolean true or false
  */
 function icontent_remove_notes($pageid, $pagenoteid = null) {
@@ -410,7 +410,7 @@ function icontent_remove_notes($pageid, $pagenoteid = null) {
  *
  * Returns boolean true or false
  *
- * @param  int $pagenoteid
+ * @param int $pagenoteid
  * @return boolean true or false
  */
 function icontent_remove_note_likes($pagenoteid) {
@@ -424,7 +424,7 @@ function icontent_remove_note_likes($pagenoteid) {
  *
  * Returns true or false
  *
- * @param  int $id
+ * @param int $id
  * @return boolean $result
  */
 function icontent_remove_questionpagebyid($id) {
@@ -437,8 +437,8 @@ function icontent_remove_questionpagebyid($id) {
  *
  * Returns true os false
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return true or false
  */
 function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {
@@ -468,7 +468,7 @@ function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {
  *
  * Returns true or false.
  *
- * @param  object $attempt
+ * @param object $attempt
  * @return boolean true or false
  */
 function icontent_update_question_attempts($attempt) {
@@ -481,9 +481,9 @@ function icontent_update_question_attempts($attempt) {
  *
  * Returns buttons related pages.
  *
- * @param  object $pages
- * @param  object $cmid
- * @param  int $startwithpage
+ * @param object $pages
+ * @param object $cmid
+ * @param int $startwithpage
  * @return string with $pgbuttons
  */
 function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1) {
@@ -530,10 +530,10 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1) {
  *
  * Returns buttons previous and next.
  *
- * @param  object $pages
- * @param  int $cmid
- * @param  int $startwithpage
- * @param  string $attrid
+ * @param object $pages
+ * @param int $cmid
+ * @param int $startwithpage
+ * @param string $attrid
  * @return string with $controlbuttons
  */
 function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $attrid = 'fgroup_id_buttonar') {
@@ -570,8 +570,8 @@ function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $a
  * Returns array of pages.
  * Please note the icontent/text of pages is not included.
  *
- * @param  object $icontent
- * @param  object $context
+ * @param object $icontent
+ * @param object $context
  * @return array of id=>icontent
  */
 function icontent_get_startpagenum($icontent, $context) {
@@ -616,7 +616,7 @@ function icontent_get_startpagenum($icontent, $context) {
  * Returns array of pages.
  * Please note the icontent/text of pages is not included.
  *
- * @param  object $icontent
+ * @param object $icontent
  * @return array of id=>icontent
  */
 function icontent_get_minpagenum($icontent) {
@@ -631,10 +631,10 @@ function icontent_get_minpagenum($icontent) {
 /**
  * Get page previous.
  *
- * Return int  page previous
+ * Return int  page previous.
  *
- * @param  object $objpage
- * @return int $previous
+ * @param stdClass $objpage
+ * @return int $page
  */
 function icontent_get_prev_pagenum(stdClass $objpage) {
     global $DB;
@@ -661,7 +661,7 @@ function icontent_get_prev_pagenum(stdClass $objpage) {
  *
  * Return int next page
  *
- * @param  object $objpage
+ * @param stdClass $objpage
  * @return int $next
  */
 function icontent_get_next_pagenum(stdClass $objpage) {
@@ -700,10 +700,10 @@ function icontent_get_next_pagenum(stdClass $objpage) {
  *
  * Returns array of questions.
  *
- * @param  object $coursecontext
- * @param  string $sort
- * @param  int $page
- * @param  int $perpage
+ * @param object $coursecontext
+ * @param string $sort
+ * @param int $page
+ * @param int $perpage
  * @return array of $questionbank
  */
 function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE) {
@@ -741,13 +741,13 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
 }
 
 /**
- * Set updates for grades in table {grade_grades}. Needed by {@link grade_update_mod_grades()}.
+ * Set updates for grades in table {grade_grades}.
  *
  * Returns true or false.
  *
- * @param  object $icontent
- * @param  int $cmid
- * @param  object $userid
+ * @param stdClass $icontent
+ * @param int $cmid
+ * @param object $userid
  * @return boolean $return
  */
 function icontent_set_grade_item(stdClass $icontent, $cmid, $userid) {
@@ -794,12 +794,12 @@ function icontent_set_grade_item(stdClass $icontent, $cmid, $userid) {
  *
  * Returns object notes users.
  *
- * @param  int $cmid
- * @param  int $private
- * @param  int $featured
- * @param  int $doubttutor
- * @param  int $likes
- * @param  string $tab
+ * @param int $cmid
+ * @param int $private
+ * @param int $featured
+ * @param int $doubttutor
+ * @param int $likes
+ * @param string $tab
  * @return object $notes, otherwhise false.
  */
 function icontent_count_notes_users_instance(
@@ -856,7 +856,7 @@ function icontent_count_notes_users_instance(
  *
  * Returns int of total questions.
  *
- * @param  object $coursecontext
+ * @param object $coursecontext
  * @return int of $tquestions
  */
 function icontent_count_questions_of_questionbank($coursecontext) {
@@ -879,7 +879,7 @@ function icontent_count_questions_of_questionbank($coursecontext) {
  *
  * Returns int of total attempts users.
  *
- * @param  object $cmid
+ * @param object $cmid
  * @return int of $tattemptsusers
  */
 function icontent_count_attempts_users($cmid) {
@@ -899,8 +899,8 @@ function icontent_count_attempts_users($cmid) {
  *
  * Returns int of total attempts users.
  *
- * @param  object $cmid
- * @param  null $status
+ * @param object $cmid
+ * @param null $status
  * @return int of $tattemptsusers
  */
 function icontent_count_attempts_users_with_open_answers($cmid, $status = null) {
@@ -925,8 +925,8 @@ function icontent_count_attempts_users_with_open_answers($cmid, $status = null) 
  *
  * Returns array questionspage.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return array $questionspage
  */
 function icontent_get_questions_of_currentpage($pageid, $cmid) {
@@ -940,9 +940,9 @@ function icontent_get_questions_of_currentpage($pageid, $cmid) {
  * <icontent_make_questions_answers_by_type> function were followed correctly.
  * Returns object infoanswer
  *
- * @param  int $questionid
- * @param  int $qtype
- * @param  string $answer
+ * @param int $questionid
+ * @param int $qtype
+ * @param string $answer
  * @return object $infoanswer
  */
 function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
@@ -1052,14 +1052,15 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
  *
  * Returns object notes users.
  *
- * @param  int $cmid
- * @param  string $sort
- * @param  int $page
- * @param  int $perpage
- * @param  int $private
- * @param  int $featured
- * @param  int $doubttutor
- * @param  int $likes
+ * @param int $cmid
+ * @param string $sort
+ * @param int $page
+ * @param int $perpage
+ * @param int $private
+ * @param int $featured
+ * @param int $doubttutor
+ * @param int $likes
+ * @param int $tab
  * @return object $notes, otherwhise false.
  */
 function icontent_get_notes_users_instance(
@@ -1072,6 +1073,7 @@ function icontent_get_notes_users_instance(
     $doubttutor = null,
     $likes = null,
     $tab = null) {
+
     global $CFG, $DB, $USER;
     $sortparams = 'pn.path '.$sort;
     $page = (int) $page;
@@ -1146,10 +1148,10 @@ function icontent_get_notes_users_instance(
  *
  * Returns object attempt users.
  *
- * @param  int $cmid
- * @param  string $sort
- * @param  int $page
- * @param  int $perpage
+ * @param int $cmid
+ * @param string $sort
+ * @param int $page
+ * @param int $perpage
  * @return object $attemptusers, otherwhise false.
  */
 function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE) {
@@ -1211,11 +1213,11 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
  *
  * Returns object attempt users.
  *
- * @param  int $cmid
- * @param  string $sort
- * @param  string $status
- * @param  int $page
- * @param  int $perpage
+ * @param int $cmid
+ * @param string $sort
+ * @param string $status
+ * @param int $page
+ * @param int $perpage
  * @return object $attemptusers, otherwhise false.
  */
 function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = null, $page = 0, $perpage = ICONTENT_PER_PAGE) {
@@ -1273,8 +1275,8 @@ function icontent_get_attempts_users_with_open_answers($cmid, $sort, $status = n
  *
  * Returns object attempt summary.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return object $attemptsummary, otherwhise false.
  */
 function icontent_get_attempt_summary_by_page($pageid, $cmid) {
@@ -1304,8 +1306,8 @@ function icontent_get_attempt_summary_by_page($pageid, $cmid) {
  *
  * Returns object total right answers by attempt summary.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return object $rightanswers
  */
 function icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid) {
@@ -1326,8 +1328,8 @@ function icontent_get_right_answers_by_attempt_summary_by_page($pageid, $cmid) {
  *
  * Returns object total open answers by attempt summary.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return object $openanswers
  */
 function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid) {
@@ -1348,9 +1350,9 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid) {
  *
  * Returns object questions and open answers by attempt summary.
  *
- * @param  int $pageid
- * @param  int $cmid
- * @param  string $status
+ * @param int $userid
+ * @param int $cmid
+ * @param string $status
  * @return object $qopenanswers
  */
 function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status = null) {
@@ -1386,8 +1388,8 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status
  *
  * Returns sum fraction.
  *
- * @param  int $cmid
- * @param  int $userid
+ * @param int $cmid
+ * @param int $userid
  * @return float $sumfraction
  */
 function icontent_get_sumfraction_by_userid($cmid, $userid) {
@@ -1402,7 +1404,7 @@ function icontent_get_sumfraction_by_userid($cmid, $userid) {
  *
  * Returns array of $arrayoptionsid.
  *
- * @param  array $answers
+ * @param array $answers
  * @return array $arrayoptionsid[$answerid] = $questionpage
  */
 function icontent_get_array_options_answerid($answers) {
@@ -1420,8 +1422,8 @@ function icontent_get_array_options_answerid($answers) {
  *
  * Returns object of pagedisplayed.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return object $pagedisplayed
  */
 function icontent_add_pagedisplayed($pageid, $cmid) {
@@ -1443,9 +1445,9 @@ function icontent_add_pagedisplayed($pageid, $cmid) {
  *
  * Returns true or false.
  *
- * @param  array $questions
- * @param  int $pageid
- * @param  int $cmid
+ * @param array $questions
+ * @param int $pageid
+ * @param int $cmid
  * @return boolean true or false
  */
 function icontent_add_questionpage($questions, $pageid, $cmid) {
@@ -1476,8 +1478,8 @@ function icontent_add_questionpage($questions, $pageid, $cmid) {
  *
  * Returns string of pagedisplayed.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return object $pagedisplayed
  */
 function icontent_get_pagedisplayed($pageid, $cmid) {
@@ -1498,8 +1500,8 @@ function icontent_get_pagedisplayed($pageid, $cmid) {
  *
  * Returns array of questions.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return array $questions
  */
 function icontent_get_pagequestions($pageid, $cmid) {
@@ -1523,7 +1525,7 @@ function icontent_get_pagequestions($pageid, $cmid) {
  *
  * Returns total of questions by instance.
  *
- * @param  int $cmid
+ * @param int $cmid
  * @return int $tquestions
  */
 function icontent_get_totalquestions_by_instance($cmid) {
@@ -1551,9 +1553,9 @@ function icontent_get_totalquestions_by_instance($cmid) {
  *
  * Returns array of pagenotes.
  *
- * @param  int $pageid
- * @param  int $cmid
- * @param  string $tab
+ * @param int $pageid
+ * @param int $cmid
+ * @param string $tab
  * @return object $pagenotes
  */
 function icontent_get_pagenotes($pageid, $cmid, $tab) {
@@ -1578,9 +1580,9 @@ function icontent_get_pagenotes($pageid, $cmid, $tab) {
  *
  * Returns object of  {icontent_pages_notes_like}.
  *
- * @param  int $pagenoteid
- * @param  int $userid
- * @param  int $cmid
+ * @param int $pagenoteid
+ * @param int $userid
+ * @param int $cmid
  * @return object $pagenotelike
  */
 function icontent_get_pagenotelike($pagenoteid, $userid, $cmid) {
@@ -1593,7 +1595,7 @@ function icontent_get_pagenotelike($pagenoteid, $userid, $cmid) {
  *
  * Returns toggle area object.
  *
- * @param  boolean $expandarea
+ * @param boolean $expandarea
  * @return object $attrtogglearea
  */
 function icontent_get_toggle_area_object($expandarea) {
@@ -1615,7 +1617,7 @@ function icontent_get_toggle_area_object($expandarea) {
  *
  * Returns pagenum.
  *
- * @param  int $icontentid
+ * @param int $icontentid
  * @return int pagenum
  */
 function icontent_count_pages($icontentid) {
@@ -1628,8 +1630,8 @@ function icontent_count_pages($icontentid) {
  *
  * Returns page viewed by user.
  *
- * @param  int $userid
- * @param  int $cmid
+ * @param int $userid
+ * @param int $cmid
  * @return int $pageviewedbyuser
  */
 function icontent_count_pageviewedbyuser($userid, $cmid) {
@@ -1642,7 +1644,7 @@ function icontent_count_pageviewedbyuser($userid, $cmid) {
  *
  * Returns count.
  *
- * @param  int $pagenoteid
+ * @param int $pagenoteid
  * @return int count
  */
 function icontent_count_pagenotelike($pagenoteid) {
@@ -1655,7 +1657,7 @@ function icontent_count_pagenotelike($pagenoteid) {
  *
  * Returns pagenum.
  *
- * @param  int $pageid
+ * @param int $pageid
  * @return int pagenum
  */
 function icontent_get_pagenum_by_pageid($pageid) {
@@ -1670,7 +1672,7 @@ function icontent_get_pagenum_by_pageid($pageid) {
  *
  * Returns levels.
  *
- * @param  string $path
+ * @param string $path
  * @return int $levels
  */
 function icontent_get_noteparentinglevels($path) {
@@ -1689,7 +1691,7 @@ function icontent_get_noteparentinglevels($path) {
  *
  * Returns object $user.
  *
- * @param  int $userid
+ * @param int $userid
  * @return object $user
  */
 function icontent_get_user_by_id($userid) {
@@ -1714,7 +1716,7 @@ function icontent_get_user_by_id($userid) {
  *
  * Returns array $notesdaughters.
  *
- * @param  int $pagenoteid
+ * @param int $pagenoteid
  * @return array $notesdaughters
  */
 function icontent_get_notes_daughters($pagenoteid) {
@@ -1758,8 +1760,8 @@ function icontent_check_value_sort($sortsql) {
  *
  * Returns array answerspage
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return array $answerspage
  */
 function icontent_checks_answers_of_currentpage($pageid, $cmid) {
@@ -1779,9 +1781,10 @@ function icontent_checks_answers_of_currentpage($pageid, $cmid) {
 }
 
 /**
- * Check if has permission for edition
+ * Check if has permission for edition.
+ *
  * @param boolean $allowedit
- * @param boolean option_param $dit received by parameter in the URL.
+ * @param boolean $edit Received by parameter in the URL.
  * @return boolean true if the user has this permission. Otherwise false.
  */
 function icontent_has_permission_edition($allowedit, $edit = 0) {
@@ -1962,9 +1965,9 @@ function icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid) 
   *
   * Returns button.
   *
-  * @param  object $button
-  * @param  int $tpages
-  * @param  string $icon
+  * @param object $button
+  * @param int $tpages
+  * @param string $icon
   * @return string with $btnprevious
   */
 function icontent_make_button_previous_page($button, $tpages, $icon = null) {
@@ -1993,9 +1996,9 @@ function icontent_make_button_previous_page($button, $tpages, $icon = null) {
  *
  * Returns button.
  *
- * @param  object $button
- * @param  int $tpages
- * @param  string $icon
+ * @param object $button
+ * @param int $tpages
+ * @param string $icon
  * @return string with $btnnext
  */
 function icontent_make_button_next_page($button, $tpages, $icon = null) {
@@ -2024,7 +2027,7 @@ function icontent_make_button_next_page($button, $tpages, $icon = null) {
  *
  * Return list of answers.
  *
- * @param  array $notesdaughters
+ * @param array $notesdaughters
  * @return string $listgroup
  */
 function icontent_make_list_group_notesdaughters($notesdaughters) {
@@ -2046,9 +2049,9 @@ function icontent_make_list_group_notesdaughters($notesdaughters) {
  *
  * Return progress bar.
  *
- * @param  object $objpage
- * @param  object $icontent
- * @param  object $context
+ * @param object $objpage
+ * @param object $icontent
+ * @param object $context
  * @return string $progressbar
  */
 function icontent_make_progessbar($objpage, $icontent, $context) {
@@ -2078,8 +2081,8 @@ function icontent_make_progessbar($objpage, $icontent, $context) {
  *
  * Returns questions area.
  *
- * @param  object $objpage
- * @param  object $icontent
+ * @param object $objpage
+ * @param object $icontent
  * @return string $questionsarea
  */
 function icontent_make_questionsarea($objpage, $icontent) {
@@ -2169,7 +2172,7 @@ function icontent_make_questionsarea($objpage, $icontent) {
  *
  * Returns fields and answers by type.
  *
- * @param  object $question
+ * @param object $question
  * @return string $answers
  */
 function icontent_make_questions_answers_by_type($question) {
@@ -2305,8 +2308,8 @@ function icontent_make_questions_answers_by_type($question) {
  *
  * Returns attempt summary.
  *
- * @param  int $pageid
- * @param  int $cmid
+ * @param int $pageid
+ * @param int $cmid
  * @return string $attemptsummary
  */
 function icontent_make_attempt_summary_by_page($pageid, $cmid) {
@@ -2386,8 +2389,8 @@ function icontent_make_attempt_summary_by_page($pageid, $cmid) {
  *
  * Returns notes area.
  *
- * @param  object $objpage
- * @param  object $icontent
+ * @param object $objpage
+ * @param object $icontent
  * @return string $notesarea
  */
 function icontent_make_notesarea($objpage, $icontent) {
@@ -2531,6 +2534,7 @@ function icontent_make_notesarea($objpage, $icontent) {
  *
  * Returns span with checkbox field.
  *
+ * @param string $page
  * @return string $spancheckbox
  */
 function icontent_make_span_checkbox_field_private($page) {
@@ -2622,9 +2626,9 @@ function icontent_make_span_checkbox_field_doubttutor($page) {
  *
  * Returns notes list
  *
- * @param  object $pagenotes
- * @param  object $icontent
- * @param  object $page
+ * @param object $pagenotes
+ * @param object $icontent
+ * @param object $page
  * @return string $listnotes
  */
 function icontent_make_listnotespage($pagenotes, $icontent, $page) {
@@ -2695,8 +2699,8 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
  *
  * Returns responses of notes.
  *
- * @param  object $pagenote
- * @param  object $icontent
+ * @param object $pagenote
+ * @param object $icontent
  * @return string $pagenotereply
  */
 function icontent_make_pagenotereply($pagenote, $icontent) {
@@ -2754,8 +2758,8 @@ function icontent_make_pagenotereply($pagenote, $icontent) {
  *
  * Returns link.
  *
- * @param  object $pagenote
- * @param  object $icontent
+ * @param object $pagenote
+ * @param object $context
  * @return string $link
  */
 function icontent_make_link_remove_note($pagenote, $context) {
@@ -2780,8 +2784,8 @@ function icontent_make_link_remove_note($pagenote, $context) {
  *
  * Returns link.
  *
- * @param  object $pagenote
- * @param  object $context
+ * @param object $pagenote
+ * @param object $context
  * @return string $link
  */
 function icontent_make_link_edit_note($pagenote, $context) {
@@ -2796,8 +2800,8 @@ function icontent_make_link_edit_note($pagenote, $context) {
  *
  * Returns link.
  *
- * @param  object $pagenote
- * @param  object $context
+ * @param object $pagenote
+ * @param object $context
  * @return string $link
  */
 function icontent_make_link_reply_note($pagenote, $context) {
@@ -2812,8 +2816,8 @@ function icontent_make_link_reply_note($pagenote, $context) {
  *
  * Returns links.
  *
- * @param  object $pagenote
- * @param  object $context
+ * @param object $pagenote
+ * @param object $context
  * @return string $likeunlike
  */
 function icontent_make_likeunlike($pagenote, $context) {
@@ -2840,8 +2844,8 @@ function icontent_make_likeunlike($pagenote, $context) {
 /**
  * This is the function responsible for creating the toolbar.
  *
- * @param  object $page
- * @param  object $icontent
+ * @param object $page
+ * @param object $icontent
  * @return string $toolbar
  */
 function icontent_make_toolbar($page, $icontent) {
@@ -3007,9 +3011,9 @@ function icontent_make_cover_page($icontent, $objpage, $context) {
  *
  * Returns an object with the page content.
  *
- * @param  int $pagenum or $startpage
- * @param  object $icontent
- * @param  object $context
+ * @param int $pagenum or $startpage
+ * @param object $icontent
+ * @param object $context
  * @return object $fullpage
  */
 function icontent_get_fullpageicontent($pagenum, $icontent, $context) {

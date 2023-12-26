@@ -2,7 +2,8 @@ This files describes API changes and other work in the iContent code.
 === Deferred until fixed. ===
 
 === 1.0.6.2 === Pending
-20231220 iContent_1134 - Need to run codechecker and fix as needed.
+20231220 iContent_1134 - Need to run codechecker and fix as needed. Made all the
+    recommended changes and pushed to github.
 20231220 iContent_1135 - Cannot add a question to a slide.
 20231221 iContent_1136 - Error re:user_picture, when trying to add a question to a
     slide. See ticket for details, but changed SQL and now testing.

@@ -40,9 +40,9 @@ class question_page_viewed extends \core\event\base {
      *
      * @since Moodle 3.0
      *
-     * @param \stdClass $icontent
+     * @param stdClass $icontent
      * @param \context_module $context
-     * @param \stdClass $questionpage
+     * @param stdClass $pageid
      * @return question_page_created
      */
     public static function create_from_question_page(\stdClass $icontent, \context_module $context, $pageid) {

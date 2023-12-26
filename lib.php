@@ -41,7 +41,7 @@ define('ICONTENT_ULTIMATE_ANSWER', 42);
 /**
  * Returns the information on whether the module supports a feature
  *
- * See {@link plugin_supports()} for more info.
+ * See {@link https://yourmoodle/lib/moodlelib.php->plugin_supports()} for more info.
  *
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed true if the feature is supported, null if unknown
@@ -240,7 +240,7 @@ function icontent_print_recent_activity($course, $viewfullnames, $timestart) {
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link icontent_print_recent_mod_activity()}.
+ * {@link https://yourmoodle/mod/icontent/lib.php->icontent_print_recent_mod_activity()}.
  *
  * Returns void, it adds items into $activities and increases $index.
  *
@@ -256,12 +256,14 @@ function icontent_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 }
 
 /**
- * Prints single activity item prepared by {@link icontent_get_recent_mod_activity()}.
+ * Prints single activity item prepared by
+ * {@link https://yourmoodle/mod/icontent/lib.php->icontent_get_recent_mod_activity()}.
  *
- * @param stdClass $activity activity record with added 'cmid' property
- * @param int $courseid the id of the course we produce the report for
- * @param bool $detail print detailed report
- * @param array $modnames as returned by {@link get_module_types_names()}
+ * @param stdClass $activity Activity record with added 'cmid' property.
+ * @param int $courseid The id of the course we produce the report for.
+ * @param bool $detail Print detailed report.
+ * @param array $modnames as returned by
+ * {@link https://yourmoodle/course/lib.php->get_module_types_names()}
  * @param bool $viewfullnames display users' full names
  */
 function icontent_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
@@ -334,9 +336,9 @@ function icontent_scale_used_anywhere($scaleid) {
 }
 
 /**
- * Creates or updates grade item for the given icontent instance
+ * Creates or updates grade item for the given icontent instance.
  *
- * Needed by {@link grade_update_mod_grades()}.
+ * Needed by {@link https://yourmoodle/lib/grade_lib.php->grade_update()}.
  *
  * @param stdClass $icontent instance object with extra cmidnumber and modname property
  * @param bool $reset reset grades in the gradebook
@@ -385,7 +387,7 @@ function icontent_grade_item_delete($icontent) {
 /**
  * Update icontent grades in the gradebook.
  *
- * Needed by {@link grade_update_mod_grades()}.
+ * Needed by {@link https://yourmoodle/lib/grade_lib.php->grade_update()}.
  *
  * @param stdClass $icontent instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
@@ -406,7 +408,7 @@ function icontent_update_grades(stdClass $icontent, $userid = 0) {
  * Returns the lists of all browsable file areas within the given module context.
  *
  * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
+ * by {@link https://yourmoodle/lib/filelib.php->file_browser::get_file_info()}
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -643,8 +645,9 @@ function icontent_ajax_savereturnnotes($pageid, $note, $icontent) {
 
 /**
  * Runs the like or unlike in table {icontent_pages_notes_like}.
- * @param object $notelike
- * @param object $icontent
+ *
+ * @param stdClass $notelike
+ * @param stdClass $icontent
  * @return array $result
  */
 function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent) {
@@ -687,8 +690,8 @@ function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent) {
 
 /**
  * Runs update in note at table {icontent_pages_notes_like}.
- * @param object $pagenote
- * @param object $icontent
+ * @param stdClass $pagenote
+ * @param stdClass $icontent
  * @return string $pagenote
  */
 function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent) {
@@ -706,8 +709,8 @@ function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent) {
 }
 /**
  * Inserts responses of notes in table {icontent_pages_notes}.
- * @param object $pagenote
- * @param object $icontent
+ * @param stdClass $pagenote
+ * @param stdClass $icontent
  * @return string $reply
  */
 function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent) {
@@ -763,7 +766,7 @@ function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent) {
 /**
  * Saves attempts to answers to the questions of the current page in table {icontent_question_attempt}.
  * @param string $formdata
- * @param object $cm
+ * @param stdClass $cm
  * @param object $icontent
  * @return string $response
  */

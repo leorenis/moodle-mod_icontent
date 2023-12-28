@@ -698,7 +698,7 @@ function icontent_get_next_pagenum(stdClass $objpage) {
 /**
  * Get questions of question bank.
  *
- * Returns array of questions.
+ * Returns array of questions and is called from the addquestionpage.php file, bout line 92.
  *
  * @param object $coursecontext
  * @param string $sort
@@ -722,7 +722,7 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
             $perpage = ICONTENT_PER_PAGE;
         }
     }
-
+/*
     $sql = "SELECT q.id, q.qtype, q.name, q.timecreated, q.timemodified, q.createdby, q.modifiedby, c.contextid
               FROM {question} q
               JOIN {question_categories} c
@@ -730,6 +730,19 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
              WHERE c.contextid = ?
                AND q.qtype IN (?,?,?,?)
           ORDER BY {$sort}";
+*/
+    $sql = "SELECT q.*, c.contextid
+              FROM {question} q
+              JOIN {question_categories} c
+                ON c.parent = q.parent
+             WHERE c.contextid = ?
+               AND q.qtype IN (?,?,?,?)
+          ORDER BY {$sort}";
+
+//print_object($parent);
+//print_object($coursecontext);
+//print_object($sql);
+
     $params = [
         $coursecontext,
         ICONTENT_QTYPE_ESSAY,
@@ -737,6 +750,10 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
         ICONTENT_QTYPE_MULTICHOICE,
         ICONTENT_QTYPE_TRUEFALSE,
     ];
+//print_object($params);
+
+//print_object($DB->get_records_sql($sql, $params, $page * $perpage, $perpage));
+
     return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
 }
 
@@ -861,12 +878,21 @@ function icontent_count_notes_users_instance(
  */
 function icontent_count_questions_of_questionbank($coursecontext) {
     global $DB;
-
+/*
     $questions = $DB->get_record_sql(
         "SELECT count(*) as total
            FROM {question} q
            JOIN {question_categories} c ON c.id = q.parent
           WHERE c.contextid = ?",
+*/
+
+    $questions = $DB->get_record_sql(
+        "SELECT count(*) as total
+           FROM {question} q
+           JOIN {question_categories} c ON c.parent = q.parent
+          WHERE c.contextid = ?",
+
+
         [
             $coursecontext,
         ]
@@ -1431,10 +1457,10 @@ function icontent_add_pagedisplayed($pageid, $cmid) {
     $pagedisplayed = icontent_get_pagedisplayed($pageid, $cmid);
     if (empty($pagedisplayed)) {
         $pagedisplayed = new stdClass;
-        $pagedisplayed->pageid         = $pageid;
-        $pagedisplayed->cmid         = $cmid;
-        $pagedisplayed->userid         = $USER->id;
-        $pagedisplayed->timecreated    = time();
+        $pagedisplayed->pageid = $pageid;
+        $pagedisplayed->cmid = $cmid;
+        $pagedisplayed->userid = $USER->id;
+        $pagedisplayed->timecreated = time();
         return $DB->insert_record('icontent_pages_displayed', $pagedisplayed);
     }
     return $pagedisplayed;
@@ -2410,7 +2436,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'id' => 'idtitlenotes',
         ]
     );
-    // User image.
+    // User image used under the Notes and Question tabs.
     $picture = html_writer::tag('div', $OUTPUT->user_picture($USER,
         [
             'size' => 120,
@@ -2639,7 +2665,7 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
         foreach ($pagenotes as $pagenote) {
             // Object user.
             $user = icontent_get_user_by_id($pagenote->userid);
-            // Get picture.
+            // Get picture for use with the note listing.
             $picture = $OUTPUT->user_picture($user, ['size' => 35, 'class' => 'img-thumbnail pull-left']);
             // Note header.
             $linkfirstname = html_writer::link(new moodle_url('/user/view.php',
@@ -2707,6 +2733,7 @@ function icontent_make_pagenotereply($pagenote, $icontent) {
     global $OUTPUT;
     $user = icontent_get_user_by_id($pagenote->userid);
     $context = context_module::instance($pagenote->cmid);
+    // Get picture for use with the reply listing.
     $picture = $OUTPUT->user_picture($user, ['size' => 30, 'class' => 'img-thumbnail pull-left']);
     // Note header.
     $linkfirstname = html_writer::link(new moodle_url('/user/view.php',

@@ -98,11 +98,21 @@ $table = new html_table();
 $table->id = "categoryquestions";
 $table->attributes = ['class' => 'icontentquestions'];
 $table->colclasses = ['checkbox', 'qtype', 'questionname', 'previewaction', 'creatorname', 'modifiername'];
-$table->head  = [null, get_string('type', 'mod_icontent'),
+$table->head  = [
+    null,
+    get_string('type', 'mod_icontent'),
     get_string('question'),
     get_string('createdby', 'mod_icontent'),
     get_string('lastmodifiedby', 'mod_icontent'),
-    ];
+];
+
+
+//echo 'test1';
+//print_object($context);
+//print_object($coursecontext);
+//print_object($questions);
+
+
 if ($questions) {
     foreach ($questions as $question) {
         $checked = isset($qtscurrentpage[$question->id]) ? ['checked' => 'checked'] : [];
@@ -111,16 +121,27 @@ if ($questions) {
             'name' => 'question[]',
             'value' => $question->id,
             'id' => 'idcheck'.$question->id] + $checked + $disabled);
-        $qtype = html_writer::empty_tag('img', ['src' => $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'),
+        //$qtype = html_writer::empty_tag('img', ['src' => $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'),
+        $qtype = html_writer::empty_tag('img', ['src' => $OUTPUT->image_url('q/'.$question->qtype, 'mod_icontent'),
             'class' => 'smallicon', 'alt' => get_string($question->qtype, 'mod_icontent'),
             'title' => get_string($question->qtype, 'mod_icontent')]
         );
         $qname = html_writer::label($question->name, 'idcheck'.$question->id);
         $createdby = icontent_get_user_by_id($question->createdby);
+    //echo 'testing $createdby';
+    //echo 'testing $question->id';
+    //print_object($createdby);
+    //print_object($question->id);
+
+        //if (!$createdby) {
+        //    $createdby == "Unknown";
+        //}
+
         $modifiedby = icontent_get_user_by_id($question->modifiedby);
         $table->data[] = [$checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname];
     }
 } else {
+    echo 'testing';
     echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
     echo $OUTPUT->footer();
     exit;

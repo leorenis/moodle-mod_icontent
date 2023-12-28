@@ -4,16 +4,32 @@ This files describes API changes and other work in the iContent code.
 === 1.0.6.2 === Pending
 20231220 iContent_1134 - Need to run codechecker and fix as needed. Made all the
     recommended changes and pushed to github.
-20231220 iContent_1135 - Cannot add a question to a slide.
+
+20231220 iContent_1135 - Cannot add a question to a slide. Mademore changes to the
+    locallib.php file, and now I can add graded questions.
+
 20231221 iContent_1136 - Error re:user_picture, when trying to add a question to a
     slide. See ticket for details, but changed SQL and now testing.
+
 20231222 iContent_1137 - In edit.php file, need to rewrite $event to use $params. See
     the ticket for details, but changed code and testing.
+
 20231223 iContent_1138 - There does not seem to be a way to get to the index.php page.
     Spoke too soon. It is there, just not as convienient as the way I do it in Diary.
+
 20231223 iContent_1140 - Multiple $features missing from the,
+
     function icontent_supports($feature) {. Added the missing features and now testing.
-20231224 iContent_1141 - Need to create a monologo.png file.
+20231224 iContent_1141 - Need to create a monologo.png file. Finally got a reasonable
+    version and saved it as monologo7 in my working folders.
+20231225 iContent_1142 - Need to verify move.php works.
+
+20231227 iContent_1144 - In moodledev site, when editing a note, the Save button is
+    broken.
+20231228 iContent - The slide setting, Expand question area, does not work.
+
+20231228 iContent_1146 - pix_url is deprecated. Use image_url for images and pix_icon
+    for icons. Made the change to image_url.
  
 
 === 1.0.6.1 === 20231220

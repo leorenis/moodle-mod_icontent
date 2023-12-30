@@ -150,8 +150,8 @@ if ($questions) {
             $checkbox,
             $qtype,
             $qname,
-            $createdby->firstname.' '.$createdby->lastname.'<br>'.date(get_config('mod_mootyper', 'dateformat'), $question->timecreated),
-            $modifiedby->firstname.' '.$modifiedby->lastname.'<br>'.date(get_config('mod_mootyper', 'dateformat'), $question->timemodified),
+            $createdby->firstname.' '.$createdby->lastname.'<br>'.date(get_config('mod_icontent', 'dateformat'), $question->timecreated),
+            $modifiedby->firstname.' '.$modifiedby->lastname.'<br>'.date(get_config('mod_icontent', 'dateformat'), $question->timemodified),
         ];
     }
 } else {

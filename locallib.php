@@ -450,12 +450,12 @@ function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {
     }
     // SQL Query.
     $sql = "SELECT qa.id
-            FROM   {icontent_question_attempts} qa
-                   INNER JOIN {icontent_pages_questions} pq
-                           ON qa.pagesquestionsid = pq.id
-            WHERE  pq.pageid = ?
-                   AND pq.cmid = ?
-                   AND qa.userid = ?;";
+              FROM {icontent_question_attempts} qa
+        INNER JOIN {icontent_pages_questions} pq
+                ON qa.pagesquestionsid = pq.id
+             WHERE pq.pageid = ?
+               AND pq.cmid = ?
+               AND qa.userid = ?;";
     // Get items.
     $idanswers = $DB->get_fieldset_sql($sql, [$pageid, $cmid, $USER->id]);
     list($in, $values) = $DB->get_in_or_equal($idanswers);
@@ -2446,7 +2446,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'class' => 'col-2 userpicture',
         ]
     );
-    // Fields.
+    // Fields. Create text area for notes.
     $textareanote = html_writer::tag('textarea', null,
         [
             'name' => 'comment',
@@ -2457,8 +2457,10 @@ function icontent_make_notesarea($objpage, $icontent) {
             'placeholder' => get_string('writenotes', 'mod_icontent'),
         ]
     );
+    // Create checkboxes for private and featured, right under the notes textarea.
     $spanprivate = icontent_make_span_checkbox_field_private($objpage);
     $spanfeatured = icontent_make_span_checkbox_field_featured($objpage);
+    // Create the, Save, button under the right side of the note textarea.
     $btnsavenote = html_writer::tag('button', get_string('save', 'mod_icontent'),
         [
             'class' => 'btn btn-primary pull-right',
@@ -2468,6 +2470,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'data-sesskey' => sesskey(),
         ]
     );
+    // Create text area for questions.
     $textareadoubt = html_writer::tag('textarea', null,
         [
             'name' => 'comment',
@@ -2478,7 +2481,9 @@ function icontent_make_notesarea($objpage, $icontent) {
             'placeholder' => get_string('writedoubt', 'mod_icontent'),
         ]
     );
+    // Create check box for, Ask tutor only.
     $spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage);
+    // Create the question save button.
     $btnsavedoubt = html_writer::tag('button', get_string('save', 'mod_icontent'),
         [
             'class' => 'btn btn-primary pull-right',
@@ -2490,7 +2495,7 @@ function icontent_make_notesarea($objpage, $icontent) {
     );
     // Data page.
     $datapagenotesnote = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'note'); // Data page notes note.
-    $datapagenotesdoubt = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt'); // Data page notes doubt.
+    $datapagenotesdoubt = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt'); // Data page notes question.
     $pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage),
         'pagenotesnote',
         [
@@ -2667,7 +2672,7 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
             $user = icontent_get_user_by_id($pagenote->userid);
             // Get picture for use with the note listing.
             $picture = $OUTPUT->user_picture($user, ['size' => 35, 'class' => 'img-thumbnail pull-left']);
-            // Note header.
+            // Note header comprised of the user first name and the title of the slide.
             $linkfirstname = html_writer::link(new moodle_url('/user/view.php',
                 [
                     'id' => $user->id,
@@ -2679,6 +2684,7 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
                 ]
             );
             $noteon = html_writer::tag('em', get_string('notedon', 'icontent'), ['class' => 'noteon mr-2 ml-2']);
+            // Reply header.
             $replyon = html_writer::tag('em', ' '.strtolower(trim(get_string('respond', 'icontent'))).': ',
                 [
                     'class' => 'noteon mr-2 ml-2',
@@ -2701,13 +2707,14 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
             $notelike = icontent_make_likeunlike($pagenote, $context);
             $notereply = icontent_make_link_reply_note($pagenote, $context);
             $notedate = html_writer::tag('span', userdate($pagenote->timecreated), ['class' => 'notedate pull-right']);
-            $notefooter = html_writer::div($noteedit. $noteremove. $notereply. $notelike. $notedate, 'notefooter');
+            // Create footer with items in the order given here.
+            $notefooter = html_writer::div($noteedit.$noteremove.$notereply.$notelike. $notedate, 'notefooter');
             // Verify path levels.
             $pathlevels = icontent_get_noteparentinglevels($pagenote->path);
 
-            // Div list page notes.
-            $noterowicontent = html_writer::div($noteheader. $notecomment. $notefooter, 'noterowicontent');
-            $divnote .= html_writer::div($picture. $noterowicontent, "pagenoterow level-{$pathlevels}",
+            // Assemle all the notes into just one Div list.
+            $noterowicontent = html_writer::div($noteheader.$notecomment.$notefooter, 'noterowicontent');
+            $divnote .= html_writer::div($picture.$noterowicontent, "pagenoterow level-$pathlevels",
                 [
                     'data-level' => $pathlevels,
                     'id' => "pnote{$pagenote->id}",
@@ -2717,6 +2724,7 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
         $divnotes = html_writer::div($divnote, 'span notelist');
         return $divnotes;
     }
+    // Do this if there are not any notes.
     return html_writer::div(get_string('nonotes', 'icontent'));
 }
 

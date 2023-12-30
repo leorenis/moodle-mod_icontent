@@ -35,50 +35,16 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class page_viewed extends \core\event\base {
-    /**
-     * Create instance of event.
-     *
-     * @since Moodle 3.0
-     *
-     * @param \stdClass $icontent
-     * @param \context_module $context
-     * @param \stdClass $page
-     * @return page_viewed
-     */
-    public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page) {
-        $data = ['context' => $context,
-            'objectid' => $page->id,
-        ];
-        /** @var page_viewed $event */
-        $event = self::create($data);
-        $event->add_record_snapshot('icontent', $icontent);
-        $event->add_record_snapshot('icontent_pages', $page);
-        return $event;
-    }
 
     /**
-     * Returns description of what happened.
+     * Init method.
      *
-     * @return string
+     * @return void
      */
-    public function get_description() {
-        return "The user with id '$this->userid' viewed the page with id '$this->objectid' for the icontent with " .
-            "course module id '$this->contextinstanceid'.";
-    }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return [$this->courseid,
-            'icontent',
-            'view page',
-            'view.php?id='.$this->contextinstanceid.'&amp;pageid='.$this->objectid,
-            $this->objectid,
-            $this->contextinstanceid,
-        ];
+    protected function init() {
+        $this->data['crud'] = 'r';
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'icontent_pages';
     }
 
     /**
@@ -91,26 +57,48 @@ class page_viewed extends \core\event\base {
     }
 
     /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "The user with id '$this->userid' viewed the page with id '$this->objectid' for the icontent with ".
+            "course module id '$this->contextinstanceid'.";
+    }
+
+    /**
      * Get URL related to the action.
      *
      * @return \moodle_url
      */
     public function get_url() {
         return new \moodle_url('/mod/icontent/view.php',
-            ['id' => $this->contextinstanceid,
+            [
+                'id' => $this->contextinstanceid,
                 'pageid' => $this->objectid,
             ]
         );
     }
 
     /**
-     * Init method.
+     * Create instance of event.
      *
-     * @return void
+     * @since Moodle 3.0
+     *
+     * @param \stdClass $icontent
+     * @param \context_module $context
+     * @param \stdClass $page
+     * @return page_viewed
      */
-    protected function init() {
-        $this->data['crud'] = 'r';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages';
+    public static function create_from_page(\stdClass $icontent, \context_module $context, \stdClass $page) {
+        $data = [
+            'context' => $context,
+            'objectid' => $page->id,
+        ];
+        /** @var page_viewed $event */
+        $event = self::create($data);
+        $event->add_record_snapshot('icontent', $icontent);
+        $event->add_record_snapshot('icontent_pages', $page);
+        return $event;
     }
 }

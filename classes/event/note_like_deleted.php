@@ -35,6 +35,50 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class note_like_deleted extends \core\event\base {
+
+    /**
+     * Init method.
+     *
+     * @return void
+     */
+    protected function init() {
+        $this->data['crud'] = 'd';
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'icontent_pages_notes_like';
+    }
+
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventnotelikedeleted', 'mod_icontent');
+    }
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "The user with id '$this->userid' deleted the note like with id '$this->objectid' for the icontent with ".
+            "course module id '$this->contextinstanceid'.";
+    }
+
+    /**
+     * Get URL related to the action.
+     *
+     * @return \moodle_url
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/icontent/view.php',
+            [
+                'id' => $this->contextinstanceid,
+                'pageid' => $this->other['pageid'],
+            ]
+        );
+    }
+
     /**
      * Create instance of event.
      *
@@ -46,7 +90,8 @@ class note_like_deleted extends \core\event\base {
      * @return note_like_deleted
      */
     public static function create_from_note_like(\stdClass $icontent, \context_module $context, \stdClass $notelike) {
-        $data = ['context' => $context,
+        $data = [
+            'context' => $context,
             'objectid' => $notelike->id,
             'other' => ['pageid' => $notelike->pageid],
         ];
@@ -55,64 +100,5 @@ class note_like_deleted extends \core\event\base {
         $event->add_record_snapshot('icontent', $icontent);
         $event->add_record_snapshot('icontent_pages_note_like', $notelike);
         return $event;
-    }
-
-    /**
-     * Returns description of what happened.
-     *
-     * @return string
-     */
-    public function get_description() {
-        return "The user with id '$this->userid' deleted the note like with id '$this->objectid' for the icontent with " .
-            "course module id '$this->contextinstanceid'.";
-    }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        $notelike = $this->get_record_snapshot('icontent_pages_note_like', $this->objectid);
-        return [$this->courseid,
-            'icontent',
-            'update',
-            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
-            $this->contextinstanceid,
-            $this->contextinstanceid,
-        ];
-    }
-
-    /**
-     * Return localised event name.
-     *
-     * @return string
-     */
-    public static function get_name() {
-        return get_string('eventnotelikedeleted', 'mod_icontent');
-    }
-
-    /**
-     * Get URL related to the action.
-     *
-     * @return \moodle_url
-     */
-    public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php',
-            ['id' => $this->contextinstanceid,
-            'pageid' => $this->other['pageid'],
-            ]
-        );
-    }
-
-    /**
-     * Init method.
-     *
-     * @return void
-     */
-    protected function init() {
-        $this->data['crud'] = 'd';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages_notes_like';
     }
 }

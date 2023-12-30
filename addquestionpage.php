@@ -89,6 +89,10 @@ if ($action) {
 }
 // Get info.
 $sort = icontent_check_value_sort($sort);
+
+// I suspect I will need to do some sorting/filtering, either here, or just below for current page.
+// Really need to have the questions sorted by the actual question bank category.
+
 $questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
@@ -109,12 +113,15 @@ $table->head  = [
 
 //echo 'test1';
 //print_object($context);
-//print_object($coursecontext);
+print_object($coursecontext);
 //print_object($questions);
 
 
 if ($questions) {
     foreach ($questions as $question) {
+
+//print_object($question);
+
         $checked = isset($qtscurrentpage[$question->id]) ? ['checked' => 'checked'] : [];
         $disabled = $answerscurrentpage ? ['disabled' => 'disabled'] : [];
         $checkbox = html_writer::empty_tag('input', ['type' => 'checkbox',
@@ -128,20 +135,27 @@ if ($questions) {
         );
         $qname = html_writer::label($question->name, 'idcheck'.$question->id);
         $createdby = icontent_get_user_by_id($question->createdby);
-    //echo 'testing $createdby';
-    //echo 'testing $question->id';
-    //print_object($createdby);
-    //print_object($question->id);
+                                
+                                   
+                               
+                                  
 
-        //if (!$createdby) {
-        //    $createdby == "Unknown";
-        //}
+                            
+                                      
+           
 
         $modifiedby = icontent_get_user_by_id($question->modifiedby);
-        $table->data[] = [$checkbox, $qtype, $qname, $createdby->firstname , $modifiedby->firstname];
+// In the following table, the config needs to be changed to icontent instead of mootyper.
+        $table->data[] = [
+            $checkbox,
+            $qtype,
+            $qname,
+            $createdby->firstname.' '.$createdby->lastname.'<br>'.date(get_config('mod_mootyper', 'dateformat'), $question->timecreated),
+            $modifiedby->firstname.' '.$modifiedby->lastname.'<br>'.date(get_config('mod_mootyper', 'dateformat'), $question->timemodified),
+        ];
     }
 } else {
-    echo 'testing';
+                   
     echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
     echo $OUTPUT->footer();
     exit;

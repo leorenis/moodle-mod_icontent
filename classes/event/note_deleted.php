@@ -35,26 +35,25 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class note_deleted extends \core\event\base {
+
     /**
-     * Create instance of event.
+     * Init method.
      *
-     * @since Moodle 3.0
-     *
-     * @param \stdClass $icontent
-     * @param \context_module $context
-     * @param \stdClass $note
-     * @return note_deleted
+     * @return void
      */
-    public static function create_from_note(\stdClass $icontent, \context_module $context, \stdClass $note) {
-        $data = ['context' => $context,
-            'objectid' => $note->id,
-            'other' => ['pageid' => $note->pageid],
-            ];
-        /** @var note_deleted $event */
-        $event = self::create($data);
-        $event->add_record_snapshot('icontent', $icontent);
-        $event->add_record_snapshot('icontent_pages_notes', $note);
-        return $event;
+    protected function init() {
+        $this->data['crud'] = 'd';
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'icontent_pages_notes';
+    }
+
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventnotedeleted', 'mod_icontent');
     }
 
     /**
@@ -68,50 +67,39 @@ class note_deleted extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        $note = $this->get_record_snapshot('icontent_pages_notes', $this->objectid);
-        return [$this->courseid,
-            'icontent',
-            'update',
-            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
-            $this->contextinstanceid, $this->contextinstanceid,
-        ];
-    }
-
-    /**
-     * Return localised event name.
-     *
-     * @return string
-     */
-    public static function get_name() {
-        return get_string('eventnotedeleted', 'mod_icontent');
-    }
-
-    /**
      * Get URL related to the action.
      *
      * @return \moodle_url
      */
     public function get_url() {
         return new \moodle_url('/mod/icontent/view.php',
-            ['id' => $this->contextinstanceid,
-            'pageid' => $this->other['pageid'],
+            [
+                'id' => $this->contextinstanceid,
+                'pageid' => $this->other['pageid'],
             ]
         );
     }
 
     /**
-     * Init method.
+     * Create instance of event.
      *
-     * @return void
+     * @since Moodle 3.0
+     *
+     * @param \stdClass $icontent
+     * @param \context_module $context
+     * @param \stdClass $note
+     * @return note_deleted
      */
-    protected function init() {
-        $this->data['crud'] = 'd';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages_notes';
+    public static function create_from_note(\stdClass $icontent, \context_module $context, \stdClass $note) {
+        $data = [
+            'context' => $context,
+            'objectid' => $note->id,
+            'other' => ['pageid' => $note->pageid],
+            ];
+        /** @var note_deleted $event */
+        $event = self::create($data);
+        $event->add_record_snapshot('icontent', $icontent);
+        $event->add_record_snapshot('icontent_pages_notes', $note);
+        return $event;
     }
 }

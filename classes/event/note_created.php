@@ -35,51 +35,16 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class note_created extends \core\event\base {
-    /**
-     * Create instance of event.
-     *
-     * @since Moodle 3.0
-     *
-     * @param \stdClass $icontent
-     * @param \context_module $context
-     * @param \stdClass $note
-     * @return note_created
-     */
-    public static function create_from_note(\stdClass $icontent, \context_module $context, \stdClass $note) {
-        $data = ['context' => $context,
-            'objectid' => $note->id,
-            'other' => ['pageid' => $note->pageid],
-        ];
-        /** @var note_created $event */
-        $event = self::create($data);
-        $event->add_record_snapshot('icontent', $icontent);
-        $event->add_record_snapshot('icontent_pages_notes', $note);
-        return $event;
-    }
 
     /**
-     * Returns description of what happened.
+     * Init method.
      *
-     * @return string
+     * @return void
      */
-    public function get_description() {
-        return "The user with id '$this->userid' created the note with id '$this->objectid' for the icontent with " .
-            "course module id '$this->contextinstanceid'.";
-    }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return [$this->courseid,
-            'icontent',
-            'add note',
-            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
-            $this->objectid,
-            $this->contextinstanceid,
-        ];
+    protected function init() {
+        $this->data['crud'] = 'c';
+        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
+        $this->data['objecttable'] = 'icontent_pages_notes';
     }
 
     /**
@@ -92,26 +57,52 @@ class note_created extends \core\event\base {
     }
 
     /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "The user with id '$this->userid' created the note with id '$this->objectid' for the icontent with ".
+            "course module id '$this->contextinstanceid'.";
+    }
+
+    /**
      * Get URL related to the action.
      *
      * @return \moodle_url
      */
     public function get_url() {
         return new \moodle_url('/mod/icontent/view.php',
-            ['id' => $this->contextinstanceid,
-            'pageid' => $this->other['pageid'],
+            [
+                'id' => $this->contextinstanceid,
+                'pageid' => $this->other['pageid'],
             ]
         );
     }
 
     /**
-     * Init method.
+     * Create instance of event.
      *
-     * @return void
+     * @since Moodle 3.0
+     *
+     * @param \stdClass $icontent
+     * @param \context_module $context
+     * @param \stdClass $note
+     * @return note_created
      */
-    protected function init() {
-        $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-        $this->data['objecttable'] = 'icontent_pages_notes';
+    public static function create_from_note(\stdClass $icontent, \context_module $context, \stdClass $note) {
+        $data = [
+            'context' => $context,
+            'objectid' => $note->id,
+            'other' => ['pageid' => $note->pageid],
+        ];
+        /** @var note_created $event */
+        $event = self::create($data);
+        $event->add_record_snapshot('icontent', $icontent);
+        $event->add_record_snapshot('icontent_pages_notes', $note);
+        return $event;
     }
+
+
+
 }

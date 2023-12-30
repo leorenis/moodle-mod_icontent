@@ -35,24 +35,24 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_toevaluate_created extends \core\event\base {
+
     /**
-     * Create instance of event.
+     * Init method.
      *
-     * @since Moodle 3.0
-     *
-     * @param stdClass $icontent
-     * @param \context_module $context
-     * @param stdClass $user
-     * @return question_toevaluate_created
+     * @return void
      */
-    public static function create_from_question_toevaluate(stdClass $icontent, \context_module $context, stdClass $user) {
-        $data = ['context' => $context,
-            'other' => ['useridevaluated' => $user->id],
-        ];
-        /** @var question_toevaluate_created $event */
-        $event = self::create($data);
-        $event->add_record_snapshot('icontent', $icontent);
-        return $event;
+    protected function init() {
+        $this->data['crud'] = 'c';
+        $this->data['edulevel'] = self::LEVEL_TEACHING;
+    }
+
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventquestiontoevaluatecreated', 'mod_icontent');
     }
 
     /**
@@ -67,48 +67,36 @@ class question_toevaluate_created extends \core\event\base {
     }
 
     /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return [$this->courseid,
-            'icontent',
-            'add question to evaluate',
-            'view.php?id='.$this->contextinstanceid.'&pagesid='.null,
-            null,
-            $this->contextinstanceid,
-        ];
-    }
-
-    /**
-     * Return localised event name.
-     *
-     * @return string
-     */
-    public static function get_name() {
-        return get_string('eventquestiontoevaluatecreated', 'mod_icontent');
-    }
-
-    /**
      * Get URL related to the action.
      *
      * @return \moodle_url
      */
     public function get_url() {
         return new \moodle_url('/mod/icontent/view.php',
-            ['id' => $this->contextinstanceid,
+            [
+                'id' => $this->contextinstanceid,
             ]
         );
     }
 
     /**
-     * Init method.
+     * Create instance of event.
      *
-     * @return void
+     * @since Moodle 3.0
+     *
+     * @param stdClass $icontent
+     * @param \context_module $context
+     * @param stdClass $user
+     * @return question_toevaluate_created
      */
-    protected function init() {
-        $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_TEACHING;
+    public static function create_from_question_toevaluate(stdClass $icontent, \context_module $context, stdClass $user) {
+        $data = [
+            'context' => $context,
+            'other' => ['useridevaluated' => $user->id],
+        ];
+        /** @var question_toevaluate_created $event */
+        $event = self::create($data);
+        $event->add_record_snapshot('icontent', $icontent);
+        return $event;
     }
 }

@@ -35,74 +35,6 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class note_like_created extends \core\event\base {
-    /**
-     * Create instance of event.
-     *
-     * @since Moodle 3.0
-     *
-     * @param \stdClass $icontent
-     * @param \context_module $context
-     * @param \stdClass $notelike
-     * @return note_like_created
-     */
-    public static function create_from_note_like(\stdClass $icontent, \context_module $context, \stdClass $notelike) {
-        $data = ['context' => $context,
-            'objectid' => $notelike->id,
-            'other' => ['pageid' => $notelike->pageid],
-        ];
-        /** @var note_like_created $event */
-        $event = self::create($data);
-        $event->add_record_snapshot('icontent', $icontent);
-        $event->add_record_snapshot('icontent_pages_notes_like', $notelike);
-        return $event;
-    }
-
-    /**
-     * Returns description of what happened.
-     *
-     * @return string
-     */
-    public function get_description() {
-        return "The user with id '$this->userid' created the note like with id '$this->objectid' for the icontent with " .
-            "course module id '$this->contextinstanceid'.";
-    }
-
-    /**
-     * Return the legacy event log data.
-     *
-     * @return array|null
-     */
-    protected function get_legacy_logdata() {
-        return [$this->courseid,
-            'icontent',
-            'add note like',
-            'view.php?id='.$this->contextinstanceid.'&pageid='.$this->other['pageid'],
-            $this->objectid,
-            $this->contextinstanceid,
-        ];
-    }
-
-    /**
-     * Return localised event name.
-     *
-     * @return string
-     */
-    public static function get_name() {
-        return get_string('eventnotelikecreated', 'mod_icontent');
-    }
-
-    /**
-     * Get URL related to the action.
-     *
-     * @return \moodle_url
-     */
-    public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php',
-            ['id' => $this->contextinstanceid,
-            'pageid' => $this->other['pageid'],
-            ]
-        );
-    }
 
     /**
      * Init method.
@@ -115,4 +47,59 @@ class note_like_created extends \core\event\base {
         $this->data['objecttable'] = 'icontent_pages_notes_like';
     }
 
+    /**
+     * Return localised event name.
+     *
+     * @return string
+     */
+    public static function get_name() {
+        return get_string('eventnotelikecreated', 'mod_icontent');
+    }
+
+    /**
+     * Returns description of what happened.
+     *
+     * @return string
+     */
+    public function get_description() {
+        return "The user with id '$this->userid' created the note like with id '$this->objectid' for the icontent with ".
+            "course module id '$this->contextinstanceid'.";
+    }
+
+    /**
+     * Get URL related to the action.
+     *
+     * @return \moodle_url
+     */
+    public function get_url() {
+        return new \moodle_url('/mod/icontent/view.php',
+            [
+                'id' => $this->contextinstanceid,
+                'pageid' => $this->other['pageid'],
+            ]
+        );
+    }
+
+    /**
+     * Create instance of event.
+     *
+     * @since Moodle 3.0
+     *
+     * @param \stdClass $icontent
+     * @param \context_module $context
+     * @param \stdClass $notelike
+     * @return note_like_created
+     */
+    public static function create_from_note_like(\stdClass $icontent, \context_module $context, \stdClass $notelike) {
+        $data = [
+            'context' => $context,
+            'objectid' => $notelike->id,
+            'other' => ['pageid' => $notelike->pageid],
+        ];
+        /** @var note_like_created $event */
+        $event = self::create($data);
+        $event->add_record_snapshot('icontent', $icontent);
+        $event->add_record_snapshot('icontent_pages_notes_like', $notelike);
+        return $event;
+    }
 }

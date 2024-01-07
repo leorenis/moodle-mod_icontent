@@ -706,16 +706,25 @@ function icontent_get_next_pagenum(stdClass $objpage) {
  * @param int $perpage
  * @return array of $questionbank
  */
-function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE) {
+function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE, $questioncategoryid) {
     global $DB;
+    $questioncategoryid = $questioncategoryid;
     $coursecontext = $coursecontext;
     $sort = 'q.name '.$sort;
     $page = (int) $page;
     $perpage = (int) $perpage;
 
 $debug = [];
-$debug['In the locallib.php file'] = '=+=+=icontent_get_questions_of_questionbank=+=+=';
-    $debug['CP xx $coursecontext: '] = $coursecontext;
+$debug['In the locallib.php file'] = '===icontent_get_questions_of_questionbank===';
+$debug['CP LL1 $questioncategoryid: '] = $questioncategoryid;
+$debug['CP LL2 $coursecontext: '] = $coursecontext;
+$debug['CP LL3 $sort: '] = $sort;
+$debug['CP LL4 $page: '] = $page;
+$debug['CP LL4 $perpage: '] = $perpage;
+
+
+
+
 
 
 
@@ -724,6 +733,7 @@ $debug['In the locallib.php file'] = '=+=+=icontent_get_questions_of_questionban
  * question categories contain any questions. This will return true even if all the questions are
  * hidden.
  */
+/*
     if (is_object($coursecontext)) {
         $contextid = $coursecontext->id;
     } else if (is_numeric($coursecontext)) {
@@ -731,35 +741,29 @@ $debug['In the locallib.php file'] = '=+=+=icontent_get_questions_of_questionban
     } else {
         throw new moodle_exception('invalidcontextinhasanyquestions', 'question');
     }
-    $sql = "SELECT qbe.*
+    $sql = 'SELECT qbe.*
               FROM {question_bank_entries} qbe
               JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-             WHERE qc.parent > 0
-               AND qc.contextid = ?";
+             WHERE qc.contextid = ?';
 
-    $debug['CP O0 $contextid: '] = $contextid;
     $debug['CP O1 $sql: '] = $sql;
     $debug['CP O2 $temp = $DB->record_exists_sql($sql, [$contextid]): '] = $DB->record_exists_sql($sql, [$contextid]);
     $temp = $DB->record_exists_sql($sql, [$contextid]);
     $debug['CP O3 $temp: '] = $temp;
-
-
     $temp = $DB->get_record_sql($sql, [$contextid]);
-
-
     $debug['CP O4 $temp: '] = $temp;
     $debug['CP O5 $temp->questioncategoryid: '] = $temp->questioncategoryid;
-    $questioncategoryid = $temp->questioncategoryid;
+$questioncategoryid = $temp->questioncategoryid;
     $debug['CP O6 $questioncategoryid: '] = $questioncategoryid;
 
 
 
 
-    $debug['CP LL $coursecontext: '] = $coursecontext;
-    $debug['CP LL $sort: '] = $sort;
-    $debug['CP LL $page: '] = $page;
-    $debug['CP LL $perpage: '] = $perpage;
-
+$debug['CP LL $coursecontext: '] = $coursecontext;
+$debug['CP LL $sort: '] = $sort;
+$debug['CP LL $page: '] = $page;
+$debug['CP LL $perpage: '] = $perpage;
+*/
 
 
     // Setup pagination - when both $page and $perpage = 0, get all results.
@@ -773,8 +777,22 @@ $debug['In the locallib.php file'] = '=+=+=icontent_get_questions_of_questionban
             $perpage = ICONTENT_PER_PAGE;
         }
     }
-
-
+/*
+    $sql = "SELECT q.id,
+                   q.qtype,
+                   q.name,
+                   q.timecreated,
+                   q.timemodified,
+                   q.createdby,
+                   q.modifiedby,
+                   c.contextid
+              FROM {question} q
+              JOIN {question_categories} c
+                ON c.id = q.parent
+             WHERE c.contextid = ?
+               AND q.qtype IN (?,?,?,?)
+          ORDER BY {$sort}";
+*/
 // This SQL needs work, so that initially, it get questions only from the current course category.
 
     $sql = "SELECT q.id AS Qid,
@@ -833,6 +851,7 @@ $debug['In the locallib.php file'] = '=+=+=icontent_get_questions_of_questionban
 //print_object($sql);
 
     $params = [
+        $coursecontext,
         ICONTENT_QTYPE_ESSAY,
         ICONTENT_QTYPE_MATCH,
         ICONTENT_QTYPE_MULTICHOICE,

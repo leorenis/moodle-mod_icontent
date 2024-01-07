@@ -1,5 +1,10 @@
 This files describes API changes and other work in the iContent code.
 === Deferred until fixed. ===
+20240101 iContent_1155 - Might want to see about adding an iContent plugin to Grade Me.
+20240104 iContent_1156 - I am getting, You should really redirect before you start page
+    output, when adding questions to a slide.
+20240105 iContent_1157 - When viewing questions, the page count is wrong.
+ 
 
 === 1.0.6.2 === Pending
 20231220 iContent_1134 - Need to run codechecker and fix as needed. Made all the
@@ -22,6 +27,7 @@ This files describes API changes and other work in the iContent code.
 
 20231224 iContent_1141 - Need to create a monologo.png file. Finally got a reasonable
     version and saved it as monologo7 in my working folders.
+
 20231225 iContent_1142 - Need to verify move.php works.
 
 20231227 iContent_1144 - In moodledev site, when editing a note, the Save button is
@@ -30,6 +36,15 @@ This files describes API changes and other work in the iContent code.
 
 20231228 iContent_1146 - pix_url is deprecated. Use image_url for images and pix_icon
     for icons. Made the change to image_url.
+
+20231228 iContent_1147 - The addquestionpage.php needs rewrite to handle the volumn
+    of questions on this site. Started dev.
+
+20231229 iContent_1148 - Most of the event files need the, protected function
+    get_legacy_logdata(), removed. Removed the functions and rearranged most of
+    others in all of the event files.
+20231230 iContent_1149 - The file for iContent, settings.php, is missing. Created
+    the missing file, then added settings for, Recent activities and Date format.
  
 
 === 1.0.6.1 === 20231220

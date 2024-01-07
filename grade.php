@@ -66,6 +66,9 @@ $table->head  = [get_string('fullname'),
     get_string('partialresult', 'mod_icontent'),
     get_string('gradingscale', 'mod_icontent', $icontent->grade),
 ];
+
+print_object($attemptsusers);
+
 if ($attemptsusers) {
     foreach ($attemptsusers as $attemptuser) {
         // Get picture.
@@ -86,6 +89,11 @@ if ($attemptsusers) {
         $stropenanswer = $attemptuser->totalopenanswers ? get_string('stropenanswer',
             'mod_icontent',
             $attemptuser->totalopenanswers) : '';
+
+//print_object($attemptsuser);
+
+//print_object($stropenanswer);
+
         // String evaluate.
         $evaluate = new stdClass();
         $evaluate->fraction = number_format($attemptuser->sumfraction, 2);
@@ -102,6 +110,10 @@ if ($attemptsusers) {
             number_format($evaluate->finalgrade, 2),
         ];
     }
+// If I want to use a date along with the grade info, I will need to get the LAST timemodified. 
+            //number_format($evaluate->finalgrade, 2).'<br>'.date(get_config('mod_icontent', 'dateformat'),$attemptuser->timecreated),
+
+//date(get_config('mod_icontent', 'dateformat'), $question->timemodified)
 } else {
     echo html_writer::div(get_string('norecordsfound', 'mod_icontent'), 'alert alert-warning');
     echo $OUTPUT->footer();

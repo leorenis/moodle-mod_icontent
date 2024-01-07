@@ -708,9 +708,60 @@ function icontent_get_next_pagenum(stdClass $objpage) {
  */
 function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0, $perpage = ICONTENT_PER_PAGE) {
     global $DB;
+    $coursecontext = $coursecontext;
     $sort = 'q.name '.$sort;
     $page = (int) $page;
     $perpage = (int) $perpage;
+
+$debug = [];
+$debug['In the locallib.php file'] = '=+=+=icontent_get_questions_of_questionbank=+=+=';
+    $debug['CP xx $coursecontext: '] = $coursecontext;
+
+
+
+/*
+ * Determine whether there are any questions belonging to this context, that is whether any of its
+ * question categories contain any questions. This will return true even if all the questions are
+ * hidden.
+ */
+    if (is_object($coursecontext)) {
+        $contextid = $coursecontext->id;
+    } else if (is_numeric($coursecontext)) {
+        $contextid = $coursecontext;
+    } else {
+        throw new moodle_exception('invalidcontextinhasanyquestions', 'question');
+    }
+    $sql = "SELECT qbe.*
+              FROM {question_bank_entries} qbe
+              JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+             WHERE qc.parent > 0
+               AND qc.contextid = ?";
+
+    $debug['CP O0 $contextid: '] = $contextid;
+    $debug['CP O1 $sql: '] = $sql;
+    $debug['CP O2 $temp = $DB->record_exists_sql($sql, [$contextid]): '] = $DB->record_exists_sql($sql, [$contextid]);
+    $temp = $DB->record_exists_sql($sql, [$contextid]);
+    $debug['CP O3 $temp: '] = $temp;
+
+
+    $temp = $DB->get_record_sql($sql, [$contextid]);
+
+
+    $debug['CP O4 $temp: '] = $temp;
+    $debug['CP O5 $temp->questioncategoryid: '] = $temp->questioncategoryid;
+    $questioncategoryid = $temp->questioncategoryid;
+    $debug['CP O6 $questioncategoryid: '] = $questioncategoryid;
+
+
+
+
+    $debug['CP LL $coursecontext: '] = $coursecontext;
+    $debug['CP LL $sort: '] = $sort;
+    $debug['CP LL $page: '] = $page;
+    $debug['CP LL $perpage: '] = $perpage;
+
+
+
     // Setup pagination - when both $page and $perpage = 0, get all results.
     if ($page || $perpage) {
         if ($page < 0) {
@@ -722,35 +773,80 @@ function icontent_get_questions_of_questionbank($coursecontext, $sort, $page = 0
             $perpage = ICONTENT_PER_PAGE;
         }
     }
-/*
-    $sql = "SELECT q.id, q.qtype, q.name, q.timecreated, q.timemodified, q.createdby, q.modifiedby, c.contextid
+
+
+// This SQL needs work, so that initially, it get questions only from the current course category.
+
+    $sql = "SELECT q.id AS Qid,
+                   q.parent AS Qparent,
+                   q.name AS Qname,
+                   q.questiontext AS Qquestiontext,
+                   q.questiontextformat AS Qquestiontextformat,
+                   q.generalfeedback AS Qgeneralfeedback,
+                   q.generalfeedbackformat AS Qgeneralfeedbackformat,
+                   q.defaultmark AS Qdefaultmark,
+                   q.penalty AS Qpenalty,
+                   q.qtype AS Qqtype,
+                   q.length AS Qlength,
+                   q.stamp AS Qstamp,
+                   q.timecreated AS Qtimecreated,
+                   q.timemodified AS Qtimemodified,
+                   q.createdby AS Qcreatedby,
+                   q.modifiedby AS Qmodifiedby,
+
+                   qc.id AS QCid,
+                   qc.name AS QCname,
+                   qc.contextid AS QCcontextid,
+                   qc.info AS QCinfo,
+                   qc.infoformat AS QCinfoformat,
+                   qc.stamp AS QCstamp,
+                   qc.parent AS QCparent,
+                   qc.sortorder AS QCsortorder,
+                   qc.idnumber AS QCidnumber,
+
+                   qv.id AS QVid,
+                   qv.questionbankentryid AS QVquestionbankentryid,
+                   qv.version AS QVversion,
+                   qv.questionid AS QVquestionid,
+                   qv.status AS QVstatus,
+
+                   qbe.id AS QBEid,
+                   qbe.questioncategoryid AS QBEquestioncategoryid,
+                   qbe.idnumber AS QBEidnumber,
+                   qbe.ownerid AS QBEownerid
+
               FROM {question} q
-              JOIN {question_categories} c
-                ON c.id = q.parent
-             WHERE c.contextid = ?
+              JOIN {question_categories} qc ON qc.parent = q.parent
+              JOIN {question_versions} qv ON qv.questionid = q.id
+              JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+             WHERE qc.contextid = $coursecontext
+               AND qc.parent = q.parent
                AND q.qtype IN (?,?,?,?)
+               AND qv.status = 'ready'
+               AND qbe.questioncategoryid = $questioncategoryid
           ORDER BY {$sort}";
-*/
-    $sql = "SELECT q.*, c.contextid
-              FROM {question} q
-              JOIN {question_categories} c
-                ON c.parent = q.parent
-             WHERE c.contextid = ?
-               AND q.qtype IN (?,?,?,?)
-          ORDER BY {$sort}";
+
+
 
 //print_object($parent);
 //print_object($coursecontext);
 //print_object($sql);
 
     $params = [
-        $coursecontext,
         ICONTENT_QTYPE_ESSAY,
         ICONTENT_QTYPE_MATCH,
         ICONTENT_QTYPE_MULTICHOICE,
         ICONTENT_QTYPE_TRUEFALSE,
     ];
+$debug['CP LL $sql: '] = $sql;
+$debug['CP LL $params: '] = $params;
+
+//print_object($debug);
+
+
 //print_object($params);
+//print_object($page * $perpage);
+//print_object($perpage);
 
 //print_object($DB->get_records_sql($sql, $params, $page * $perpage, $perpage));
 
@@ -885,18 +981,21 @@ function icontent_count_questions_of_questionbank($coursecontext) {
            JOIN {question_categories} c ON c.id = q.parent
           WHERE c.contextid = ?",
 */
-
+/*
     $questions = $DB->get_record_sql(
         "SELECT count(*) as total
            FROM {question} q
            JOIN {question_categories} c ON c.parent = q.parent
-          WHERE c.contextid = ?",
-
-
-        [
-            $coursecontext,
-        ]
-    );
+          WHERE c.contextid = ?", [$coursecontext,]);
+*/
+    // 20240106 This seems to be working!
+    $questions = $DB->get_record_sql(
+        'SELECT count(*) as total
+           FROM {question_bank_entries} qbe
+           JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+          WHERE qc.contextid = ?', [$coursecontext,]);
+print_object('The total question count for this course and it\'s category is, '.$questions->total.'.');
+//print_object($questions->total);
     return (int) $questions->total;
 }
 

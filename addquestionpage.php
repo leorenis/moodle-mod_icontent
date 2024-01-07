@@ -125,10 +125,27 @@ if ($action) {
 // Get info.
 $sort = icontent_check_value_sort($sort);
 
+
+
+$debug2 = [];
+$debug2['In the addquestionpage.php file'] = '===addquestionpage===';
+//$testing1 = get_categories_for_contexts($coursecontext, $sortorder = 'parent, sortorder, name ASC', $top = false);
+//$testing2 = \qbank_managecategories\helper::get_categories_for_contexts($coursecontext, $sortorder, $top);
+$testing2 = \qbank_managecategories\helper::get_categories_for_contexts($coursecontext, $sortorder = 'parent, sortorder, name ASC', $top = false);
+$debug2['CP TT1 $testing2: '] = $testing2;
+foreach($testing2 AS $test2) {
+    $debug2['CP TT2In the foreach loop'] = '===foreach===';
+
+    $questioncategoryid = $test2->id;
+        $debug2['CP TT3 $questioncategoryid'] = $questioncategoryid;
+}
+
+//print_object($debug2);
+
 // I suspect I will need to do some sorting/filtering, either here, or just below for current page.
 // Really need to have the questions sorted by the actual question bank category.
 // The next line of code is currently getting an error for found more than one record.
-$questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage);
+$questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage, $questioncategoryid);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);

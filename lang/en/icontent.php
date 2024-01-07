@@ -148,7 +148,7 @@ $string['icontentname'] = 'Content Pages name';
 $string['incorrectmodule'] = 'You must specify a course_module ID or an instance ID';
 $string['incorrectpage'] = 'You must specify a page ID';
 
-$string['infomaxquestionperpage'] = '<i class="fa fa-info-circle"></i> Add up to 3 questions per page.';
+$string['infomaxquestionperpage'] = '<i class="fa fa-info-circle"></i> Limit your question selections to those you see on this page.';
 $string['labelprogressbar'] = '{$a}% complete';
 $string['lastmodifiedby'] = 'Last modified by';
 $string['layout'] = 'Page layout';

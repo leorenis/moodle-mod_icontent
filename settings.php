@@ -40,16 +40,11 @@ if ($ADMIN->fulltree) {
                                                     $description,
                                                     0));
 
-    // Options settings.
-    //$settings->add(new admin_setting_heading('mod_icontent/options', get_string('options', 'icontent'), ''));
-
-
-
-
     // Appearance settings.
     $settings->add(new admin_setting_heading('mod_icontent/appearance', get_string('appearance'), ''));
 
-// Need and appearance setting for background color, border color, border width max number of pages, show notes area, max number of notes per page and the progress bar.
+    // Need and appearance setting for background color, border color, border width max number of
+    // pages, show notes area, max number of notes per page and the progress bar.
 
     // Date format setting.
     $settings->add(new admin_setting_configtext(
@@ -59,7 +54,7 @@ if ($ADMIN->fulltree) {
         'M d, Y G:i A', PARAM_TEXT, 15)
     );
 
-// I have temporarily left these as examples to draw from.
+    // I have temporarily left these as examples to draw from.
 /*
     // Statistics bar colour setting.
     $name = 'mod_icontent/statscolor';

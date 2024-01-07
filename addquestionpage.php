@@ -39,36 +39,14 @@ $sort = optional_param('sort', '', PARAM_RAW);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
 
-//$debug = [];
-//$debug['In the addquestionpage.php file'] = '==========================';
-//$debug['CP A $id: '] = $id;
-//$debug['CP A $n: '] = $n;
-//$debug['CP A $pageid: '] = $pageid;
-//$debug['CP A $action: '] = $action;
-//$debug['CP A $sort: '] = $sort;
-//$debug['CP A $page: '] = $page;
-//$debug['CP A $perpage: '] = $perpage;
-
-
-
 if ($id) {
     $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
     $icontent = $DB->get_record('icontent', ['id' => $cm->instance], '*', MUST_EXIST);
-
-//$debug['CP ID $cm: '] = $cm;
-//$debug['CP ID $course: '] = $course;
-//$debug['CP ID $icontent: '] = $icontent;
-
 } else if ($n) {
     $icontent = $DB->get_record('icontent', ['id' => $n], '*', MUST_EXIST);
     $course = $DB->get_record('course', ['id' => $icontent->course], '*', MUST_EXIST);
     $cm = get_coursemodule_from_instance('icontent', $icontent->id, $course->id, false, MUST_EXIST);
-
-//$debug['CP N $cm: '] = $cm;
-//$debug['CP N $course: '] = $course;
-//$debug['CP N $icontent: '] = $icontent;
-
 } else {
     throw new moodle_exception(get_string('incorrectmodule', 'icontent'));
 }
@@ -82,10 +60,6 @@ $coursecontext = $context->get_course_context(true)->id;
 require_capability('mod/icontent:newquestion', $context);
 // Log event.
 \mod_icontent\event\question_page_viewed::create_from_question_page($icontent, $context, $pageid)->trigger();
-
-//$debug['CP B $context: '] = $context;
-//$debug['CP B $coursecontext: '] = $coursecontext;
-
 
 // Print the page header.
 $PAGE->set_url('/mod/icontent/addquestionpage.php', ['id' => $cm->id, 'pageid' => $pageid]);
@@ -104,12 +78,6 @@ $url = new moodle_url('/mod/icontent/addquestionpage.php',
 // Output starts here.
 echo $OUTPUT->header();
 
-//echo 'test for $context';
-//print_object($context);
-//$temp = question_context_has_any_questions($context);
-//print_object($temp);
-//echo 'finished with $context test';
-
 // Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
@@ -125,28 +93,20 @@ if ($action) {
 // Get info.
 $sort = icontent_check_value_sort($sort);
 
-
-
-$debug2 = [];
-$debug2['In the addquestionpage.php file'] = '===addquestionpage===';
-//$testing1 = get_categories_for_contexts($coursecontext, $sortorder = 'parent, sortorder, name ASC', $top = false);
-//$testing2 = \qbank_managecategories\helper::get_categories_for_contexts($coursecontext, $sortorder, $top);
-$testing2 = \qbank_managecategories\helper::get_categories_for_contexts($coursecontext, $sortorder = 'parent, sortorder, name ASC', $top = false);
-$debug2['CP TT1 $testing2: '] = $testing2;
-foreach($testing2 AS $test2) {
-    $debug2['CP TT2In the foreach loop'] = '===foreach===';
-
-    $questioncategoryid = $test2->id;
-        $debug2['CP TT3 $questioncategoryid'] = $questioncategoryid;
+// 20240107 Added to fix ticket 1147 and 1158.
+$qcids = \qbank_managecategories\helper::get_categories_for_contexts(
+    $coursecontext,
+    $sortorder = 'parent, sortorder, name ASC',
+    $top = false
+);
+foreach ($qcids as $qcid) {
+    $questioncategoryid = $qcid->id;
 }
 
-//print_object($debug2);
-
-// I suspect I will need to do some sorting/filtering, either here, or just below for current page.
-// Really need to have the questions sorted by the actual question bank category.
-// The next line of code is currently getting an error for found more than one record.
-$questions = icontent_get_questions_of_questionbank($coursecontext, $sort, $page, $perpage, $questioncategoryid);
+$questions = icontent_get_questions_of_questionbank($coursecontext, $questioncategoryid, $sort, $page, $perpage);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
+// 20240107 Added info but the text needs to be changed to a string.
+echo 'The total question count for this course and it\'s category is, '.$tquestions.'.';
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
 // Make table questions.
@@ -158,58 +118,35 @@ $table->head  = [
     null,
     get_string('type', 'mod_icontent'),
     get_string('question').'<br>Name',
-    //get_string('questionid'),
     'Question'.'<br>'.'ID',
     get_string('question').'<br>'.get_string('status'),
-
-
     get_string('question').'<br>'.get_string('version'),
     get_string('context').'ID',
     get_string('course'),
-
     get_string('createdby', 'mod_icontent'),
     get_string('lastmodifiedby', 'mod_icontent'),
     'Category'.'<br>'.'ID',
-
 ];
-
-
-
-
-//print_object($debug);
-
-
-//print_object($context);
-//print_object($coursecontext);
-//print_object($questions);
-
 
 if ($questions) {
     foreach ($questions as $question) {
-
-//print_object($question);
-
         $checked = isset($qtscurrentpage[$question->qid]) ? ['checked' => 'checked'] : [];
         $disabled = $answerscurrentpage ? ['disabled' => 'disabled'] : [];
         $checkbox = html_writer::empty_tag('input', ['type' => 'checkbox',
             'name' => 'question[]',
             'value' => $question->qid,
             'id' => 'idcheck'.$question->qid] + $checked + $disabled);
-        //$qtype = html_writer::empty_tag('img', ['src' => $OUTPUT->pix_url('q/'.$question->qtype, 'mod_icontent'),
         $qtype = html_writer::empty_tag('img', ['src' => $OUTPUT->image_url('q/'.$question->qqtype, 'mod_icontent'),
             'class' => 'smallicon', 'alt' => get_string($question->qqtype, 'mod_icontent'),
             'title' => get_string($question->qqtype, 'mod_icontent')]
         );
         $qname = html_writer::label($question->qname, 'idcheck'.$question->qid);
-        //$qname = html_writer::label($question->name, 'idcheck'.$question->id);
 
         // These users must exist or you will get an error.
         $createdby = icontent_get_user_by_id($question->qcreatedby);
         $modifiedby = icontent_get_user_by_id($question->qmodifiedby);
-//print_object($question->qcreatedby);
-//print_object($modifiedby);
 
-// This needs a LOT more work to make it look more like the page you see in a course Question Bank.
+        // This needs a LOT more work to make it look more like the page you see in a course Question Bank.
         $table->data[] = [
             $checkbox,
             $qtype,
@@ -219,15 +156,14 @@ if ($questions) {
             $question->qvversion,
             $question->qccontextid,
             $course->id,
-            $createdby->firstname.' '.$createdby->lastname.'<br>'.date(get_config('mod_icontent', 'dateformat'), $question->qtimecreated),
-            $modifiedby->firstname.' '.$modifiedby->lastname.'<br>'.date(get_config('mod_icontent', 'dateformat'), $question->qtimemodified),
-
+            $createdby->firstname.' '.$createdby->lastname.
+                '<br>'.date(get_config('mod_icontent', 'dateformat'), $question->qtimecreated),
+            $modifiedby->firstname.' '.$modifiedby->lastname.
+                '<br>'.date(get_config('mod_icontent', 'dateformat'), $question->qtimemodified),
             $question->qbequestioncategoryid,
-
         ];
     }
 } else {
-                   
     echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
     echo $OUTPUT->footer();
     exit;
@@ -237,34 +173,35 @@ echo html_writer::div(get_string('infomaxquestionperpage', 'mod_icontent'), 'ale
 echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
 echo html_writer::start_tag('form',
     ['action' => new moodle_url('addquestionpage.php',
-    ['id' => $id, 'pageid' => $pageid]),
-    'method' => 'POST']
+        ['id' => $id, 'pageid' => $pageid]),
+        'method' => 'POST']
     );
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => true]);
 echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tquestions, $page, $perpage, $url);
 echo html_writer::end_div();
-echo html_writer::empty_tag('input', ['type' => 'submit', 'value' => get_string('add'), 'class' => 'btn btn-primary'] + $disabled);
+
+// 20240107 Create a link back to where we came from in case we want to cancel.
+$url2 = new moodle_url('/mod/icontent/view.php',
+    [
+        'id' => $id,
+        'pageid' => $pageid,
+    ]
+);
+// Add an Add and Cancel button.
+echo '<input class="btn btn-primary"
+    style="border-radius: 8px"
+    name="button"
+    onClick="return clClick()"
+    type="submit" value="'
+    .get_string('add')
+    .'"> <a href="'
+    .$url2
+    .'" class="btn btn-secondary"  style="border-radius: 8px">'
+    .get_string('cancel')
+    .'</a>';
 echo html_writer::end_tag('form');
-
-//echo 'test start';
-// Got this bit of code from moodledev/question/editlib.php about line 74 which then links to the next bit
-// And got the question_categorylist bit of code from moodledev/lib/questionlib.php about line 1314
-//QBEquestioncategoryid
-//$recurse = true;
-//echo 'test start ';
-    // Get list of categories.
-//    if ($recurse) {
-        //$categorylist = question_categorylist($category->id);
-//        $categorylist = question_categorylist($question->qbequestioncategoryid);
-//    } else {
-        //$categorylist = [$category->id];
-//        $categorylist = [$question->qbequestioncategoryid];
-//    }
-//print_object($categorylist);
-//echo 'test end';
-
 
 // Finish the page.
 echo $OUTPUT->footer();

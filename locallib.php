@@ -2339,11 +2339,13 @@ function icontent_make_questions_answers_by_type($question) {
             $qoptions = $DB->get_records('qtype_essay_options', ['questionid' => $question->qid]);
             $questionanswers = html_writer::start_div('question essay');
             $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
+            // 20240204 Modified params. See ticket iContent_1188.
             $questionanswers .= html_writer::tag('textarea', null,
                 [
                     'name' => $fieldname,
-                    'class' => 'span12 answertextarea',
+                    'class' => 'col-12 answertextarea',
                     'required' => 'required',
+                    'placeholder' => get_string('writeessay', 'mod_icontent'),
                 ]
             );
             $questionanswers .= html_writer::end_div();

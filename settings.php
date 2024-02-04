@@ -54,7 +54,7 @@ if ($ADMIN->fulltree) {
         'M d, Y G:i A', PARAM_TEXT, 15)
     );
 
-    // I have temporarily left these as examples to draw from.
+    // I have temporarily left these as examples from MooTyper to draw from.
 /*
     // Statistics bar colour setting.
     $name = 'mod_icontent/statscolor';

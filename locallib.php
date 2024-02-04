@@ -985,7 +985,7 @@ function icontent_get_questions_of_currentpage($pageid, $cmid) {
  * Get info answers by questionid.
  * Important: This function assumes that the naming patterns described in
  * <icontent_make_questions_answers_by_type> function were followed correctly.
- * Returns object infoanswer
+ * Returns object infoanswer.
  *
  * @param int $questionid
  * @param int $qtype
@@ -2140,8 +2140,9 @@ function icontent_make_questionsarea($objpage, $icontent) {
     if (icontent_get_attempt_summary_by_page($objpage->id, $objpage->cmid)) {
         return icontent_make_attempt_summary_by_page($objpage->id, $objpage->cmid);
     }
+    // Add the triangle that toggles the list of questions visible and not visible.
     $togglearea = icontent_get_toggle_area_object($objpage->expandquestionsarea);
-    // Title page.
+    // Title in h4 style for the questions part of the page.
     $title = html_writer::tag('h4', $togglearea->icon. get_string('answerthequestions', 'mod_icontent'),
         [
             'class' => 'titlequestions text-uppercase '.$togglearea->class,
@@ -2150,6 +2151,7 @@ function icontent_make_questionsarea($objpage, $icontent) {
     );
     $qlist = '';
     foreach ($questions as $question) {
+        // Assemble the listing of all the questions on a slide/page.
         $qlist .= icontent_make_questions_answers_by_type($question);
     }
     // Hidden form fields.
@@ -2236,6 +2238,8 @@ function icontent_make_questions_answers_by_type($question) {
                 ],
                 'COUNT(fraction)'
             );
+            // Print out the prompts. If there is more than one correct answer usen the if, Choice {$a} options:,
+            // and if there is only one answer use the else, Choice a:.
             if ($totalrightanwsers > 1) {
                 $type = 'checkbox';
                 $brackets = '[]';
@@ -2305,7 +2309,7 @@ function icontent_make_questions_answers_by_type($question) {
             break;
         case ICONTENT_QTYPE_TRUEFALSE:
             $anwswers = $DB->get_records('question_answers', ['question' => $question->qid]);
-            $strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info');
+            $strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info'.'test3');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
             $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
             $questionanswers .= html_writer::div($strpromptinfo, 'prompt');
@@ -3124,7 +3128,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
     $npage = html_writer::tag('div', get_string('page', 'icontent', $objpage->pagenum), ['class' => 'pagenum']);
     // Progress bar.
     $progbar = icontent_make_progessbar($objpage, $icontent, $context);
-    // Questions.
+    // Go assemble the list of Questions for this slide/page.
     $qtsareas = icontent_make_questionsarea($objpage, $icontent);
     // Form notes.
     $notesarea = icontent_make_notesarea($objpage, $icontent);

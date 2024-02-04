@@ -189,7 +189,7 @@ $url2 = new moodle_url('/mod/icontent/view.php',
         'pageid' => $pageid,
     ]
 );
-// Add an Add and Cancel button.
+// Add two buttons, Add and Cancel..
 echo '<input class="btn btn-primary"
     style="border-radius: 8px"
     name="button"

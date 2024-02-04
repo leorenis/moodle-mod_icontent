@@ -89,7 +89,7 @@ class question_toevaluate_created extends \core\event\base {
      * @param stdClass $user
      * @return question_toevaluate_created
      */
-    public static function create_from_question_toevaluate(stdClass $icontent, \context_module $context, stdClass $user) {
+    public static function create_from_question_toevaluate($icontent, \context_module $context, $user) {
         $data = [
             'context' => $context,
             'other' => ['useridevaluated' => $user->id],

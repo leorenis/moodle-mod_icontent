@@ -50,7 +50,7 @@ $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
 $PAGE->set_url('/mod/icontent/edit.php', ['cmid' => $cmid, 'id' => $pageid, 'pagenum' => $pagenum]);
-$PAGE->set_pagelayout('admin'); // TODO: Something. This is a bloody hack!
+$PAGE->set_pagelayout('admin'); // Not sure just what this does.
 
 if ($pageid) {
     $page = $DB->get_record('icontent_pages', ['id' => $pageid, 'icontentid' => $icontent->id], '*', MUST_EXIST);

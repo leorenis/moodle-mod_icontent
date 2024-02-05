@@ -55,7 +55,7 @@ if ($ADMIN->fulltree) {
     );
 
     // I have temporarily left these as examples from MooTyper to draw from.
-/*
+    /*
     // Statistics bar colour setting.
     $name = 'mod_icontent/statscolor';
     $title = get_string('statscolor_title', 'icontent');
@@ -118,5 +118,5 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configcolourpicker($name, $title, $description, $default);
     $setting->set_updatedcallback('theme_reset_all_caches');
     $settings->add($setting);
-*/
+    */
 }

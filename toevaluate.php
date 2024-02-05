@@ -97,7 +97,8 @@ if ($qopenanswers) {
         $qanswer = html_writer::div($qopenanswer->answertext, 'answer qtype_essay_editor qtype_essay_response readonly');
         $ablock = html_writer::div($qanswer, 'ablock');
         $skipline = html_writer::empty_tag('br');
-        $labelgrade = html_writer::label(get_string('gradenoun', 'icontent').$skipline, $fieldid, null, ['class' => 'labelfieldgrade']);
+        $labelgrade = html_writer::label(get_string('gradenoun', 'icontent').$skipline, $fieldid, null,
+            ['class' => 'labelfieldgrade']);
         $fieldfraction = html_writer::empty_tag('input',
             [
                 'type' => 'number',

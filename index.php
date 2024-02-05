@@ -139,27 +139,27 @@ foreach ($icontents as $icontent) {
     $pages = count(icontent_preload_pages($icontent));
     $notes = 0;
     $doubts = 0;
- 
+
     // Need to change this to a page/question count.
-    //$questioncount = results::icontent_count_entries($icontent);
-    //$questioncount = icontent_count_entries($icontent);
+    // $questioncount = results::icontent_count_entries($icontent);
+    // $questioncount = icontent_count_entries($icontent);
     $url = new moodle_url('view.php', ['id' => $icontent->coursemodule,]);
     $table->data[$i][] = '<a href="'.$url->out(false).'">'
         .get_string('pagecount', 'icontent', $pages).'</a>';
 
 
     // Need to change this to a Notes count.
-    //$notescount = results::icontent_count_entries($icontent);
-    //$notescount = icontent_count_entries($icontent);
+    // $notescount = results::icontent_count_entries($icontent);
+    // $notescount = icontent_count_entries($icontent);
     $url = new moodle_url('view.php', ['id' => $icontent->coursemodule,]);
     $table->data[$i][] = '<a href="'.$url->out(false).'">'
         .get_string('note', 'icontent', $notes).'</a>';
 
 
     // Need to change this to a Questions(doubts) count.
-    //$doubtscount = results::icontent_count_entries($icontent);
-    //$doubtscount = icontent_count_entries($icontent);
-    $url = new moodle_url('view.php', ['id' => $icontent->coursemodule,]);
+    // $doubtscount = results::icontent_count_entries($icontent);
+    // $doubtscount = icontent_count_entries($icontent);
+    $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
     $table->data[$i][] = '<a href="'.$url->out(false).'">'
         .get_string('doubt', 'icontent', $doubts).'</a>';
 

@@ -267,7 +267,7 @@ function icontent_add_borderwidth_options() {
 function icontent_get_bgimage($context) {
     global $CFG;
     $fs = get_file_storage();
-    // TODO: this is not very efficient!!
+    // This is not very efficient!!
     $files = $fs->get_area_files($context->id,
         'mod_icontent',
         'icontent',
@@ -301,7 +301,7 @@ function icontent_get_bgimage($context) {
 function icontent_get_page_bgimage($context, $page) {
     global $CFG;
     $fs = get_file_storage();
-    // TODO: This is not very efficient!
+    // This is not very efficient!
     $files = $fs->get_area_files($context->id,
         'mod_icontent',
         'bgpage',
@@ -698,7 +698,7 @@ function icontent_get_next_pagenum(stdClass $objpage) {
 /**
  * Get questions of question bank.
  *
- * Returns array of questions and is called from the addquestionpage.php file, bout line 92.
+ * Returns array of questions and is called from the addquestionpage.php file, about line 92.
  *
  * @param object $coursecontext
  * @param string $sort

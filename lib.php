@@ -515,7 +515,7 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
 function icontent_delete_files(stdClass $icontent) {
 
     $fs = get_file_storage();
-    // TODO: This is not very efficient!
+    // This is not very efficient!
     $files = $fs->get_area_files($context->id, 'mod_icontent', 'filearea', 'itemid', 'sortorder DESC, id ASC', false);
 }
 
@@ -532,7 +532,7 @@ function icontent_delete_files(stdClass $icontent) {
  * @param cm_info $cm course module information
  */
 function icontent_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // TODO Delete this function and its docblock, or implement it.
+    // Delete this function and its docblock, or implement it.
 }
 
 /**

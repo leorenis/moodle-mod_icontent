@@ -44,7 +44,9 @@ class icontent_pages_edit_form extends moodleform {
         $pageicontentoptions = $this->_customdata['pageicontentoptions'];
 
         $mform = $this->_form;
-
+        $icontentconfig = get_config('mod_icontent');
+print_object($icontentconfig);
+print_object($icontentconfig);
         if (!empty($page->id)) {
             $mform->addElement('header', 'general', get_string('editingpage', 'icontent'));
             $timemodified = time();
@@ -124,9 +126,31 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagepagehelp', 'icontent');
 
-        $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
-        $mform->setType('bgcolor', PARAM_TEXT);
+        //$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
+        //$mform->setType('bgcolor', PARAM_TEXT);
+        //$mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');
+
+        // 20240212 Modified setting for background color.
+        $attributes = ['class' => "color",
+                       'value' => $icontentconfig->bgcolor,
+                       'size' => "20",
+                      ];
+        $mform->setType('bgcolor', PARAM_NOTAGS);
+        $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), $attributes);
         $mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');
+        $mform->setDefault('bgcolor', $icontentconfig->bgcolor);
+
+/*
+        // Background color setting.
+        $settings->add(new icontent_setting_configcolorpicker(
+            'mod_icontent/bgccolor',
+            get_string('bgccolor_title', 'icontent'),
+            get_string('bgccolor_descr', 'icontent'),
+            get_string('bgccolor_colour', 'icontent'),
+            null)
+        );
+*/
+
 
         $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
         $mform->setType('bordercolor', PARAM_TEXT);

@@ -47,6 +47,7 @@ class mod_icontent_mod_form extends moodleform_mod {
     public function definition() {
         global $COURSE;
         $mform = $this->_form;
+        $icontentconfig = get_config('mod_icontent');
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -65,6 +66,7 @@ class mod_icontent_mod_form extends moodleform_mod {
         // Adding the standard "intro" and "introformat" fields.
         $this->standard_intro_elements();
 
+        // Adding a spot for the content creator to add a copyright.
         $mform->addElement('text', 'copyright', get_string('copyright', 'icontent'), ['class' => 'input-xxlarge']);
         $mform->setType('copyright', PARAM_RAW);
         $mform->addHelpButton('copyright', 'copyright', 'icontent');
@@ -72,6 +74,7 @@ class mod_icontent_mod_form extends moodleform_mod {
         // Appearance.
         $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 
+        // Set up options for the filemanager setting.
         $filemanageroptions = [];
         $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
         $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
@@ -82,10 +85,12 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagehelp', 'icontent');
 
+        // Setup the overall background color for each page.
         $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
         $mform->setType('bgcolor', PARAM_TEXT);
         $mform->addHelpButton('bgcolor', 'bgcolorhelp', 'icontent');
 
+        //Setup the 
         $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
         $mform->setType('bordercolor', PARAM_TEXT);
         $mform->addHelpButton('bordercolor', 'bordercolorhelp', 'icontent');

@@ -37,26 +37,39 @@ $string['attempt'] = 'Attempt';
 $string['attemptsallowed'] = 'Attempts allowed';
 $string['attemptsallowedhelp_help'] = 'Choose an option to set the allowed attempts.';
 $string['attemptsallowedhelp'] = 'Attempts allowed';
+
+$string['bgcolor_color'] = '#FCFCFC';
 $string['bgcolor'] = 'Background color';
 $string['bgcolorhelp_help'] = 'Default color will be as the background on every page.';
 $string['bgcolorhelp'] = 'Background color';
-$string['bgcolorpagehelp_help'] = 'Default color will be as the background on atual page.';
+$string['bgcolorpagehelp_help'] = 'Default color will be used as the background on each page.';
 $string['bgcolorpagehelp'] = 'Background color';
+
+
 $string['bgimage'] = 'Background image';
 $string['bgimagehelp_help'] = 'Standard image that will be as the background on every page.';
 $string['bgimagehelp'] = 'Image of Background';
-$string['bgimagepagehelp_help'] = 'Standard image that will be as the background on atual page.';
+$string['bgimagepagehelp_help'] = 'Standard image that will be as the background on each page.';
 $string['bgimagepagehelp'] = 'Image of Background';
+
+
+$string['bordercolor_color'] = '#E4E4E4';
 $string['bordercolor'] = 'Border color';
 $string['bordercolorhelp_help'] = 'Click the field and choose the default color for the borders of each page.';
 $string['bordercolorhelp'] = 'Border color';
-$string['bordercolorpagehelp_help'] = 'Click the field and choose the default color for the borders of atual page.';
+
+
+$string['bordercolorpagehelp_help'] = 'Use the color picker to choose the default color for the borders of each page.';
 $string['bordercolorpagehelp'] = 'Border color';
+
 $string['borderwidth'] = 'Border width';
-$string['borderwidthhelp_help'] = 'Choose the default width to the edges of each page.';
+$string['borderwidthhelp_help'] = 'Choose the default width for the edges of each page.';
 $string['borderwidthhelp'] = 'Border width';
-$string['borderwidthpagehelp_help'] = 'Choose the default width to the edges of atual page.';
+
+$string['borderwidthpagehelp_help'] = 'Choose the default width to the edges of each page.';
 $string['borderwidthpagehelp'] = 'Border width';
+
+
 $string['calculated'] = 'Calculated';
 $string['calculatedmulti'] = 'Calculated multi';
 $string['calculatedsimple'] = 'Calculated simple';

@@ -934,7 +934,7 @@ function icontent_count_attempts_users($cmid) {
 
     $sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
               FROM {user} u
-        INNER JOIN mdl_icontent_question_attempts qa
+        INNER JOIN {icontent_question_attempts} qa
                 ON u.id = qa.userid
              WHERE  qa.cmid = ?;";
     $totalattemptsusers = $DB->get_record_sql($sql, [$cmid]);
@@ -959,7 +959,7 @@ function icontent_count_attempts_users_with_open_answers($cmid, $status = null) 
     // SQL Query.
     $sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
               FROM {user} u
-        INNER JOIN mdl_icontent_question_attempts qa
+        INNER JOIN {icontent_question_attempts} qa
                 ON u.id = qa.userid
              WHERE  qa.cmid = ?
                AND qa.rightanswer IN (?);";
@@ -2238,7 +2238,7 @@ function icontent_make_questions_answers_by_type($question) {
                 ],
                 'COUNT(fraction)'
             );
-            // Print out the prompts. If there is more than one correct answer usen the if, Choice {$a} options:,
+            // Print out the prompts. If there is more than one correct answer use the if, Choice {$a} options:,
             // and if there is only one answer use the else, Choice a:.
             if ($totalrightanwsers > 1) {
                 $type = 'checkbox';

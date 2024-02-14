@@ -45,8 +45,7 @@ class icontent_pages_edit_form extends moodleform {
 
         $mform = $this->_form;
         $icontentconfig = get_config('mod_icontent');
-print_object($icontentconfig);
-print_object($icontentconfig);
+
         if (!empty($page->id)) {
             $mform->addElement('header', 'general', get_string('editingpage', 'icontent'));
             $timemodified = time();

@@ -79,8 +79,9 @@ This files describes API changes and other work in the iContent code.
 20240205 iContent_1193bt - Need more system default settings for iContent. See ticket for
     details. Think I have a little more to do on this.
 20240205 iContent_1194bt - Colors and background images do NOT work on old or new pages.
-    For colors, I was just doing them wrong by using # in front of the hex number.
-    Still working on background images.
+    For colors, I was just doing them wrong by using # in front of the hex number. The
+    background images problem was caused by switching from, or, over to using, ||, but
+    without isolation the two items with their own parenthesis.
 1195
 20240208 iContent_1200bt - mdl_icontent... is hardcoded in locallib.php and maybe other
     locations. Changed the code in locallib.php at lines 937 and 962. See ticket for

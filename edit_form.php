@@ -132,7 +132,7 @@ class icontent_pages_edit_form extends moodleform {
         // 20240212 Modified setting for background color.
         $attributes = ['class' => "color",
                        'value' => $icontentconfig->bgcolor,
-                       'size' => "20",
+                       'size' => "10",
                       ];
         $mform->setType('bgcolor', PARAM_NOTAGS);
         $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), $attributes);
@@ -151,19 +151,35 @@ class icontent_pages_edit_form extends moodleform {
 */
 
 
-        $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
-        $mform->setType('bordercolor', PARAM_TEXT);
-        $mform->addHelpButton('bordercolor', 'bordercolorpagehelp', 'icontent');
+        //$mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
+        //$mform->setType('bordercolor', PARAM_TEXT);
+        //$mform->addHelpButton('bordercolor', 'bordercolorpagehelp', 'icontent');
+
+        // 20240212 Modified setting for bordercolor color.
+        $attributes = ['class' => "color",
+                       'value' => $icontentconfig->bordercolor,
+                       'size' => "10",
+                      ];
+        $mform->setType('bordercolor', PARAM_NOTAGS);
+        $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), $attributes);
+        $mform->addHelpButton('bordercolor', 'bgcolorpagehelp', 'icontent');
+        $mform->setDefault('bordercolor', $icontentconfig->bordercolor);
 
         $opts = icontent_add_borderwidth_options();
         $mform->addElement('select', 'borderwidth', get_string('borderwidth', 'icontent'), $opts);
         $mform->setType('borderwidth', PARAM_INT);
         $mform->addHelpButton('borderwidth', 'borderwidthpagehelp', 'icontent');
-        $mform->setDefault('borderwidth', 1);
+        // 20240216 Use default in config setting for iContent.
+        $mform->setDefault('borderwidth', $icontentconfig->borderwidth);
 
-        $mform->addElement('text', 'maxnotesperpages', get_string('maxnotesperpages', 'icontent'), ['class' => 'x-large']);
+        $attributes = ['class' => "x-large",
+                       'value' => $icontentconfig->maxnotesperpages,
+                       'size' => "10",
+                      ];
         $mform->setType('maxnotesperpages', PARAM_INT);
+        $mform->addElement('text', 'maxnotesperpages', get_string('maxnotesperpages', 'icontent'), $attributes);
         $mform->addHelpButton('maxnotesperpages', 'maxnotesperpageshelp', 'icontent');
+        $mform->setDefault('maxnotesperpages', $icontentconfig->maxnotesperpages);
         $mform->addRule('maxnotesperpages', null, 'numeric', null, 'client');
         $mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
 

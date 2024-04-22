@@ -69,15 +69,15 @@ if ($ADMIN->fulltree) {
     $name = 'mod_icontent/borderwidth';
     $title = get_string('borderwidth', 'icontent');
     $description = get_string('borderwidthhelp_help', 'icontent');
-    $default = 0;
-    $options = icontent_add_borderwidth_options();
+    $default = 10;
+    $options = icontent_add_borderwidth_options(); // 20240216 Limit to <= 50px in locallib.php about line 253.
     $settings->add(new admin_setting_configselect($name, $title, $description, $default, $options, 1));
     $setting->set_updatedcallback('theme_reset_all_caches');
     $settings->add($setting);
 
     // 20240205 iContent Maximum number of pages.
     $maxpages = [];
-    for ($i = 0; $i <= 56; $i++) {
+    for ($i = 0; $i <= 55; $i++) {
         $maxpages[] = $i;
     }
     $name = 'mod_icontent/maxpages';

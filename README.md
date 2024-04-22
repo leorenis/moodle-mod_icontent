@@ -2,7 +2,7 @@
 [![License](https://poser.pugx.org/covex-nn/moodle/license)](http://www.gnu.org/copyleft/gpl.html)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
-* Modified by: [AL Rachels] (https://m3x.drachels.com).
+* Modified by: [AL Rachels] (https://drachels.org).
 
 ## About
 The plugin for Moodle (Content pages), was designed so that from it, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.

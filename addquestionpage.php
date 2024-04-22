@@ -117,15 +117,22 @@ $table->colclasses = ['checkbox', 'qtype', 'questionname', 'previewaction', 'cre
 $table->head  = [
     null,
     get_string('type', 'mod_icontent'),
-    get_string('question').'<br>Name',
-    'Question'.'<br>'.'ID',
-    get_string('question').'<br>'.get_string('status'),
-    get_string('question').'<br>'.get_string('version'),
-    get_string('context').'ID',
-    get_string('course'),
-    get_string('createdby', 'mod_icontent'),
-    get_string('lastmodifiedby', 'mod_icontent'),
-    'Category'.'<br>'.'ID',
+    get_string('question'),
+    //get_string('question').' ID',
+    //get_string('category'),
+    //get_string('context'),
+    //get_string('course'),
+
+    get_string('status'),
+    get_string('version'),
+    get_string('createdby', 'question'),
+    get_string('commentplural', 'qbank_comment'),
+    get_string('discrimination_index', 'qbank_statistics'),
+    get_string('facility_index', 'qbank_statistics'),
+    get_string('discriminative_efficiency', 'qbank_statistics'),
+    get_string('questionusage', 'qbank_usage'),
+    get_string('questionlastused', 'qbank_usage'),
+    get_string('modifiedby', 'qbank_viewcreator'),
 ];
 
 if ($questions) {
@@ -151,16 +158,27 @@ if ($questions) {
             $checkbox,
             $qtype,
             $question->qname,
-            $question->qvquestionid,
+            //$question->qvquestionid,
+            //$question->qbequestioncategoryid,
+            //$question->qccontextid,
+            //$course->id,
             $question->qvstatus,
             $question->qvversion,
-            $question->qccontextid,
-            $course->id,
+
+
             $createdby->firstname.' '.$createdby->lastname.
                 '<br>'.date(get_config('mod_icontent', 'dateformat'), $question->qtimecreated),
+
+            // Need Comments, Needs Checking?, Facility index, Discriminative efficiency, and Usage placed here.
+            get_string('commentplural', 'qbank_comment'),
+            get_string('discrimination_index', 'qbank_statistics'),
+            get_string('facility_index', 'qbank_statistics'),
+            get_string('discriminative_efficiency', 'qbank_statistics'),
+            get_string('questionusage', 'qbank_usage'),
+            get_string('questionlastused', 'qbank_usage'),
+
             $modifiedby->firstname.' '.$modifiedby->lastname.
                 '<br>'.date(get_config('mod_icontent', 'dateformat'), $question->qtimemodified),
-            $question->qbequestioncategoryid,
         ];
     }
 } else {

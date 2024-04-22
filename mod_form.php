@@ -48,6 +48,8 @@ class mod_icontent_mod_form extends moodleform_mod {
         global $COURSE;
         $mform = $this->_form;
         $icontentconfig = get_config('mod_icontent');
+        // Cache the plugin name.
+        $plugin = 'mod_icontent';
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -89,6 +91,21 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
         $mform->setType('bgcolor', PARAM_TEXT);
         $mform->addHelpButton('bgcolor', 'bgcolorhelp', 'icontent');
+
+
+        // 20240216 Modified setting for the overall background color for each page.
+        $attributes = ['class' => "color",
+                       'value' => $icontentconfig->bordercolor,
+                       'size' => "10",
+                      ];
+        $name = 'bgcolor';
+        $label = get_string('bgcolor', 'icontent');
+        $description = get_string('bgcolor', 'icontent');
+        $default = get_string('bgcolor', 'icontent');
+        $mform->setType($name, PARAM_NOTAGS);
+        $mform->addElement('text', $name, $label, $attributes);
+        $mform->addHelpButton($name, $name, $plugin);
+        $mform->setDefault($name, $icontentconfig->bgcolor);
 
         //Setup the 
         $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);

@@ -41,6 +41,7 @@ $string['attemptsallowedhelp'] = 'Attempts allowed';
 $string['bgcolor_color'] = '#FCFCFC';
 $string['bgcolor'] = 'Background color';
 $string['bgcolorhelp_help'] = 'Default color will be as the background on every page.';
+$string['bgcolor_help'] = 'Default color will be as the background on every page.';
 $string['bgcolorhelp'] = 'Background color';
 $string['bgcolorpagehelp_help'] = 'Default color will be used as the background on each page.';
 $string['bgcolorpagehelp'] = 'Background color';

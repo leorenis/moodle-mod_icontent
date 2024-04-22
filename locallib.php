@@ -252,7 +252,8 @@ function icontent_get_page_style($icontent, $page, $context) {
  */
 function icontent_add_borderwidth_options() {
     $arr = [];
-    for ($i = 0; $i < 50; $i++) {
+    // 20240216 Changed from 50 to 51.
+    for ($i = 0; $i < 51; $i++) {
         $arr[$i] = $i.'px';
     }
     return $arr;

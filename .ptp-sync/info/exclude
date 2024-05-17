@@ -1,0 +1,11 @@
+/.project
+/.cproject
+/.buildpath
+/.settings/
+coredir.[0-9]*/
+core
+!core/
+core.[0-9]*
+!core.[0-9]*/
+CVS/
+/.ptp-sync/

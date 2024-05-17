@@ -1,0 +1,8 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = true
+	preloadindex = true
+[user]
+	email = ptp-dev@eclipse.org
+	name = PTP

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Manual review
+ * Manual review.
  *
  * @package    mod_icontent
  * @copyright  2016-2015 Leo Santos {@link http://github.com/leorenis}
@@ -25,78 +25,117 @@
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
-$id			= required_param('id', PARAM_INT); 			// Course Module ID
-$pageid		= optional_param('pageid', 0, PARAM_INT); 	// page note ID
-$action		= optional_param('action', 0, PARAM_ALPHA); // Action
-$status		= optional_param('status', ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, PARAM_ALPHA); // Status
-$sort 		= optional_param('sort', '', PARAM_ALPHA);
-$page 		= optional_param('page', 0, PARAM_INT);
-$perpage 	= optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
+$id = required_param('id', PARAM_INT); // Course Module ID.
+$pageid = optional_param('pageid', 0, PARAM_INT); // Page note ID.
+$action = optional_param('action', 0, PARAM_ALPHA); // Action.
+$status = optional_param('status', ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, PARAM_ALPHA); // Status.
+$sort = optional_param('sort', '', PARAM_ALPHA);
+$page = optional_param('page', 0, PARAM_INT);
+$perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
 
 $cm = get_coursemodule_from_id('icontent', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
-$icontent = $DB->get_record('icontent', array('id'=>$cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$icontent = $DB->get_record('icontent', ['id' => $cm->instance], '*', MUST_EXIST);
 
 require_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:grade', $context);
-// Page setting
-$PAGE->set_url('/mod/icontent/grading.php', array('id' => $cm->id, 'action'=>$action));
+// Page setting.
+$PAGE->set_url('/mod/icontent/grading.php', ['id' => $cm->id, 'action' => $action]);
 // Header and strings.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
-// CSS
+// CSS.
 $PAGE->requires->css(new moodle_url($CFG->wwwroot.'/mod/icontent/styles/font-awesome-4.6.2/css/font-awesome.min.css'));
-// JS
+// JS.
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jquery/jquery-1.11.3.min.js'), true);
 $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/bootstrap/bootstrap.min.js'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('strmanualgrading', 'mod_icontent'), 3);
-$url = new moodle_url('/mod/icontent/grading.php', array('id'=>$id, 'action'=> $action, 'status'=> $status, 'page' => $page, 'perpage' => $perpage));
-// Get sort value
+$url = new moodle_url('/mod/icontent/grading.php',
+    [
+        'id' => $id,
+        'action' => $action,
+        'status' => $status,
+        'page' => $page,
+        'perpage' => $perpage,
+    ]
+);
+// Get sort value.
 $sort = icontent_check_value_sort($sort);
-// Get answers not evaluated
+// Get answers not evaluated.
 $attemptsusers = icontent_get_attempts_users_with_open_answers($cm->id, $sort, $status, $page, $perpage);
 $tattemtpsusers = icontent_count_attempts_users_with_open_answers($cm->id, $status);
-// Make message info
+// Make message info.
 $clickhere = html_writer::link(
-	new moodle_url('/mod/icontent/grading.php',
-			array('id'=>$cm->id, 'action'=>'grading', 'status'=>'valued', 'page' => $page, 'perpage' => $perpage)),
-	get_string('clickhere', 'mod_icontent'),
-	array('title'=>get_string('reassess', 'mod_icontent'), 'data-toggle'=> 'tooltip', 'data-placement'=> 'top')
+    new moodle_url('/mod/icontent/grading.php',
+        [
+            'id' => $cm->id,
+            'action' => 'grading',
+            'status' => 'valued',
+            'page' => $page,
+            'perpage' => $perpage,
+        ]
+    ),
+    get_string('clickhere', 'mod_icontent'),
+    [
+        'title' => get_string('reassess', 'mod_icontent'),
+        'data-toggle' => 'tooltip',
+        'data-placement' => 'top',
+    ]
 );
-// Make table questions
+// Make table questions.
 $table = new html_table();
 $table->id = "idtableattemptsusers";
-$table->colclasses = array('fullname', 'answers', 'actions');
-$table->attributes = array('class'=>'table table-hover tableattemptsusers');
-$table->head  = array(get_string('fullname'), get_string('toevaluate', 'mod_icontent'), get_string('action', 'mod_icontent'));
-if($attemptsusers) foreach ($attemptsusers as $attemptuser){
-	// Get picture
-	$picture = $OUTPUT->user_picture($attemptuser, array('size'=>35, 'class'=> 'img-thumbnail pull-left'));
-	$linkfirstname = html_writer::link(new moodle_url('/user/view.php', array('id'=>$attemptuser->id, 'course'=>$course->id)), $attemptuser->firstname. ' '. $attemptuser->lastname, array('title'=>$attemptuser->firstname, 'class'=>'lkfullname'));
-	// String open answers for user
-	$stropenanswer = get_string('stropenanswer', 'mod_icontent', $attemptuser->totalopenanswers);
-	$icontoevaluate = html_writer::link(
-			 				new moodle_url('toevaluate.php',
-			 					array('id' => $cm->id, 'status'=> $status,'userid' => $attemptuser->id, 'sesskey' => sesskey())
-			 				),
-							'<i class="fa fa-check-circle fa-lg"></i>',
-							array('class'=>'btn btn-primary btn-toevaluate', 'title'=>get_string('evaluate', 'mod_icontent'), 'data-toggle'=> 'tooltip', 'data-placement'=> 'top')
-						);
-	// Set data
-	$table->data[] = array($picture. $linkfirstname, $stropenanswer, $icontoevaluate);
+$table->colclasses = ['fullname', 'answers', 'actions'];
+$table->attributes = ['class' => 'table table-hover tableattemptsusers'];
+$table->head  = [get_string('fullname'), get_string('toevaluate', 'mod_icontent'), get_string('action', 'mod_icontent')];
+if ($attemptsusers) {
+    foreach ($attemptsusers as $attemptuser) {
+        // Get picture.
+        $picture = $OUTPUT->user_picture($attemptuser, ['size' => 35, 'class' => 'img-thumbnail pull-left']);
+        $linkfirstname = html_writer::link(new moodle_url('/user/view.php',
+            [
+                'id' => $attemptuser->id,
+                'course' => $course->id,
+            ]),
+            $attemptuser->firstname.' '.$attemptuser->lastname,
+            [
+                'title' => $attemptuser->firstname,
+                'class' => 'lkfullname',
+            ]);
+        // String open answers for user.
+        $stropenanswer = get_string('stropenanswer', 'mod_icontent', $attemptuser->totalopenanswers);
+        $icontoevaluate = html_writer::link(
+            new moodle_url('toevaluate.php',
+            [
+                'id' => $cm->id,
+                'status' => $status,
+                'userid' => $attemptuser->id,
+                'sesskey' => sesskey(),
+            ]),
+            '<i class="fa fa-check-circle fa-lg"></i>',
+            [
+                'class' => 'btn btn-primary btn-toevaluate',
+                'title' => get_string('evaluate', 'mod_icontent'),
+                'data-toggle' => 'tooltip',
+                'data-placement' => 'top',
+            ]
+        );
+        // Set data.
+        $table->data[] = [$picture.$linkfirstname, $stropenanswer, $icontoevaluate];
+    }
+} else {
+    echo html_writer::div(get_string('norecordsfound', 'mod_icontent').' '.$clickhere.
+        get_string('toreassess', 'mod_icontent').'.', 'alert alert-warning');
+    echo $OUTPUT->footer();
+    exit;
 }
-else {
-	echo html_writer::div(get_string('norecordsfound', 'mod_icontent').' '.$clickhere. get_string('toreassess', 'mod_icontent').'.', 'alert alert-warning');
-	echo $OUTPUT->footer();
-	exit;
-}
-// Show message info
+// Show message info.
 echo html_writer::div(get_string('answersevaluatedinfo', 'mod_icontent', $clickhere), 'alert alert-info');
-// Show table
+// Show table.
 echo html_writer::start_div('idtableagradingttemptsusers');
 echo html_writer::table($table);
 echo $OUTPUT->paging_bar($tattemtpsusers, $page, $perpage, $url);

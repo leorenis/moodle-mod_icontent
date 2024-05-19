@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides code to be executed during the module uninstallation
+ * Provides code to be executed during the module uninstallation.
  *
  * @see uninstall_plugin()
  *
@@ -25,7 +25,7 @@
  */
 
 /**
- * Custom uninstallation procedure
+ * Custom uninstallation procedure.
  */
 function xmldb_icontent_uninstall() {
     return true;

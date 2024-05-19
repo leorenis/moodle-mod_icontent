@@ -1,7 +1,8 @@
-# Moodle iContent 1.0.6
+# Moodle iContent 1.0.7
 [![License](https://poser.pugx.org/covex-nn/moodle/license)](http://www.gnu.org/copyleft/gpl.html)
 
 * Maintained by: [Léo Santos](https://br.linkedin.com/in/leorenis).
+* Modified by: [AL Rachels] (https://drachels.org).
 
 ## About
 The plugin for Moodle (Content pages), was designed so that from it, tutors, teachers and technicians can add content in courses, following usability and accessibility standards.
@@ -19,8 +20,8 @@ O conteúdo será distribuído em paginas, garantindo uma leitura relevante, pro
 O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, isso proporciona melhor interação entre o participante e a plataforma virtual de aprendizagem, sendo que o recurso poderá se tornar um item avaliativo ou lançar notas fracionadas nos itens disponíveis no curso conforme definido no plano de ação. A extensão descrita é devidamente responsiva e poderá ser acessada por qualquer dispositivo.
 
 ## Compatibility / Compatibilidade
-* PHP >= 5.6
-* Moodle >= 2.6.5+ (Build: 20140918)
+* PHP >= 8.0
+* Moodle >= 4.0.10+ (Build: 20230806)
 
 ## License / Licença
 * The iContent uses the GPL-3.0+ license, to learn more read the link: [GPL license](http://www.gnu.org/copyleft/gpl.html).

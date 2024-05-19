@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides code to be executed during the module installation
+ * Provides code to be executed during the module installation.
  *
  * This file replaces the legacy STATEMENTS section in db/install.xml,
  * lib.php/modulename_install() post installation hook and partially defaults.php.
@@ -26,7 +26,7 @@
  */
 
 /**
- * Post installation procedure
+ * Post installation procedure.
  *
  * @see upgrade_plugins_modules()
  */
@@ -34,7 +34,7 @@ function xmldb_icontent_install() {
 }
 
 /**
- * Post installation recovery procedure
+ * Post installation recovery procedure.
  *
  * @see upgrade_plugins_modules()
  */

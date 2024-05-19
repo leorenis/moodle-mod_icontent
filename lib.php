@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of interface functions and constants for module icontent
+ * Library of interface functions and constants for module icontent.
  *
  * All the core Moodle functions, neeeded to allow the module to work
  * integrated in Moodle should be placed here.
@@ -29,7 +29,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
 
 /**
  * Constant
@@ -41,24 +41,38 @@ define('ICONTENT_ULTIMATE_ANSWER', 42);
 /**
  * Returns the information on whether the module supports a feature
  *
- * See {@link plugin_supports()} for more info.
+ * See {@link https://yourmoodle/lib/moodlelib.php->plugin_supports()} for more info.
  *
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed true if the feature is supported, null if unknown
  */
 function icontent_supports($feature) {
-
+    global $CFG;
+    if ((int)$CFG->branch > 311) {
+        if ($feature === FEATURE_MOD_PURPOSE) {
+            return MOD_PURPOSE_COLLABORATION;
+        }
+    }
     switch($feature) {
+        case FEATURE_BACKUP_MOODLE2:
+            return true;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_GRADE_HAS_GRADE:
+            return true;
+        case FEATURE_GRADE_OUTCOMES:
+            return true;
+        case FEATURE_GROUPS:
+            return true;
+        case FEATURE_GROUPINGS:
+            return true;
+        case FEATURE_GROUPMEMBERSONLY:
+            return true;
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return true;
-        case FEATURE_GRADE_HAS_GRADE:
-            return true;
-		case FEATURE_GRADE_OUTCOMES:
-			return true;
-        case FEATURE_BACKUP_MOODLE2:
-            return true;
+
         default:
             return null;
     }
@@ -91,7 +105,7 @@ function icontent_add_instance(stdClass $icontent, mod_icontent_mod_form $mform 
 }
 
 /**
- * Updates an instance of the icontent in the database
+ * Updates an instance of the icontent in the database.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -117,7 +131,7 @@ function icontent_update_instance(stdClass $icontent, mod_icontent_mod_form $mfo
 }
 
 /**
- * Removes an instance of the icontent from the database
+ * Removes an instance of the icontent from the database.
  *
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
@@ -128,29 +142,29 @@ function icontent_update_instance(stdClass $icontent, mod_icontent_mod_form $mfo
  */
 function icontent_delete_instance($id) {
     global $DB;
-	// check if instance exists
-    if (! $icontent = $DB->get_record('icontent', array('id' => $id))) {
+    // Check if instance exists.
+    if (! $icontent = $DB->get_record('icontent', ['id' => $id])) {
         return false;
     }
     if (!$cm = get_coursemodule_from_instance('icontent', $icontent->id)) {
-    	return false;
+        return false;
     }
     // Delete any dependent records here.
-	$DB->delete_records('icontent_pages_notes_like', array('cmid' => $cm->id));
-	$DB->delete_records('icontent_pages_notes', array('cmid' => $cm->id));
-	$DB->delete_records('icontent_pages_questions', array('cmid' => $cm->id));
-	$DB->delete_records('icontent_question_attempts', array('cmid' => $cm->id));
-	$DB->delete_records('icontent_pages_displayed', array('cmid' => $cm->id));
-	$DB->delete_records('icontent_pages', array('icontentid'=>$icontent->id));
-    $DB->delete_records('icontent_grades', array('cmid' => $cm->id));
-    $DB->delete_records('icontent', array('id' => $icontent->id));
-	// Delete grades
+    $DB->delete_records('icontent_pages_notes_like', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent_pages_notes', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent_pages_questions', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent_question_attempts', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent_pages_displayed', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent_pages', ['icontentid' => $icontent->id]);
+    $DB->delete_records('icontent_grades', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent', ['id' => $icontent->id]);
+    // Delete grades.
     icontent_grade_item_delete($icontent);
-    // Delete files
+    // Delete files.
     $context = context_module::instance($cm->id);
     $fs = get_file_storage();
     $fs->delete_area_files($context->id, 'mod_icontent');
-    // Return
+    // Return.
     return true;
 }
 
@@ -170,7 +184,7 @@ function icontent_delete_instance($id) {
  */
 function icontent_user_outline($course, $user, $mod, $icontent) {
 
-	global $CFG;
+    global $CFG;
 
     require_once("$CFG->libdir/gradelib.php");
     $grades = grade_get_grades($course->id, 'mod', 'icontent', $icontent->id, $user->id);
@@ -182,9 +196,9 @@ function icontent_user_outline($course, $user, $mod, $icontent) {
         $grade = reset($grades->items[0]->grades);
         $return->info = get_string("grade") . ': ' . $grade->str_long_grade;
 
-        //datesubmitted == time created. dategraded == time modified or time overridden
-        //if grade was last modified by the user themselves use date graded. Otherwise use date submitted
-        //TODO: move this copied & pasted code somewhere in the grades API. See MDL-26704
+        // The datesubmitted == time created. The dategraded == time modified or time overridden.
+        // If grade was last modified by the user themselves use date graded. Otherwise use date submitted.
+        // TODO: Move this copied & pasted code somewhere in the grades API. See MDL-26704.
         if ($grade->usermodified == $user->id || empty($grade->datesubmitted)) {
             $return->time = $grade->dategraded;
         } else {
@@ -222,11 +236,11 @@ function icontent_print_recent_activity($course, $viewfullnames, $timestart) {
 }
 
 /**
- * Prepares the recent activity data
+ * Prepares the recent activity data.
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link icontent_print_recent_mod_activity()}.
+ * {@link https://yourmoodle/mod/icontent/lib.php->icontent_print_recent_mod_activity()}.
  *
  * Returns void, it adds items into $activities and increases $index.
  *
@@ -242,19 +256,21 @@ function icontent_get_recent_mod_activity(&$activities, &$index, $timestart, $co
 }
 
 /**
- * Prints single activity item prepared by {@link icontent_get_recent_mod_activity()}
+ * Prints single activity item prepared by
+ * {@link https://yourmoodle/mod/icontent/lib.php->icontent_get_recent_mod_activity()}.
  *
- * @param stdClass $activity activity record with added 'cmid' property
- * @param int $courseid the id of the course we produce the report for
- * @param bool $detail print detailed report
- * @param array $modnames as returned by {@link get_module_types_names()}
+ * @param stdClass $activity Activity record with added 'cmid' property.
+ * @param int $courseid The id of the course we produce the report for.
+ * @param bool $detail Print detailed report.
+ * @param array $modnames as returned by
+ * {@link https://yourmoodle/course/lib.php->get_module_types_names()}
  * @param bool $viewfullnames display users' full names
  */
 function icontent_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
 }
 
 /**
- * Function to be run periodically according to the moodle cron
+ * Function to be run periodically according to the moodle cron.
  *
  * This function searches for things that need to be done, such
  * as sending out mail, toggling flags etc ...
@@ -268,7 +284,7 @@ function icontent_cron () {
 }
 
 /**
- * Returns all other caps used in the module
+ * Returns all other caps used in the module.
  *
  * For example, this could be array('moodle/site:accessallgroups') if the
  * module uses that capability.
@@ -276,7 +292,7 @@ function icontent_cron () {
  * @return array
  */
 function icontent_get_extra_capabilities() {
-    return array();
+    return [];
 }
 
 /* Gradebook API */
@@ -294,7 +310,7 @@ function icontent_get_extra_capabilities() {
 function icontent_scale_used($icontentid, $scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('icontent', array('id' => $icontentid, 'grade' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('icontent', ['id' => $icontentid, 'grade' => -$scaleid])) {
         return true;
     } else {
         return false;
@@ -312,7 +328,7 @@ function icontent_scale_used($icontentid, $scaleid) {
 function icontent_scale_used_anywhere($scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('icontent', array('grade' => -$scaleid))) {
+    if ($scaleid && $DB->record_exists('icontent', ['grade' => -$scaleid])) {
         return true;
     } else {
         return false;
@@ -320,9 +336,9 @@ function icontent_scale_used_anywhere($scaleid) {
 }
 
 /**
- * Creates or updates grade item for the given icontent instance
+ * Creates or updates grade item for the given icontent instance.
  *
- * Needed by {@link grade_update_mod_grades()}.
+ * Needed by {@link https://yourmoodle/lib/grade_lib.php->grade_update()}.
  *
  * @param stdClass $icontent instance object with extra cmidnumber and modname property
  * @param bool $reset reset grades in the gradebook
@@ -331,8 +347,8 @@ function icontent_scale_used_anywhere($scaleid) {
 function icontent_grade_item_update(stdClass $icontent, $reset=false) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
-	
-    $item = array();
+
+    $item = [];
     $item['itemname'] = clean_param($icontent->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
     if ($icontent->grade > 0) {
@@ -355,9 +371,9 @@ function icontent_grade_item_update(stdClass $icontent, $reset=false) {
 }
 
 /**
- * Delete grade item for given icontent instance
+ * Delete grade item for given icontent instance.
  *
- * @param stdClass $icontent instance object
+ * @param stdClass $icontent Instance object.
  * @return grade_item
  */
 function icontent_grade_item_delete($icontent) {
@@ -365,13 +381,13 @@ function icontent_grade_item_delete($icontent) {
     require_once($CFG->libdir.'/gradelib.php');
 
     return grade_update('mod/icontent', $icontent->course, 'mod', 'icontent',
-            $icontent->id, 0, null, array('deleted' => 1));
+            $icontent->id, 0, null, ['deleted' => 1]);
 }
 
 /**
- * Update icontent grades in the gradebook
+ * Update icontent grades in the gradebook.
  *
- * Needed by {@link grade_update_mod_grades()}.
+ * Needed by {@link https://yourmoodle/lib/grade_lib.php->grade_update()}.
  *
  * @param stdClass $icontent instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
@@ -381,7 +397,7 @@ function icontent_update_grades(stdClass $icontent, $userid = 0) {
     require_once($CFG->libdir.'/gradelib.php');
 
     // Populate array of grade objects indexed by userid.
-    $grades = array();
+    $grades = [];
 
     grade_update('mod/icontent', $icontent->course, 'mod', 'icontent', $icontent->id, 0, $grades);
 }
@@ -389,10 +405,10 @@ function icontent_update_grades(stdClass $icontent, $userid = 0) {
 /* File API */
 
 /**
- * Returns the lists of all browsable file areas within the given module context
+ * Returns the lists of all browsable file areas within the given module context.
  *
  * The file area 'intro' for the activity introduction field is added automatically
- * by {@link file_browser::get_file_info_context_module()}
+ * by {@link https://yourmoodle/lib/filelib.php->file_browser::get_file_info()}
  *
  * @param stdClass $course
  * @param stdClass $cm
@@ -405,7 +421,7 @@ function icontent_get_file_areas($course, $cm, $context) {
 }
 
 /**
- * File browsing support for icontent file areas
+ * File browsing support for icontent file areas.
  *
  * @package mod_icontent
  * @category files
@@ -422,12 +438,12 @@ function icontent_get_file_areas($course, $cm, $context) {
  * @return file_info instance or null if not found
  */
 function icontent_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
-   
+
     return null;
 }
 
 /**
- * Serves the files from the icontent file areas
+ * Serves the files from the icontent file areas.
  *
  * @package mod_icontent
  * @category files
@@ -440,7 +456,7 @@ function icontent_get_file_info($browser, $areas, $course, $cm, $context, $filea
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=[]) {
     global $CFG, $DB;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -448,66 +464,65 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
     }
 
     require_course_login($course, true, $cm);
-	
-	$itemid = 0;
-	switch ($filearea) {
-		case 'page':
-		case 'bgpage':
-			$pageid = (int) array_shift($args);
-			$itemid = $pageid;
-			
-			if (!$page = $DB->get_record('icontent_pages', array('id'=>$pageid))) {
-		        return false;
-		    }
-			break;
-		case 'icontent':
-			$itemid = 0;
-			break;
-		default:
-			return false;
-			break;
-	}
 
-	if (!$icontent = $DB->get_record('icontent', array('id'=>$cm->instance))) {
-    	return false;
-	}
+    $itemid = 0;
+    switch ($filearea) {
+        case 'page':
+        case 'bgpage':
+            $pageid = (int) array_shift($args);
+            $itemid = $pageid;
+            if (!$page = $DB->get_record('icontent_pages', ['id' => $pageid])) {
+                return false;
+            }
+            break;
+        case 'icontent':
+            $itemid = 0;
+            break;
+        default:
+            return false;
+            break;
+    }
+
+    if (!$icontent = $DB->get_record('icontent', ['id' => $cm->instance])) {
+        return false;
+    }
 
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/mod_icontent/$filearea/$itemid/$relativepath";
 
     $fs = get_file_storage();
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
+    if ((!$file = $fs->get_file_by_hash(sha1($fullpath))) || ($file->is_directory())) {
         return false;
     }
 
-	 // Nasty hack because we do not have fSile revisions in icontent yet.
+    // Nasty hack because we do not have fSile revisions in icontent yet.
     $lifetime = $CFG->filelifetime;
-    if ($lifetime > 60*10) {
-        $lifetime = 60*10;
+    if ($lifetime > 60 * 10) {
+        $lifetime = 60 * 10;
     }
-	
-	send_stored_file($file, 0, 0, true, $options); // download MUST be forced - security!
-    // finally send the file
+
+    send_stored_file($file, 0, 0, true, $options); // Download MUST be forced - security!
+    // Finally send the file.
 
     return false;
 }
 
 /**
- * Delete files 
+ * Delete files.
  *
- * @param 	stdClass $icontent 
+ * @param stdClass $icontent
  */
-function icontent_delete_files(stdClass $icontent){
-	
-	$fs = get_file_storage();
-	$files = $fs->get_area_files($context->id, 'mod_icontent', 'filearea', 'itemid', 'sortorder DESC, id ASC', false); // TODO: this is not very efficient!!
-	
+function icontent_delete_files(stdClass $icontent) {
+
+    $fs = get_file_storage();
+    // This is not very efficient!
+    $files = $fs->get_area_files($context->id, 'mod_icontent', 'filearea', 'itemid', 'sortorder DESC, id ASC', false);
 }
 
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding icontent nodes if there is a relevant icontent
+ * Extends the global navigation tree by adding icontent nodes if there is a relevant icontent.
  *
  * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
  *
@@ -517,11 +532,11 @@ function icontent_delete_files(stdClass $icontent){
  * @param cm_info $cm course module information
  */
 function icontent_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // TODO Delete this function and its docblock, or implement it.
+    // Delete this function and its docblock, or implement it.
 }
 
 /**
- * Extends the settings navigation with the icontent settings
+ * Extends the settings navigation with the icontent settings.
  *
  * This function is called when the context for the page is a icontent module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
@@ -530,39 +545,48 @@ function icontent_extend_navigation(navigation_node $navref, stdClass $course, s
  * @param navigation_node $icontentnode icontent administration node
  */
 function icontent_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $icontentnode=null) {
-	global $PAGE, $DB;
+    global $PAGE, $DB;
     // Get instance object icontent.
-	$icontent = $DB->get_record('icontent', array('id'=>$PAGE->cm->instance), '*', MUST_EXIST);
-	// View menu
-	if (has_any_capability(array('mod/icontent:edit', 'mod/icontent:manage'), $PAGE->cm->context)){
-		$url = new moodle_url('/mod/icontent/view.php', array('id' => $PAGE->cm->id));
-		$icontentnode->add(get_string('preview', 'mod_icontent'), $url);
-	}
-    // Check capabilities for students
-	if (has_capability('mod/icontent:viewnotes', $PAGE->cm->context) && $icontent->shownotesarea) {
-		// Notes
-		$resultsnode = $icontentnode->add(get_string('comments', 'mod_icontent'));
-		$url = new moodle_url('/mod/icontent/notes.php', array('id' => $PAGE->cm->id, 'action'=>'featured', 'featured'=> 1));
-		$resultsnode->add(get_string('highlighted', 'mod_icontent'), $url);
-		$url = new moodle_url('/mod/icontent/notes.php', array('id' => $PAGE->cm->id, 'action'=>'likes', 'likes'=> 1));
-		$resultsnode->add(get_string('likes', 'mod_icontent'), $url);
-		$url = new moodle_url('/mod/icontent/notes.php', array('id' => $PAGE->cm->id, 'action'=>'private', 'private'=> 1));
-		$resultsnode->add(get_string('privates', 'mod_icontent'), $url);
-		// Doubts
-		$resultsnode = $icontentnode->add(get_string('doubts', 'mod_icontent'));
-		$url = new moodle_url('/mod/icontent/doubts.php', array('id' => $PAGE->cm->id, 'action'=>'doubttutor', 'doubttutor'=> 1,  'tab'=> 'doubt'));
-		$resultsnode->add(get_string('doubtstotutor', 'mod_icontent'), $url);
-		$url = new moodle_url('/mod/icontent/doubts.php', array('id' => $PAGE->cm->id, 'action'=>'alldoubts', 'tab' => 'doubt'));
-		$resultsnode->add(get_string('alldoubts', 'mod_icontent'), $url);
-	}
-	// Menu items for manager
-	if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
-		$resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
-		$url = new moodle_url('/mod/icontent/grade.php', array('id'=>$PAGE->cm->id, 'action'=>'overview'));
-		$resultsnode->add(get_string('grades'), $url);
-		$url = new moodle_url('/mod/icontent/grading.php', array('id'=>$PAGE->cm->id, 'action'=>'grading'));
-		$resultsnode->add(get_string('manualreview', 'mod_icontent'), $url);
-	}
+    $icontent = $DB->get_record('icontent', ['id' => $PAGE->cm->instance], '*', MUST_EXIST);
+    // View menu.
+    if (has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $PAGE->cm->context)) {
+        $url = new moodle_url('/mod/icontent/view.php', ['id' => $PAGE->cm->id]);
+        $icontentnode->add(get_string('preview', 'mod_icontent'), $url);
+    }
+    // Check capabilities for students.
+    if (has_capability('mod/icontent:viewnotes', $PAGE->cm->context) && $icontent->shownotesarea) {
+        // Notes.
+        $resultsnode = $icontentnode->add(get_string('comments', 'mod_icontent'));
+        $url = new moodle_url('/mod/icontent/notes.php',
+            ['id' => $PAGE->cm->id, 'action' => 'featured', 'featured' => 1]);
+        $resultsnode->add(get_string('highlighted', 'mod_icontent'), $url);
+        $url = new moodle_url('/mod/icontent/notes.php',
+            ['id' => $PAGE->cm->id, 'action' => 'likes', 'likes' => 1]);
+        $resultsnode->add(get_string('likes', 'mod_icontent'), $url);
+        $url = new moodle_url('/mod/icontent/notes.php',
+            ['id' => $PAGE->cm->id, 'action' => 'private', 'private' => 1]);
+        $resultsnode->add(get_string('privates', 'mod_icontent'), $url);
+
+        // Doubts.
+        $resultsnode = $icontentnode->add(get_string('doubts', 'mod_icontent'));
+        $url = new moodle_url('/mod/icontent/doubts.php',
+            ['id' => $PAGE->cm->id, 'action' => 'doubttutor', 'doubttutor' => 1,  'tab' => 'doubt']);
+        $resultsnode->add(get_string('doubtstotutor', 'mod_icontent'), $url);
+        $url = new moodle_url('/mod/icontent/doubts.php',
+            ['id' => $PAGE->cm->id, 'action' => 'alldoubts', 'tab' => 'doubt']);
+        $resultsnode->add(get_string('alldoubts', 'mod_icontent'), $url);
+    }
+
+    // Menu items for manager.
+    if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
+        $resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
+        $url = new moodle_url('/mod/icontent/grade.php',
+            ['id' => $PAGE->cm->id, 'action' => 'overview']);
+        $resultsnode->add(get_string('grades'), $url);
+        $url = new moodle_url('/mod/icontent/grading.php',
+            ['id' => $PAGE->cm->id, 'action' => 'grading']);
+        $resultsnode->add(get_string('manualreview', 'mod_icontent'), $url);
+    }
 }
 
 /* Ajax API */
@@ -574,10 +598,10 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, n
  * @param object $context
  * @return array $pageicontent
  */
-function icontent_ajax_getpage($pagenum, $icontent, $context){
-	require_once(dirname(__FILE__).'/locallib.php');
-	$objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context);
-	return $objpage;
+function icontent_ajax_getpage($pagenum, $icontent, $context) {
+    require_once(dirname(__FILE__).'/locallib.php');
+    $objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context);
+    return $objpage;
 }
 
 /**
@@ -587,185 +611,204 @@ function icontent_ajax_getpage($pagenum, $icontent, $context){
  * @param object $icontent
  * @return array $pagenotes
  */
-function icontent_ajax_savereturnnotes($pageid, $note, $icontent){
-	global $USER, $DB;
-	
-	$note->pageid = $pageid;
-	$note->userid = $USER->id;
-	$note->timecreated = time();
-	$note->parent = 0;
-	
-	// Insert note
-	$insert = $DB->insert_record('icontent_pages_notes', $note);
-	
-	$return = false;
-	if($insert){
-		$note->id = $insert;
-		$note->path = "/".$insert;
-		$note->timemodified = time();
-		$DB->update_record('icontent_pages_notes', $note);
-		
-		// Get notes this page
-		require_once(dirname(__FILE__).'/locallib.php');
-		$pagenotes = icontent_get_pagenotes($note->pageid, $note->cmid, $note->tab);
-		$page = $DB->get_record('icontent_pages', array('id'=>$pageid), 'id, title, cmid');
-		\mod_icontent\event\note_created::create_from_note($icontent, context_module::instance($page->cmid), $note)->trigger();
-		$list = new stdClass;
-		$list->notes = icontent_make_listnotespage($pagenotes, $icontent, $page);
-		$list->totalnotes = count($pagenotes);
-		// retur object list
-		$return = $list;
-	}
-	
-	return $return;
+function icontent_ajax_savereturnnotes($pageid, $note, $icontent) {
+    global $USER, $DB;
+
+    $note->pageid = $pageid;
+    $note->userid = $USER->id;
+    $note->timecreated = time();
+    $note->parent = 0;
+
+    // Insert note.
+    $insert = $DB->insert_record('icontent_pages_notes', $note);
+
+    $return = false;
+    if ($insert) {
+        $note->id = $insert;
+        $note->path = "/".$insert;
+        $note->timemodified = time();
+        $DB->update_record('icontent_pages_notes', $note);
+
+        // Get notes this page.
+        require_once(dirname(__FILE__).'/locallib.php');
+        $pagenotes = icontent_get_pagenotes($note->pageid, $note->cmid, $note->tab);
+        $page = $DB->get_record('icontent_pages', ['id' => $pageid], 'id, title, cmid');
+        \mod_icontent\event\note_created::create_from_note($icontent, context_module::instance($page->cmid), $note)->trigger();
+        $list = new stdClass;
+        $list->notes = icontent_make_listnotespage($pagenotes, $icontent, $page);
+        $list->totalnotes = count($pagenotes);
+        // Return object list.
+        $return = $list;
+    }
+    return $return;
 }
 
 /**
- * Runs the like or unlike in table {icontent_pages_notes_like}
- * @param object $notelike
- * @param object $icontent
+ * Runs the like or unlike in table {icontent_pages_notes_like}.
+ *
+ * @param stdClass $notelike
+ * @param stdClass $icontent
  * @return array $result
  */
-function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent){
-	global $USER, $DB;
-	// Set values
-	$notelike->userid = $USER->id;
-	$notelike->timemodified = time();
-	// Get values
-	require_once(dirname(__FILE__).'/locallib.php');
-	$pagenotelike = icontent_get_pagenotelike($notelike->pagenoteid, $notelike->userid, $notelike->cmid);
-	$pageid = $DB->get_field('icontent_pages_notes', 'pageid', array('id'=>$notelike->pagenoteid));
-	$countlikes = icontent_count_pagenotelike($notelike->pagenoteid);
-	// Make object for return
-	$return = new stdClass;
-	// Check if like or unlike
-	if(empty($pagenotelike)){
-		// Insert notelike
-		$insertid = $DB->insert_record('icontent_pages_notes_like', $notelike, true);
-		$notelike->id = $insertid;
-		$return->likes = get_string('unlike', 'icontent', $countlikes + 1);
-		// Event Log
-		$notelike->pageid = $pageid;
-		\mod_icontent\event\note_like_created::create_from_note_like($icontent, context_module::instance($notelike->cmid), $notelike)->trigger();
-		// Return object return
-		return $insertid ?  $return : false;
-	}
-	// Execute unlike
-	$unlike = $DB->delete_records('icontent_pages_notes_like', array('id'=>$pagenotelike->id));
-	// Event Log
-	$notelike->id = $pagenotelike->id;
-	$notelike->pageid = $pageid;
-	\mod_icontent\event\note_like_deleted::create_from_note_like($icontent, context_module::instance($notelike->cmid), $notelike)->trigger();
-	// Make return
-	$return->likes = get_string('like', 'icontent', $countlikes - 1);
-	// Return object
-	return $unlike ?  $return : false;
+function icontent_ajax_likenote(stdClass $notelike, stdClass $icontent) {
+    global $USER, $DB;
+    // Set values.
+    $notelike->userid = $USER->id;
+    $notelike->timemodified = time();
+    // Get values.
+    require_once(dirname(__FILE__).'/locallib.php');
+    $pagenotelike = icontent_get_pagenotelike($notelike->pagenoteid, $notelike->userid, $notelike->cmid);
+    $pageid = $DB->get_field('icontent_pages_notes', 'pageid', ['id' => $notelike->pagenoteid]);
+    $countlikes = icontent_count_pagenotelike($notelike->pagenoteid);
+    // Make object for return.
+    $return = new stdClass;
+    // Check if like or unlike.
+    if (empty($pagenotelike)) {
+        // Insert notelike.
+        $insertid = $DB->insert_record('icontent_pages_notes_like', $notelike, true);
+        $notelike->id = $insertid;
+        $return->likes = get_string('unlike', 'icontent', $countlikes + 1);
+        // Event Log.
+        $notelike->pageid = $pageid;
+        \mod_icontent\event\note_like_created::create_from_note_like($icontent,
+            context_module::instance($notelike->cmid), $notelike)->trigger();
+        // Return object return.
+        return $insertid ? $return : false;
+    }
+    // Execute unlike.
+    $unlike = $DB->delete_records('icontent_pages_notes_like', ['id' => $pagenotelike->id]);
+    // Event Log.
+    $notelike->id = $pagenotelike->id;
+    $notelike->pageid = $pageid;
+    \mod_icontent\event\note_like_deleted::create_from_note_like($icontent,
+        context_module::instance($notelike->cmid), $notelike)->trigger();
+    // Make return.
+    $return->likes = get_string('like', 'icontent', $countlikes - 1);
+    // Return object.
+    return $unlike ? $return : false;
 }
 
 /**
- * Runs update in note at table {icontent_pages_notes_like}
- * @param object $pagenote
- * @param object $icontent
+ * Runs update in note at table {icontent_pages_notes_like}.
+ * @param stdClass $pagenote
+ * @param stdClass $icontent
  * @return string $pagenote
  */
-function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent){
-	global $DB;
-	
-	$pagenote->timemodified = time();
-	$update = $DB->update_record('icontent_pages_notes', $pagenote);
-	
-	if($update){
-		\mod_icontent\event\note_updated::create_from_note($icontent, context_module::instance($pagenote->cmid), $pagenote)->trigger();
-		return $pagenote;
-	}
-	return false;
+function icontent_ajax_editnote(stdClass $pagenote, stdClass $icontent) {
+    global $DB;
+
+    $pagenote->timemodified = time();
+    $update = $DB->update_record('icontent_pages_notes', $pagenote);
+
+    if ($update) {
+        \mod_icontent\event\note_updated::create_from_note($icontent,
+            context_module::instance($pagenote->cmid), $pagenote)->trigger();
+        return $pagenote;
+    }
+    return false;
 }
 /**
- * Inserts responses of notes in table {icontent_pages_notes}
- * @param object $pagenote
- * @param object $icontent
+ * Inserts responses of notes in table {icontent_pages_notes}.
+ * @param stdClass $pagenote
+ * @param stdClass $icontent
  * @return string $reply
  */
-function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent){
-	global $DB, $USER;
-	
-	// Recovers pagenote father
-	$objparent = $DB->get_record('icontent_pages_notes', array('id'=>$pagenote->parent), 'pageid, tab, path, private, featured, doubttutor');
-	
-	$pagenote->userid = $USER->id;
-	$pagenote->timecreated = time();
-	$pagenote->pageid = $objparent->pageid;
-	$pagenote->tab = $objparent->tab;
-	$pagenote->private = $objparent->private;
-	$pagenote->featured = $objparent->featured;
-	$pagenote->doubttutor = $objparent->doubttutor;
-	
-	// Insert pagenote
-	$insert = $DB->insert_record('icontent_pages_notes', $pagenote);
-	
-	$return = false;
-	if($insert){
-		$pagenote->id = $insert;
-		$pagenote->path = $objparent->path."/".$insert;
-		$pagenote->timemodified = time();
-		$DB->update_record('icontent_pages_notes', $pagenote);
-		\mod_icontent\event\note_replied::create_from_note($icontent, context_module::instance($pagenote->cmid), $pagenote)->trigger();
-		// Get notes reply
-		require_once(dirname(__FILE__).'/locallib.php');
-		
-		$return = new stdClass;
-		$return->reply = icontent_make_pagenotereply($pagenote, $icontent);
-		$return->tab = $pagenote->tab;
-		$return->parent = $pagenote->parent;
-		$return->totalnotes = $DB->count_records('icontent_pages_notes', array('pageid'=>$pagenote->pageid, 'cmid'=>$pagenote->cmid, 'tab'=>$pagenote->tab));
-	}
-	return $return;
+function icontent_ajax_replynote(stdClass $pagenote, stdClass $icontent) {
+    global $DB, $USER;
+
+    // Recovers pagenote father.
+    $objparent = $DB->get_record('icontent_pages_notes',
+        ['id' => $pagenote->parent],
+        'pageid,
+        tab,
+        path,
+        private,
+        featured,
+        doubttutor'
+    );
+
+    $pagenote->userid = $USER->id;
+    $pagenote->timecreated = time();
+    $pagenote->pageid = $objparent->pageid;
+    $pagenote->tab = $objparent->tab;
+    $pagenote->private = $objparent->private;
+    $pagenote->featured = $objparent->featured;
+    $pagenote->doubttutor = $objparent->doubttutor;
+
+    // Insert pagenote.
+    $insert = $DB->insert_record('icontent_pages_notes', $pagenote);
+
+    $return = false;
+    if ($insert) {
+        $pagenote->id = $insert;
+        $pagenote->path = $objparent->path."/".$insert;
+        $pagenote->timemodified = time();
+        $DB->update_record('icontent_pages_notes', $pagenote);
+        \mod_icontent\event\note_replied::create_from_note($icontent,
+            context_module::instance($pagenote->cmid), $pagenote)->trigger();
+        // Get notes reply.
+        require_once(dirname(__FILE__).'/locallib.php');
+
+        $return = new stdClass;
+        $return->reply = icontent_make_pagenotereply($pagenote, $icontent);
+        $return->tab = $pagenote->tab;
+        $return->parent = $pagenote->parent;
+        $return->totalnotes = $DB->count_records('icontent_pages_notes',
+            [
+                'pageid' => $pagenote->pageid,
+                'cmid' => $pagenote->cmid,
+                'tab' => $pagenote->tab,
+            ]
+        );
+    }
+    return $return;
 }
 /**
- * Saves attempts to answers to the questions of the current page in table {icontent_question_attempt}
+ * Saves attempts to answers to the questions of the current page in table {icontent_question_attempt}.
  * @param string $formdata
- * @param object $cm
+ * @param stdClass $cm
  * @param object $icontent
  * @return string $response
  */
-function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent){
-	global $USER, $DB;
-	require_once(dirname(__FILE__).'/locallib.php');
-	// Get form data
-	parse_str($formdata, $data);
-	$pageid = $data['pageid'];
-	// Destroy unused fields
-	unset($data['id']);
-	unset($data['pageid']);
-	unset($data['sesskey']);
-	// Create array object for attempt
-	$i = 0;
-	$records = array();
-	foreach ($data as $key => $value){
-		list($qpage, $question, $qtype) = explode('_', $key);
-		list($strvar, $qpid) = explode('-', $qpage);
-		list($strvar, $qid) = explode('-', $question);
-		$infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
-		$records[$i] = new stdClass();
-		$records[$i]->pagesquestionsid = (int) $qpid;
-		$records[$i]->questionid = (int) $qid;
-		$records[$i]->userid = (int) $USER->id;
-		$records[$i]->cmid = (int) $cm->id;
-		$records[$i]->fraction = $infoanswer->fraction;
-		$records[$i]->rightanswer = $infoanswer->rightanswer;
-		$records[$i]->answertext = $infoanswer->answertext;
-		$records[$i]->timecreated = time();
-		$i ++;
-	}
-	// Save records
-	$DB->insert_records('icontent_question_attempts', $records);
-	// Update grade
-	icontent_set_grade_item($icontent, $cm->id, $USER->id);
-	// Event log
-	\mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent, context_module::instance($cm->id), $pageid)->trigger();
-	// Create object summary attempt
-	$summary = new stdClass();
-	$summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
-	
-	return $summary;
+function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
+    global $USER, $DB;
+    require_once(dirname(__FILE__).'/locallib.php');
+    // Get form data.
+    parse_str($formdata, $data);
+    $pageid = $data['pageid'];
+    // Destroy unused fields.
+    unset($data['id']);
+    unset($data['pageid']);
+    unset($data['sesskey']);
+    // Create array object for attempt.
+    $i = 0;
+    $records = [];
+    foreach ($data as $key => $value) {
+        list($qpage, $question, $qtype) = explode('_', $key);
+        list($strvar, $qpid) = explode('-', $qpage);
+        list($strvar, $qid) = explode('-', $question);
+        $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
+        $records[$i] = new stdClass();
+        $records[$i]->pagesquestionsid = (int) $qpid;
+        $records[$i]->questionid = (int) $qid;
+        $records[$i]->userid = (int) $USER->id;
+        $records[$i]->cmid = (int) $cm->id;
+        $records[$i]->fraction = $infoanswer->fraction;
+        $records[$i]->rightanswer = $infoanswer->rightanswer;
+        $records[$i]->answertext = $infoanswer->answertext;
+        $records[$i]->timecreated = time();
+        $i ++;
+    }
+    // Save records.
+    $DB->insert_records('icontent_question_attempts', $records);
+    // Update grade.
+    icontent_set_grade_item($icontent, $cm->id, $USER->id);
+    // Event log.
+    \mod_icontent\event\question_attempt_created::create_from_question_attempt($icontent,
+        context_module::instance($cm->id), $pageid)->trigger();
+    // Create object summary attempt.
+    $summary = new stdClass();
+    $summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
+
+    return $summary;
 }

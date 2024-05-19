@@ -15,10 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a one-line short description of the file
+ * This creates a one page listing of all the iContent activities in the course.
  *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
  *
  * @package    mod_icontent
  * @copyright  2015 Leo Renis Santos
@@ -29,22 +27,25 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course.
 
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
 require_course_login($course);
 
-$params = array(
-    'context' => context_course::instance($course->id)
-);
+// Trigger course module instance list event.
+$params = [
+    'context' => context_course::instance($course->id),
+];
 $event = \mod_icontent\event\course_module_instance_list_viewed::create($params);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
+// Print the header.
 $strname = get_string('modulenameplural', 'mod_icontent');
-$PAGE->set_url('/mod/icontent/index.php', array('id' => $id));
+$PAGE->set_url('/mod/icontent/index.php', ['id' => $id]);
 $PAGE->navbar->add($strname);
 $PAGE->set_title("$course->shortname: $strname");
 $PAGE->set_heading($course->fullname);
@@ -54,44 +55,115 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($strname);
 
 if (! $icontents = get_all_instances_in_course('icontent', $course)) {
-    notice(get_string('noicontents', 'icontent'), new moodle_url('/course/view.php', array('id' => $course->id)));
+    notice(get_string('noicontents', 'icontent'), new moodle_url('/course/view.php', ['id' => $course->id]));
 }
 
+// Sections.
 $usesections = course_format_uses_sections($course->format);
+if ($usesections) {
+    $modinfo = get_fast_modinfo($course);
+    $sections = $modinfo->get_section_info_all();
+}
 
+$timenow = time();
+
+// Table data.
 $table = new html_table();
 $table->attributes['class'] = 'generaltable mod_index';
 
+$table->head = [];
+$table->align = [];
 if ($usesections) {
-    $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = array ($strsectionname, $strname);
-    $table->align = array ('center', 'left');
-} else {
-    $table->head  = array ($strname);
-    $table->align = array ('left');
+    // Add column heading based on the course format. e.g. Week, Topic.
+    $table->head[] = get_string('sectionname', 'format_' . $course->format);
+    $table->align[] = 'left';
 }
+// Add activity Name, activity Description, and Page, headings.
+$table->head[] = get_string('name');
+$table->align[] = 'left';
+$table->head[] = get_string('description');
+$table->align[] = 'left';
+
+// Needs to also display the question count.
+// Display the Pages col to everyone.
+$table->head[] = get_string('pages', 'icontent');
+$table->align[] = 'left';
+
+// Display the Notes col to everyone.
+$table->head[] = get_string('notes', 'icontent');
+$table->align[] = 'left';
+
+// Display the Question col to everyone.
+$table->head[] = get_string('questions', 'icontent');
+$table->align[] = 'left';
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($modinfo->instances['icontent'] as $cm) {
-    $row = array();
-    if ($usesections) {
-        if ($cm->sectionnum !== $currentsection) {
-            if ($cm->sectionnum) {
-                $row[] = get_section_name($course, $cm->sectionnum);
-            }
-            if ($currentsection !== '') {
-                $table->data[] = 'hr';
-            }
-            $currentsection = $cm->sectionnum;
+$i = 0;
+
+foreach ($icontents as $icontent) {
+    $context = context_module::instance($icontent->coursemodule);
+
+    // Section.
+    $printsection = '';
+    if ($icontent->section !== $currentsection) {
+        if ($icontent->section) {
+            $printsection = get_section_name($course, $sections[$icontent->section]);
         }
+        if ($currentsection !== '') {
+            $table->data[$i] = 'hr';
+            $i ++;
+        }
+        $currentsection = $icontent->section;
+    }
+    if ($usesections) {
+        $table->data[$i][] = $printsection;
     }
 
-    $class = $cm->visible ? null : array('class' => 'dimmed');
+    // Link.
+    $icontentname = format_string($icontent->name, true, ['context' => $context]);
+    if (! $icontent->visible) {
+        // Show dimmed if the mod is hidden.
+        $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
+        $table->data[$i][] = '<a class="dimmed" href="'.$url->out(false).'">'.$icontentname.'</a>';
+    } else {
+        // Show normal if the mod is visible.
+        $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
+        $table->data[$i][] = '<a href="'.$url->out(false).'">'.$icontentname. '</a>';
+    }
 
-    $row[] = html_writer::link(new moodle_url('view.php', array('id' => $cm->id)),
-                $cm->get_formatted_name(), $class);
-    $table->data[] = $row;
+    // Description.
+    $table->data[$i][] = format_text($icontent->intro, $icontent->introformat);
+
+    // Read count of pages in each iContent activity.
+    $pages = count(icontent_preload_pages($icontent));
+    $notes = 0;
+    $doubts = 0;
+
+    // Need to change this to a page/question count.
+    // $questioncount = results::icontent_count_entries($icontent);
+    // $questioncount = icontent_count_entries($icontent);
+    $url = new moodle_url('view.php', ['id' => $icontent->coursemodule,]);
+    $table->data[$i][] = '<a href="'.$url->out(false).'">'
+        .get_string('pagecount', 'icontent', $pages).'</a>';
+
+
+    // Need to change this to a Notes count.
+    // $notescount = results::icontent_count_entries($icontent);
+    // $notescount = icontent_count_entries($icontent);
+    $url = new moodle_url('view.php', ['id' => $icontent->coursemodule,]);
+    $table->data[$i][] = '<a href="'.$url->out(false).'">'
+        .get_string('note', 'icontent', $notes).'</a>';
+
+
+    // Need to change this to a Questions(doubts) count.
+    // $doubtscount = results::icontent_count_entries($icontent);
+    // $doubtscount = icontent_count_entries($icontent);
+    $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
+    $table->data[$i][] = '<a href="'.$url->out(false).'">'
+        .get_string('doubt', 'icontent', $doubts).'</a>';
+
+    $i ++;
 }
 
 echo html_writer::table($table);

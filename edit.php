@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_icontent\local\icontent_info;
+
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 require_once(dirname(__FILE__).'/edit_form.php');
@@ -130,7 +132,7 @@ if ($mform->is_cancelled()) {
             ]
         );
         // Fix structure.
-        icontent_preload_pages($icontent);
+        icontent_info::icontent_preload_pages($icontent);
         // Get page.
         $page = $DB->get_record('icontent_pages', ['id' => $data->id]);
         // Set log.

@@ -335,6 +335,7 @@ function icontent_get_page_bgimage($context, $page) {
  * @param object $icontent
  * @return array of id=>icontent
  */
+/*
 function icontent_preload_pages($icontent) {
     global $DB;
     $pages = $DB->get_records('icontent_pages',
@@ -370,7 +371,7 @@ function icontent_preload_pages($icontent) {
     }
     return $pages;
 }
-
+*/
 /**
  * Remove notes from a page. If the param $pagenoteid was passed, It will delete only the current note and their daughters.
  *

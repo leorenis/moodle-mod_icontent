@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_icontent\local\icontent_info;
+
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
@@ -48,6 +50,6 @@ $page->hidden = $page->hidden ? 0 : 1;
 // Update record.
 $DB->update_record('icontent_pages', $page);
 
-icontent_preload_pages($icontent); // Fix structure.
+icontent_info::icontent_preload_pages($icontent); // Fix structure.
 $url = new moodle_url('/mod/icontent/view.php', ['id' => $cm->id]);
 redirect($url);

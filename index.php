@@ -17,13 +17,12 @@
 /**
  * This creates a one page listing of all the iContent activities in the course.
  *
- *
  * @package    mod_icontent
  * @copyright  2015 Leo Renis Santos
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Replace icontent with the name of your module and remove this line.
+use mod_icontent\local\icontent_info;
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
@@ -136,9 +135,9 @@ foreach ($icontents as $icontent) {
     $table->data[$i][] = format_text($icontent->intro, $icontent->introformat);
 
     // Read count of pages in each iContent activity.
-    $pages = count(icontent_preload_pages($icontent));
-    $notes = 0;
-    $doubts = 0;
+    $pages = count(icontent_info::icontent_preload_pages($icontent));
+    $notes = icontent_info::icontent_note_count($icontent);
+    $doubts = icontent_info::icontent_doubt_count($icontent);
 
     // Need to change this to a page/question count.
     // $questioncount = results::icontent_count_entries($icontent);
@@ -147,14 +146,12 @@ foreach ($icontents as $icontent) {
     $table->data[$i][] = '<a href="'.$url->out(false).'">'
         .get_string('pagecount', 'icontent', $pages).'</a>';
 
-
     // Need to change this to a Notes count.
     // $notescount = results::icontent_count_entries($icontent);
     // $notescount = icontent_count_entries($icontent);
     $url = new moodle_url('view.php', ['id' => $icontent->coursemodule,]);
     $table->data[$i][] = '<a href="'.$url->out(false).'">'
         .get_string('note', 'icontent', $notes).'</a>';
-
 
     // Need to change this to a Questions(doubts) count.
     // $doubtscount = results::icontent_count_entries($icontent);

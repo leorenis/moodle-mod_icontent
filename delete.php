@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_icontent\local\icontent_info;
+
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 
@@ -65,7 +67,7 @@ if ($confirm) {
     $DB->delete_records('icontent_pages_questions', ['pageid' => $page->id]);
     icontent_remove_notes($page->id); // Remove notes and notes like.
     $DB->delete_records('icontent_pages', ['id' => $page->id]);
-    icontent_preload_pages($icontent); // Fix structure.
+    icontent_info::icontent_preload_pages($icontent); // Fix structure.
     // Event log.
     \mod_icontent\event\page_deleted::create_from_page($icontent, $context, $page)->trigger();
     // Make URL.

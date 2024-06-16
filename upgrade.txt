@@ -16,19 +16,20 @@ This files describes API changes and other work in the iContent code.
 20240212 iContent_1206 - Feture request - Change color settings code to allow for
     word colors.
 
-=== 1.0.7.1 === Pending
+=== 1.0.7.2 === pending (Build: 2024061600) bumped version 2024061600
+20231223 iContent_1138bt - There does not seem to be a way to get to the index.php page.
+    Major work in progress to add more detail to the index.php page and create new
+    icontent/classes/local/icontent_info.php file.
 
+=== 1.0.7.1 === 2023122801
 20231220 iContent_1135bt - Cannot add a question to a slide. Made more changes to the
     locallib.php file, and now I can add graded questions.
 20231222 iContent_1137bt - In edit.php file, need to rewrite $event to use $params. See
     the ticket for details, but changed code and testing.
-20231223 iContent_1138r - There does not seem to be a way to get to the index.php page.
-    Major work in progress to add more detail to the index.php page.
 20231223 iContent_1140 - Multiple $features missing from the,
     function icontent_supports($feature) {. Added the missing features and now testing.
 20231224 iContent_1141 - Need to create a monologo.png file. Finally got a reasonable
     version and saved it as monologo7 in my working folders.
-1142
 20231227 iContent_1144 - In moodledev site, when editing a note, the Save button is
     broken. Reverted to old version of agax.php and it is back to working.
 20231228 iContent_1145bt - The slide setting, Expand question area, does not work. Opened
@@ -43,8 +44,6 @@ This files describes API changes and other work in the iContent code.
     others in all of the event files.
 20231230 iContent_1149 - The file for iContent, settings.php, is missing. Created
     the missing file, then added settings for, Recent activities and Date format.
-1155
-1156
 20240105 iContent_1157 - When viewing questions, the page count is wrong. I have added
     code to the, function icontent_count_questions_of_questionbank($coursecontext) {,
     that limits the function to only counting questions in the course. Page count now
@@ -53,11 +52,8 @@ This files describes API changes and other work in the iContent code.
     than one record, error. For error 2, I added code to fix the get_record_sql. For
     error one, I switched to using new qbank_managecategories code. See ticket
     for details.
-1159
 20240107 iContent_1160bt - Need a, Cancel button, for the addquestionpage.php file.
     Changed and added standard Add and Cancel buttons. See ticket for details.
-
-1161
 20240204 iContent_1186 - Manual review (essay) gives error, String [grade,core] is
     deprecated. The code at toevaluate.php line 100 was pointing to Moodles old string
     for grade. Since iContent does have a grade string, I changed the code to point to
@@ -69,24 +65,19 @@ This files describes API changes and other work in the iContent code.
     to work without any problems.
 20240204 iContent_1188 - Text area is too small for essay question answer. Changed the
     class from span12 to col-12 and also added a place holder of, Write essay.
-1189
 20240204 iContent_1190 - For consistency, the tab for Question should be plural like the
     one for Notes. Changed string to plural - $string['doubt'] = 'Questions {$a}';.
-1191
 20240205 iContent_1192 - Need to create a privacy class. 20240209 Created the file.
     Now need to update the code to change all references from diary to icontent.
-
 20240205 iContent_1193bt - Need more system default settings for iContent. See ticket for
     details. Think I have a little more to do on this.
 20240205 iContent_1194bt - Colors and background images do NOT work on old or new pages.
     For colors, I was just doing them wrong by using # in front of the hex number. The
     background images problem was caused by switching from, or, over to using, ||, but
     without isolation the two items with their own parenthesis.
-1195
 20240208 iContent_1200bt - mdl_icontent... is hardcoded in locallib.php and maybe other
     locations. Changed the code in locallib.php at lines 937 and 962. See ticket for
     details.
-
 
 === 1.0.7.0 === 20231220 After code checker fixes.
 20231220 iContent_1134p - Need to run codechecker and fix as needed. Made all the

@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Replace icontent with the name of your module and remove this line.
+use mod_icontent\local\icontent_info;
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/locallib.php');
@@ -65,7 +65,7 @@ $allowedit  = has_capability('mod/icontent:edit', $context);
 $edit = icontent_has_permission_edition($allowedit, $edit);
 
 // Read pages.
-$pages = icontent_preload_pages($icontent);
+$pages = icontent_info::icontent_preload_pages($icontent);
 
 if ($allowedit && !$pages) {
     redirect('edit.php?cmid='.$cm->id); // No pages - add new one.

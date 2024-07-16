@@ -372,6 +372,7 @@ function icontent_preload_pages($icontent) {
     return $pages;
 }
 */
+
 /**
  * Remove notes from a page. If the param $pagenoteid was passed, It will delete only the current note and their daughters.
  *
@@ -381,6 +382,7 @@ function icontent_preload_pages($icontent) {
  * @param int $pagenoteid
  * @return boolean true or false
  */
+/*
 function icontent_remove_notes($pageid, $pagenoteid = null) {
     global $DB;
     $rs = false;
@@ -406,6 +408,7 @@ function icontent_remove_notes($pageid, $pagenoteid = null) {
     }
     return $rs ? true : false;
 }
+*/
 
 /**
  * Remove note likes of page.
@@ -443,6 +446,7 @@ function icontent_remove_questionpagebyid($id) {
  * @param int $cmid
  * @return true or false
  */
+/*
 function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {
     global $DB, $USER;
     // Check capabilities.
@@ -464,6 +468,7 @@ function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {
     // Delete records.
     return $DB->delete_records_select('icontent_question_attempts', 'id '. $in, $values);
 }
+*/
 
 /**
  * Update question attempt.
@@ -708,6 +713,7 @@ function icontent_get_next_pagenum(stdClass $objpage) {
  * @param int $perpage
  * @return array of $questionbank
  */
+/*
 function icontent_get_questions_of_questionbank(
     $coursecontext,
     $questioncategoryid,
@@ -792,6 +798,7 @@ function icontent_get_questions_of_questionbank(
     ];
     return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
 }
+*/
 
 /**
  * Set updates for grades in table {grade_grades}.

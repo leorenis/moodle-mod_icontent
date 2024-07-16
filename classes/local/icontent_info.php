@@ -118,12 +118,12 @@ class icontent_info {
                     private,
                     featured'
                 );
-                foreach ($notes as $note) {
-                    if ($note->tab == 'note') {
-                        $notesnum++;
-                    }
+            foreach ($notes as $note) {
+                if ($note->tab == 'note') {
+                    $notesnum++;
                 }
             }
+        }
         return $notesnum;
     }
 
@@ -165,12 +165,12 @@ class icontent_info {
                     private,
                     featured'
                 );
-                foreach ($doubts as $doubt) {
-                    if ($doubt->tab == 'doubt') {
-                        $doubtsnum++;
-                    }
+            foreach ($doubts as $doubt) {
+                if ($doubt->tab == 'doubt') {
+                    $doubtsnum++;
                 }
             }
+        }
         return $doubtsnum;
     }
 }

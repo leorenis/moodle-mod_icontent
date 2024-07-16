@@ -21,6 +21,7 @@
  * @copyright  2016-2015 Leo Santos {@link http://github.com/leorenis}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
 

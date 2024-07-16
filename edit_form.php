@@ -38,7 +38,7 @@ class icontent_pages_edit_form extends moodleform {
      * @throws dml_exception
      */
     public function definition() {
-        global $CFG, $COURSE;
+        global $CFG, $COURSE, $PAGE;
 
         $page = $this->_customdata['page'];
         $pageicontentoptions = $this->_customdata['pageicontentoptions'];
@@ -115,19 +115,23 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('showbgimage', PARAM_INT);
         $mform->setDefault('showbgimage', 1);
 
+        // Set up options for the filemanager setting.
         $filemanageroptions = [];
-        $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
-        $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
-        $filemanageroptions['maxfiles'] = 1;
-        $filemanageroptions['subdirs'] = 0;
-
+                $filemanageroptions['subdirs'] = 0;
+                $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
+                $filemanageroptions['areamaxbytes'] = $COURSE->maxbytes;
+                $filemanageroptions['maxfiles'] = 1;
+                $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
+                $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;
         $mform->addElement('filemanager', 'bgimage', get_string('bgimage', 'icontent'), null, $filemanageroptions);
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagepagehelp', 'icontent');
 
-        //$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
-        //$mform->setType('bgcolor', PARAM_TEXT);
-        //$mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');
+        // ...$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);.
+        // ...$mform->setType('bgcolor', PARAM_TEXT);.
+        // ...$mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');.
+
+        $PAGE->requires->js( new moodle_url(__FILE__ . '/lib/javascript-static.js'));
 
         // 20240212 Modified setting for background color.
         $attributes = ['class' => "color",
@@ -135,11 +139,44 @@ class icontent_pages_edit_form extends moodleform {
                        'size' => "10",
                       ];
         $mform->setType('bgcolor', PARAM_NOTAGS);
+        // NOTE: When either of the next two lines are uncommented, the Background image file upload part
+        // of the form never finishes loading.
+        // ...$mform->addElement('html', '<div class="admin_colourpicker">');.
+        // ...$PAGE->requires->js_init_call('M.util.init_colour_picker', ['id', 'null']);.
+
         $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), $attributes);
         $mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');
+
         $mform->setDefault('bgcolor', $icontentconfig->bgcolor);
 
-/*
+
+        // 20240713 Color input experiments.
+        /*
+        $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
+            <input type="color" id="bgcolor" value="#0000ff">');
+        */
+        /*
+        $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
+            <input type="color" id="'.$icontentconfig->bgcolor.'" value="#0000ff">');
+        */
+
+        /*
+        $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
+            <input type="text" name="text">
+            <input type="color" name="color">
+            <input type="submit" name="btn_submit" value="Submit">');
+        */
+
+///////////////////////////////////////////////////////////////////////
+        /*
+        $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
+            <input type="text" name="text">
+            <input type="color" name="color">
+            <input type="submit" name="btn_submit" value="Submit">');
+        */
+////////////////////////////////////////////////////////////////////////        
+        
+        /*
         // Background color setting.
         $settings->add(new icontent_setting_configcolorpicker(
             'mod_icontent/bgccolor',
@@ -148,12 +185,11 @@ class icontent_pages_edit_form extends moodleform {
             get_string('bgccolor_colour', 'icontent'),
             null)
         );
-*/
+        */
 
-
-        //$mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
-        //$mform->setType('bordercolor', PARAM_TEXT);
-        //$mform->addHelpButton('bordercolor', 'bordercolorpagehelp', 'icontent');
+        // ...$mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);.
+        // ...$mform->setType('bordercolor', PARAM_TEXT);.
+        // ...$mform->addHelpButton('bordercolor', 'bordercolorpagehelp', 'icontent');.
 
         // 20240212 Modified setting for bordercolor color.
         $attributes = ['class' => "color",

@@ -418,11 +418,13 @@ function icontent_remove_notes($pageid, $pagenoteid = null) {
  * @param int $pagenoteid
  * @return boolean true or false
  */
+/*
 function icontent_remove_note_likes($pagenoteid) {
     global $DB;
     $rs = $DB->delete_records('icontent_pages_notes_like', ['pagenoteid' => $pagenoteid]);
     return $rs ? true : false;
 }
+*/
 
 /**
  * Delete question per page by id.

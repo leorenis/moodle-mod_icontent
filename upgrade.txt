@@ -20,16 +20,21 @@ This files describes API changes and other work in the iContent code.
 20231223 iContent_1138bt - There does not seem to be a way to get to the index.php page.
     Major work in progress to add more detail to the index.php page and create new
     icontent/classes/local/icontent_info.php file.
-20240712 iContent_1263 - Completion, View, is not working. Added three lines of code
+20240712 iContent_1263bt - Completion, View, is not working. Added three lines of code
     to the view.php file at line 63-65, that sets the view completion status.
-20240714 iContent_1264 - Should move, locallib.php, function icontent_get_questions_of_questionbank(,
+20240714 iContent_1264bt - Should move, locallib.php, function icontent_get_questions_of_questionbank(,
     to a class file. Created new file, icontent_question_options.php, and moved the function.
-20240714 iContent_1265 - Hardcoded text in addquestionpage.php in line 118 needs to be converted
+20240714 iContent_1265bt - Hardcoded text in addquestionpage.php in line 118 needs to be converted
     to a string. Created new string: $string['totalquestioncount'] = 'The total question count
     for this course and it\'s category is, {$a}.';
 20240715 iContent_1266 - iContent - Should move, locallib.php, function 
     icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {, to a class file.
     Moved the function to the, icontent_question_options.php, file.
+20240715 iContent_1268bt - iContent - Should move, locallib.php, function icontent_remove_notes($pageid,
+    $pagenoteid = null) {, to a class file. Moved the function to the, icontent_note_options.php, file.
+20240716 iContent_1269bt - Should move, locallib.php, function icontent_remove_note_likes($pagenoteid)
+    {, to a class file. Moved the function to the, icontent_note_options.php, file.
+
 
 
 === 1.0.7.1 === 2023122801

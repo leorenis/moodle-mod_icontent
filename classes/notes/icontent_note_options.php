@@ -25,6 +25,7 @@
  */
 namespace mod_icontent\notes;
 defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
+use mod_icontent\notes\icontent_note_options;
 
 /**
  * Utility class for iContent notes.
@@ -52,21 +53,35 @@ class icontent_note_options {
             $notesdaughters = icontent_get_notes_daughters($pagenoteid);
             if ($notesdaughters) {
                 foreach ($notesdaughters as $pnid => $comment) {
-                    icontent_remove_note_likes($pnid);
+                    self::icontent_remove_note_likes($pnid);
                     $rs = $DB->delete_records('icontent_pages_notes', ['id' => $pnid]);
                 }
             }
             // Remove current note.
-            icontent_remove_note_likes($pagenoteid);
+            self::icontent_remove_note_likes($pagenoteid);
             $rs = $DB->delete_records('icontent_pages_notes', ['id' => $pagenoteid]);
             return $rs ? true : false;
         }
         // Get notes.
         $pagenotes = $DB->get_records('icontent_pages_notes', ['pageid' => $pageid]);
         foreach ($pagenotes as $pagenote) {
-            icontent_remove_note_likes($pagenote->id);
+            self::icontent_remove_note_likes($pagenote->id);
             $rs = $DB->delete_records('icontent_pages_notes', ['id' => $pagenote->id]);
         }
+        return $rs ? true : false;
+    }
+
+    /**
+     * Remove note likes of page.
+     *
+     * Returns boolean true or false
+     *
+     * @param int $pagenoteid
+     * @return boolean true or false
+     */
+    public static function icontent_remove_note_likes($pagenoteid) {
+        global $DB;
+        $rs = $DB->delete_records('icontent_pages_notes_like', ['pagenoteid' => $pagenoteid]);
         return $rs ? true : false;
     }
 

@@ -24,6 +24,7 @@
 
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
+use mod_icontent\question\icontent_question_options;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $pageid = required_param('pageid', PARAM_INT); // Page note ID.
@@ -46,7 +47,9 @@ $PAGE->set_heading($course->fullname);
 // Form processing.
 if ($confirm) {
     // Try the operation confirmed.
-    $delete = icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
+    //$delete = icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
+    $delete = icontent_question_options::icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
+
     if ($delete) {
         // Update grade.
         icontent_set_grade_item($icontent, $cm->id, $USER->id);

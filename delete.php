@@ -23,6 +23,7 @@
  */
 
 use mod_icontent\local\icontent_info;
+use mod_icontent\notes\icontent_note_options;
 
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
@@ -65,7 +66,8 @@ if ($confirm) {
         }
     }
     $DB->delete_records('icontent_pages_questions', ['pageid' => $page->id]);
-    icontent_remove_notes($page->id); // Remove notes and notes like.
+    //icontent_remove_notes($page->id); // Remove notes and notes like.
+    icontent_note_options::icontent_remove_notes($page->id); // Remove notes and notes like.
     $DB->delete_records('icontent_pages', ['id' => $page->id]);
     icontent_info::icontent_preload_pages($icontent); // Fix structure.
     // Event log.

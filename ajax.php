@@ -14,13 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Process ajax requests.
  *
- * @package mod_icontent
+ * @package   mod_icontent
  * @copyright 2016 Leo Renis Santos
- * @license http://www.gnu.org/copyleft/gpl.html GNU Public License
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once("../../config.php");

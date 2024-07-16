@@ -60,6 +60,10 @@ $event->add_record_snapshot('course', $PAGE->course);
 $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
+// 20240715 Code for Completion, View complete.
+$completion = new completion_info($course);
+$completion->set_module_viewed($cm);
+
 // Check permissions.
 $allowedit  = has_capability('mod/icontent:edit', $context);
 $edit = icontent_has_permission_edition($allowedit, $edit);
@@ -98,7 +102,7 @@ echo $OUTPUT->heading($icontent->name);
 
 // Conditions to show the intro. 20231227 I'm not sure if this is needed.
 if ($icontent->intro) {
-   echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
+    echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
 }
 // Content box.
 echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);

@@ -73,29 +73,30 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->setType('copyright', PARAM_RAW);
         $mform->addHelpButton('copyright', 'copyright', 'icontent');
 
-        // Appearance.
-        $mform->addElement('header', 'appearancehdr', get_string('appearance'));
-
         // Set up options for the filemanager setting.
         $filemanageroptions = [];
-        $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
-        $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
-        $filemanageroptions['maxfiles'] = 1;
-        $filemanageroptions['subdirs'] = 0;
+                $filemanageroptions['subdirs'] = 0;
+                $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
+                $filemanageroptions['areamaxbytes'] = $COURSE->maxbytes;
+                $filemanageroptions['maxfiles'] = 1;
+                $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
+                $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;
 
         $mform->addElement('filemanager', 'bgimage', get_string('bgimage', 'icontent'), null, $filemanageroptions);
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagehelp', 'icontent');
 
-        // Setup the overall background color for each page.
-        $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);
-        $mform->setType('bgcolor', PARAM_TEXT);
-        $mform->addHelpButton('bgcolor', 'bgcolorhelp', 'icontent');
+        // Appearance.
+        $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 
+        // Setup the overall background color for each page.
+        // ...$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);.
+        // ...$mform->setType('bgcolor', PARAM_TEXT);.
+        // ...$mform->addHelpButton('bgcolor', 'bgcolorhelp', 'icontent');.
 
         // 20240216 Modified setting for the overall background color for each page.
         $attributes = ['class' => "color",
-                       'value' => $icontentconfig->bordercolor,
+                       'value' => $icontentconfig->bgcolor,
                        'size' => "10",
                       ];
         $name = 'bgcolor';
@@ -106,18 +107,40 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addElement('text', $name, $label, $attributes);
         $mform->addHelpButton($name, $name, $plugin);
         $mform->setDefault($name, $icontentconfig->bgcolor);
+        // 20240713 Color input experiments.
+        /*
+        $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
+            <input type="color" id="bgcolor" value="#0000ff">');
+        */
+        /*
+        $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
+            <input type="color" id="'.$icontentconfig->bgcolor.'" value="#0000ff">');
+        */
 
-        //Setup the 
+        /*
+        $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
+            <input type="text" name="text">
+            <input type="color" name="color">
+            <input type="submit" name="btn_submit" value="Submit">');
+        */
+
+        // 20240619 Modified the setting for the bordercolor.
+        $attributes = ['class' => "color",
+               'value' => $icontentconfig->bordercolor,
+               'size' => "10",
+              ];
         $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
         $mform->setType('bordercolor', PARAM_TEXT);
         $mform->addHelpButton('bordercolor', 'bordercolorhelp', 'icontent');
 
+        // 20240619 Modified the setting for the border width.
         $options = icontent_add_borderwidth_options();
         $mform->addElement('select', 'borderwidth', get_string('borderwidth', 'icontent'), $options);
         $mform->setType('borderwidth', PARAM_INT);
         $mform->addHelpButton('borderwidth', 'borderwidthhelp', 'icontent');
         $mform->setDefault('borderwidth', 1);
 
+        // 20240619 Modified the setting for maxpages.
         $mform->addElement('text', 'maxpages', get_string('maxpages', 'icontent'), ['class' => 'x-large']);
         $mform->setType('maxpages', PARAM_INT);
         $mform->addHelpButton('maxpages', 'maxpageshelp', 'icontent');
@@ -125,11 +148,13 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addRule('maxpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
         $mform->setDefault('maxpages', 55);
 
+        // 20240619 Modified the setting for the show notes area.
         $mform->addElement('selectyesno', 'shownotesarea', get_string('shownotesarea', 'icontent'));
         $mform->addHelpButton('shownotesarea', 'shownotesarea', 'icontent');
         $mform->setType('shownotesarea', PARAM_INT);
         $mform->setDefault('shownotesarea', 1);
 
+        // 20240619 Modified the setting for the maxnotesperpage.
         $mform->addElement('text', 'maxnotesperpages', get_string('maxnotesperpages', 'icontent'), ['class' => 'x-large']);
         $mform->setType('maxnotesperpages', PARAM_INT);
         $mform->addHelpButton('maxnotesperpages', 'maxnotesperpageshelp', 'icontent');
@@ -137,12 +162,13 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addRule('maxnotesperpages', get_string('maximumdigits', 'icontent', 3), 'maxlength', 3, 'client');
         $mform->setDefault('maxnotesperpages', 15);
 
+        // 20240619 Modified the setting for showing the progress bar.
         $mform->addElement('selectyesno', 'progressbar', get_string('progressbar', 'icontent'));
         $mform->addHelpButton('progressbar', 'progressbar', 'icontent');
         $mform->setType('progressbar', PARAM_INT);
         $mform->setDefault('progressbar', 1);
 
-        // Grade.
+        // Show the standard Grade elements.
         $this->standard_grading_coursemodule_elements();
 
         // Add standard elements, common to all modules.

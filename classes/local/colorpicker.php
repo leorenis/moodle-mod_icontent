@@ -29,8 +29,9 @@
  * @copyright 2024 AL Rachels
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-//class admin_setting_configcolorpicker extends admin_setting {
 class icontent_setting_configcolorpicker extends admin_setting {
+// phpcs:ignore
+// ...class admin_setting_configcolorpicker extends admin_setting {.
 
     /**
      * Information for previewing the color.
@@ -41,6 +42,8 @@ class icontent_setting_configcolorpicker extends admin_setting {
 
     /**
      * Use default when empty.
+     *
+     * @var array|null
      */
     protected $usedefaultwhenempty = true;
 
@@ -85,17 +88,14 @@ class icontent_setting_configcolorpicker extends admin_setting {
 
     /**
      * Validates the color that was entered by the user.
+     * List of valid HTML color names.
      *
+     * @var array
      * @param string $data
      * @return string|false
      */
     protected function validate($data) {
-        /**
-         * List of valid HTML color names.
-         *
-         * @var array
-         */
-         $colornames = array(
+        $colornames = [
             'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure',
             'beige', 'bisque', 'black', 'blanchedalmond', 'blue',
             'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse',
@@ -126,11 +126,11 @@ class icontent_setting_configcolorpicker extends admin_setting {
             'seagreen', 'seashell', 'sienna', 'silver', 'skyblue', 'slateblue',
             'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan',
             'teal', 'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white',
-            'whitesmoke', 'yellow', 'yellowgreen'
-        );
+            'whitesmoke', 'yellow', 'yellowgreen',
+        ];
 
         if (preg_match('/^#?([[:xdigit:]]{3}){1,2}$/', $data)) {
-            if (strpos($data, '#')!==0) {
+            if (strpos($data, '#') !== 0) {
                 $data = '#'.$data;
             }
             return $data;
@@ -147,7 +147,7 @@ class icontent_setting_configcolorpicker extends admin_setting {
         } else if (($data == 'transparent') || ($data == 'currentColor') || ($data == 'inherit')) {
             return $data;
         } else if (empty($data)) {
-            if ($this->usedefaultwhenempty){
+            if ($this->usedefaultwhenempty) {
                 return $this->defaultsetting;
             } else {
                 return '';
@@ -160,8 +160,6 @@ class icontent_setting_configcolorpicker extends admin_setting {
     /**
      * Generates the HTML for the setting.
      *
-     * @global moodle_page $PAGE
-     * @global core_renderer $OUTPUT
      * @param string $data
      * @param string $query
      */
@@ -175,14 +173,13 @@ class icontent_setting_configcolorpicker extends admin_setting {
             'value' => $data,
             'icon' => $icon->export_for_template($OUTPUT),
             'haspreviewconfig' => !empty($this->previewconfig),
-            'forceltr' => $this->get_force_ltr()
+            'forceltr' => $this->get_force_ltr(),
         ];
 
         $element = $OUTPUT->render_from_template('core_admin/setting_configcolorpicker', $context);
-        $PAGE->requires->js_init_call('M.util.init_color_picker', array($this->get_id(), $this->previewconfig));
+        $PAGE->requires->js_init_call('M.util.init_color_picker', [$this->get_id(), $this->previewconfig]);
 
         return format_admin_setting($this, $this->visiblename, $element, $this->description, true, '',
             $this->get_defaultsetting(), $query);
     }
-
 }

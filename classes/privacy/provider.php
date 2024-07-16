@@ -104,7 +104,7 @@ class provider implements \core_privacy\local\metadata\provider,
         $contextlist = new contextlist();
         $modid = self::get_modid();
         if (!$modid) {
-            return $contextlist; // icontent module not installed.
+            return $contextlist; // The icontent module is not installed.
         }
 
         $params = [

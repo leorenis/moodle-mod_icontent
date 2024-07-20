@@ -30,7 +30,7 @@ require_once(dirname(__FILE__).'/locallib.php');
 require_once(dirname(__FILE__).'/lib.php');
 require_once(__DIR__ .'/../../lib/questionlib.php');
 use mod_icontent\question\icontent_question_options;
- 
+
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n = optional_param('n', 0, PARAM_INT);  // The icontent instance ID.
 $pageid = optional_param('pageid', 0, PARAM_INT); // Chapter ID.
@@ -76,11 +76,6 @@ $url = new moodle_url('/mod/icontent/addquestionpage.php',
         'perpage' => $perpage,
     ]
 );
-// Output starts here.
-// ...echo $OUTPUT->header();.
-
-// Replace the following lines with you own code.
-// ...echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));.
 
 if ($action) {
     // Receives values.
@@ -94,8 +89,6 @@ if ($action) {
 
 // Output starts here.
 echo $OUTPUT->header();
-
-// Replace the following lines with you own code.
 echo $OUTPUT->heading($icontent->name. ": ". get_string('addquestion', 'mod_icontent'));
 
 
@@ -112,7 +105,12 @@ foreach ($qcids as $qcid) {
     $questioncategoryid = $qcid->id;
 }
 
-$questions = icontent_question_options::icontent_get_questions_of_questionbank($coursecontext, $questioncategoryid, $sort, $page, $perpage);
+$questions = icontent_question_options::icontent_get_questions_of_questionbank($coursecontext,
+    $questioncategoryid,
+    $sort,
+    $page,
+    $perpage
+);
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 // 20240107 Added info but the text needs to be changed to a string.
 echo get_string('totalquestioncount', 'icontent', $tquestions);
@@ -127,10 +125,10 @@ $table->head  = [
     null,
     get_string('type', 'mod_icontent'),
     get_string('question'),
-    // ...get_string('question').' ID',.
-    // ...get_string('category'),.
-    // ...get_string('context'),.
-    // ...get_string('course'),.
+    get_string('question').' ID',
+    get_string('category'),
+    get_string('context'),
+    get_string('course'),
 
     get_string('status'),
     get_string('version'),
@@ -167,10 +165,10 @@ if ($questions) {
             $checkbox,
             $qtype,
             $question->qname,
-            // ...$question->qvquestionid,.
-            // ...$question->qbequestioncategoryid,.
-            // ...$question->qccontextid,.
-            // ...$course->id,.
+            $question->qvquestionid,
+            $question->qbequestioncategoryid,
+            $question->qccontextid,
+            $course->id,
             $question->qvstatus,
             $question->qvversion,
 

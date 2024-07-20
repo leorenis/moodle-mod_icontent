@@ -1,25 +1,34 @@
 This files describes API changes and other work in the iContent code.
 === Deferred until fixed. ===
 20231225 iContent_1142 - Need to verify move.php works.
-
 20240101 iContent_1155 - Might want to see about adding an iContent plugin to Grade Me.
 20240104 iContent_1156 - I am getting, You should really redirect before you start page
     output, when adding questions to a slide.
 20240107 iContent_1159 - Need to have a setting for ICONTENT_PER_PAGE, or, need to be
     able add questions from multiple pages.
-20240108 iContent_1161 - Answers are not being shuffled in Matching type question.
-    See ticket for details of work in prgress.
+
  iContent_1189 - Feature request - Please consider using templates as an alternative
     to the HTML writer.
 20240205 iContent_1191 - The extend navigation function is empty.
 20240205 iContent_1195 - Feature request to send notes/questions to the teacher.
 20240212 iContent_1206 - Feture request - Change color settings code to allow for
     word colors.
+20240715 iContent_1267 - Unable to delete a question from a slide.
+20240718 iContent_1272 - Group mode is on the settings page, but is not used anywhere in the
+    code #35.
+20240718 iContent_1273 - Notificactions on Notes and Questions #37.
+
+
+
 
 === 1.0.7.2 === pending (Build: 2024061600) bumped version 2024061600
 20231223 iContent_1138bt - There does not seem to be a way to get to the index.php page.
     Major work in progress to add more detail to the index.php page and create new
     icontent/classes/local/icontent_info.php file.
+
+20240108 iContent_1161 - Answers are not being shuffled in Matching type question.
+    See ticket for details of work in progress.
+
 20240712 iContent_1263bt - Completion, View, is not working. Added three lines of code
     to the view.php file at line 63-65, that sets the view completion status.
 20240714 iContent_1264bt - Should move, locallib.php, function icontent_get_questions_of_questionbank(,
@@ -27,15 +36,24 @@ This files describes API changes and other work in the iContent code.
 20240714 iContent_1265bt - Hardcoded text in addquestionpage.php in line 118 needs to be converted
     to a string. Created new string: $string['totalquestioncount'] = 'The total question count
     for this course and it\'s category is, {$a}.';
-20240715 iContent_1266 - iContent - Should move, locallib.php, function 
+20240715 iContent_1266bt - iContent - Should move, locallib.php, function 
     icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {, to a class file.
     Moved the function to the, icontent_question_options.php, file.
 20240715 iContent_1268bt - iContent - Should move, locallib.php, function icontent_remove_notes($pageid,
     $pagenoteid = null) {, to a class file. Moved the function to the, icontent_note_options.php, file.
 20240716 iContent_1269bt - Should move, locallib.php, function icontent_remove_note_likes($pagenoteid)
     {, to a class file. Moved the function to the, icontent_note_options.php, file.
-
-
+20240716 iContent_1270bt - Should move, locallib.php, function icontent_count_notes_users_instance(,
+    to a class file. Moved the function to the, icontent_note_options.php, file.
+20240718 iContent_1274 - iContent - Multiple choice question answers are never shuffled. In
+    the locallib.php file at about line 2243 I added, shuffle($answers); which seems to do
+    what is needed for multiple choice.
+20240718 iContent_1275 - True/False question answers are never shuffled. In the locallib.php
+    file at about line 2337 I added, shuffle($answers); which seems to do what is needed for
+    truefalse.
+20240720 iContent_1277 - iContent - TRUEFALSE questions are not being listed for selection
+    on addquestion.php page. I was missing a question mark in line 120, of the $sql
+    selection of the icontent_question_options.php page. See ticket for further details.
 
 === 1.0.7.1 === 2023122801
 20231220 iContent_1135bt - Cannot add a question to a slide. Made more changes to the

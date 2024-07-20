@@ -90,7 +90,7 @@ function icontent_supports($feature) {
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return int The id of the newly inserted icontent record
  */
-function icontent_add_instance(stdClass $icontent, mod_icontent_mod_form $mform = null) {
+function icontent_add_instance(stdClass $icontent, ?mod_icontent_mod_form $mform = null) {
     global $DB;
 
     $icontent->timecreated = time();
@@ -115,7 +115,7 @@ function icontent_add_instance(stdClass $icontent, mod_icontent_mod_form $mform 
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function icontent_update_instance(stdClass $icontent, mod_icontent_mod_form $mform = null) {
+function icontent_update_instance(stdClass $icontent, ?mod_icontent_mod_form $mform = null) {
     global $DB;
 
     $icontent->timemodified = time();
@@ -544,7 +544,7 @@ function icontent_extend_navigation(navigation_node $navref, stdClass $course, s
  * @param settings_navigation $settingsnav complete settings navigation tree
  * @param navigation_node $icontentnode icontent administration node
  */
-function icontent_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $icontentnode=null) {
+function icontent_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $icontentnode = null) {
     global $PAGE, $DB;
     // Get instance object icontent.
     $icontent = $DB->get_record('icontent', ['id' => $PAGE->cm->instance], '*', MUST_EXIST);

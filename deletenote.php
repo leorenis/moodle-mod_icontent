@@ -49,9 +49,7 @@ $PAGE->set_heading($course->fullname);
 
 // Form processing.
 if ($confirm) {
-    // The operation was confirmed.
     $notes = icontent_get_notes_daughters($pagenote->id);
-    //icontent_remove_notes($pagenote->pageid, $pagenote->id);
     icontent_note_options::icontent_remove_notes($pagenote->pageid, $pagenote->id);
     \mod_icontent\event\note_deleted::create_from_note($icontent, $context, $pagenote)->trigger();
     $url = new moodle_url('/mod/icontent/view.php', ['id' => $cm->id, 'pageid' => $pagenote->pageid]);

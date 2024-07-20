@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class icontent_question_options {
-    
+
     /**
      * Get questions of question bank.
      *
@@ -52,6 +52,7 @@ class icontent_question_options {
         $sort,
         $page = 0,
         $perpage = ICONTENT_PER_PAGE) {
+
         global $DB;
         $coursecontext = $coursecontext;
         $sort = 'q.name '.$sort;
@@ -116,7 +117,7 @@ class icontent_question_options {
                   JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
                  WHERE qc.contextid = $coursecontext
                    AND qc.parent = q.parent
-                   AND q.qtype IN (?,?,?,?)
+                   AND q.qtype IN (?,?,?,?,?)
                    AND qv.status = 'ready'
                    AND qbe.questioncategoryid = $questioncategoryid
               ORDER BY {$sort}";
@@ -161,5 +162,4 @@ class icontent_question_options {
         // Delete records.
         return $DB->delete_records_select('icontent_question_attempts', 'id '. $in, $values);
     }
-    
 }

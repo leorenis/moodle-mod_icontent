@@ -46,10 +46,7 @@ $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
 // Form processing.
 if ($confirm) {
-    // Try the operation confirmed.
-    //$delete = icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
     $delete = icontent_question_options::icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
-
     if ($delete) {
         // Update grade.
         icontent_set_grade_item($icontent, $cm->id, $USER->id);

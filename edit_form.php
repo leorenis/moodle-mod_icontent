@@ -149,7 +149,6 @@ class icontent_pages_edit_form extends moodleform {
 
         $mform->setDefault('bgcolor', $icontentconfig->bgcolor);
 
-
         // 20240713 Color input experiments.
         /*
         $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
@@ -167,15 +166,15 @@ class icontent_pages_edit_form extends moodleform {
             <input type="submit" name="btn_submit" value="Submit">');
         */
 
-///////////////////////////////////////////////////////////////////////
+        // ========================================================================================
         /*
         $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
             <input type="text" name="text">
             <input type="color" name="color">
             <input type="submit" name="btn_submit" value="Submit">');
         */
-////////////////////////////////////////////////////////////////////////        
-        
+        // ========================================================================================
+
         /*
         // Background color setting.
         $settings->add(new icontent_setting_configcolorpicker(

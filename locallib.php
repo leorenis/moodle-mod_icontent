@@ -864,6 +864,7 @@ function icontent_set_grade_item(stdClass $icontent, $cmid, $userid) {
  * @param string $tab
  * @return object $notes, otherwhise false.
  */
+/*
 function icontent_count_notes_users_instance(
     $cmid,
     $private = null,
@@ -912,6 +913,7 @@ function icontent_count_notes_users_instance(
     $notes = $DB->get_record_sql($sql, $arrayfilter);
     return $notes->total;
 }
+*/
 
 /**
  * Get total questions of question bank.
@@ -1021,12 +1023,12 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
         case ICONTENT_QTYPE_TRUEFALSE:
             // Check if answer is a checkbox. Otherwise, is radio.
             if (is_array($answer)) {
-                $rightanwsers = $DB->get_records_select('question_answers', 'question = ? AND fraction > ?', [$questionid, 0]);
-                if (count($answer) === count($rightanwsers)) {
+                $rightanswers = $DB->get_records_select('question_answers', 'question = ? AND fraction > ?', [$questionid, 0]);
+                if (count($answer) === count($rightanswers)) {
                     // Get array with key ID answer.
                     $arrayoptionsids = icontent_get_array_options_answerid($answer);
                     // Checks answers correct.
-                    foreach ($rightanwsers as $rightanswer) {
+                    foreach ($rightanswers as $rightanswer) {
                         $infoanswer->rightanswer .= $rightanswer->answer.';';
                         if (array_key_exists($rightanswer->id, $arrayoptionsids)) {
                             $infoanswer->fraction += $rightanswer->fraction;
@@ -2239,8 +2241,9 @@ function icontent_make_questions_answers_by_type($question) {
     global $DB;
     switch ($question->qtype) {
         case ICONTENT_QTYPE_MULTICHOICE:
-            $anwswers = $DB->get_records('question_answers', ['question' => $question->qid]);
-            $totalrightanwsers = $DB->count_records_select(
+            $answers = $DB->get_records('question_answers', ['question' => $question->qid]);
+            shuffle($answers); // 20240718 Trying to shuffle the answers for multichoice question. Appears to work!
+            $totalrightanswers = $DB->count_records_select(
                 'question_answers',
                 'question = ? AND fraction > ?',
                 [
@@ -2251,10 +2254,10 @@ function icontent_make_questions_answers_by_type($question) {
             );
             // Print out the prompts. If there is more than one correct answer use the if, Choice {$a} options:,
             // and if there is only one answer use the else, Choice a:.
-            if ($totalrightanwsers > 1) {
+            if ($totalrightanswers > 1) {
                 $type = 'checkbox';
                 $brackets = '[]';
-                $strprompt = get_string('choiceoneormore', 'mod_icontent', $totalrightanwsers);
+                $strprompt = get_string('choiceoneormore', 'mod_icontent', $totalrightanswers);
             } else {
                 $type = 'radio';
                 $brackets = '';
@@ -2265,7 +2268,7 @@ function icontent_make_questions_answers_by_type($question) {
             $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
             $questionanswers .= html_writer::div($strpromptinfo, 'prompt');
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list.
-            foreach ($anwswers as $anwswer) {
+            foreach ($answers as $anwswer) {
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MULTICHOICE.$brackets;
                 $value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
                 $fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;
@@ -2293,13 +2296,17 @@ function icontent_make_questions_answers_by_type($question) {
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list.
             $contenttable = '';
             $arrayanswers = [];
+            shuffle($options); // 20240718 Trying to shuffle the answers for matching question.
             foreach ($options as $option) {
                 $optanswertext = trim(strip_tags($option->answertext));
                 $arrayanswers[$optanswertext] = $optanswertext;
             }
+            //shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question.
+
             foreach ($options as $option) {
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
                 $qtext = html_writer::tag('td', strip_tags($option->questiontext), ['class' => 'matchoptions']);
+                //shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question.
                 $answertext = html_writer::tag(
                     'td',
                     html_writer::select($arrayanswers, $fieldname, null,
@@ -2319,13 +2326,14 @@ function icontent_make_questions_answers_by_type($question) {
             return $questionanswers;
             break;
         case ICONTENT_QTYPE_TRUEFALSE:
-            $anwswers = $DB->get_records('question_answers', ['question' => $question->qid]);
+            $answers = $DB->get_records('question_answers', ['question' => $question->qid]);
+            shuffle($answers); // 20240718 Trying to shuffle the answers for true/false question. Appears to work!
             $strpromptinfo = html_writer::span(get_string('choiceoneoption', 'mod_icontent'), 'label label-info'.'test3');
             $questionanswers = html_writer::start_div('question '.ICONTENT_QTYPE_TRUEFALSE);
             $questionanswers .= html_writer::div(strip_tags($question->questiontext, '<b><strong>'), 'questiontext');
             $questionanswers .= html_writer::div($strpromptinfo, 'prompt');
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list.
-            foreach ($anwswers as $anwswer) {
+            foreach ($answers as $anwswer) {
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_TRUEFALSE;
                 $value = 'qpid-'.$question->qpid.'_answerid-'.$anwswer->id;
                 $fieldid = 'idfield-qpid:'.$question->qpid.'_answerid:'.$anwswer->id;

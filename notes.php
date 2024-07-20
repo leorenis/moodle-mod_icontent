@@ -24,6 +24,7 @@
 
 require(dirname(__FILE__).'/../../config.php');
 require_once(dirname(__FILE__).'/locallib.php');
+use mod_icontent\notes\icontent_note_options;
 
 $id = required_param('id', PARAM_INT);      // Course Module ID.
 $action = optional_param('action', 0, PARAM_ALPHA); // Action.
@@ -71,7 +72,8 @@ $url = new moodle_url('/mod/icontent/notes.php', $urlparams + ['page' => $page, 
 $sort = icontent_check_value_sort($sort);
 // Get users attempts.
 $notesusers = icontent_get_notes_users_instance($cm->id, $sort, $page, $perpage, $private, $featured, $doubttutor, $likes);
-$tnotesusers = icontent_count_notes_users_instance($cm->id, $private, $featured, $doubttutor, $likes);
+$tnotesusers = icontent_note_options::icontent_count_notes_users_instance($cm->id, $private, $featured, $doubttutor, $likes);
+
 // Make table questions.
 $table = new html_table();
 $table->id = "idtablenotesusers";

@@ -2296,6 +2296,7 @@ function icontent_make_questions_answers_by_type($question) {
             $questionanswers .= html_writer::start_div('optionslist'); // Start div options list.
             $contenttable = '';
             $arrayanswers = [];
+            // 20240721 This shuffles the order of match list, but the correct answer goes with it.
             shuffle($options); // 20240718 Trying to shuffle the answers for matching question.
             foreach ($options as $option) {
                 $optanswertext = trim(strip_tags($option->answertext));

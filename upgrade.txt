@@ -17,7 +17,7 @@ This files describes API changes and other work in the iContent code.
 20240718 iContent_1272 - Group mode is on the settings page, but is not used anywhere in the
     code #35.
 20240718 iContent_1273 - Notificactions on Notes and Questions #37.
-
+20240721 iContent_1278 - Tags can be added to settings, but are NOT seen anywhere in the activity.
 
 
 
@@ -54,6 +54,10 @@ This files describes API changes and other work in the iContent code.
 20240720 iContent_1277 - iContent - TRUEFALSE questions are not being listed for selection
     on addquestion.php page. I was missing a question mark in line 120, of the $sql
     selection of the icontent_question_options.php page. See ticket for further details.
+20240724 iContent_1280 - Background image upload and use is broken. Line 122 of the
+    edit_form.php was causing the problem. Right now commented out and will delete later.
+
+
 
 === 1.0.7.1 === 2023122801
 20231220 iContent_1135bt - Cannot add a question to a slide. Made more changes to the

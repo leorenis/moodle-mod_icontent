@@ -121,7 +121,7 @@ class icontent_question_options {
                    AND qv.status = 'ready'
                    AND qbe.questioncategoryid = $questioncategoryid
               ORDER BY {$sort}";
-
+        // 20240720 The number of items in $params array must match the number of question marks in line 120.
         $params = [
             $coursecontext,
             ICONTENT_QTYPE_ESSAY,

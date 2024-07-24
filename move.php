@@ -41,7 +41,6 @@ require_capability('mod/icontent:edit', $context);
 
 $page = $DB->get_record('icontent_pages', ['id' => $pageid, 'icontentid' => $icontent->id], '*', MUST_EXIST);
 
-
 $oldpages = $DB->get_records('icontent_pages', ['icontentid' => $icontent->id], 'pagenum', 'id, pagenum');
 
 $nothing = 0;

@@ -119,7 +119,7 @@ class icontent_pages_edit_form extends moodleform {
         $filemanageroptions = [];
                 $filemanageroptions['subdirs'] = 0;
                 $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
-                $filemanageroptions['areamaxbytes'] = $COURSE->maxbytes;
+                //$filemanageroptions['areamaxbytes'] = $COURSE->maxbytes;
                 $filemanageroptions['maxfiles'] = 1;
                 $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
                 $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;

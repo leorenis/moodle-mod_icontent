@@ -64,7 +64,16 @@ if ($pageid) {
 $page->icontentid = $icontent->id;
 $page->cmid = $cm->id;
 
-$pageicontentoptions = ['noclean' => true, 'subdirs' => true, 'maxfiles' => -1, 'maxbytes' => 0, 'context' => $context];
+$maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
+
+//$pageicontentoptions = ['noclean' => true, 'subdirs' => true, 'maxfiles' => -1, 'maxbytes' => 0, 'context' => $context];
+$pageicontentoptions = [
+    'noclean' => true,
+    'subdirs' => true,
+    'maxfiles' => -1,
+    'maxbytes' => $maxbytes,
+    'context' => $context
+];
 $page = file_prepare_standard_editor($page, 'pageicontent', $pageicontentoptions, $context, 'mod_icontent', 'page', $page->id);
 
 $mform = new icontent_pages_edit_form(null, ['page' => $page, 'pageicontentoptions' => $pageicontentoptions]);
@@ -97,7 +106,7 @@ if ($mform->is_cancelled()) {
             'bgpage',
             $data->id,
             ['subdirs' => 0,
-                'maxbytes' => 0,
+                'maxbytes' => $maxbytes,
                 'maxfiles' => 1,
             ]
         );
@@ -127,7 +136,7 @@ if ($mform->is_cancelled()) {
             'bgpage',
             $data->id,
             ['subdirs' => 0,
-                'maxbytes' => 0,
+                'maxbytes' => $maxbytes,
                 'maxfiles' => 1,
             ]
         );

@@ -103,6 +103,7 @@ $qcids = \qbank_managecategories\helper::get_categories_for_contexts(
 );
 foreach ($qcids as $qcid) {
     $questioncategoryid = $qcid->id;
+	$questioncategoryname = $qcid->name;
 }
 
 $questions = icontent_question_options::icontent_get_questions_of_questionbank($coursecontext,
@@ -113,7 +114,7 @@ $questions = icontent_question_options::icontent_get_questions_of_questionbank($
 );
 $tquestions = icontent_count_questions_of_questionbank($coursecontext);
 // 20240107 Added info but the text needs more info.
-echo 'Current $questioncategoryid is: '.$questioncategoryid.' ';
+echo 'Current question name and categoryid is: '.$questioncategoryname.', '.$questioncategoryid.' ';
 echo get_string('totalquestioncount', 'icontent', $tquestions);
 $qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);

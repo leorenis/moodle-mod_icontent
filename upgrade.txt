@@ -22,13 +22,18 @@ This files describes API changes and other work in the iContent code.
 
 
 === 1.0.7.2 === pending (Build: 2024061600) bumped version 2024061600
+
 20231223 iContent_1138bt - There does not seem to be a way to get to the index.php page.
     Major work in progress to add more detail to the index.php page and create new
     icontent/classes/local/icontent_info.php file.
 
 20240108 iContent_1161 - Answers are not being shuffled in Matching type question.
     See ticket for details of work in progress.
-
+    
+20240205 iContent_1192bt - Need to create a privacy class. 20240209 Created the file.
+    Now need to update the code to change all references from diary to icontent.
+    STILL NEEDS TESTING!
+    
 20240712 iContent_1263bt - Completion, View, is not working. Added three lines of code
     to the view.php file at line 63-65, that sets the view completion status.
 20240714 iContent_1264bt - Should move, locallib.php, function icontent_get_questions_of_questionbank(,
@@ -56,7 +61,8 @@ This files describes API changes and other work in the iContent code.
     selection of the icontent_question_options.php page. See ticket for further details.
 20240724 iContent_1280 - Background image upload and use is broken. Line 122 of the
     edit_form.php was causing the problem. Right now commented out and will delete later.
-
+20240727 iContent_1283 - Appearance> Page layout cllumns2-5, are spelled wrong. Changed
+    spelling as needed in the edit_form.php settings file and the icontent.php languag file. 
 
 
 === 1.0.7.1 === 2023122801
@@ -64,49 +70,48 @@ This files describes API changes and other work in the iContent code.
     locallib.php file, and now I can add graded questions.
 20231222 iContent_1137bt - In edit.php file, need to rewrite $event to use $params. See
     the ticket for details, but changed code and testing.
-20231223 iContent_1140 - Multiple $features missing from the,
+20231223 iContent_1140bt - Multiple $features missing from the,
     function icontent_supports($feature) {. Added the missing features and now testing.
-20231224 iContent_1141 - Need to create a monologo.png file. Finally got a reasonable
+20231224 iContent_1141bt - Need to create a monologo.png file. Finally got a reasonable
     version and saved it as monologo7 in my working folders.
-20231227 iContent_1144 - In moodledev site, when editing a note, the Save button is
+20231227 iContent_1144bt - In moodledev site, when editing a note, the Save button is
     broken. Reverted to old version of agax.php and it is back to working.
 20231228 iContent_1145bt - The slide setting, Expand question area, does not work. Opened
     ticket is not needed. Did not work as there were no questions on a slide.
-20231228 iContent_1146 - pix_url is deprecated. Use image_url for images and pix_icon
+20231228 iContent_1146bt - pix_url is deprecated. Use image_url for images and pix_icon
     for icons. Made the change to image_url.
-20231228 iContent_1147 - The addquestionpage.php needs rewrite to handle the volumn
+20231228 iContent_1147bt - The addquestionpage.php needs rewrite to handle the volumn
     of questions on this site. Started dev. As of 20240107 and iContent_1157 and
     iContent_1158, the addquestion page.php works much better.
-20231229 iContent_1148 - Most of the event files need the, protected function
+20231229 iContent_1148bt - Most of the event files need the, protected function
     get_legacy_logdata(), removed. Removed the functions and rearranged most of
     others in all of the event files.
-20231230 iContent_1149 - The file for iContent, settings.php, is missing. Created
+20231230 iContent_1149bt - The file for iContent, settings.php, is missing. Created
     the missing file, then added settings for, Recent activities and Date format.
-20240105 iContent_1157 - When viewing questions, the page count is wrong. I have added
+20240105 iContent_1157bt - When viewing questions, the page count is wrong. I have added
     code to the, function icontent_count_questions_of_questionbank($coursecontext) {,
     that limits the function to only counting questions in the course. Page count now
     appears to be correct and seems work correctly.
-20240105 iContent_1158 - Additional category with questions causes error, found more
+20240105 iContent_1158bt - Additional category with questions causes error, found more
     than one record, error. For error 2, I added code to fix the get_record_sql. For
     error one, I switched to using new qbank_managecategories code. See ticket
     for details.
 20240107 iContent_1160bt - Need a, Cancel button, for the addquestionpage.php file.
     Changed and added standard Add and Cancel buttons. See ticket for details.
-20240204 iContent_1186 - Manual review (essay) gives error, String [grade,core] is
+20240204 iContent_1186bt - Manual review (essay) gives error, String [grade,core] is
     deprecated. The code at toevaluate.php line 100 was pointing to Moodles old string
     for grade. Since iContent does have a grade string, I changed the code to point to
     it, and I also changed the string identifier to gradenoun. I then changed the code
     in the line 100 to use it.
-20240204 iContent_1187 - Manual review, after giving rating and saving - Exception...
+20240204 iContent_1187bt - Manual review, after giving rating and saving - Exception...
     In the, icontent/classes/event/question_toevluate_created.php file, I removed the
     two occurances where stdClass was bing used. Manually rating an essay now seems
     to work without any problems.
-20240204 iContent_1188 - Text area is too small for essay question answer. Changed the
+20240204 iContent_1188bt - Text area is too small for essay question answer. Changed the
     class from span12 to col-12 and also added a place holder of, Write essay.
-20240204 iContent_1190 - For consistency, the tab for Question should be plural like the
+20240204 iContent_1190bt - For consistency, the tab for Question should be plural like the
     one for Notes. Changed string to plural - $string['doubt'] = 'Questions {$a}';.
-20240205 iContent_1192 - Need to create a privacy class. 20240209 Created the file.
-    Now need to update the code to change all references from diary to icontent.
+
 20240205 iContent_1193bt - Need more system default settings for iContent. See ticket for
     details. Think I have a little more to do on this.
 20240205 iContent_1194bt - Colors and background images do NOT work on old or new pages.
@@ -118,9 +123,9 @@ This files describes API changes and other work in the iContent code.
     details.
 
 === 1.0.7.0 === 20231220 After code checker fixes.
-20231220 iContent_1134p - Need to run codechecker and fix as needed. Made all the
+20231220 iContent_1134v - Need to run codechecker and fix as needed. Made all the
     recommended changes and pushed to github.
-20231221 iContent_1136p - Error re:user_picture, when trying to add a question to a
+20231221 iContent_1136v - Error re:user_picture, when trying to add a question to a
     slide. See ticket for details, but changed SQL and now testing.
 
 === 1.0.6.1 === 20231220

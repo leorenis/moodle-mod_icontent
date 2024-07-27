@@ -59,10 +59,21 @@ This files describes API changes and other work in the iContent code.
 20240720 iContent_1277 - iContent - TRUEFALSE questions are not being listed for selection
     on addquestion.php page. I was missing a question mark in line 120, of the $sql
     selection of the icontent_question_options.php page. See ticket for further details.
+20240721 iContent_1279 - Previous button is not named the same on the bottom of a slide/page.
+    Changed the string from, $string['goback'] = 'Last';, over to, $string['goback'] = 'Previous';. 
 20240724 iContent_1280 - Background image upload and use is broken. Line 122 of the
     edit_form.php was causing the problem. Right now commented out and will delete later.
+20240726 iContent_1281 - Need CSS setting for text paragraph indents to be zero. Change line
+    153 of the styles.css file from text-indent: 1.25em; over to text-indent: 0em;.
 20240727 iContent_1283 - Appearance> Page layout cllumns2-5, are spelled wrong. Changed
     spelling as needed in the edit_form.php settings file and the icontent.php languag file. 
+20240727 iContent_1284 - Feature request to hide all the in-between slide/page navigation
+    buttons above the page content. Quick experiment hides the extra nav buttons if there
+    are more than five slides.
+
+
+
+
 
 
 === 1.0.7.1 === 2023122801

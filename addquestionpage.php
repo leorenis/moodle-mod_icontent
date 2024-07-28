@@ -103,7 +103,7 @@ $qcids = \qbank_managecategories\helper::get_categories_for_contexts(
 );
 foreach ($qcids as $qcid) {
     $questioncategoryid = $qcid->id;
-	$questioncategoryname = $qcid->name;
+    $questioncategoryname = $qcid->name;
 }
 
 $questions = icontent_question_options::icontent_get_questions_of_questionbank($coursecontext,

@@ -89,6 +89,7 @@ class mod_icontent_mod_form extends moodleform_mod {
         // Appearance.
         $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 
+        // phpcs:ignore
         // Setup the overall background color for each page.
         // ...$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);.
         // ...$mform->setType('bgcolor', PARAM_TEXT);.
@@ -108,15 +109,17 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addHelpButton($name, $name, $plugin);
         $mform->setDefault($name, $icontentconfig->bgcolor);
         // 20240713 Color input experiments.
+        // phpcs:ignore
         /*
         $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
             <input type="color" id="bgcolor" value="#0000ff">');
         */
+        // phpcs:ignore
         /*
         $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
             <input type="color" id="'.$icontentconfig->bgcolor.'" value="#0000ff">');
         */
-
+        // phpcs:ignore
         /*
         $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
             <input type="text" name="text">

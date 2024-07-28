@@ -103,8 +103,17 @@ if (($icontent->intro) && ($CFG->branch < 400)) {
     echo $output->introduction($icontent, $cm); // Output introduction in renderer.php.
 }
 
+// Conditions to show the intro. 20231227 I'm not sure if this is needed.
+if ($icontent->intro) {
+    echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
+}
 // Content box.
-echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
+//echo count($pages);
+if (count($pages) > 5) {
+    echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
+} else {
+    echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
+}
 echo $OUTPUT->box_start('icontent-page', 'idicontentpages');
 echo $showpage->fullpageicontent;
 echo $OUTPUT->box_end();

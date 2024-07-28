@@ -63,16 +63,13 @@ if ($pageid) {
 }
 $page->icontentid = $icontent->id;
 $page->cmid = $cm->id;
-
 $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
-
-//$pageicontentoptions = ['noclean' => true, 'subdirs' => true, 'maxfiles' => -1, 'maxbytes' => 0, 'context' => $context];
 $pageicontentoptions = [
     'noclean' => true,
     'subdirs' => true,
     'maxfiles' => -1,
     'maxbytes' => $maxbytes,
-    'context' => $context
+    'context' => $context,
 ];
 $page = file_prepare_standard_editor($page, 'pageicontent', $pageicontentoptions, $context, 'mod_icontent', 'page', $page->id);
 

@@ -80,12 +80,12 @@
 .path-mod-icontent .icontent-page .fulltextpage{
 	font-size: 16px;
     letter-spacing: 0.1px;
-    line-height: 1.8em;
+    line-height: 1.5em;
     word-spacing: 0.3px;
     padding: 15px;
 }
 .path-mod-icontent .icontent-page .fulltextpage ul li{
-	line-height: 1.8em;
+	line-height: 1.5em;
 }
 /*Hightcontrast */
 .path-mod-icontent .icontent-page .highcontrast h1,
@@ -151,7 +151,7 @@
 .path-mod-icontent .icontent-page .fulltextpage p{
 	font-size: 16px;
 	text-indent: 0em;
-	line-height: 1.8em;
+	line-height: 1.5em;
 }
 .path-mod-icontent .icontent-page .fulltextpage .toolbarpage a{
 	margin: 0;
@@ -203,7 +203,7 @@
  	background: #6DB143 none repeat scroll 0 0;
     border-radius: 10px;
     font-size: 0.7em;
-    line-height: 1.2em;
+    line-height: 0.7em;
     text-align: center;
     color: #FFFFFF;
     float: right;
@@ -215,7 +215,7 @@
  	background: #238BC7 none repeat scroll 0 0;
     border-radius: 10px;
     font-size: 0.7em;
-    line-height: 1.2em;
+    line-height: 0.7em;
     text-align: center;
     color: #FFFFFF;
     float: right;
@@ -276,10 +276,11 @@
 	font-size: 13px;
 	padding-right: 10px;
 }
-/** List of anotations **/
+/** List of annotations **/
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent{
 	margin-left: 45px;
 	font-size: 13px;
+    line-height: 1.4em;
 }
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon{
 	color: #aaa;
@@ -469,7 +470,7 @@
 }
 .path-mod-icontent .contentcoverpage p{
 	 color: #1c1c1c;
-    line-height: 1.8em;
+    line-height: 1.5em;
     font-size: 16px;
 }
 /* List-Groups. Override Twitter Bootstrap */

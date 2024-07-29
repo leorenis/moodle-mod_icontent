@@ -24,7 +24,6 @@ This files describes API changes and other work in the iContent code.
 
 
 === 1.0.7.2 === pending (Build: 2024061600) bumped version 2024061600
-
 20231223 iContent_1138bt - There does not seem to be a way to get to the index.php page.
     Major work in progress to add more detail to the index.php page and create new
     icontent/classes/local/icontent_info.php file.
@@ -52,26 +51,38 @@ This files describes API changes and other work in the iContent code.
     {, to a class file. Moved the function to the, icontent_note_options.php, file.
 20240716 iContent_1270bt - Should move, locallib.php, function icontent_count_notes_users_instance(,
     to a class file. Moved the function to the, icontent_note_options.php, file.
-20240718 iContent_1274 - iContent - Multiple choice question answers are never shuffled. In
+20240718 iContent_1274bt - iContent - Multiple choice question answers are never shuffled. In
     the locallib.php file at about line 2243 I added, shuffle($answers); which seems to do
     what is needed for multiple choice.
-20240718 iContent_1275 - True/False question answers are never shuffled. In the locallib.php
+20240718 iContent_1275bt - True/False question answers are never shuffled. In the locallib.php
     file at about line 2337 I added, shuffle($answers); which seems to do what is needed for
     truefalse.
-20240720 iContent_1277 - iContent - TRUEFALSE questions are not being listed for selection
+20240720 iContent_1277bt - iContent - TRUEFALSE questions are not being listed for selection
     on addquestion.php page. I was missing a question mark in line 120, of the $sql
     selection of the icontent_question_options.php page. See ticket for further details.
-20240724 iContent_1280 - Background image upload and use is broken. Line 122 of the
+20240724 iContent_1280bt - Background image upload and use is broken. Line 122 of the
     edit_form.php was causing the problem. Right now commented out and will delete later.
 20240727 iContent_1283bt - Appearance> Page layout collumns2-5, are spelled wrong. Changed
     spelling as needed in the edit_form.php settings file and the icontent.php languag file.
-20240727 iContent_1284 - iContent - Feature request to hide all the in-between slide/page
+20240727 iContent_1284bt - iContent - Feature request to hide all the in-between slide/page
     navigation buttons above the page content. See ticket for details. Currently set to
     show buttons if five or fewer pages. If greater than five pages, then top nav looks
     the same as the bottom nav.
 20240728 iContent_1286bt - iContent - iContent activity heading and descriptions are being
     shown twice. Modified code in the view.php file to remove the duplicates. See ticket
     for further details.
+20240729 iContent_1288bt - The styles.css file needs some attention re: line-height for the
+    content page text area. Setting was missing from where it should have been in the
+    styles.css file. Added missing setting in line 283.
+20240729 iContent_1289bt - Need to move function icontent_get_notes_users_instance( to the
+    classes file icontent_note_options.php. Created new class function then changed the
+    code in doubts.php and notes.php to use the new function.
+
+
+
+
+
+
 
 === 1.0.7.1 === 2023122801
 20231220 iContent_1135bt - Cannot add a question to a slide. Made more changes to the

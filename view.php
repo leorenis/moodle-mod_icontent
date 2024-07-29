@@ -103,13 +103,13 @@ if (($icontent->intro) && ($CFG->branch < 400)) {
     echo $output->introduction($icontent, $cm); // Output introduction in renderer.php.
 }
 
-// Content box.
-//echo count($pages);
+// Decide whether or not to show upper navigation buttons.
 if (count($pages) > 5) {
     echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
 } else {
     echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
 }
+// Add all the content into a box.
 echo $OUTPUT->box_start('icontent-page', 'idicontentpages');
 echo $showpage->fullpageicontent;
 echo $OUTPUT->box_end();

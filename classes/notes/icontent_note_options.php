@@ -149,4 +149,100 @@ class icontent_note_options {
         return $notes->total;
     }
 
+
+    /**
+     * Get object with notes of users in featured or private by course modules ID <iContent>.
+     *
+     * Returns object notes users.
+     *
+     * @param int $cmid
+     * @param string $sort
+     * @param int $page
+     * @param int $perpage
+     * @param int $private
+     * @param int $featured
+     * @param int $doubttutor
+     * @param int $likes
+     * @param int $tab
+     * @return object $notes, otherwhise false.
+     */
+    public static function icontent_get_notes_users_instance(
+        $cmid,
+        $sort,
+        $page = 0,
+        $perpage = ICONTENT_PER_PAGE,
+        $private = null,
+        $featured = null,
+        $doubttutor = null,
+        $likes = null,
+        $tab = null) {
+
+        global $CFG, $DB, $USER;
+        $sortparams = 'pn.path '.$sort;
+        $page = (int) $page;
+        $perpage = (int) $perpage;
+        // Get context.
+        $context = context_module::instance($cmid);
+        // Filter.
+        $andfilter = '';
+        $joinfilter = '';
+        $distinct = '';
+        $arrayfilter = [$cmid];
+        if ($private) {
+            $andfilter .= 'AND pn.private = ? ';
+            array_push($arrayfilter, $private);
+        }
+        if ($featured) {
+            $andfilter .= 'AND pn.featured = ? ';
+            array_push($arrayfilter, $featured);
+        }
+        if ($doubttutor) {
+            $andfilter .= 'AND pn.doubttutor = ? ';
+            array_push($arrayfilter, $doubttutor);
+        }
+        if ($tab) {
+            $andfilter .= 'AND pn.tab in (?) ';
+            array_push($arrayfilter, $tab);
+        }
+        // If not has any capability and $likes equals null, so add filter for user.
+        if (!has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $context) && !$likes) {
+            $andfilter .= 'AND u.id = ? ';
+            array_push($arrayfilter, $USER->id);
+        }
+        if ($likes) {
+            $joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
+            $andfilter .= 'AND pnl.userid = ? ';
+            array_push($arrayfilter, $USER->id);
+        }
+        // Setup pagination - when both $page and $perpage = 0, get all results.
+        if ($page || $perpage) {
+            if ($page < 0) {
+                $page = 0;
+            }
+            if ($perpage > ICONTENT_MAX_PER_PAGE) {
+                $perpage = ICONTENT_MAX_PER_PAGE;
+            } else if ($perpage < 1) {
+                $perpage = ICONTENT_PER_PAGE;
+            }
+        }
+
+        // 20231221 Added Moodle branch check.
+        if ($CFG->branch < 311) {
+            $namefields = user_picture::fields('u', null, 'userid');
+        } else {
+            $userfieldsapi = \core_user\fields::for_userpic();
+            $namefields = $userfieldsapi->get_sql('u', false, '', 'userid', false)->selects;;
+        }
+        $sql = "SELECT pn.id,
+                       pn.comment,
+                       {$namefields}
+                  FROM {icontent_pages_notes} pn
+            INNER JOIN {user} u
+                    ON pn.userid = u.id
+                       {$joinfilter}
+                 WHERE pn.cmid = ?
+                       {$andfilter}
+              ORDER BY {$sortparams}";
+        return $DB->get_records_sql($sql, $arrayfilter, $page * $perpage, $perpage);
+    }
 }

@@ -327,106 +327,6 @@ function icontent_get_page_bgimage($context, $page) {
 }
 
 /**
- * Preload icontent pages.
- *
- * Returns array of pages.
- * Please note the icontent/text of pages is not included.
- *
- * @param object $icontent
- * @return array of id=>icontent
- */
-/*
-function icontent_preload_pages($icontent) {
-    global $DB;
-    $pages = $DB->get_records('icontent_pages',
-        [
-            'icontentid' => $icontent->id,
-        ],
-        'pagenum',
-        'id,
-        icontentid,
-        cmid,
-        pagenum,
-        coverpage,
-        title,
-        hidden'
-    );
-    if (!$pages) {
-        return [];
-    }
-    $first = true;
-    $pagenum = 0; // Page sort.
-    foreach ($pages as $id => $pg) {
-        $oldpg = clone($pg);
-        $pagenum++;
-        $pg->pagenum = $pagenum;
-        if ($first) {
-            $first = false;
-        }
-        if ($oldpg->pagenum != $pg->pagenum || $oldpg->hidden != $pg->hidden) {
-            // Update only if something changed.
-            $DB->update_record('icontent_pages', $pg);
-        }
-        $pages[$id] = $pg;
-    }
-    return $pages;
-}
-*/
-
-/**
- * Remove notes from a page. If the param $pagenoteid was passed, It will delete only the current note and their daughters.
- *
- * Returns boolean true or false.
- *
- * @param int $pageid
- * @param int $pagenoteid
- * @return boolean true or false
- */
-/*
-function icontent_remove_notes($pageid, $pagenoteid = null) {
-    global $DB;
-    $rs = false;
-    if ($pagenoteid) {
-        // Verifies that note have daughters.
-        $notesdaughters = icontent_get_notes_daughters($pagenoteid);
-        if ($notesdaughters) {
-            foreach ($notesdaughters as $pnid => $comment) {
-                icontent_remove_note_likes($pnid);
-                $rs = $DB->delete_records('icontent_pages_notes', ['id' => $pnid]);
-            }
-        }
-        // Remove current note.
-        icontent_remove_note_likes($pagenoteid);
-        $rs = $DB->delete_records('icontent_pages_notes', ['id' => $pagenoteid]);
-        return $rs ? true : false;
-    }
-    // Get notes.
-    $pagenotes = $DB->get_records('icontent_pages_notes', ['pageid' => $pageid]);
-    foreach ($pagenotes as $pagenote) {
-        icontent_remove_note_likes($pagenote->id);
-        $rs = $DB->delete_records('icontent_pages_notes', ['id' => $pagenote->id]);
-    }
-    return $rs ? true : false;
-}
-*/
-
-/**
- * Remove note likes of page.
- *
- * Returns boolean true or false
- *
- * @param int $pagenoteid
- * @return boolean true or false
- */
-/*
-function icontent_remove_note_likes($pagenoteid) {
-    global $DB;
-    $rs = $DB->delete_records('icontent_pages_notes_like', ['pagenoteid' => $pagenoteid]);
-    return $rs ? true : false;
-}
-*/
-
-/**
  * Delete question per page by id.
  *
  * Returns true or false
@@ -438,39 +338,6 @@ function icontent_remove_questionpagebyid($id) {
     global $DB;
     return $DB->delete_records('icontent_pages_questions', ['id' => $id]);
 }
-
-/**
- * Remove answers the attempts summary the current page.
- *
- * Returns true os false
- *
- * @param int $pageid
- * @param int $cmid
- * @return true or false
- */
-/*
-function icontent_remove_answers_attempt_toquestion_by_page($pageid, $cmid) {
-    global $DB, $USER;
-    // Check capabilities.
-    $allownewattempts = icontent_user_can_remove_attempts_answers_for_tryagain($pageid, $cmid);
-    if (!$allownewattempts) {
-        return false;
-    }
-    // SQL Query.
-    $sql = "SELECT qa.id
-              FROM {icontent_question_attempts} qa
-        INNER JOIN {icontent_pages_questions} pq
-                ON qa.pagesquestionsid = pq.id
-             WHERE pq.pageid = ?
-               AND pq.cmid = ?
-               AND qa.userid = ?;";
-    // Get items.
-    $idanswers = $DB->get_fieldset_sql($sql, [$pageid, $cmid, $USER->id]);
-    list($in, $values) = $DB->get_in_or_equal($idanswers);
-    // Delete records.
-    return $DB->delete_records_select('icontent_question_attempts', 'id '. $in, $values);
-}
-*/
 
 /**
  * Update question attempt.
@@ -548,7 +415,8 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1) {
 function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $attrid = 'fgroup_id_buttonar') {
     // Object button.
     $objbutton = new stdClass();
-    $objbutton->name  = get_string('goback', 'mod_icontent');
+    //$objbutton->name  = get_string('goback', 'mod_icontent');
+    $objbutton->name  = get_string('previous', 'mod_icontent');
     $objbutton->title = get_string('previouspage', 'mod_icontent');
     $objbutton->cmid  = $cmid;
     $objbutton->startwithpage = $startwithpage;
@@ -705,104 +573,6 @@ function icontent_get_next_pagenum(stdClass $objpage) {
 }
 
 /**
- * Get questions of question bank.
- *
- * Returns array of questions and is called from the addquestionpage.php file, about line 92.
- *
- * @param object $coursecontext
- * @param string $sort
- * @param int $page
- * @param int $perpage
- * @return array of $questionbank
- */
-/*
-function icontent_get_questions_of_questionbank(
-    $coursecontext,
-    $questioncategoryid,
-    $sort,
-    $page = 0,
-    $perpage = ICONTENT_PER_PAGE) {
-    global $DB;
-    $coursecontext = $coursecontext;
-    $sort = 'q.name '.$sort;
-    $page = (int) $page;
-    $perpage = (int) $perpage;
-    $questioncategoryid = $questioncategoryid;
-
-    // Setup pagination - when both $page and $perpage = 0, get all results.
-    if ($page || $perpage) {
-        if ($page < 0) {
-            $page = 0;
-        }
-        if ($perpage > ICONTENT_MAX_PER_PAGE) {
-            $perpage = ICONTENT_MAX_PER_PAGE;
-        } else if ($perpage < 1) {
-            $perpage = ICONTENT_PER_PAGE;
-        }
-    }
-
-    // 20240107 Need to simplify this sql and drop unneeded items.
-    $sql = "SELECT q.id AS Qid,
-                   q.parent AS Qparent,
-                   q.name AS Qname,
-                   q.questiontext AS Qquestiontext,
-                   q.questiontextformat AS Qquestiontextformat,
-                   q.generalfeedback AS Qgeneralfeedback,
-                   q.generalfeedbackformat AS Qgeneralfeedbackformat,
-                   q.defaultmark AS Qdefaultmark,
-                   q.penalty AS Qpenalty,
-                   q.qtype AS Qqtype,
-                   q.length AS Qlength,
-                   q.stamp AS Qstamp,
-                   q.timecreated AS Qtimecreated,
-                   q.timemodified AS Qtimemodified,
-                   q.createdby AS Qcreatedby,
-                   q.modifiedby AS Qmodifiedby,
-
-                   qc.id AS QCid,
-                   qc.name AS QCname,
-                   qc.contextid AS QCcontextid,
-                   qc.info AS QCinfo,
-                   qc.infoformat AS QCinfoformat,
-                   qc.stamp AS QCstamp,
-                   qc.parent AS QCparent,
-                   qc.sortorder AS QCsortorder,
-                   qc.idnumber AS QCidnumber,
-
-                   qv.id AS QVid,
-                   qv.questionbankentryid AS QVquestionbankentryid,
-                   qv.version AS QVversion,
-                   qv.questionid AS QVquestionid,
-                   qv.status AS QVstatus,
-
-                   qbe.id AS QBEid,
-                   qbe.questioncategoryid AS QBEquestioncategoryid,
-                   qbe.idnumber AS QBEidnumber,
-                   qbe.ownerid AS QBEownerid
-
-              FROM {question} q
-              JOIN {question_categories} qc ON qc.parent = q.parent
-              JOIN {question_versions} qv ON qv.questionid = q.id
-              JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
-             WHERE qc.contextid = $coursecontext
-               AND qc.parent = q.parent
-               AND q.qtype IN (?,?,?,?)
-               AND qv.status = 'ready'
-               AND qbe.questioncategoryid = $questioncategoryid
-          ORDER BY {$sort}";
-
-    $params = [
-        $coursecontext,
-        ICONTENT_QTYPE_ESSAY,
-        ICONTENT_QTYPE_MATCH,
-        ICONTENT_QTYPE_MULTICHOICE,
-        ICONTENT_QTYPE_TRUEFALSE,
-    ];
-    return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
-}
-*/
-
-/**
  * Set updates for grades in table {grade_grades}.
  *
  * Returns true or false.
@@ -850,70 +620,6 @@ function icontent_set_grade_item(stdClass $icontent, $cmid, $userid) {
     // Update gradebook.
     grade_update('mod/icontent', $icontent->course, 'mod', 'icontent', $icontent->id, 0, $grade, $params);
 }
-
-/**
- * Get count notes of users in featured or private by course modules ID <iContent>.
- *
- * Returns object notes users.
- *
- * @param int $cmid
- * @param int $private
- * @param int $featured
- * @param int $doubttutor
- * @param int $likes
- * @param string $tab
- * @return object $notes, otherwhise false.
- */
-/*
-function icontent_count_notes_users_instance(
-    $cmid,
-    $private = null,
-    $featured = null,
-    $doubttutor = null,
-    $likes = null,
-    $tab = null) {
-    global $DB, $USER;
-    // Get context.
-    $context = context_module::instance($cmid);
-    // Filter.
-    $andfilter = '';
-    $joinfilter = '';
-    $distinct = '';
-    $arrayfilter = [$cmid];
-    if ($private) {
-        $andfilter .= 'AND pn.private = ? ';
-        array_push($arrayfilter, $private);
-    }
-    if ($featured) {
-        $andfilter .= 'AND pn.featured = ? ';
-        array_push($arrayfilter, $featured);
-    }
-    if ($doubttutor) {
-        $andfilter .= 'AND pn.doubttutor = ? ';
-        array_push($arrayfilter, $doubttutor);
-    }
-    // If not has any capability and $likes equals null, so add filter for user.
-    if (!has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $context) && !$likes) {
-        $andfilter .= 'AND u.id = ? ';
-        array_push($arrayfilter, $USER->id);
-    }
-    if ($likes) {
-        $joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
-        $andfilter .= 'AND pnl.userid = ? ';
-        array_push($arrayfilter, $USER->id);
-    }
-    // Query.
-    $sql = "SELECT Count(*) AS total
-              FROM {icontent_pages_notes} pn
-        INNER JOIN {user} u
-                ON pn.userid = u.id
-                   {$joinfilter}
-             WHERE pn.cmid = ?
-                   {$andfilter};";
-    $notes = $DB->get_record_sql($sql, $arrayfilter);
-    return $notes->total;
-}
-*/
 
 /**
  * Get total questions of question bank.
@@ -1105,102 +811,6 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
             break;
     }
     throw new Exception("QTYPE Invalid.");
-}
-
-/**
- * Get object with notes of users in featured or private by course modules ID <iContent>.
- *
- * Returns object notes users.
- *
- * @param int $cmid
- * @param string $sort
- * @param int $page
- * @param int $perpage
- * @param int $private
- * @param int $featured
- * @param int $doubttutor
- * @param int $likes
- * @param int $tab
- * @return object $notes, otherwhise false.
- */
-function icontent_get_notes_users_instance(
-    $cmid,
-    $sort,
-    $page = 0,
-    $perpage = ICONTENT_PER_PAGE,
-    $private = null,
-    $featured = null,
-    $doubttutor = null,
-    $likes = null,
-    $tab = null) {
-
-    global $CFG, $DB, $USER;
-    $sortparams = 'pn.path '.$sort;
-    $page = (int) $page;
-    $perpage = (int) $perpage;
-    // Get context.
-    $context = context_module::instance($cmid);
-    // Filter.
-    $andfilter = '';
-    $joinfilter = '';
-    $distinct = '';
-    $arrayfilter = [$cmid];
-    if ($private) {
-        $andfilter .= 'AND pn.private = ? ';
-        array_push($arrayfilter, $private);
-    }
-    if ($featured) {
-        $andfilter .= 'AND pn.featured = ? ';
-        array_push($arrayfilter, $featured);
-    }
-    if ($doubttutor) {
-        $andfilter .= 'AND pn.doubttutor = ? ';
-        array_push($arrayfilter, $doubttutor);
-    }
-    if ($tab) {
-        $andfilter .= 'AND pn.tab in (?) ';
-        array_push($arrayfilter, $tab);
-    }
-    // If not has any capability and $likes equals null, so add filter for user.
-    if (!has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $context) && !$likes) {
-        $andfilter .= 'AND u.id = ? ';
-        array_push($arrayfilter, $USER->id);
-    }
-    if ($likes) {
-        $joinfilter .= 'INNER JOIN {icontent_pages_notes_like} pnl ON pn.id = pnl.pagenoteid';
-        $andfilter .= 'AND pnl.userid = ? ';
-        array_push($arrayfilter, $USER->id);
-    }
-    // Setup pagination - when both $page and $perpage = 0, get all results.
-    if ($page || $perpage) {
-        if ($page < 0) {
-            $page = 0;
-        }
-        if ($perpage > ICONTENT_MAX_PER_PAGE) {
-            $perpage = ICONTENT_MAX_PER_PAGE;
-        } else if ($perpage < 1) {
-            $perpage = ICONTENT_PER_PAGE;
-        }
-    }
-
-    // 20231221 Added Moodle branch check.
-    if ($CFG->branch < 311) {
-        $namefields = user_picture::fields('u', null, 'userid');
-    } else {
-        $userfieldsapi = \core_user\fields::for_userpic();
-        $namefields = $userfieldsapi->get_sql('u', false, '', 'userid', false)->selects;;
-    }
-    $sql = "SELECT pn.id,
-                   pn.comment,
-                   {$namefields}
-              FROM {icontent_pages_notes} pn
-        INNER JOIN {user} u
-                ON pn.userid = u.id
-                   {$joinfilter}
-             WHERE pn.cmid = ?
-                   {$andfilter}
-          ORDER BY {$sortparams}";
-    return $DB->get_records_sql($sql, $arrayfilter, $page * $perpage, $perpage);
 }
 
 /**
@@ -2302,12 +1912,14 @@ function icontent_make_questions_answers_by_type($question) {
                 $optanswertext = trim(strip_tags($option->answertext));
                 $arrayanswers[$optanswertext] = $optanswertext;
             }
-            //shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question.
+            // ...shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question...
+            // 20240705 Shuffling here does jumble the answers the way I want, but they then ALWAYS get marked as being wrong.
+            // Maybe need to use this shuffle and then rework the code elsewhere to see if the selections are correct.
 
             foreach ($options as $option) {
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
                 $qtext = html_writer::tag('td', strip_tags($option->questiontext), ['class' => 'matchoptions']);
-                //shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question.
+                // ...shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question...
                 $answertext = html_writer::tag(
                     'td',
                     html_writer::select($arrayanswers, $fieldname, null,
@@ -2321,6 +1933,9 @@ function icontent_make_questions_answers_by_type($question) {
                 );
                 $contenttable .= html_writer::tag('tr', $qtext. $answertext);
             }
+            // ...shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question...
+            // 20240705 Trying to shuffle the answers here does not do what is need.
+
             $questionanswers .= html_writer::tag('table', $contenttable);
             $questionanswers .= html_writer::end_div(); // End div options list.
             $questionanswers .= html_writer::end_div();
@@ -2476,6 +2091,7 @@ function icontent_make_notesarea($objpage, $icontent) {
     }
     global $OUTPUT, $USER;
     $togglearea = icontent_get_toggle_area_object($objpage->expandnotesarea);
+
     // Title page.
     $title = html_writer::tag('h4', $togglearea->icon.get_string('doubtandnotes', 'mod_icontent'),
         [
@@ -2483,6 +2099,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'id' => 'idtitlenotes',
         ]
     );
+
     // User image used under the Notes and Question tabs.
     $picture = html_writer::tag('div', $OUTPUT->user_picture($USER,
         [
@@ -2493,6 +2110,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'class' => 'col-2 userpicture',
         ]
     );
+////////////////////////////////////////////////////////////////////////
     // Fields. Create text area for notes.
     $textareanote = html_writer::tag('textarea', null,
         [
@@ -2504,9 +2122,11 @@ function icontent_make_notesarea($objpage, $icontent) {
             'placeholder' => get_string('writenotes', 'mod_icontent'),
         ]
     );
+
     // Create checkboxes for private and featured, right under the notes textarea.
     $spanprivate = icontent_make_span_checkbox_field_private($objpage);
     $spanfeatured = icontent_make_span_checkbox_field_featured($objpage);
+
     // Create the, Save, button under the right side of the note textarea.
     $btnsavenote = html_writer::tag('button', get_string('save', 'mod_icontent'),
         [
@@ -2517,6 +2137,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'data-sesskey' => sesskey(),
         ]
     );
+////////////////////////////////////////////////////////////////////////
     // Create text area for questions.
     $textareadoubt = html_writer::tag('textarea', null,
         [
@@ -2540,9 +2161,43 @@ function icontent_make_notesarea($objpage, $icontent) {
             'data-sesskey' => sesskey(),
         ]
     );
+////////////////////////////////////////////////////////////////////////
+    // Create text area for tags.
+    /*
+    $textareatag = html_writer::tag('textarea', null,
+        [
+            'name' => 'comment',
+            'id' => 'idcommenttag',
+            'class' => 'col-12',
+            'maxlength' => '1024',
+            'required' => 'required',
+            'placeholder' => get_string('writetag', 'mod_icontent'),
+        ]
+    );
+    */
+    // Create check box for, Ask tutor only. NOT NEEDED.
+    // $spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage); NOT NEEDED.
+    // Create the question save button.
+    // I think a tag save button will NOT BE NEEDED.
+    /*
+    $btnsavetag = html_writer::tag('button', get_string('save', 'mod_icontent'),
+        [
+            'class' => 'btn btn-primary pull-right',
+            'id' => 'idbtnsavedoubt',
+            'data-pageid' => $objpage->id,
+            'data-cmid' => $objpage->cmid,
+            'data-sesskey' => sesskey(),
+        ]
+    );
+    */
+////////////////////////////////////////////////////////////////////////
+
     // Data page.
     $datapagenotesnote = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'note'); // Data page notes note.
     $datapagenotesdoubt = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt'); // Data page notes question.
+    // Placeholder for tags code.
+    // $datapagenotestag = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt'); // Data page notes tag.
+    
     $pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage),
         'pagenotesnote',
         [
@@ -2555,16 +2210,33 @@ function icontent_make_notesarea($objpage, $icontent) {
             'id' => 'idpagenotesdoubt',
         ]
     );
+
     // Fields.
     $fieldsnote = html_writer::tag('div', $textareanote.$spanprivate.$spanfeatured.$btnsavenote.$pagenotesnote,
         [
             'class' => 'col-10',
         ]
     );
-    $fieldsdoubt = html_writer::tag('div', $textareadoubt.$spandoubttutor.$btnsavedoubt.$pagenotesdoubt, ['class' => 'col-10']);
+    $fieldsdoubt = html_writer::tag('div', $textareadoubt.$spandoubttutor.$btnsavedoubt.$pagenotesdoubt,
+        [
+            'class' => 'col-10'
+        ]
+    );
+    // Placeholder for tags code.
+    /*
+    $fieldstag = html_writer::tag('div', $textareatag.$btnsavetag.$pagenotestag,
+        [
+            'class' => 'col-10'
+        ]
+    );
+    */
+
     // Forms.
     $formnote = html_writer::tag('div', $picture.$fieldsnote, ['class' => 'row fields mt-2']);
     $formdoubt = html_writer::tag('div', $picture.$fieldsdoubt, ['class' => 'row fields mt-2']);
+    // Placeholder for tags code.
+    // $formdoubt = html_writer::tag('div', $picture.$fieldstag, ['class' => 'row fields mt-2']);
+
 
     // TAB NAVS.
     $note = html_writer::tag('li',
@@ -2597,10 +2269,32 @@ function icontent_make_notesarea($objpage, $icontent) {
             'role' => 'presentation',
         ]
     );
+    // Placeholder for tags code.
+    /* 
+    $tag = html_writer::tag('li',
+        html_writer::link('#tag', get_string('tag', 'icontent', count($datapagenotestag)),
+            [
+                'id' => 'tag-tab',
+                'aria-controls' => 'tag',
+                'role' => 'tab',
+                'data-toggle' => 'tab',
+                'class' => 'nav-link',
+            ]
+        ),
+        [
+            'class' => 'nav-item',
+            'role' => 'presentation',
+        ]
+    );
+    */
     $tabnav = html_writer::tag('ul', $note .$doubt, ['class' => 'nav nav-tabs', 'id' => 'tabnav']);
+    // Placeholder for tags code.
+    // $tabnav = html_writer::tag('ul', $note .$doubt .$tag, ['class' => 'nav nav-tabs', 'id' => 'tabnav']);
     // TAB CONTENT.
     $icontentnote = html_writer::div($formnote, 'tab-pane active', ['role' => 'tabpanel', 'id' => 'note']);
     $icontentdoubt = html_writer::div($formdoubt, 'tab-pane', ['role' => 'tabpanel', 'id' => 'doubt']);
+    // Placeholder for tags code.
+    // $icontenttag = html_writer::div($formtag, 'tab-pane', ['role' => 'tabpanel', 'id' => 'tag']);
     $tabicontent = html_writer::div($icontentnote.$icontentdoubt, 'tab-content', ['id' => 'idtabicontent']);
     $fulltab = html_writer::div($tabnav.$tabicontent, 'fulltab', ['id' => 'idfulltab', 'style' => $togglearea->style]);
     // Return notes area.
@@ -3162,7 +2856,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
         $toolbarpage.
         $title.
         $objpage->pageicontent.
-        $npage.
+        $npage.'xxx'.
         $progbar.
         $qtsareas.
         $notesarea.

@@ -68,8 +68,21 @@ $url = new moodle_url('/mod/icontent/doubts.php', $urlparams + ['page' => $page,
 // Get sort value.
 $sort = icontent_check_value_sort($sort);
 // Get users attempts.
-$notesusers = icontent_get_notes_users_instance($cm->id, $sort, $page, $perpage, $private, $featured, $doubttutor, $likes, $tab);
-$tnotesusers = icontent_note_options::icontent_count_notes_users_instance($cm->id, $private, $featured, $doubttutor, $likes, $tab);
+$notesusers = icontent_note_options::icontent_get_notes_users_instance($cm->id,
+    $sort,
+    $page,
+    $perpage,
+    $private,
+    $featured,
+    $doubttutor,
+    $likes,
+    $tab);
+$tnotesusers = icontent_note_options::icontent_count_notes_users_instance($cm->id,
+    $private,
+    $featured,
+    $doubttutor,
+    $likes,
+    $tab);
 
 // Make table questions.
 $table = new html_table();

@@ -41,6 +41,7 @@ class icontent_question_options {
      * Returns array of questions and is called from the addquestionpage.php file, about line 92.
      *
      * @param object $coursecontext
+     * @param int $questioncategoryid
      * @param string $sort
      * @param int $page
      * @param int $perpage

@@ -68,6 +68,7 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('cmid', PARAM_INT);
         $mform->setDefault('cmid', $page->cmid);
 
+        // Need to see about using the pagenum to implement the move capability.
         $mform->addElement('hidden', 'pagenum');
         $mform->setType('pagenum', PARAM_INT);
         $mform->setDefault('pagenum', $page->pagenum);
@@ -97,10 +98,10 @@ class icontent_pages_edit_form extends moodleform {
 
         $layouts = [
             '1' => get_string('fluid', 'icontent'),
-            '2' => get_string('collumns2', 'icontent'),
-            '3' => get_string('collumns3', 'icontent'),
-            '4' => get_string('collumns4', 'icontent'),
-            '5' => get_string('collumns5', 'icontent'),
+            '2' => get_string('columns2', 'icontent'),
+            '3' => get_string('columns3', 'icontent'),
+            '4' => get_string('columns4', 'icontent'),
+            '5' => get_string('columns5', 'icontent'),
         ];
         $mform->addElement('select', 'layout', get_string('layout', 'icontent'), $layouts);
         $mform->addHelpButton('layout', 'layouthelp', 'icontent');
@@ -119,7 +120,6 @@ class icontent_pages_edit_form extends moodleform {
         $filemanageroptions = [];
                 $filemanageroptions['subdirs'] = 0;
                 $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
-                //$filemanageroptions['areamaxbytes'] = $COURSE->maxbytes;
                 $filemanageroptions['maxfiles'] = 1;
                 $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
                 $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;

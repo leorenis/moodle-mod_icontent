@@ -25,11 +25,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 $string['action'] = 'Action';
+$string['activityended'] = 'This activity is no longer open. It closed';
+
 $string['addafter'] = 'Add new page';
 $string['addnewpage'] = 'Add new page';
 $string['addquestion'] = 'Add new question';
 $string['advance'] = 'Next';
 $string['alldoubts'] = 'All questions';
+$string['alwaysshowdescription_help'] = 'If disabled, the Content Pages description above will only become visible to students on the "Open time" date.';
+$string['alwaysshowdescription'] = 'Always show description';
 $string['answers'] = 'Answers';
 $string['answersevaluatedinfo'] = '<i class="fa fa-info-circle"></i> The answers that have been evaluated do not appear in this list. To reassess, {$a}.';
 $string['answerthequestions'] = 'Answer the question(s)';
@@ -69,16 +73,20 @@ $string['borderwidthpagehelp_help'] = 'Choose the default width to the edges of 
 $string['calculated'] = 'Calculated';
 $string['calculatedmulti'] = 'Calculated multi';
 $string['calculatedsimple'] = 'Calculated simple';
+$string['calendarend'] = '{$a} closes';
+$string['calendarstart'] = '{$a} opens';
 $string['choiceone'] = 'Choice a:';
 $string['choiceoneoption'] = 'Choose an option:';
 $string['choiceoneormore'] = 'Choice {$a} options:';
 $string['clickhere'] = 'Click here';
-$string['collumns2'] = 'Until two collumns';
-$string['collumns3'] = 'Until three collumns';
-$string['collumns4'] = 'Until four collumns';
-$string['collumns5'] = 'Until five collumns';
+$string['columns2'] = 'Until two columns';
+$string['columns3'] = 'Until three columns';
+$string['columns4'] = 'Until four columns';
+$string['columns5'] = 'Until five columns';
 $string['comments'] = 'Comments';
 $string['confdeleteattempt'] = 'Remove attempt the page {$a->pagenum}';
+$string['configpassword_desc'] = 'Whether a password is required in order to access the lesson.';
+
 $string['confpagedelete'] = 'Do you want to delete this page along with all files and records related to it?';
 $string['confpagenotedelete'] = '<i class="fa fa-exclamation-triangle"></i> Are you sure you want to delete this note and all replies? <span class="label label-warning">{$a} reply(ies)</span>';
 $string['copyright'] = 'Copyright';
@@ -149,10 +157,14 @@ $string['icontent:removenotes'] = 'Remove notes';
 $string['icontent:replynotes'] = 'Reply note';
 $string['icontent:view'] = 'View interactive icontent';
 $string['icontent:viewnotes'] = 'View notes';
+$string['icontentclosetime'] = 'Close time';
+
 $string['icontentfieldset'] = 'Custom example fieldset';
 $string['icontentmenu'] = 'Content pages menu';
 $string['icontentname'] = 'Content Pages name';
 $string['icontentname_help'] = 'This is the icontent of the help tooltip associated with the icontentname field. Markdown syntax is supported.';
+$string['icontentopen'] = 'These Content Pages will be open on {$a}.';
+$string['icontentopentime'] = 'Open time';
 $string['incorrectmodule'] = 'You must specify a course_module ID or an instance ID';
 $string['incorrectpage'] = 'You must specify a page ID';
 
@@ -196,6 +208,8 @@ $string['norecordsfound'] = '<i class="fa fa-info-circle"></i> No records found.
 $string['note'] = 'Notes <span id="messagenotes">{$a}</span>';
 $string['notedon'] = ' noted on ';
 $string['notes'] = 'Notes';
+$string['notopenuntil'] = 'This Content Pages activity won\'t be open until';
+
 $string['numerical'] = 'Numerical';
 $string['options'] = 'Options';
 $string['page'] = '<span>Page <em>{$a}</em></span>';
@@ -204,6 +218,8 @@ $string['pagenotfound'] = '<i class="fa fa-exclamation-triangle" aria-hidden="tr
 $string['pages'] = '<span>Pages</span>';
 $string['pagetitle'] = 'Page title';
 $string['partialresult'] = 'Partial result';
+$string['password'] = 'Password';
+
 $string['pluginadministration'] = 'Content Pages Administration';
 $string['pluginname'] = 'Content Pages';
 $string['preview'] = 'Preview';
@@ -251,6 +267,7 @@ $string['strstate'] = 'Finished <br /> Submitted {$a}.';
 $string['strtoevaluate'] = '{$a->fraction} out of {$a->maxfraction} ({$a->percentage}%). {$a->openanswer}';
 $string['summary'] = 'Summary';
 $string['summaryattempts'] = 'Summary attempts';
+$string['tagarea_icontent_pages'] = 'iContent pages';
 $string['toevaluate'] = 'To evaluate';
 $string['toreassess'] = 'to reassess';
 $string['totalanswers'] = 'Total answers';
@@ -264,6 +281,8 @@ $string['type'] = ' Type';
 $string['unlike'] = ' Unlike ({$a}) ';
 $string['usemaxgrade'] = 'Maximum points';
 $string['usemaxgrade_help'] = 'If the appeal is an evaluation item, you can then inform the highest grade available in this activity.';
+$string['usepassword'] = 'Password protected Content Pages';
+$string['usepassword_help'] = 'If enabled, a password is required in order to access the Content Pages.';
 $string['writedoubt'] = 'Write question';
 $string['writeessay'] = 'Write essay';
 $string['writenotes'] = 'Write note';

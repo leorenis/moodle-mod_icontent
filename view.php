@@ -78,7 +78,9 @@ if ($allowedit && !$pages) {
 // Print the page header.
 $PAGE->set_url('/mod/icontent/view.php', ['id' => $cm->id]);
 $PAGE->force_settings_menu();
-$PAGE->set_title(format_string($icontent->name));
+//$PAGE->set_title(format_string($icontent->name));
+$PAGE->set_title($icontent->name);
+//$PAGE->set_title($icontent->instance->name);
 $PAGE->set_heading(format_string($course->fullname));
 // Get renderer.
 $renderer = $PAGE->get_renderer('mod_icontent');
@@ -95,21 +97,104 @@ icontent_add_fake_block($pages, $startwithpage, $icontent, $cm, $edit); // Add b
 
 // Content display HTML code.
 
+// 20240828 Check to see if icontent is currently available.
+$timenow = time();
+if ($course->format == 'weeks' && $icontent->days) {
+    $timestart = $course->startdate + (($cw->section - 1) * 604800);
+    if ($icontent->days) {
+        $timefinish = $timestart + (3600 * 24 * $icontent->days);
+    } else {
+        $timefinish = $course->enddate;
+    }
+} else if (!(icontent_info::icontent_available($icontent))) {
+    // 20240828 If used, set calendar availability time limits on the icontents.
+    $timestart = $icontent->timeopen;
+    $timefinish = $icontent->timeclose;
+    $icontent->days = 0;
+} else {
+    // Have no time limits on the icontents.
+    $timestart = $timenow - 1;
+    $timefinish = $timenow + 1;
+    $icontent->days = 0;
+}
+
 // Output starts here.
 echo $OUTPUT->header();
-// Replace the following lines with you own code.
-echo $OUTPUT->heading($icontent->name);
-
-// Conditions to show the intro. 20231227 I'm not sure if this is needed.
-if ($icontent->intro) {
-    echo $OUTPUT->box(format_module_intro('icontent', $icontent, $cm->id), 'generalbox mod_introbox', 'icontentintro');
+// 20240728 Added if check for an intro and also checks for Moodle 4.0 code. Was showing twice on last update.
+if (($icontent->intro) && ($CFG->branch < 400)) {
+    echo $OUTPUT->heading($icontent->name);
+    echo $output->introduction($icontent, $cm); // Output introduction in renderer.php.
 }
-// Content box.
-echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
-echo $OUTPUT->box_start('icontent-page', 'idicontentpages');
-echo $showpage->fullpageicontent;
-echo $OUTPUT->box_end();
-echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
+
+
+//echo '/////////////////////////////////////////testing 0////////////////////////////////////////';
+// 20240828 Check to see if this icontent is open.
+if ($timenow > $timestart) {
+    // This echo gets render before the top of the slide. It prints on every slide.
+
+    if ($timenow < $timefinish) {
+
+        // Decide whether or not to show upper navigation buttons.
+        if (count($pages) > 5) {
+            echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
+        } else {
+            echo icontent_full_paging_button_bar($pages, $cm->id, $startwithpage);
+        }
+        // Add all the content into a box.
+        echo $OUTPUT->box_start('icontent-page', 'idicontentpages');
+
+        //echo '/////////////////////////////////////////testing 0a////////////////////////////////////////';
+        // This echo is under the top of the page/slide previous and next buttons. It only prints for the first slide.
+
+        echo $showpage->fullpageicontent;
+
+
+        /////////////////////////////////////////////////////
+        //echo '/////////////////////////////////////////testing 1////////////////////////////////////////';
+        // This echo only shows on slide one when the activity first is loaded.
+        // 20240823 Added tags to each slide.
+        echo $OUTPUT->tag_list(
+            core_tag_tag::get_item_tags(
+               'mod_icontent',
+                'icontent_pages',
+                $pageid
+            ),
+            null,
+            'icontent-tags'
+        );
+        /////////////////////////////////////////////////
+
+
+        echo $OUTPUT->box_end();
+
+        // Investigate placing tags display here.
+        echo icontent_simple_paging_button_bar($pages, $cm->id, $startwithpage);
+    } else {
+        // 20240828 added Editing period has ended message.
+        echo '<div class="editend"><strong>'.get_string('activityended', 'icontent').': ';
+        echo userdate($timefinish).'</strong></div>';
+    }
+
+    ///////////////////////////////////////////////////
+    // 20240823 Added tags to each slide.
+    echo $OUTPUT->tag_list(
+        core_tag_tag::get_item_tags(
+            'mod_icontent',
+            'icontent_pages',
+            $pageid
+        ),
+        null,
+        'icontent-tags'
+    );
+    //echo '///////////////////////////////////////testing 2//////////////////////////////////////////////';
+    // This echo shows on EVERY page/slide.
+    ////////////////////////////////////////////////////
+
+
+} else {
+    echo '<div class="warning">'.get_string('notopenuntil', 'icontent').': ';
+    echo userdate($timestart).'.</div>';
+}
 
 // Finish the page.
 echo $OUTPUT->footer();

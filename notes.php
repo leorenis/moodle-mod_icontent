@@ -71,8 +71,19 @@ $url = new moodle_url('/mod/icontent/notes.php', $urlparams + ['page' => $page, 
 // Get sort value.
 $sort = icontent_check_value_sort($sort);
 // Get users attempts.
-$notesusers = icontent_get_notes_users_instance($cm->id, $sort, $page, $perpage, $private, $featured, $doubttutor, $likes);
-$tnotesusers = icontent_note_options::icontent_count_notes_users_instance($cm->id, $private, $featured, $doubttutor, $likes);
+$notesusers = icontent_note_options::icontent_get_notes_users_instance($cm->id,
+    $sort,
+    $page,
+    $perpage,
+    $private,
+    $featured,
+    $doubttutor,
+    $likes);
+$tnotesusers = icontent_note_options::icontent_count_notes_users_instance($cm->id,
+    $private,
+    $featured,
+    $doubttutor,
+    $likes);
 
 // Make table questions.
 $table = new html_table();
@@ -85,17 +96,14 @@ if ($notesusers) {
         $user = clone $notesuser;
         $user->id = $notesuser->userid;
         $picture = $OUTPUT->user_picture($user, ['size' => 35, 'class' => 'img-thumbnail pull-left']);
-        $linkfirstname = html_writer::link(new moodle_url('/user/view.php',
-            [
-                'id' => $notesuser->userid,
-                'course' => $course->id,
+        $linkfirstname = html_writer::link(new moodle_url('/user/view.php', [
+            'id' => $notesuser->userid,
+            'course' => $course->id,
             ]),
-            $notesuser->firstname.' '.$notesuser->lastname,
-            [
-                'title' => $notesuser->firstname,
-                'class' => 'lkfullname',
-            ]
-        );
+        $notesuser->firstname.' '.$notesuser->lastname, [
+            'title' => $notesuser->firstname,
+            'class' => 'lkfullname',
+            ]);
         // Set data.
         $table->data[] = [$picture. $linkfirstname, $notesuser->comment];
     }

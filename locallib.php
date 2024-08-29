@@ -415,7 +415,8 @@ function icontent_full_paging_button_bar($pages, $cmid, $startwithpage = 1) {
 function icontent_simple_paging_button_bar($pages, $cmid, $startwithpage = 1, $attrid = 'fgroup_id_buttonar') {
     // Object button.
     $objbutton = new stdClass();
-    $objbutton->name  = get_string('goback', 'mod_icontent');
+    //$objbutton->name  = get_string('goback', 'mod_icontent');
+    $objbutton->name  = get_string('previous', 'mod_icontent');
     $objbutton->title = get_string('previouspage', 'mod_icontent');
     $objbutton->cmid  = $cmid;
     $objbutton->startwithpage = $startwithpage;
@@ -1912,6 +1913,8 @@ function icontent_make_questions_answers_by_type($question) {
                 $arrayanswers[$optanswertext] = $optanswertext;
             }
             // ...shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question...
+            // 20240705 Shuffling here does jumble the answers the way I want, but they then ALWAYS get marked as being wrong.
+            // Maybe need to use this shuffle and then rework the code elsewhere to see if the selections are correct.
 
             foreach ($options as $option) {
                 $fieldname = 'qpid-'.$question->qpid.'_qid-'.$question->qid.'_'.ICONTENT_QTYPE_MATCH.'-'.$option->id;
@@ -1930,6 +1933,9 @@ function icontent_make_questions_answers_by_type($question) {
                 );
                 $contenttable .= html_writer::tag('tr', $qtext. $answertext);
             }
+            // ...shuffle($arrayanswers); // 20240718 Trying to shuffle the answers for matching question...
+            // 20240705 Trying to shuffle the answers here does not do what is need.
+
             $questionanswers .= html_writer::tag('table', $contenttable);
             $questionanswers .= html_writer::end_div(); // End div options list.
             $questionanswers .= html_writer::end_div();
@@ -2085,6 +2091,7 @@ function icontent_make_notesarea($objpage, $icontent) {
     }
     global $OUTPUT, $USER;
     $togglearea = icontent_get_toggle_area_object($objpage->expandnotesarea);
+
     // Title page.
     $title = html_writer::tag('h4', $togglearea->icon.get_string('doubtandnotes', 'mod_icontent'),
         [
@@ -2092,6 +2099,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'id' => 'idtitlenotes',
         ]
     );
+
     // User image used under the Notes and Question tabs.
     $picture = html_writer::tag('div', $OUTPUT->user_picture($USER,
         [
@@ -2102,6 +2110,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'class' => 'col-2 userpicture',
         ]
     );
+////////////////////////////////////////////////////////////////////////
     // Fields. Create text area for notes.
     $textareanote = html_writer::tag('textarea', null,
         [
@@ -2113,9 +2122,11 @@ function icontent_make_notesarea($objpage, $icontent) {
             'placeholder' => get_string('writenotes', 'mod_icontent'),
         ]
     );
+
     // Create checkboxes for private and featured, right under the notes textarea.
     $spanprivate = icontent_make_span_checkbox_field_private($objpage);
     $spanfeatured = icontent_make_span_checkbox_field_featured($objpage);
+
     // Create the, Save, button under the right side of the note textarea.
     $btnsavenote = html_writer::tag('button', get_string('save', 'mod_icontent'),
         [
@@ -2126,6 +2137,7 @@ function icontent_make_notesarea($objpage, $icontent) {
             'data-sesskey' => sesskey(),
         ]
     );
+////////////////////////////////////////////////////////////////////////
     // Create text area for questions.
     $textareadoubt = html_writer::tag('textarea', null,
         [
@@ -2149,9 +2161,43 @@ function icontent_make_notesarea($objpage, $icontent) {
             'data-sesskey' => sesskey(),
         ]
     );
+////////////////////////////////////////////////////////////////////////
+    // Create text area for tags.
+    /*
+    $textareatag = html_writer::tag('textarea', null,
+        [
+            'name' => 'comment',
+            'id' => 'idcommenttag',
+            'class' => 'col-12',
+            'maxlength' => '1024',
+            'required' => 'required',
+            'placeholder' => get_string('writetag', 'mod_icontent'),
+        ]
+    );
+    */
+    // Create check box for, Ask tutor only. NOT NEEDED.
+    // $spandoubttutor = icontent_make_span_checkbox_field_doubttutor($objpage); NOT NEEDED.
+    // Create the question save button.
+    // I think a tag save button will NOT BE NEEDED.
+    /*
+    $btnsavetag = html_writer::tag('button', get_string('save', 'mod_icontent'),
+        [
+            'class' => 'btn btn-primary pull-right',
+            'id' => 'idbtnsavedoubt',
+            'data-pageid' => $objpage->id,
+            'data-cmid' => $objpage->cmid,
+            'data-sesskey' => sesskey(),
+        ]
+    );
+    */
+////////////////////////////////////////////////////////////////////////
+
     // Data page.
     $datapagenotesnote = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'note'); // Data page notes note.
     $datapagenotesdoubt = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt'); // Data page notes question.
+    // Placeholder for tags code.
+    // $datapagenotestag = icontent_get_pagenotes($objpage->id, $objpage->cmid, 'doubt'); // Data page notes tag.
+    
     $pagenotesnote = html_writer::div(icontent_make_listnotespage($datapagenotesnote, $icontent, $objpage),
         'pagenotesnote',
         [
@@ -2164,16 +2210,33 @@ function icontent_make_notesarea($objpage, $icontent) {
             'id' => 'idpagenotesdoubt',
         ]
     );
+
     // Fields.
     $fieldsnote = html_writer::tag('div', $textareanote.$spanprivate.$spanfeatured.$btnsavenote.$pagenotesnote,
         [
             'class' => 'col-10',
         ]
     );
-    $fieldsdoubt = html_writer::tag('div', $textareadoubt.$spandoubttutor.$btnsavedoubt.$pagenotesdoubt, ['class' => 'col-10']);
+    $fieldsdoubt = html_writer::tag('div', $textareadoubt.$spandoubttutor.$btnsavedoubt.$pagenotesdoubt,
+        [
+            'class' => 'col-10'
+        ]
+    );
+    // Placeholder for tags code.
+    /*
+    $fieldstag = html_writer::tag('div', $textareatag.$btnsavetag.$pagenotestag,
+        [
+            'class' => 'col-10'
+        ]
+    );
+    */
+
     // Forms.
     $formnote = html_writer::tag('div', $picture.$fieldsnote, ['class' => 'row fields mt-2']);
     $formdoubt = html_writer::tag('div', $picture.$fieldsdoubt, ['class' => 'row fields mt-2']);
+    // Placeholder for tags code.
+    // $formdoubt = html_writer::tag('div', $picture.$fieldstag, ['class' => 'row fields mt-2']);
+
 
     // TAB NAVS.
     $note = html_writer::tag('li',
@@ -2206,10 +2269,32 @@ function icontent_make_notesarea($objpage, $icontent) {
             'role' => 'presentation',
         ]
     );
+    // Placeholder for tags code.
+    /* 
+    $tag = html_writer::tag('li',
+        html_writer::link('#tag', get_string('tag', 'icontent', count($datapagenotestag)),
+            [
+                'id' => 'tag-tab',
+                'aria-controls' => 'tag',
+                'role' => 'tab',
+                'data-toggle' => 'tab',
+                'class' => 'nav-link',
+            ]
+        ),
+        [
+            'class' => 'nav-item',
+            'role' => 'presentation',
+        ]
+    );
+    */
     $tabnav = html_writer::tag('ul', $note .$doubt, ['class' => 'nav nav-tabs', 'id' => 'tabnav']);
+    // Placeholder for tags code.
+    // $tabnav = html_writer::tag('ul', $note .$doubt .$tag, ['class' => 'nav nav-tabs', 'id' => 'tabnav']);
     // TAB CONTENT.
     $icontentnote = html_writer::div($formnote, 'tab-pane active', ['role' => 'tabpanel', 'id' => 'note']);
     $icontentdoubt = html_writer::div($formdoubt, 'tab-pane', ['role' => 'tabpanel', 'id' => 'doubt']);
+    // Placeholder for tags code.
+    // $icontenttag = html_writer::div($formtag, 'tab-pane', ['role' => 'tabpanel', 'id' => 'tag']);
     $tabicontent = html_writer::div($icontentnote.$icontentdoubt, 'tab-content', ['id' => 'idtabicontent']);
     $fulltab = html_writer::div($tabnav.$tabicontent, 'fulltab', ['id' => 'idfulltab', 'style' => $togglearea->style]);
     // Return notes area.
@@ -2771,7 +2856,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
         $toolbarpage.
         $title.
         $objpage->pageicontent.
-        $npage.
+        $npage.'xxx'.
         $progbar.
         $qtsareas.
         $notesarea.

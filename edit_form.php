@@ -68,6 +68,7 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('cmid', PARAM_INT);
         $mform->setDefault('cmid', $page->cmid);
 
+        // Need to see about using the pagenum to implement the move capability.
         $mform->addElement('hidden', 'pagenum');
         $mform->setType('pagenum', PARAM_INT);
         $mform->setDefault('pagenum', $page->pagenum);

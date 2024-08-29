@@ -85,7 +85,36 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addElement('filemanager', 'bgimage', get_string('bgimage', 'icontent'), null, $filemanageroptions);
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagehelp', 'icontent');
+//////////
 
+        // Content Pages activity setup, Availability settings.
+        $mform->addElement('header', 'availabilityhdr', get_string('availability'));
+
+        $mform->addElement('date_time_selector',
+            'timeopen',
+            get_string('icontentopentime', 'icontent'),
+            ['optional' => true, 'step' => 1]
+            );
+        $mform->addElement('date_time_selector',
+            'timeclose',
+            get_string('icontentclosetime', 'icontent'),
+            ['optional' => true, 'step' => 1]
+            );
+        // Content Pages activity password setup.
+        $mform->addElement('selectyesno', 'usepassword', get_string('usepassword', 'icontent'));
+        $mform->addHelpButton('usepassword', 'usepassword', 'icontent');
+        $mform->setDefault('usepassword', $icontentconfig->password);
+        $mform->setAdvanced('usepassword', $icontentconfig->password_adv);
+
+        $mform->addElement('passwordunmask', 'password', get_string('password', 'icontent'));
+        $mform->setDefault('password', '');
+        $mform->setAdvanced('password', $icontentconfig->password_adv);
+        $mform->setType('password', PARAM_RAW);
+        $mform->disabledIf('password', 'usepassword', 'eq', 0);
+        $mform->disabledIf('passwordunmask', 'usepassword', 'eq', 0);
+
+
+/////////////
         // Appearance.
         $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 

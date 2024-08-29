@@ -25,7 +25,7 @@
 /**
  * Color picker for iContent.
  *
- * Based off code @copyright 2010 by Sam Hemelryk.
+ * @copyright 2010 by Sam Hemelryk.
  * @copyright 2024 AL Rachels
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -48,14 +48,16 @@ class icontent_setting_configcolorpicker extends admin_setting {
     protected $usedefaultwhenempty = true;
 
     /**
+     * Constructor.
      *
      * @param string $name
      * @param string $visiblename
      * @param string $description
      * @param string $defaultsetting
-     * @param array $previewconfig Array('selector'=>'.some .css .selector','style'=>'backgroundColor');
+     * @param array $previewconfig
+     * @param int $usedefaultwhenempty
      */
-    public function __construct($name, $visiblename, $description, $defaultsetting, ?array $previewconfig = null,
+    public function __construct($name, $visiblename, $description, $defaultsetting, array $previewconfig = null,
             $usedefaultwhenempty = true) {
         $this->previewconfig = $previewconfig;
         $this->usedefaultwhenempty = $usedefaultwhenempty;

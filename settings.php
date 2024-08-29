@@ -33,6 +33,16 @@ if ($ADMIN->fulltree) {
     // Availability settings.
     $settings->add(new admin_setting_heading('mod_icontent/availibility', get_string('availability'), ''));
 
+    $name = new lang_string('alwaysshowdescription', 'mod_icontent');
+    $description = new lang_string('alwaysshowdescription_help', 'mod_icontent');
+    $setting = new admin_setting_configcheckbox('mod_icontent/alwaysshowdescription',
+                                                    $name,
+                                                    $description,
+                                                    1);
+    $setting->set_advanced_flag_options(admin_setting_flag::ENABLED, false);
+    $setting->set_locked_flag_options(admin_setting_flag::ENABLED, false);
+    $settings->add($setting);
+    
     // 20231230 Recent activity setting.
     $name = new lang_string('showrecentactivity', 'icontent');
     $description = new lang_string('showrecentactivityconfig', 'icontent');
@@ -41,6 +51,14 @@ if ($ADMIN->fulltree) {
                                                     $description,
                                                     0));
 
+    // Password setting.
+    $settings->add(new admin_setting_configcheckbox_with_advanced('mod_icontent/password',
+        get_string('password', 'icontent'),
+        get_string('configpassword_desc', 'icontent'),
+        ['value' => 0,
+        'adv' => true, ]
+    ));
+    
     // Appearance settings.
     $settings->add(new admin_setting_heading('mod_icontent/appearance', get_string('appearance'), ''));
 

@@ -13,11 +13,16 @@ This files describes API changes and other work in the iContent code.
 20240205 iContent_1195 - Feature request to send notes/questions to the teacher.
 20240212 iContent_1206 - Feture request - Change color settings code to allow for
     word colors.
+
+20240108 iContent_1161 - Displayed list of possible answers is not being shuffled in Matching
+    type question. See ticket for details of work in progress.
+
 20240715 iContent_1267 - Unable to delete a question from a slide.
 20240718 iContent_1272 - Group mode is on the settings page, but is not used anywhere in the
     code #35.
 20240718 iContent_1273 - Notificactions on Notes and Questions #37.
 20240721 iContent_1278 - Tags can be added to settings, but are NOT seen anywhere in the activity.
+    I see the same thing for other plugins.
 20240728 iContent_1285 - iContent - Need to verify that Bookmark code is working correctly.
 20240728 iContent_1287 - Color settings are problematic due to # being required in the settings
     but NOT in mod_form and edit_form.
@@ -28,13 +33,10 @@ This files describes API changes and other work in the iContent code.
     Major work in progress to add more detail to the index.php page and create new
     icontent/classes/local/icontent_info.php file.
 
-20240108 iContent_1161 - Answers are not being shuffled in Matching type question.
-    See ticket for details of work in progress.
-    
 20240205 iContent_1192bt - Need to create a privacy class. 20240209 Created the file.
-    Now need to update the code to change all references from diary to icontent.
+    Now need to update the code to change all references from diary to icontent. - DONE
     STILL NEEDS TESTING!
-    
+
 20240712 iContent_1263bt - Completion, View, is not working. Added three lines of code
     to the view.php file at line 63-65, that sets the view completion status.
 20240714 iContent_1264bt - Should move, locallib.php, function icontent_get_questions_of_questionbank(,
@@ -74,15 +76,41 @@ This files describes API changes and other work in the iContent code.
 20240729 iContent_1288bt - The styles.css file needs some attention re: line-height for the
     content page text area. Setting was missing from where it should have been in the
     styles.css file. Added missing setting in line 283.
-20240729 iContent_1289bt - Need to move function icontent_get_notes_users_instance( to the
+20240729 iContent_1289bt - Need to move function icontent_get_notes_users_instance() to the
     classes file icontent_note_options.php. Created new class function then changed the
     code in doubts.php and notes.php to use the new function.
+    
+20240824 iContent_1297 - Need to implement icontent_print_recent_activity function in lib.php.
 
+20240824 iContent_1298 - Need to implement, icontent_reset_userdata in lib.php.
 
+20240824 iContent_1299 - need to implement, function reset_instance 
+ 
+20240825 iContent_1300bt - Need to implement, Always show description on settings.php page.
+    Added the new setting code and the two new language strings that were needed, also.
 
+20240825 iContent_1301 - Need to implement, function icontent_reset_course_form_definition($mform). 
 
+20240825 iContent_1302 - iContent - Need to update the two functions regarding scale_used
+    and Scale_used_anywhere.
 
+20240826 iContent_1304bt - Need to implement timeopen and timeclose settings. Added the new
+    fields using the XMLDB editor. Added code for checking them in view.php. Added new
+    function icontent_available in the icontent_info.php file.
 
+20240827 iContent_1306 - Need to run PHPDoc Check - currently showing 14 errors. Working on
+    this and currently down to 10 errors.
+
+20240827 iContent_1307bt - install.xml table - icontent_pages_displayed - has keys in the wrong
+    place. Moved the four lines of code for keys so they come befor the code for index.
+
+20240827 iContent_1308r - Need to implement usepassword and password fields in mdl_icontent.
+    Added the new fields using the XMLDB editor.
+
+20240827 iContent_1309 - iContent - Need to implement viewaftertimeclose capability.
+
+20240828 iContent_1310 - Need to implement iContent calendar events. Added code to lib.php
+    in two calendar functions. Added two new strings, calendarend and calendarstart.
 
 === 1.0.7.1 === 2023122801
 20231220 iContent_1135bt - Cannot add a question to a slide. Made more changes to the

@@ -30,6 +30,7 @@
  */
 
 defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
+use mod_icontent\local\icontent_info;
 
 /**
  * Constant
@@ -79,7 +80,7 @@ function icontent_supports($feature) {
 }
 
 /**
- * Saves a new instance of the icontent into the database
+ * Saves a new instance of the icontent into the database.
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
@@ -90,14 +91,23 @@ function icontent_supports($feature) {
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return int The id of the newly inserted icontent record
  */
-function icontent_add_instance(stdClass $icontent, ?mod_icontent_mod_form $mform = null) {
+//function icontent_add_instance(stdClass $icontent, ?mod_icontent_mod_form $mform = null) {
+function icontent_add_instance($icontent) {
     global $DB;
 
     $icontent->timecreated = time();
 
-    // You may have to add extra stuff in here.
-
+    // 20240828 Added timemodified entry.
+    $icontent->timemodified = time();
     $icontent->id = $DB->insert_record('icontent', $icontent);
+
+    // 20240828 Added calendar dates.
+    icontent_info::icontent_update_calendar($icontent, $icontent->coursemodule);
+
+    // 20240828 Added expected completion date.
+    if (! empty($icontent->completionexpected)) {
+        \core_completion\api::update_completion_date_event($icontent->coursemodule, 'icontent', $icontent->id, $icontent->completionexpected);
+    }
 
     icontent_grade_item_update($icontent);
 
@@ -115,7 +125,8 @@ function icontent_add_instance(stdClass $icontent, ?mod_icontent_mod_form $mform
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function icontent_update_instance(stdClass $icontent, ?mod_icontent_mod_form $mform = null) {
+//function icontent_update_instance(stdClass $icontent, ?mod_icontent_mod_form $mform = null) {
+function icontent_update_instance($icontent) {
     global $DB;
 
     $icontent->timemodified = time();
@@ -123,11 +134,20 @@ function icontent_update_instance(stdClass $icontent, ?mod_icontent_mod_form $mf
 
     // You may have to add extra stuff in here.
 
-    $result = $DB->update_record('icontent', $icontent);
+    //$result = $DB->update_record('icontent', $icontent);
+    $DB->update_record('icontent', $icontent);
+
+    // 20240828 Added calendar dates.
+    icontent_info::icontent_update_calendar($icontent, $icontent->coursemodule);
+
+    // 20200901 Added expected completion date.
+    $completionexpected = (! empty($icontent->completionexpected)) ? $icontent->completionexpected : null;
+    \core_completion\api::update_completion_date_event($icontent->coursemodule, 'icontent', $icontent->id, $completionexpected);
 
     icontent_grade_item_update($icontent);
 
-    return $result;
+    //return $result;
+    return true;
 }
 
 /**
@@ -170,7 +190,7 @@ function icontent_delete_instance($id) {
 
 /**
  * Returns a small object with summary information about what a
- * user has done with a given particular instance of this module
+ * user has done with a given particular instance of this module.
  * Used for user activity reports.
  *
  * $return->time = the time they did it
@@ -232,7 +252,11 @@ function icontent_user_complete($course, $user, $mod, $icontent) {
  * @return boolean True if anything was printed, otherwise false
  */
 function icontent_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;
+    global $CFG, $USER, $DB, $OUTPUT;
+    $dbparams = [$timestart, $course->id, 'icontent'];
+
+    //return false;
+    return true;
 }
 
 /**
@@ -536,15 +560,16 @@ function icontent_extend_navigation(navigation_node $navref, stdClass $course, s
 }
 
 /**
- * Extends the settings navigation with the icontent settings.
+ * Extend the icontent navigation settings.
  *
  * This function is called when the context for the page is a icontent module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
  *
- * @param settings_navigation $settingsnav complete settings navigation tree
- * @param navigation_node $icontentnode icontent administration node
+ * @param settings_navigation $settingsnav
+ * @param navigation_node $icontentnode
+ * @return void
  */
-function icontent_extend_settings_navigation(settings_navigation $settingsnav, ?navigation_node $icontentnode = null) {
+function icontent_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $icontentnode = null) {
     global $PAGE, $DB;
     // Get instance object icontent.
     $icontent = $DB->get_record('icontent', ['id' => $PAGE->cm->instance], '*', MUST_EXIST);

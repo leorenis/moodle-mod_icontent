@@ -239,6 +239,11 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->setType('progressbar', PARAM_INT);
         $mform->setDefault('progressbar', 1);
 
+        $mform->addElement('selectyesno', 'showtocmenu', get_string('showtocmenu', 'icontent'));
+        $mform->addHelpButton('showtocmenu', 'showtocmenu', 'icontent');
+        $mform->setType('showtocmenu', PARAM_INT);
+        $mform->setDefault('showtocmenu', 1);
+
         // Show the standard Grade elements.
         $this->standard_grading_coursemodule_elements();
 

@@ -20,6 +20,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c) {
+    var recordrtcretrycount = 0;
+    var ddwtosloadcounter = 0;
+
     /**
      *
      * @param {number|string} cmid
@@ -306,9 +309,8 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
      * Fallback for PoodLL sketch pages loaded by AJAX where toolbars/canvas may not
      * fully initialize until a hard page load.
      *
-     * @param {number|string} cmid
      */
-    function onEnsurePoodllSketchReady(cmid) {
+    function onEnsurePoodllSketchReady() {
         var hasPoodllSketch = $('.fulltextpage .que.poodllrecording').length > 0 ||
             $('.fulltextpage .qtype_poodllrecording_response').length > 0;
 
@@ -321,21 +323,268 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
                 $('.fulltextpage .literally .lc-options').length > 0;
             var hasCanvas = $('.fulltextpage .drawing-board-canvas').length > 0 ||
                 $('.fulltextpage .literally canvas').length > 0;
-
-            if (hasTools && hasCanvas) {
-                return;
-            }
-
-            var pageid = $('.fulltextpage').attr('data-pageid');
-            var deepLink = getDeepLink(cmid, pageid);
-
-            if (deepLink && deepLink !== '#') {
-                window.location.assign(deepLink);
-            } else {
-                window.location.reload();
+            if (!hasTools || !hasCanvas) {
+                // Do not force navigation/reload here; it can lock the page in a reload loop.
+                onTriggerRenderRefresh();
             }
         }, 400);
     }
+
+    /**
+     * Re-run PoodLL AMD template bootstrap for dynamically injected page content.
+     */
+    function onEnsurePoodllRecordersReady() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $opts = $('.fulltextpage input[id^="amdopts_"]');
+        if (!$opts.length) {
+            return;
+        }
+
+        require(['filter_poodll/poodllrecorder'], function(poodllrecorder) {
+            if (!poodllrecorder || typeof poodllrecorder.init !== 'function') {
+                return;
+            }
+            $opts.each(function() {
+                var widgetid = (this.id || '').replace(/^amdopts_/, '');
+                if (widgetid) {
+                    poodllrecorder.init({widgetid: widgetid});
+                }
+            });
+        });
+
+        if ($('.fulltextpage .que.poodllrecording').length) {
+            require(['qtype_poodllrecording/poodllhelper'], function(poodllhelper) {
+                if (poodllhelper && typeof poodllhelper.init === 'function') {
+                    poodllhelper.init({safesave: 0});
+                }
+            });
+        }
+    }
+
+    /**
+     * Re-run RecordRTC AMD bootstrap for dynamically injected iContent pages.
+     */
+    function onEnsureRecordRtcReady() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $questions = $('.fulltextpage .que.recordrtc[id]');
+        var settingsraw = $('.fulltextpage #idicontent-recordrtc-settings').val() || '';
+
+        if (!$questions.length || !settingsraw) {
+            if (recordrtcretrycount < 20) {
+                recordrtcretrycount++;
+                setTimeout(onEnsureRecordRtcReady, 200);
+            }
+            return;
+        }
+        recordrtcretrycount = 0;
+
+        var pagesettings;
+        try {
+            pagesettings = JSON.parse(settingsraw);
+        } catch (e) {
+            return;
+        }
+
+        if (!pagesettings || typeof pagesettings !== 'object') {
+            return;
+        }
+
+        require(['qtype_recordrtc/avrecording', 'core/str'], function(avrecording, str) {
+            if (!avrecording || typeof avrecording.init !== 'function') {
+                return;
+            }
+
+            var initAllQuestions = function() {
+                $questions.each(function() {
+                    var $question = $(this);
+                    if ($question.attr('data-icontent-recordrtc-init') === '1') {
+                        return;
+                    }
+
+                    if ($question.attr('data-recordrtc-initialized') === '1') {
+                        $question.attr('data-icontent-recordrtc-init', '1');
+                        return;
+                    }
+
+                    var questionid = this.id || '';
+                    if (!questionid) {
+                        return;
+                    }
+
+                    var $draftinput = $question.find('input[type="hidden"][name$="_recording"]').first();
+                    var draftitemid = parseInt($draftinput.val(), 10) || 0;
+                    if (draftitemid <= 0) {
+                        return;
+                    }
+
+                    var settings = $.extend({}, pagesettings, {draftItemId: draftitemid});
+                    try {
+                        avrecording.init(questionid, settings);
+                        if (typeof avrecording.addPlaybackErrorHandlingToVideoElements === 'function') {
+                            avrecording.addPlaybackErrorHandlingToVideoElements(questionid);
+                        }
+                        $question.attr('data-icontent-recordrtc-init', '1');
+                    } catch (e) {
+                        // Continue so one broken question does not block the page.
+                    }
+                });
+            };
+
+            // On AJAX page loads $PAGE->requires->strings_for_js() is not output, so
+            // RecordRTC interaction strings (stoprecording, pause, etc.) are absent from
+            // M.str. Pre-load them now so button labels render correctly when the user
+            // starts recording without needing a full page reload.
+            var rtcStringKeys = [
+                'gumabort', 'gumnotallowed', 'gumnotfound', 'gumnotreadable',
+                'gumnotsupported', 'gumoverconstrained', 'gumsecurity', 'gumtype',
+                'nearingmaxsize', 'nearingmaxsize_title', 'pause', 'recordagainx',
+                'recordingfailed', 'resume', 'startrecording', 'stoprecording',
+                'startsharescreen', 'timedisplay', 'uploadaborted', 'uploadcomplete',
+                'uploadfailed', 'uploadfailed404', 'uploadpreparing',
+                'uploadpreparingpercent', 'uploadprogress',
+            ].map(function(key) {
+                return {key: key, component: 'qtype_recordrtc'};
+            });
+
+            str.get_strings(rtcStringKeys).then(initAllQuestions).catch(initAllQuestions);
+        });
+    }
+
+    /**
+     * Re-run GapFill drag-drop bootstrap for dynamically injected iContent pages.
+     */
+    function onEnsureGapfillReady() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $questions = $('.fulltextpage .que.gapfill');
+        if (!$questions.length) {
+            return;
+        }
+
+        // qtype_gapfill uses a page-level single-use toggle in rendered question text.
+        var singleuse = $('.fulltextpage #gapfill_singleuse').length > 0 ? 1 : 0;
+
+        require(['qtype_gapfill/dragdrop'], function(gapfillDragdrop) {
+            if (!gapfillDragdrop || typeof gapfillDragdrop.init !== 'function') {
+                return;
+            }
+
+            var pageKey = ($('.fulltextpage').attr('data-pageid') || '') + ':' + singleuse;
+            if ($('.fulltextpage').attr('data-icontent-gapfill-init') === pageKey) {
+                return;
+            }
+
+            try {
+                gapfillDragdrop.init(singleuse);
+                $('.fulltextpage').attr('data-icontent-gapfill-init', pageKey);
+            } catch (e) {
+                // Ignore so one failed init does not block other qtypes.
+            }
+        });
+    }
+
+    /**
+     * Re-run DDWTOS bootstrap for dynamically injected iContent pages.
+     */
+    function onEnsureDdwtosReady() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $questions = $('.fulltextpage .que.ddwtos[id]');
+        if (!$questions.length) {
+            return;
+        }
+
+        require(['qtype_ddwtos/ddwtos'], function(ddwtos) {
+            if (!ddwtos || typeof ddwtos.init !== 'function') {
+                return;
+            }
+
+            // qtype_ddwtos keeps module-level handler state keyed by container id.
+            // iContent AJAX swaps can reuse ids, so assign fresh per-render ids.
+            ddwtosloadcounter++;
+            var pageid = $('.fulltextpage').attr('data-pageid') || '0';
+            $questions.each(function(index) {
+                var $question = $(this);
+                var baseid = $question.attr('data-icontent-ddwtos-baseid') || this.id || '';
+                if (!baseid) {
+                    return;
+                }
+                if (!$question.attr('data-icontent-ddwtos-baseid')) {
+                    $question.attr('data-icontent-ddwtos-baseid', baseid);
+                }
+
+                this.id = baseid + '_icontent_' + pageid + '_' + ddwtosloadcounter + '_' + index;
+                $question.removeAttr('data-icontent-ddwtos-init');
+            });
+
+            $questions.each(function() {
+                var $question = $(this);
+                if ($question.attr('data-icontent-ddwtos-init') === '1') {
+                    return;
+                }
+
+                var containerid = this.id || '';
+                if (!containerid) {
+                    return;
+                }
+
+                var readonly = $question.hasClass('readonly') ||
+                    $question.find('input.placeinput:disabled').length > 0;
+                try {
+                    ddwtos.init(containerid, readonly);
+                    $question.attr('data-icontent-ddwtos-init', '1');
+                } catch (e) {
+                    // Ignore so one failed init does not block other qtypes.
+                }
+            });
+        });
+    }
+
+    /**
+     * Delay drag/drop qtype init until question containers are visible in the DOM.
+     * This avoids ddwtos sizing itself while hidden during page transitions.
+     *
+     * @param {number} triesleft
+     */
+    function onEnsureInteractiveDragDropReady(triesleft) {
+        var tries = (typeof triesleft === 'number') ? triesleft : 12;
+        var $questions = $('.fulltextpage .que.ddwtos, .fulltextpage .que.gapfill');
+
+        if (!$questions.length) {
+            return;
+        }
+
+        var allvisible = true;
+        $questions.each(function() {
+            var $q = $(this);
+            if (!$q.is(':visible') || this.offsetWidth <= 0 || this.offsetHeight <= 0) {
+                allvisible = false;
+                return false;
+            }
+            return true;
+        });
+
+        if (!allvisible && tries > 0) {
+            setTimeout(function() {
+                onEnsureInteractiveDragDropReady(tries - 1);
+            }, 150);
+            return;
+        }
+
+        onEnsureGapfillReady();
+        onEnsureDdwtosReady();
+    }
+
 
     // Loads page
     /**
@@ -351,6 +600,7 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
             "action": "loadpage",
             "id": $(this).attr('data-cmid'),
             "pagenum": $(this).attr('data-pagenum'),
+            "sourcepageid": $('.fulltextpage').attr('data-pageid') || 0,
             "sesskey": $(this).attr('data-sesskey')
         };
         // Destroy all tooltips
@@ -388,7 +638,10 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
                 onEnsureEssayAutogradeReady();
                 onSyncEssayAutogradeWordCount();
                 onTriggerRenderRefresh();
-                onEnsurePoodllSketchReady(requestdata.id);
+                onEnsurePoodllRecordersReady();
+                onEnsurePoodllSketchReady();
+                onEnsureRecordRtcReady();
+                onEnsureInteractiveDragDropReady();
             }
         }); // End AJAX
 
@@ -462,7 +715,10 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
             onEnsureEssayAutogradeReady();
             onSyncEssayAutogradeWordCount();
             onTriggerRenderRefresh();
-            onEnsurePoodllSketchReady($(".load-page[data-cmid]:first").attr('data-cmid'));
+            onEnsurePoodllRecordersReady();
+            onEnsurePoodllSketchReady();
+            onEnsureRecordRtcReady();
+            onEnsureInteractiveDragDropReady();
             $(".load-page").click(onLoadPageClick);
         }
     };

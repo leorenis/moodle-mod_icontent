@@ -66,40 +66,43 @@ function icontent_normalize_hex_colour($value, $fallback = 'FCFCFC') {
 }
 
 /**
+ * Check whether an optional qtype table exists on this site.
+ *
+ * Some restore targets may not have all third-party question types installed.
+ *
+ * @param string $tablename
+ * @return bool
+ */
+function icontent_optional_qtype_table_exists(string $tablename): bool {
+    global $DB;
+
+    static $cache = [];
+    if (!array_key_exists($tablename, $cache)) {
+        $cache[$tablename] = $DB->get_manager()->table_exists(new xmldb_table($tablename));
+    }
+    return (bool)$cache[$tablename];
+}
+
+/**
  * Get qtypes supported by the Phase 1 bridge.
  *
  * @return array
  */
 function icontent_question_engine_phase1_supported_qtypes() {
-    $legacyqtypes = [];
+    $legacyqtypes = [
+        ICONTENT_QTYPE_MATCH,
+        ICONTENT_QTYPE_MULTICHOICE,
+        ICONTENT_QTYPE_TRUEFALSE,
+        ICONTENT_QTYPE_ESSAY,
+        ICONTENT_QTYPE_ESSAYAUTOGRADE,
+    ];
 
     $allqtypes = array_values(array_keys(\core_component::get_plugin_list('qtype')));
     return array_values(array_diff($allqtypes, $legacyqtypes));
 }
 
 /**
- * Reset cached QUBA usage for one user/page combination.
- *
- * @param int $cmid
- * @param int $pageid
- * @param int $userid
- * @return void
- */
-function icontent_question_engine_phase1_reset_page_usage($cmid, $pageid, $userid) {
-    global $SESSION;
-
-    if (empty($SESSION->mod_icontent_quba) || !is_array($SESSION->mod_icontent_quba)) {
-        return;
-    }
-
-    $sessionkey = icontent_question_engine_phase1_get_session_key((int)$cmid, (int)$pageid, (int)$userid);
-    if (array_key_exists($sessionkey, $SESSION->mod_icontent_quba)) {
-        unset($SESSION->mod_icontent_quba[$sessionkey]);
-    }
-}
-
-/**
- * Build session key used to store a QUBA id per user/page.
+ * Build session key for per-user, per-page QUBA caching.
  *
  * @param int $cmid
  * @param int $pageid
@@ -107,83 +110,93 @@ function icontent_question_engine_phase1_reset_page_usage($cmid, $pageid, $useri
  * @return string
  */
 function icontent_question_engine_phase1_get_session_key($cmid, $pageid, $userid) {
-    return 'cm' . $cmid . '_page' . $pageid . '_user' . $userid;
+    return 'cmid:' . (int)$cmid . ':page:' . (int)$pageid . ':user:' . (int)$userid;
+}
+
+/**
+ * Reset cached question-engine usage for a specific user/page.
+ *
+ * @param int $cmid
+ * @param int $pageid
+ * @param int $userid
+ * @return void
+ */
+function icontent_question_engine_phase1_reset_page_usage($cmid, $pageid, $userid): void {
+    global $CFG, $SESSION;
+
+    if (empty($SESSION->mod_icontent_quba) || !is_array($SESSION->mod_icontent_quba)) {
+        return;
+    }
+
+    $sessionkey = icontent_question_engine_phase1_get_session_key($cmid, $pageid, $userid);
+    $qubaid = (int)($SESSION->mod_icontent_quba[$sessionkey] ?? 0);
+    unset($SESSION->mod_icontent_quba[$sessionkey]);
+
+    if ($qubaid <= 0) {
+        return;
+    }
+
+    require_once($CFG->libdir . '/questionlib.php');
+    try {
+        question_engine::delete_questions_usage_by_activity($qubaid);
+    } catch (\Throwable $e) {
+        // Best-effort cleanup only; session reset above is sufficient for flow recovery.
+    }
 }
 
 /**
  * Phase 1 bridge: create/load a QUBA for supported question types.
  *
- * This wiring is intentionally non-invasive. It prepares question_engine usage
- * behind a feature flag while keeping the existing iContent renderer and submit
- * pipeline unchanged.
- *
  * @param object $objpage
  * @param array $questions
  * @return void
  */
-function icontent_question_engine_phase1_bootstrap_usage($objpage, $questions) {
+function icontent_question_engine_phase1_bootstrap_usage($objpage, $questions): void {
     global $CFG, $SESSION, $USER;
 
-    if (empty($questions) || empty($objpage->cmid) || empty($objpage->id) || empty($USER->id)) {
+    if (empty($objpage->cmid) || empty($objpage->id) || empty($USER->id) || empty($questions)) {
         return;
     }
 
-    $supportedqtypes = icontent_question_engine_phase1_supported_qtypes();
-    $eligiblequestions = [];
-    foreach ($questions as $question) {
-        if (!empty($question->qtype) && in_array($question->qtype, $supportedqtypes)) {
-            $eligiblequestions[] = $question;
-        }
-    }
-
-    if (empty($eligiblequestions)) {
-        return;
-    }
-
-    require_once($CFG->libdir . '/questionlib.php');
-
-    if (!isset($SESSION->mod_icontent_quba)) {
+    if (empty($SESSION->mod_icontent_quba) || !is_array($SESSION->mod_icontent_quba)) {
         $SESSION->mod_icontent_quba = [];
     }
 
     $sessionkey = icontent_question_engine_phase1_get_session_key($objpage->cmid, $objpage->id, $USER->id);
     $existingqubaid = $SESSION->mod_icontent_quba[$sessionkey] ?? 0;
-    $targetcount = count($eligiblequestions);
-    $targetquestionids = array_map(static function ($question) {
-        return (int)$question->qid;
-    }, $eligiblequestions);
-    sort($targetquestionids);
-
     if (!empty($existingqubaid)) {
+        require_once($CFG->libdir . '/questionlib.php');
         try {
-            $existingquba = question_engine::load_questions_usage_by_activity($existingqubaid);
-            $existingquestionids = [];
-            foreach ($existingquba->get_slots() as $slot) {
-                $slotquestion = $existingquba->get_question($slot);
-                if (!empty($slotquestion->id)) {
-                    $existingquestionids[] = (int)$slotquestion->id;
-                }
-            }
-            sort($existingquestionids);
-
-            if (count($existingquba->get_slots()) === $targetcount && $existingquestionids === $targetquestionids) {
-                return;
-            }
+            question_engine::load_questions_usage_by_activity($existingqubaid);
+            return;
         } catch (\Throwable $e) {
-            debugging('Failed to load existing question usage: ' . $e->getMessage(), DEBUG_DEVELOPER);
+            unset($SESSION->mod_icontent_quba[$sessionkey]);
         }
     }
 
-    $context = context_module::instance($objpage->cmid);
+    require_once($CFG->libdir . '/questionlib.php');
+
+    $supportedqtypes = icontent_question_engine_phase1_supported_qtypes();
+    $context = context_module::instance((int)$objpage->cmid);
     $quba = question_engine::make_questions_usage_by_activity('mod_icontent', $context);
     $quba->set_preferred_behaviour('deferredfeedback');
 
-    foreach ($eligiblequestions as $question) {
+    foreach ($questions as $question) {
+        if (empty($question->qid) || empty($question->qtype) || !in_array($question->qtype, $supportedqtypes)) {
+            continue;
+        }
+
         try {
-            $questiondef = question_bank::load_question($question->qid);
-            $quba->add_question($questiondef, 1);
+            $questiondef = question_bank::load_question((int)$question->qid);
+            if (!$questiondef) {
+                continue;
+            }
+            $maxmark = (float)($question->maxmark ?? $questiondef->defaultmark ?? 0);
+            if ($maxmark <= 0) {
+                $maxmark = 1.0;
+            }
+            $quba->add_question($questiondef, $maxmark);
         } catch (\Throwable $e) {
-            // Skip invalid question definitions and continue with remaining items.
             continue;
         }
     }
@@ -293,7 +306,7 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
  * @return string
  */
 function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedhtml, int $questionid, int $cmid): string {
-    global $CFG;
+    global $CFG, $DB;
 
     $cmcontext = context_module::instance($cmid, IGNORE_MISSING);
     if (!$cmcontext) {
@@ -301,20 +314,80 @@ function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedh
     }
 
     $wwwroot = preg_quote($CFG->wwwroot, '/');
-    $pattern = '/(' . $wwwroot . '\/pluginfile\.php\/\d+\/question\/questiontext\/\d+\/\d+\/)(\d+)(\/[^"\?\s]+)(\?[^"\s]*)?/i';
+    $pattern = '/(' . $wwwroot . '\/pluginfile\.php\/\d+\/question\/questiontext\/[^"\s]+)(\?[^"\s]*)?/i';
 
-    $rewritten = preg_replace_callback($pattern, static function (array $matches) use ($cmcontext, $questionid) {
-        $itemid = (int)$matches[2];
-        $filepathandname = ltrim((string)$matches[3], '/');
-        $query = isset($matches[4]) ? (string)$matches[4] : '';
+    $rewritten = preg_replace_callback($pattern, static function (array $matches) use ($cmcontext, $questionid, $DB) {
+        $fullurl = (string)$matches[1];
+        $query = isset($matches[2]) ? (string)$matches[2] : '';
 
-        $slashpos = strrpos($filepathandname, '/');
-        if ($slashpos === false) {
-            $filepath = '/';
-            $filename = $filepathandname;
-        } else {
-            $filepath = '/' . trim(substr($filepathandname, 0, $slashpos), '/') . '/';
-            $filename = substr($filepathandname, $slashpos + 1);
+        $parts = parse_url($fullurl);
+        if (empty($parts['path'])) {
+            return $matches[0];
+        }
+
+        $path = ltrim((string)$parts['path'], '/');
+        $needle = '/question/questiontext/';
+        $pos = strpos('/' . $path, $needle);
+        if ($pos === false) {
+            return $matches[0];
+        }
+
+        $suffix = substr('/' . $path, $pos + strlen($needle));
+        $segments = array_values(array_filter(explode('/', trim($suffix, '/')), static function($segment) {
+            return $segment !== '';
+        }));
+        if (empty($segments)) {
+            return $matches[0];
+        }
+
+        $filename = (string)array_pop($segments);
+        if ($filename === '') {
+            return $matches[0];
+        }
+
+        $numericsegments = array_values(array_filter($segments, static function($segment) {
+            return ctype_digit((string)$segment);
+        }));
+        $candidateitemids = [];
+        if (!empty($numericsegments)) {
+            $candidateitemids = array_map('intval', $numericsegments);
+        }
+        if (!in_array((int)$questionid, $candidateitemids, true)) {
+            $candidateitemids[] = (int)$questionid;
+        }
+
+        $itemid = 0;
+        foreach ($candidateitemids as $candidateitemid) {
+            if ($candidateitemid <= 0) {
+                continue;
+            }
+            $exists = $DB->record_exists_select(
+                'files',
+                'component = ? AND filearea = ? AND itemid = ? AND filename = ? AND filesize > 0',
+                ['question', 'questiontext', $candidateitemid, $filename]
+            );
+            if ($exists) {
+                $itemid = (int)$candidateitemid;
+                break;
+            }
+        }
+        if ($itemid <= 0) {
+            return $matches[0];
+        }
+
+        $itemidindex = array_search((string)$itemid, $segments, true);
+        $filepathsegments = [];
+        if ($itemidindex !== false) {
+            $filepathsegments = array_slice($segments, $itemidindex + 1);
+        }
+        $filepath = '/';
+        if (!empty($filepathsegments)) {
+            $filepath = '/' . implode('/', $filepathsegments) . '/';
+        }
+
+        $proxyfilepath = '/' . $itemid . '/';
+        if ($filepath !== '/') {
+            $proxyfilepath .= trim($filepath, '/') . '/';
         }
 
         $proxyurl = moodle_url::make_pluginfile_url(
@@ -322,7 +395,7 @@ function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedh
             'mod_icontent',
             'questiontextproxy',
             (int)$questionid,
-            $filepath,
+            $proxyfilepath,
             $filename
         );
 
@@ -417,6 +490,28 @@ function icontent_qengine_embed_dd_background_data_uri(string $renderedhtml, int
 }
 
 /**
+ * Decide whether the side-column TOC menu should be displayed.
+ *
+ * @param stdClass $icontent
+ * @param stdClass $cm
+ * @param bool $edit
+ * @return bool
+ */
+function icontent_should_show_toc_menu(stdClass $icontent, stdClass $cm, $edit = false) {
+    $showtocmenu = (int)($icontent->showtocmenu ?? 1);
+    if ($showtocmenu === 1) {
+        return true;
+    }
+
+    $context = context_module::instance($cm->id);
+    if ($edit || has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $context)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
  * Add the icontent TOC sticky block to the default region.
  *
  * @param array $pages
@@ -427,6 +522,10 @@ function icontent_qengine_embed_dd_background_data_uri(string $renderedhtml, int
  */
 function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     global $OUTPUT, $PAGE;
+    if (!icontent_should_show_toc_menu($icontent, $cm, $edit)) {
+        return;
+    }
+
     $toc = icontent_get_toc($pages, $page, $icontent, $cm, $edit, 0);
     $bc = new block_contents();
     $bc->title = get_string('icontentmenu', 'icontent');
@@ -434,6 +533,244 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
     $bc->content = $toc;
     $defaultregion = $PAGE->blocks->get_default_region();
     $PAGE->blocks->add_fake_block($bc, $defaultregion);
+}
+
+/**
+ * Determine whether the page belongs to a branch grouping.
+ *
+ * @param stdClass $page
+ * @return bool
+ */
+function icontent_page_is_clustered(stdClass $page) {
+    return !empty($page->branchparentpageid);
+}
+
+/**
+ * Return the internal grouping key for a branch page.
+ *
+ * @param stdClass $page
+ * @return string
+ */
+function icontent_get_cluster_group_key(stdClass $page) {
+    if (!icontent_page_is_clustered($page)) {
+        return '';
+    }
+
+    $branchref = trim((string)($page->branchref ?? ''));
+    if ($branchref !== '') {
+        return $branchref;
+    }
+
+    return 'clusterpage-' . (int)$page->id;
+}
+
+/**
+ * Build branch-style TOC metadata grouped by parent page.
+ *
+ * @param array $pages
+ * @return array
+ */
+function icontent_get_toc_clusters(array $pages) {
+    $pagesbyid = [];
+    foreach ($pages as $page) {
+        $pagesbyid[(int)$page->id] = $page;
+    }
+
+    $clusters = [];
+    $clusterorder = [];
+    foreach ($pages as $page) {
+        if (!icontent_page_is_clustered($page)) {
+            continue;
+        }
+
+        $parentid = (int)$page->branchparentpageid;
+        if (empty($pagesbyid[$parentid])) {
+            continue;
+        }
+
+        $clusterkey = icontent_get_cluster_group_key($page);
+        if (!isset($clusterorder[$parentid])) {
+            $clusterorder[$parentid] = 0;
+        }
+        if (!isset($clusters[$parentid][$clusterkey])) {
+            $clusterorder[$parentid]++;
+            $label = trim((string)($page->branchname ?? ''));
+            if ($label === '') {
+                $label = get_string('clusterdefault', 'mod_icontent', $clusterorder[$parentid]);
+            }
+
+            $clusters[$parentid][$clusterkey] = [
+                'label' => $label,
+                'pages' => [],
+            ];
+        }
+
+        $clusters[$parentid][$clusterkey]['pages'][] = $page;
+    }
+
+    return $clusters;
+}
+
+/**
+ * Render the common TOC page link.
+ *
+ * @param stdClass $page
+ * @param context_module $context
+ * @param int $totalpages
+ * @return string
+ */
+function icontent_render_toc_page_link(stdClass $page, context_module $context, $totalpages) {
+    $title = trim(format_string($page->title, true, ['context' => $context]));
+
+    return html_writer::link(
+        new moodle_url('/mod/icontent/view.php', ['id' => $page->cmid, 'pageid' => $page->id]),
+        $title,
+        [
+            'title' => s($title),
+            'class' => 'load-page page' . $page->pagenum,
+            'data-pageid' => $page->id,
+            'data-pagenum' => $page->pagenum,
+            'data-cmid' => $page->cmid,
+            'data-sesskey' => sesskey(),
+            'data-totalpages' => $totalpages,
+        ]
+    );
+}
+
+/**
+ * Render the teacher action list shown beside a TOC page entry.
+ *
+ * @param stdClass $page
+ * @param stdClass $cm
+ * @param int $position
+ * @param int $pagecount
+ * @return string
+ */
+function icontent_render_toc_action_list(stdClass $page, stdClass $cm, $position, $pagecount) {
+    global $OUTPUT, $USER;
+
+    $actions = html_writer::start_tag('div', ['class' => 'action-list']);
+    if ($position != 1) {
+        $actions .= html_writer::link(
+            new moodle_url(
+                'move.php',
+                [
+                    'id' => $cm->id,
+                    'pageid' => $page->id,
+                    'up' => '1',
+                    'sesskey' => $USER->sesskey,
+                ]
+            ),
+            $OUTPUT->pix_icon('t/up', get_string('up')),
+            ['title' => get_string('up')]
+        );
+    }
+    if ($position != $pagecount) {
+        $actions .= html_writer::link(
+            new moodle_url(
+                'move.php',
+                [
+                    'id' => $cm->id,
+                    'pageid' => $page->id,
+                    'up' => '0',
+                    'sesskey' => $USER->sesskey,
+                ]
+            ),
+            $OUTPUT->pix_icon('t/down', get_string('down')),
+            ['title' => get_string('down')]
+        );
+    }
+    $actions .= html_writer::link(
+        new moodle_url(
+            'edit.php',
+            [
+                'cmid' => $page->cmid,
+                'id' => $page->id,
+                'sesskey' => $USER->sesskey,
+            ]
+        ),
+        $OUTPUT->pix_icon('t/edit', get_string('edit')),
+        ['title' => get_string('edit')]
+    );
+    $actions .= html_writer::link(
+        new moodle_url(
+            'delete.php',
+            [
+                'id' => $page->cmid,
+                'pageid' => $page->id,
+                'sesskey' => $USER->sesskey,
+            ]
+        ),
+        $OUTPUT->pix_icon('t/delete', get_string('delete')),
+        ['title' => get_string('delete')]
+    );
+    if ($page->hidden) {
+        $actions .= html_writer::link(
+            new moodle_url(
+                'show.php',
+                [
+                    'id' => $page->cmid,
+                    'pageid' => $page->id,
+                    'sesskey' => $USER->sesskey,
+                ]
+            ),
+            $OUTPUT->pix_icon('t/show', get_string('show')),
+            ['title' => get_string('show')]
+        );
+    } else {
+        $actions .= html_writer::link(
+            new moodle_url(
+                'show.php',
+                [
+                    'id' => $page->cmid,
+                    'pageid' => $page->id,
+                    'sesskey' => $USER->sesskey,
+                ]
+            ),
+            $OUTPUT->pix_icon('t/hide', get_string('hide')),
+            ['title' => get_string('hide')]
+        );
+    }
+    $actions .= html_writer::link(
+        new moodle_url(
+            'edit.php',
+            [
+                'cmid' => $page->cmid,
+                'pagenum' => $page->pagenum,
+                'sesskey' => $USER->sesskey,
+            ]
+        ),
+        $OUTPUT->pix_icon('add', get_string('addafter', 'mod_icontent'), 'mod_icontent'),
+        ['title' => get_string('addafter', 'mod_icontent')]
+    );
+    $actions .= html_writer::end_tag('div');
+
+    return $actions;
+}
+
+/**
+ * Render one TOC list item.
+ *
+ * @param stdClass $page
+ * @param context_module $context
+ * @param stdClass $cm
+ * @param int $totalpages
+ * @param bool $edit
+ * @param int $position
+ * @param int $pagecount
+ * @param array $classes
+ * @return string
+ */
+function icontent_render_toc_item(stdClass $page, context_module $context, stdClass $cm, $totalpages, $edit, $position, $pagecount, array $classes = []) {
+    $classes[] = 'clearfix';
+    $html = html_writer::start_tag('li', ['class' => implode(' ', array_unique($classes))]);
+    $html .= icontent_render_toc_page_link($page, $context, $totalpages);
+    if ($edit) {
+        $html .= icontent_render_toc_action_list($page, $cm, $position, $pagecount);
+    }
+    $html .= html_writer::end_tag('li');
+
+    return $html;
 }
 
 /**
@@ -447,158 +784,69 @@ function icontent_add_fake_block($pages, $page, $icontent, $cm, $edit) {
  * @return string
  */
 function icontent_get_toc($pages, $page, $icontent, $cm, $edit) {
-    global $USER, $OUTPUT;
     $context = context_module::instance($cm->id);
     $tpages = count($pages);
+    $pagesbyid = [];
+    foreach ($pages as $tocpage) {
+        $pagesbyid[(int)$tocpage->id] = $tocpage;
+    }
+    $clusters = icontent_get_toc_clusters($pages);
     $toc = '';
     $toc .= html_writer::start_tag('div', ['class' => 'icontent_toc clearfix']);
-    // Teacher's TOC.
-    if ($edit) {
-        $toc .= html_writer::start_tag('ul');
-        $i = 0;
-        foreach ($pages as $pg) {
-            $i++;
-            $title = trim(format_string($pg->title, true, ['context' => $context]));
-            $toc .= html_writer::start_tag('li', ['class' => 'clearfix']); // Start <li>.
-            $toc .= html_writer::link(
-                new moodle_url('/mod/icontent/view.php', ['id' => $pg->cmid, 'pageid' => $pg->id]),
-                $title,
-                [
-                    'title' => s($title),
-                    'class' => 'load-page page' . $pg->pagenum,
-                    'data-pageid' => $pg->id,
-                    'data-pagenum' => $pg->pagenum,
-                    'data-cmid' => $pg->cmid,
-                    'data-sesskey' => sesskey(),
-                    'data-totalpages' => $tpages,
-                ]
-            );
-            // Actions.
-            $toc .= html_writer::start_tag('div', ['class' => 'action-list']); // Start <div>.
-            if ($i != 1) {
-                $toc .= html_writer::link(
-                    new moodle_url(
-                        'move.php',
-                        [
-                        'id' => $cm->id,
-                        'pageid' => $pg->id,
-                        'up' => '1',
-                        'sesskey' => $USER->sesskey,
-                        ]
-                    ),
-                    $OUTPUT->pix_icon('t/up', get_string('up')),
-                    ['title' => get_string('up')]
-                );
-            }
-            if ($i != count($pages)) {
-                $toc .= html_writer::link(
-                    new moodle_url(
-                        'move.php',
-                        [
-                        'id' => $cm->id,
-                        'pageid' => $pg->id,
-                        'up' => '0',
-                        'sesskey' => $USER->sesskey,
-                        ]
-                    ),
-                    $OUTPUT->pix_icon('t/down', get_string('down')),
-                    ['title' => get_string('down')]
-                );
-            }
-            $toc .= html_writer::link(
-                new moodle_url(
-                    'edit.php',
-                    [
-                    'cmid' => $pg->cmid,
-                    'id' => $pg->id,
-                    'sesskey' => $USER->sesskey,
-                    ]
-                ),
-                $OUTPUT->pix_icon('t/edit', get_string('edit')),
-                ['title' => get_string('edit')]
-            );
-            $toc .= html_writer::link(
-                new moodle_url(
-                    'delete.php',
-                    [
-                    'id' => $pg->cmid,
-                    'pageid' => $pg->id,
-                    'sesskey' => $USER->sesskey,
-                    ]
-                ),
-                $OUTPUT->pix_icon('t/delete', get_string('delete')),
-                ['title' => get_string('delete')]
-            );
-            if ($pg->hidden) {
-                $toc .= html_writer::link(
-                    new moodle_url(
-                        'show.php',
-                        [
-                        'id' => $pg->cmid,
-                        'pageid' => $pg->id,
-                        'sesskey' => $USER->sesskey,
-                        ]
-                    ),
-                    $OUTPUT->pix_icon('t/show', get_string('show')),
-                    ['title' => get_string('show')]
-                );
-            } else {
-                $toc .= html_writer::link(
-                    new moodle_url(
-                        'show.php',
-                        [
-                        'id' => $pg->cmid,
-                        'pageid' => $pg->id,
-                        'sesskey' => $USER->sesskey,
-                        ]
-                    ),
-                    $OUTPUT->pix_icon('t/hide', get_string('hide')),
-                    ['title' => get_string('hide')]
-                );
-            }
-            $toc .= html_writer::link(
-                new moodle_url(
-                    'edit.php',
-                    [
-                    'cmid' => $pg->cmid,
-                    'pagenum' => $pg->pagenum,
-                    'sesskey' => $USER->sesskey,
-                    ]
-                ),
-                $OUTPUT->pix_icon('add', get_string('addafter', 'mod_icontent'), 'mod_icontent'),
-                [
-                        'title' => get_string('addafter', 'mod_icontent'),
-                    ]
-            );
-            $toc .= html_writer::end_tag('div'); // End </div>.
-            $toc .= html_writer::end_tag('li'); // End </li>.
+    $toc .= html_writer::start_tag('ul');
+    $position = 0;
+    foreach ($pages as $pg) {
+        $parentid = (int)($pg->branchparentpageid ?? 0);
+        if ($parentid > 0 && isset($pagesbyid[$parentid])) {
+            continue;
         }
-        $toc .= html_writer::end_tag('ul');
-    } else {
-        // Visualization to students.
-        $toc .= html_writer::start_tag('ul');
-        foreach ($pages as $pg) {
-            if (!$pg->hidden) {
-                $title = trim(format_string($pg->title, true, ['context' => $context]));
-                $toc .= html_writer::start_tag('li', ['class' => 'clearfix']);
-                $toc .= html_writer::link(
-                    new moodle_url('/mod/icontent/view.php', ['id' => $pg->cmid, 'pageid' => $pg->id]),
-                    $title,
-                    [
-                        'title' => s($title),
-                        'class' => 'load-page page' . $pg->pagenum,
-                        'data-pageid' => $pg->id,
-                        'data-pagenum' => $pg->pagenum,
-                        'data-cmid' => $pg->cmid,
-                        'data-sesskey' => sesskey(),
-                        'data-totalpages' => $tpages,
-                    ]
-                );
-                $toc .= html_writer::end_tag('li');
-            }
+        if (!$edit && !empty($pg->hidden)) {
+            continue;
         }
-        $toc .= html_writer::end_tag('ul');
+
+        $position++;
+        $toc .= icontent_render_toc_item($pg, $context, $cm, $tpages, $edit, $position, $tpages);
+
+        if (empty($clusters[(int)$pg->id])) {
+            continue;
+        }
+
+        $renderedclusters = '';
+        foreach ($clusters[(int)$pg->id] as $cluster) {
+            $clusterpageshtml = '';
+            foreach ($cluster['pages'] as $clusterpage) {
+                if (!$edit && !empty($clusterpage->hidden)) {
+                    continue;
+                }
+
+                $position++;
+                $clusterpageshtml .= icontent_render_toc_item(
+                    $clusterpage,
+                    $context,
+                    $cm,
+                    $tpages,
+                    $edit,
+                    $position,
+                    $tpages,
+                    ['cluster-page']
+                );
+            }
+
+            if ($clusterpageshtml === '') {
+                continue;
+            }
+
+            $renderedclusters .= html_writer::start_tag('li', ['class' => 'cluster-group']);
+            $renderedclusters .= html_writer::tag('span', s($cluster['label']), ['class' => 'cluster-label']);
+            $renderedclusters .= html_writer::tag('ul', $clusterpageshtml, ['class' => 'cluster-pages']);
+            $renderedclusters .= html_writer::end_tag('li');
+        }
+
+        if ($renderedclusters !== '') {
+            $toc .= html_writer::tag('ul', $renderedclusters, ['class' => 'cluster-list']);
+        }
     }
+    $toc .= html_writer::end_tag('ul');
     $toc .= html_writer::end_tag('div');
     return $toc;
 }
@@ -1131,29 +1379,354 @@ function icontent_get_minpagenum($icontent) {
 /**
  * Get page previous.
  *
- * Return int  page previous.
+ * Return the most appropriate previous page number for the learner.
  *
  * @param stdClass $objpage
- * @return int $page
+ * @return int
  */
-function icontent_get_prev_pagenum(stdClass $objpage) {
+function icontent_get_navigation_source_pageid(stdClass $objpage) {
     global $DB;
-    // Get page previous.
-    $maxpagenum = $objpage->pagenum - 1;
+
+    global $USER;
+    if (!isset($objpage->id, $objpage->cmid) || !$objpage->id || !$objpage->cmid) {
+        return 0;
+    }
+
+    $record = $DB->get_record_sql(
+        "SELECT frompageid
+           FROM {icontent_pages_nav}
+          WHERE cmid = ?
+            AND userid = ?
+            AND topageid = ?
+       ORDER BY timecreated DESC, id DESC",
+        [(int)$objpage->cmid, (int)$USER->id, (int)$objpage->id],
+        IGNORE_MULTIPLE
+    );
+
+    return (int)($record->frompageid ?? 0);
+}
+
+/**
+ * Get a visible page by id within one activity.
+ *
+ * @param int $pageid
+ * @param int $cmid
+ * @return stdClass|false
+ */
+function icontent_get_visible_page_by_id($pageid, $cmid) {
+    global $DB;
+
+    if (empty($pageid) || empty($cmid)) {
+        return false;
+    }
+
+    return $DB->get_record(
+        'icontent_pages',
+        ['id' => $pageid, 'cmid' => $cmid, 'hidden' => 0],
+        'id, cmid, pagenum, branchref, branchname, branchparentpageid'
+    );
+}
+
+/**
+ * Return the previous visible mainline page number.
+ *
+ * @param int $cmid
+ * @param int $pagenum
+ * @return int
+ */
+function icontent_get_previous_mainline_pagenum($cmid, $pagenum) {
+    global $DB;
+
     $page = $DB->get_record_sql(
         "SELECT max(pagenum) AS previous
            FROM {icontent_pages}
           WHERE cmid = ?
             AND hidden = ?
-            AND pagenum BETWEEN ? and ?;",
-        [
-            $objpage->cmid,
-            0,
-            0,
-            $maxpagenum,
-        ]
+            AND branchparentpageid = ?
+            AND pagenum < ?;",
+        [(int)$cmid, 0, 0, (int)$pagenum]
     );
-    return $page->previous;
+
+    return (int)($page->previous ?? 0);
+}
+
+/**
+ * Return the next visible mainline page number.
+ *
+ * @param int $cmid
+ * @param int $pagenum
+ * @return int
+ */
+function icontent_get_next_mainline_pagenum($cmid, $pagenum) {
+    global $DB;
+
+    $page = $DB->get_record_sql(
+        "SELECT min(pagenum) AS next
+           FROM {icontent_pages}
+          WHERE cmid = ?
+            AND hidden = ?
+            AND branchparentpageid = ?
+            AND pagenum > ?;",
+        [(int)$cmid, 0, 0, (int)$pagenum]
+    );
+
+    return (int)($page->next ?? 0);
+}
+
+/**
+ * Return visible pages in the same branch grouping.
+ *
+ * @param stdClass $objpage
+ * @return array
+ */
+function icontent_get_cluster_pages(stdClass $objpage) {
+    global $DB;
+
+    if (!icontent_page_is_clustered($objpage)) {
+        return [];
+    }
+
+    $clusterkey = icontent_get_cluster_group_key($objpage);
+    if (strpos($clusterkey, 'clusterpage-') === 0) {
+        return $DB->get_records(
+            'icontent_pages',
+            ['id' => (int)$objpage->id, 'cmid' => (int)$objpage->cmid, 'hidden' => 0],
+            'pagenum',
+            'id, cmid, pagenum, branchref, branchname, branchparentpageid'
+        );
+    }
+
+    return $DB->get_records(
+        'icontent_pages',
+        [
+            'cmid' => (int)$objpage->cmid,
+            'hidden' => 0,
+            'branchparentpageid' => (int)$objpage->branchparentpageid,
+            'branchref' => $clusterkey,
+        ],
+        'pagenum',
+        'id, cmid, pagenum, branchref, branchname, branchparentpageid'
+    );
+}
+
+/**
+ * Return the previous pagenum within the current branch grouping.
+ *
+ * @param stdClass $objpage
+ * @return int
+ */
+function icontent_get_previous_cluster_pagenum(stdClass $objpage) {
+    $previous = 0;
+    foreach (icontent_get_cluster_pages($objpage) as $clusterpage) {
+        if ((int)$clusterpage->pagenum >= (int)$objpage->pagenum) {
+            break;
+        }
+        $previous = (int)$clusterpage->pagenum;
+    }
+
+    return $previous;
+}
+
+/**
+ * Return the next pagenum within the current branch grouping.
+ *
+ * @param stdClass $objpage
+ * @return int
+ */
+function icontent_get_next_cluster_pagenum(stdClass $objpage) {
+    foreach (icontent_get_cluster_pages($objpage) as $clusterpage) {
+        if ((int)$clusterpage->pagenum > (int)$objpage->pagenum) {
+            return (int)$clusterpage->pagenum;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Ensure the navigation resolver has the page-level nav settings available.
+ *
+ * @param stdClass $objpage
+ * @return stdClass
+ */
+function icontent_get_navigation_page_context(stdClass $objpage) {
+    global $DB;
+
+    if (isset($objpage->prevmode, $objpage->prevpageid, $objpage->nextmode, $objpage->nextpageid)) {
+        return $objpage;
+    }
+
+    if (!empty($objpage->id) && !empty($objpage->cmid)) {
+        $fullpage = $DB->get_record('icontent_pages', ['id' => (int)$objpage->id, 'cmid' => (int)$objpage->cmid, 'hidden' => 0], '*');
+        if ($fullpage) {
+            return $fullpage;
+        }
+    }
+
+    if (!empty($objpage->pagenum) && !empty($objpage->cmid)) {
+        $fullpage = $DB->get_record('icontent_pages', ['cmid' => (int)$objpage->cmid, 'pagenum' => (int)$objpage->pagenum, 'hidden' => 0], '*');
+        if ($fullpage) {
+            return $fullpage;
+        }
+    }
+
+    return $objpage;
+}
+
+/**
+ * Resolve a custom navigation target to a visible page number in this activity.
+ *
+ * @param int $cmid
+ * @param int $pageid
+ * @return int
+ */
+function icontent_get_custom_navigation_pagenum($cmid, $pageid) {
+    $targetpage = icontent_get_visible_page_by_id((int)$pageid, (int)$cmid);
+    if (empty($targetpage->pagenum)) {
+        return 0;
+    }
+
+    return (int)$targetpage->pagenum;
+}
+
+/**
+ * Resolve the next routed page id from the latest attempt on the current page.
+ *
+ * @param stdClass $objpage
+ * @return int
+ */
+function icontent_get_question_routed_next_pageid(stdClass $objpage) {
+    global $DB, $USER;
+
+    $sql = "SELECT pq.id,
+                   pq.correctnextpageid,
+                   pq.incorrectnextpageid,
+                   pq.manualreviewnextpageid,
+                   pq.defaultnextpageid,
+                   COALESCE(NULLIF(pq.maxmark, 0), q.defaultmark, 1) AS effectivemaxmark
+              FROM {icontent_pages_questions} pq
+         LEFT JOIN {question} q
+                ON q.id = pq.questionid
+             WHERE pq.pageid = ?
+               AND pq.cmid = ?
+               AND (
+                    pq.correctnextpageid > 0
+                    OR pq.incorrectnextpageid > 0
+                    OR pq.manualreviewnextpageid > 0
+                    OR pq.defaultnextpageid > 0
+               )
+          ORDER BY pq.id";
+    $routes = $DB->get_records_sql($sql, [(int)$objpage->id, (int)$objpage->cmid]);
+
+    foreach ($routes as $route) {
+        $attempt = $DB->get_record_sql(
+            "SELECT id, fraction, rightanswer
+               FROM {icontent_question_attempts}
+              WHERE pagesquestionsid = ?
+                AND cmid = ?
+                AND userid = ?
+           ORDER BY timecreated DESC, id DESC",
+            [(int)$route->id, (int)$objpage->cmid, (int)$USER->id],
+            IGNORE_MULTIPLE
+        );
+
+        $targetpageid = 0;
+        if (!empty($attempt)) {
+            if ($attempt->rightanswer === ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE && !empty($route->manualreviewnextpageid)) {
+                $targetpageid = (int)$route->manualreviewnextpageid;
+            } else if ((float)$attempt->fraction >= ((float)$route->effectivemaxmark - 0.00001) && !empty($route->correctnextpageid)) {
+                $targetpageid = (int)$route->correctnextpageid;
+            } else if (!empty($route->incorrectnextpageid)) {
+                $targetpageid = (int)$route->incorrectnextpageid;
+            }
+        }
+
+        if (empty($targetpageid) && !empty($route->defaultnextpageid)) {
+            $targetpageid = (int)$route->defaultnextpageid;
+        }
+
+        if (empty($targetpageid)) {
+            continue;
+        }
+
+        $targetpage = icontent_get_visible_page_by_id($targetpageid, $objpage->cmid);
+        if (!empty($targetpage)) {
+            return (int)$targetpage->id;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * Persist actual page-to-page navigation for history-aware Previous buttons.
+ *
+ * @param int $sourcepageid
+ * @param int $targetpageid
+ * @param int $cmid
+ * @return void
+ */
+function icontent_record_page_navigation($sourcepageid, $targetpageid, $cmid) {
+    global $DB, $USER;
+
+    if (empty($sourcepageid) || empty($targetpageid) || $sourcepageid == $targetpageid || empty($cmid) || empty($USER->id)) {
+        return;
+    }
+
+    $DB->insert_record('icontent_pages_nav', (object) [
+        'cmid' => (int)$cmid,
+        'userid' => (int)$USER->id,
+        'frompageid' => (int)$sourcepageid,
+        'topageid' => (int)$targetpageid,
+        'timecreated' => time(),
+    ]);
+}
+
+/**
+ * Get page previous.
+ *
+ * @param stdClass $objpage
+ * @return int
+ */
+function icontent_get_prev_pagenum(stdClass $objpage) {
+    $objpage = icontent_get_navigation_page_context($objpage);
+    $prevmode = (int)($objpage->prevmode ?? 0);
+    if ($prevmode === 1) {
+        return 0;
+    }
+    if ($prevmode === 2) {
+        $customprevious = icontent_get_custom_navigation_pagenum((int)$objpage->cmid, (int)($objpage->prevpageid ?? 0));
+        if (!empty($customprevious)) {
+            return $customprevious;
+        }
+    }
+
+    $firstpagenum = icontent_get_min_visible_pagenum_by_cmid((int)$objpage->cmid);
+    if (!empty($firstpagenum) && (int)$objpage->pagenum <= (int)$firstpagenum) {
+        return 0;
+    }
+
+    $trackedpageid = icontent_get_navigation_source_pageid($objpage);
+    if (!empty($trackedpageid)) {
+        $trackedpage = icontent_get_visible_page_by_id($trackedpageid, $objpage->cmid);
+        if (!empty($trackedpage->pagenum)) {
+            return (int)$trackedpage->pagenum;
+        }
+    }
+
+    if (icontent_page_is_clustered($objpage)) {
+        $clusterprevious = icontent_get_previous_cluster_pagenum($objpage);
+        if (!empty($clusterprevious)) {
+            return $clusterprevious;
+        }
+
+        $parentpage = icontent_get_visible_page_by_id((int)$objpage->branchparentpageid, $objpage->cmid);
+        if (!empty($parentpage->pagenum)) {
+            return (int)$parentpage->pagenum;
+        }
+    }
+
+    return icontent_get_previous_mainline_pagenum($objpage->cmid, $objpage->pagenum);
 }
 
 /**
@@ -1165,34 +1738,44 @@ function icontent_get_prev_pagenum(stdClass $objpage) {
  * @return int $next
  */
 function icontent_get_next_pagenum(stdClass $objpage) {
-    global $DB;
-    // Get max valid pagenum.
-    $pagenum = $DB->get_record_sql(
-        "SELECT max(pagenum) AS max
-           FROM {icontent_pages}
-          WHERE cmid = ?
-            AND hidden = ?;",
-        [
-            $objpage->cmid,
-            0,
-        ]
-    );
-    // Get next page.
-    $minpagenum = $objpage->pagenum + 1;
-    $page = $DB->get_record_sql(
-        "SELECT min(pagenum) AS next
-           FROM {icontent_pages}
-          WHERE cmid = ?
-            AND hidden = ?
-            AND pagenum BETWEEN ? and ?;",
-        [
-            $objpage->cmid,
-            0,
-            $minpagenum,
-            $pagenum->max,
-        ]
-    );
-    return $page->next;
+    $objpage = icontent_get_navigation_page_context($objpage);
+    $nextmode = (int)($objpage->nextmode ?? 0);
+    if ($nextmode === 1) {
+        return 0;
+    }
+    if ($nextmode === 2) {
+        $customnext = icontent_get_custom_navigation_pagenum((int)$objpage->cmid, (int)($objpage->nextpageid ?? 0));
+        if (!empty($customnext)) {
+            return $customnext;
+        }
+    }
+
+    $lastpagenum = icontent_get_max_visible_pagenum_by_cmid((int)$objpage->cmid);
+    if (!empty($lastpagenum) && (int)$objpage->pagenum >= (int)$lastpagenum) {
+        return 0;
+    }
+
+    $routedpageid = icontent_get_question_routed_next_pageid($objpage);
+    if (!empty($routedpageid)) {
+        $routedpage = icontent_get_visible_page_by_id($routedpageid, $objpage->cmid);
+        if (!empty($routedpage->pagenum)) {
+            return (int)$routedpage->pagenum;
+        }
+    }
+
+    if (icontent_page_is_clustered($objpage)) {
+        $clusternext = icontent_get_next_cluster_pagenum($objpage);
+        if (!empty($clusternext)) {
+            return $clusternext;
+        }
+
+        $parentpage = icontent_get_visible_page_by_id((int)$objpage->branchparentpageid, $objpage->cmid);
+        if (!empty($parentpage->pagenum)) {
+            return icontent_get_next_mainline_pagenum($objpage->cmid, $parentpage->pagenum);
+        }
+    }
+
+    return icontent_get_next_mainline_pagenum($objpage->cmid, $objpage->pagenum);
 }
 
 /**
@@ -1210,6 +1793,46 @@ function icontent_get_pageid_by_pagenum($cmid, $pagenum) {
     }
 
     return $DB->get_field('icontent_pages', 'id', ['cmid' => $cmid, 'pagenum' => $pagenum, 'hidden' => 0]) ?: null;
+}
+
+/**
+ * Return the minimum visible page number for one activity instance.
+ *
+ * @param int $cmid
+ * @return int
+ */
+function icontent_get_min_visible_pagenum_by_cmid($cmid) {
+    global $DB;
+
+    $page = $DB->get_record_sql(
+        "SELECT min(pagenum) AS minpagenum
+           FROM {icontent_pages}
+          WHERE cmid = ?
+            AND hidden = ?",
+        [(int)$cmid, 0]
+    );
+
+    return (int)($page->minpagenum ?? 0);
+}
+
+/**
+ * Return the maximum visible page number for one activity instance.
+ *
+ * @param int $cmid
+ * @return int
+ */
+function icontent_get_max_visible_pagenum_by_cmid($cmid) {
+    global $DB;
+
+    $page = $DB->get_record_sql(
+        "SELECT max(pagenum) AS maxpagenum
+           FROM {icontent_pages}
+          WHERE cmid = ?
+            AND hidden = ?",
+        [(int)$cmid, 0]
+    );
+
+    return (int)($page->maxpagenum ?? 0);
 }
 
 /**
@@ -1335,6 +1958,21 @@ function icontent_count_attempts_users_with_open_answers($cmid, $status = null, 
     if (!isset($status)) {
         $status = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
     }
+    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
+    $poodllopenanswerscondition = $haspoodlloptions ? "
+                                        OR (
+                                                qa.fraction = 0
+                                                AND EXISTS (
+                                                        SELECT 1
+                                                            FROM {question} q
+                                                            JOIN {qtype_poodllrecording_opts} qpo
+                                                                ON qpo.questionid = q.id
+                                                         WHERE q.id = qa.questionid
+                                                             AND q.qtype = 'poodllrecording'
+                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                )
+                                        )" : '';
+
     // SQL Query.
         $sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
               FROM {user} u
@@ -1349,17 +1987,15 @@ function icontent_count_attempts_users_with_open_answers($cmid, $status = null, 
                              WHERE q.id = qa.questionid
                                  AND q.qtype = ?
                         )
+                                        {$poodllopenanswerscondition}
                                         OR (
-                                                qa.fraction = 0
-                                                AND EXISTS (
-                                                        SELECT 1
-                                                            FROM {question} q
-                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                ON qpo.questionid = q.id
-                                                         WHERE q.id = qa.questionid
-                                                             AND q.qtype = 'poodllrecording'
-                                                             AND qpo.responseformat = 'picture'
-                                                )
+                                            qa.fraction = 0
+                                            AND EXISTS (
+                                                SELECT 1
+                                                    FROM {question} q
+                                                 WHERE q.id = qa.questionid
+                                                     AND q.qtype = 'recordrtc'
+                                            )
                                         )
                                                          )";
         $params = [$cmid, $status, ICONTENT_QTYPE_ESSAYAUTOGRADE];
@@ -1388,7 +2024,12 @@ function icontent_count_attempts_users_with_open_answers($cmid, $status = null, 
  */
 function icontent_get_questions_of_currentpage($pageid, $cmid) {
     global $DB;
-    return $DB->get_records('icontent_pages_questions', ['pageid' => $pageid, 'cmid' => $cmid], null, 'questionid, id');
+    return $DB->get_records(
+        'icontent_pages_questions',
+        ['pageid' => $pageid, 'cmid' => $cmid],
+        null,
+        'questionid, id, questionid, maxmark, correctnextpageid, incorrectnextpageid, manualreviewnextpageid, defaultnextpageid'
+    );
 }
 
 /**
@@ -1421,40 +2062,43 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
             // Check if answer is a checkbox. Otherwise, is radio.
             if (is_array($answer)) {
                 $rightanswers = $DB->get_records_select('question_answers', 'question = ? AND fraction > ?', [$questionid, 0]);
-                if (count($answer) === count($rightanswers)) {
-                    // Get array with key ID answer.
-                    $arrayoptionsids = icontent_get_array_options_answerid($answer);
-                    // Checks answers correct.
-                    foreach ($rightanswers as $rightanswer) {
-                        $infoanswer->rightanswer .= $rightanswer->answer . ';';
-                        if (array_key_exists($rightanswer->id, $arrayoptionsids)) {
-                            $infoanswer->fraction += $rightanswer->fraction;
-                            $infoanswer->answertext .= $rightanswer->answer . ';';
-                        }
+                // Get array with key ID answer.
+                $arrayoptionsids = icontent_get_array_options_answerid($answer);
+                // Checks answers correct.
+                foreach ($rightanswers as $rightanswer) {
+                    $infoanswer->rightanswer .= $rightanswer->answer . ';';
+                    if (array_key_exists($rightanswer->id, $arrayoptionsids)) {
+                        $infoanswer->fraction += $rightanswer->fraction;
+                        $infoanswer->answertext .= $rightanswer->answer . ';';
                     }
-                    // Checks wrong answers.
-                    if ($infoanswer->fraction < ICONTENT_QUESTION_FRACTION) {
-                        $wronganswers = $DB->get_records_select(
-                            'question_answers',
-                            'question = ? AND fraction = ?',
-                            [
-                                $questionid,
-                                0,
-                            ]
-                        );
-                        foreach ($wronganswers as $wronganswer) {
-                            if (array_key_exists($wronganswer->id, $arrayoptionsids)) {
-                                $infoanswer->answertext .= $wronganswer->answer . ';';
-                            }
-                        }
-                    }
-                    return $infoanswer;
                 }
-                return false;
+                // Checks wrong answers.
+                if ($infoanswer->fraction < ICONTENT_QUESTION_FRACTION) {
+                    $wronganswers = $DB->get_records_select(
+                        'question_answers',
+                        'question = ? AND fraction = ?',
+                        [
+                            $questionid,
+                            0,
+                        ]
+                    );
+                    foreach ($wronganswers as $wronganswer) {
+                        if (array_key_exists($wronganswer->id, $arrayoptionsids)) {
+                            $infoanswer->answertext .= $wronganswer->answer . ';';
+                        }
+                    }
+                }
+                return $infoanswer;
             } else {
                 // Get data answer. Pattern e.g. [qpid-8_answerid-2].
-                [$qp, $dtanswer] = explode('_', $answer);
-                [$stranswer, $answerid] = explode('-', $dtanswer);
+                if (!is_string($answer) || strpos($answer, '_') === false) {
+                    return $infoanswer;
+                }
+                [$qp, $dtanswer] = explode('_', $answer, 2);
+                if (strpos((string)$dtanswer, '-') === false) {
+                    return $infoanswer;
+                }
+                [$stranswer, $answerid] = explode('-', $dtanswer, 2);
                 $currentanwser = $DB->get_record_select(
                     'question_answers',
                     'question = ? AND id = ?',
@@ -1463,6 +2107,9 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
                         $answerid,
                     ]
                 );
+                if (!$currentanwser) {
+                    return $infoanswer;
+                }
                 $infoanswer->fraction = $currentanwser->fraction;
                 $infoanswer->rightanswer = $currentanwser->answer;
                 $infoanswer->answertext = $currentanwser->answer;
@@ -1476,7 +2123,9 @@ function icontent_get_infoanswer_by_questionid($questionid, $qtype, $answer) {
                             ICONTENT_QUESTION_FRACTION,
                         ]
                     );
-                    $infoanswer->rightanswer = $rightanwser->answer;
+                    if ($rightanwser) {
+                        $infoanswer->rightanswer = $rightanwser->answer;
+                    }
                 }
                 return $infoanswer;
             }
@@ -1541,6 +2190,21 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
         $namefields = $userfieldsapi->get_sql('u', false, '', 'id', false)->selects;
     }
 
+    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
+    $poodllopenanswerscondition = $haspoodlloptions ? "
+                                                        OR (
+                                                                qa2.fraction = 0
+                                                                AND EXISTS (
+                                                                        SELECT 1
+                                                                            FROM {question} q
+                                                                            JOIN {qtype_poodllrecording_opts} qpo
+                                                                                ON qpo.questionid = q.id
+                                                                         WHERE q.id = qa2.questionid
+                                                                             AND q.qtype = 'poodllrecording'
+                                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                                )
+                                                        )" : '';
+
         $sql = "SELECT DISTINCT $namefields,
                                      (SELECT Sum(fraction)
                                             FROM {icontent_question_attempts}
@@ -1570,17 +2234,15 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
                                                                  WHERE q.id = qa2.questionid
                                                                      AND q.qtype = ?
                                                         )
+                                                        {$poodllopenanswerscondition}
                                                         OR (
-                                                                qa2.fraction = 0
-                                                                AND EXISTS (
-                                                                        SELECT 1
-                                                                            FROM {question} q
-                                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                                ON qpo.questionid = q.id
-                                                                         WHERE q.id = qa2.questionid
-                                                                             AND q.qtype = 'poodllrecording'
-                                                                             AND qpo.responseformat = 'picture'
-                                                                )
+                                                            qa2.fraction = 0
+                                                            AND EXISTS (
+                                                                SELECT 1
+                                                                    FROM {question} q
+                                                                 WHERE q.id = qa2.questionid
+                                                                     AND q.qtype = 'recordrtc'
+                                                            )
                                                         )
                                              )) AS totalopenanswers
                             FROM {user} u
@@ -1661,6 +2323,34 @@ function icontent_get_attempts_users_with_open_answers(
         ;
     }
 
+    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
+    $poodllopenanswersconditionqa2 = $haspoodlloptions ? "
+                                                OR (
+                                                        qa2.fraction = 0
+                                                        AND EXISTS (
+                                                                SELECT 1
+                                                                    FROM {question} q
+                                                                    JOIN {qtype_poodllrecording_opts} qpo
+                                                                        ON qpo.questionid = q.id
+                                                                 WHERE q.id = qa2.questionid
+                                                                     AND q.qtype = 'poodllrecording'
+                                                                     AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                        )
+                                                )" : '';
+    $poodllopenanswersconditionqa = $haspoodlloptions ? "
+                                        OR (
+                                                qa.fraction = 0
+                                                AND EXISTS (
+                                                        SELECT 1
+                                                            FROM {question} q
+                                                            JOIN {qtype_poodllrecording_opts} qpo
+                                                                ON qpo.questionid = q.id
+                                                         WHERE q.id = qa.questionid
+                                                             AND q.qtype = 'poodllrecording'
+                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                )
+                                        )" : '';
+
         $sql = "SELECT DISTINCT $namefields,
                 (SELECT Count(id)
                                      FROM {icontent_question_attempts} qa2
@@ -1674,17 +2364,15 @@ function icontent_get_attempts_users_with_open_answers(
                                  WHERE q.id = qa2.questionid
                                      AND q.qtype = ?
                             )
+                                                {$poodllopenanswersconditionqa2}
                                                 OR (
-                                                        qa2.fraction = 0
-                                                        AND EXISTS (
-                                                                SELECT 1
-                                                                    FROM {question} q
-                                                                    JOIN {qtype_poodllrecording_opts} qpo
-                                                                        ON qpo.questionid = q.id
-                                                                 WHERE q.id = qa2.questionid
-                                                                     AND q.qtype = 'poodllrecording'
-                                                                     AND qpo.responseformat = 'picture'
-                                                        )
+                                                    qa2.fraction = 0
+                                                    AND EXISTS (
+                                                        SELECT 1
+                                                            FROM {question} q
+                                                         WHERE q.id = qa2.questionid
+                                                             AND q.qtype = 'recordrtc'
+                                                    )
                                                 )
                                         )) AS totalopenanswers
              FROM {user} u
@@ -1699,17 +2387,15 @@ function icontent_get_attempts_users_with_open_answers(
                                  WHERE q.id = qa.questionid
                                      AND q.qtype = ?
                             )
+                                        {$poodllopenanswersconditionqa}
                                         OR (
-                                                qa.fraction = 0
-                                                AND EXISTS (
-                                                        SELECT 1
-                                                            FROM {question} q
-                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                ON qpo.questionid = q.id
-                                                         WHERE q.id = qa.questionid
-                                                             AND q.qtype = 'poodllrecording'
-                                                             AND qpo.responseformat = 'picture'
-                                                )
+                                            qa.fraction = 0
+                                            AND EXISTS (
+                                                SELECT 1
+                                                    FROM {question} q
+                                                 WHERE q.id = qa.questionid
+                                                     AND q.qtype = 'recordrtc'
+                                            )
                                         )
                             )";
     $params = [
@@ -1842,15 +2528,8 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid) {
         return (object)['totalopenanswers' => 0];
     }
 
-        $sql = "SELECT Count(qa.id) AS totalopenanswers
-              FROM {icontent_question_attempts} qa
-        INNER JOIN {icontent_pages_questions} pq
-                ON qa.pagesquestionsid = pq.id
-             WHERE pq.pageid = ?
-               AND pq.cmid = ?
-               AND qa.userid = ?
-                             AND (
-                                        qa.rightanswer IN (?)
+    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
+    $poodllopenanswerscondition = $haspoodlloptions ? "
                                         OR (
                                                 qa.fraction = 0
                                                 AND EXISTS (
@@ -1860,9 +2539,20 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid) {
                                                                 ON qpo.questionid = q.id
                                                          WHERE q.id = qa.questionid
                                                              AND q.qtype = 'poodllrecording'
-                                                             AND qpo.responseformat = 'picture'
+                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
                                                 )
-                                        )
+                                        )" : '';
+
+        $sql = "SELECT Count(qa.id) AS totalopenanswers
+              FROM {icontent_question_attempts} qa
+        INNER JOIN {icontent_pages_questions} pq
+                ON qa.pagesquestionsid = pq.id
+             WHERE pq.pageid = ?
+               AND pq.cmid = ?
+               AND qa.userid = ?
+                             AND (
+                                        qa.rightanswer IN (?)
+                                        {$poodllopenanswerscondition}
                              )
                AND qa.timecreated = ?";
     return $DB->get_record_sql($sql, [$pageid, $cmid, $USER->id, ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE, $latestattempttime]);
@@ -1911,6 +2601,15 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status
     if (!isset($status)) {
         $status = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
     }
+    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
+    $hasrecordrtcoptions = icontent_optional_qtype_table_exists('qtype_recordrtc_options');
+
+    $poodllselect = $haspoodlloptions ? 'qpo.responseformat' : "'' AS responseformat";
+    $recordrtcselect = $hasrecordrtcoptions ? 'qro.mediatype' : "'' AS mediatype";
+    $poodlljoin = $haspoodlloptions ? "\n        LEFT JOIN {qtype_poodllrecording_opts} qpo\n               ON qpo.questionid = q.id" : '';
+    $recordrtcjoin = $hasrecordrtcoptions ? "\n        LEFT JOIN {qtype_recordrtc_options} qro\n               ON qro.questionid = q.id" : '';
+    $poodllcondition = $haspoodlloptions ? "\n                    OR (\n                        qa.fraction = 0\n                        AND q.qtype = 'poodllrecording'\n                        AND qpo.responseformat IN ('picture', 'audio', 'video')\n                    )" : '';
+
     // SQL query.
     $sql = "SELECT qa.id,
                    qa.userid,
@@ -1923,15 +2622,16 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status
                    qa.timecreated,
                    q.questiontext,
                    q.qtype,
-                   qpo.responseformat,
+                   {$poodllselect},
+                   {$recordrtcselect},
                    pq.maxmark,
                    q.defaultmark,
                    pq.pageid
               FROM {icontent_question_attempts} qa
         INNER JOIN {question} q
                 ON qa.questionid = q.id
-        LEFT JOIN {qtype_poodllrecording_opts} qpo
-               ON qpo.questionid = q.id
+        {$poodlljoin}
+        {$recordrtcjoin}
         INNER JOIN {icontent_pages_questions} pq
                 ON qa.pagesquestionsid = pq.id
              WHERE qa.cmid = ?
@@ -1939,10 +2639,10 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status
                AND (
                     qa.rightanswer IN (?)
                     OR q.qtype = ?
+                    {$poodllcondition}
                     OR (
                         qa.fraction = 0
-                        AND q.qtype = 'poodllrecording'
-                        AND qpo.responseformat = 'picture'
+                        AND q.qtype = 'recordrtc'
                     )
                );";
     // Get records and return.
@@ -1960,10 +2660,17 @@ function icontent_render_manual_review_answer(stdClass $qopenanswer, int $cmid):
     $answertext = (string)($qopenanswer->answertext ?? '');
     $qtype = (string)($qopenanswer->qtype ?? '');
     $responseformat = (string)($qopenanswer->responseformat ?? '');
+    $recordrtcmediatype = (string)($qopenanswer->mediatype ?? '');
 
-    if ($qtype === 'poodllrecording' && $responseformat === 'picture' && $answertext !== '') {
+    if ($qtype === 'poodllrecording' && $responseformat === 'picture') {
         $filename = icontent_extract_poodll_response_filename($answertext);
-        $imagesrc = icontent_get_poodll_response_image_url($filename, (int)$qopenanswer->userid, $cmid);
+        $imagesrc = icontent_get_poodll_response_image_url(
+            $filename,
+            (int)$qopenanswer->userid,
+            $cmid,
+            (int)($qopenanswer->questionid ?? 0),
+            (int)($qopenanswer->timecreated ?? 0)
+        );
         if (!empty($imagesrc)) {
             return html_writer::empty_tag('img', [
                 'src' => $imagesrc,
@@ -1974,10 +2681,117 @@ function icontent_render_manual_review_answer(stdClass $qopenanswer, int $cmid):
         }
     }
 
-    return format_text($answertext, FORMAT_HTML, [
+    if ($qtype === 'poodllrecording' && in_array($responseformat, ['audio', 'video'], true)) {
+        $filename = icontent_extract_poodll_response_media_filename($answertext);
+        $mediaprefix = $responseformat === 'audio' ? 'audio/' : 'video/';
+        $mediasrc = icontent_get_poodll_response_media_url(
+            $filename,
+            (int)$qopenanswer->userid,
+            $cmid,
+            (int)($qopenanswer->questionid ?? 0),
+            (int)($qopenanswer->timecreated ?? 0),
+            $mediaprefix
+        );
+        if (!empty($mediasrc)) {
+            if ($responseformat === 'audio') {
+                return html_writer::tag('audio', html_writer::empty_tag('source', [
+                    'src' => $mediasrc,
+                ]), [
+                    'controls' => 'controls',
+                    'preload' => 'metadata',
+                    'class' => 'w-100',
+                ]);
+            }
+
+            return html_writer::tag('video', html_writer::empty_tag('source', [
+                'src' => $mediasrc,
+            ]), [
+                'controls' => 'controls',
+                'preload' => 'metadata',
+                'class' => 'w-100',
+                'style' => 'max-width: 100%; height: auto;',
+            ]);
+        }
+
+        // File not yet available (still uploading or converting via PoodLL).
+        // Show a non-confusing placeholder instead of the raw response summary text.
+        return html_writer::tag(
+            'em',
+            get_string('recordingsubmittedprocessing', 'mod_icontent'),
+            ['class' => 'icontent-recording-processing text-muted']
+        );
+    }
+
+    if ($qtype === 'recordrtc') {
+        $filename = icontent_extract_poodll_response_media_filename($answertext);
+        $mediatype = in_array($recordrtcmediatype, ['audio', 'video'], true) ? $recordrtcmediatype : 'audio';
+        $mediaprefix = $mediatype === 'video' ? 'video/' : 'audio/';
+        $mediasrc = icontent_get_recordrtc_response_media_url(
+            $filename,
+            (int)$qopenanswer->userid,
+            $cmid,
+            (int)($qopenanswer->questionid ?? 0),
+            (int)($qopenanswer->timecreated ?? 0),
+            $mediaprefix
+        );
+
+        if (!empty($mediasrc)) {
+            if ($mediatype === 'video') {
+                return html_writer::tag('video', html_writer::empty_tag('source', [
+                    'src' => $mediasrc,
+                ]), [
+                    'controls' => 'controls',
+                    'preload' => 'metadata',
+                    'class' => 'w-100',
+                    'style' => 'max-width: 100%; height: auto;',
+                ]);
+            }
+
+            return html_writer::tag('audio', html_writer::empty_tag('source', [
+                'src' => $mediasrc,
+            ]), [
+                'controls' => 'controls',
+                'preload' => 'metadata',
+                'class' => 'w-100',
+            ]);
+        }
+    }
+
+    // For essay/essayautograde: render with the stored format (FORMAT_HTML for rich text answers).
+    // Legacy records stored as plain text will have answertextformat=0; fall back to FORMAT_HTML
+    // which renders the plain text safely.
+    $answerformat = (int)($qopenanswer->answertextformat ?? 0);
+    if ($answerformat === 0) {
+        $answerformat = FORMAT_HTML;
+    }
+    return format_text($answertext, $answerformat, [
         'noclean' => false,
         'para' => false,
     ]);
+}
+
+/**
+ * Extract a PoodLL response filename (audio/video/image) from stored response text.
+ *
+ * @param string $answertext
+ * @return string
+ */
+function icontent_extract_poodll_response_media_filename(string $answertext): string {
+    $answertext = trim(strip_tags($answertext));
+    if ($answertext === '') {
+        return '';
+    }
+
+    if (preg_match('/([a-z0-9._-]+\.(?:png|jpe?g|gif|webp|mp3|wav|ogg|m4a|webm|mp4|m4v|mov))/i', $answertext, $matches)) {
+        return $matches[1];
+    }
+
+    $path = parse_url($answertext, PHP_URL_PATH);
+    if (!empty($path)) {
+        return basename($path);
+    }
+
+    return $answertext;
 }
 
 /**
@@ -1987,28 +2801,265 @@ function icontent_render_manual_review_answer(stdClass $qopenanswer, int $cmid):
  * @return string
  */
 function icontent_extract_poodll_response_filename(string $answertext): string {
-    $answertext = trim(strip_tags($answertext));
-    if ($answertext === '') {
-        return '';
+    $filename = icontent_extract_poodll_response_media_filename($answertext);
+    if (preg_match('/\.(?:png|jpe?g|gif|webp)$/i', $filename)) {
+        return $filename;
+    }
+    return '';
+}
+
+/**
+ * Return content hashes of PoodLL conversion placeholder media files.
+ *
+ * @return array
+ */
+function icontent_get_poodll_placeholder_contenthashes(): array {
+    global $CFG;
+
+    static $hashes = null;
+    if ($hashes !== null) {
+        return $hashes;
     }
 
-    if (preg_match('/(upfile_drawingboard_[0-9]+\.(?:png|jpe?g|gif|webp))/i', $answertext, $matches)) {
-        return $matches[1];
-    }
+    $hashes = [];
+    $placeholderfiles = [
+        $CFG->dirroot . '/filter/poodll/convertingmessage.mp3',
+        $CFG->dirroot . '/filter/poodll/convertingmessage.mp4',
+    ];
 
-    $path = parse_url($answertext, PHP_URL_PATH);
-    if (!empty($path)) {
-        $basename = basename($path);
-        if (preg_match('/\.(?:png|jpe?g|gif|webp)$/i', $basename)) {
-            return $basename;
+    foreach ($placeholderfiles as $placeholderfile) {
+        if (is_readable($placeholderfile)) {
+            $hash = sha1_file($placeholderfile);
+            if (!empty($hash)) {
+                $hashes[] = $hash;
+            }
         }
     }
 
-    if (preg_match('/\.(?:png|jpe?g|gif|webp)$/i', $answertext)) {
-        return $answertext;
+    $hashes = array_values(array_unique($hashes));
+    return $hashes;
+}
+
+/**
+ * Check if a media file record points to PoodLL's conversion placeholder media.
+ *
+ * @param stdClass|null $file
+ * @return bool
+ */
+function icontent_is_poodll_placeholder_media_record(?stdClass $file): bool {
+    if (!$file) {
+        return false;
     }
 
-    return '';
+    $filename = strtolower((string)($file->filename ?? ''));
+    if ($filename === 'convertingmessage.mp3' || $filename === 'convertingmessage.mp4') {
+        return true;
+    }
+
+    $contenthash = (string)($file->contenthash ?? '');
+    if ($contenthash === '') {
+        return false;
+    }
+
+    return in_array($contenthash, icontent_get_poodll_placeholder_contenthashes(), true);
+}
+
+/**
+ * Locate metadata for a stored PoodLL response media file.
+ *
+ * @param string $filename
+ * @param int $userid
+ * @param int $cmid
+ * @param int $questionid
+ * @param int $attempttime
+ * @param string $mimetypeprefix Optional mimetype prefix filter (for example 'audio/' or 'video/').
+ * @return stdClass|null
+ */
+function icontent_get_poodll_response_media_file_record(
+    string $filename,
+    int $userid,
+    int $cmid,
+    int $questionid = 0,
+    int $attempttime = 0,
+    string $mimetypeprefix = '',
+    string $filearea = 'response_answer'
+): ?stdClass {
+    global $DB;
+
+    $file = null;
+    $placeholderfound = false;
+
+    $filterplaceholder = static function($candidate) use (&$placeholderfound): ?stdClass {
+        if (!$candidate) {
+            return null;
+        }
+        if (icontent_is_poodll_placeholder_media_record($candidate)) {
+            $placeholderfound = true;
+            return null;
+        }
+        return $candidate;
+    };
+
+    if ($filename !== '') {
+        $sql = "SELECT f.contextid,
+                       f.itemid,
+                       f.filepath,
+                       f.filename,
+                       f.component,
+                       f.filearea,
+                       f.mimetype,
+                       f.contenthash
+                  FROM {files} f
+                  JOIN {context} c
+                    ON c.id = f.contextid
+                 WHERE f.component = 'question'
+                   AND f.filearea = ?
+                   AND f.filename = ?
+                   AND f.userid = ?
+                   AND c.contextlevel = ?
+                   AND c.instanceid = ?
+                   AND f.filesize > 0
+              ORDER BY f.timemodified DESC";
+        $file = $filterplaceholder(
+            $DB->get_record_sql($sql, [$filearea, $filename, $userid, CONTEXT_MODULE, $cmid], IGNORE_MULTIPLE)
+        );
+
+        if (!$file) {
+            $fallbacksql = "SELECT f.contextid,
+                                   f.itemid,
+                                   f.filepath,
+                                   f.filename,
+                                   f.component,
+                                   f.filearea,
+                                   f.mimetype,
+                                   f.contenthash
+                              FROM {files} f
+                             WHERE f.component = 'question'
+                               AND f.filearea = ?
+                               AND f.filename = ?
+                               AND f.userid = ?
+                               AND f.filesize > 0
+                          ORDER BY f.timemodified DESC";
+            $file = $filterplaceholder(
+                $DB->get_record_sql($fallbacksql, [$filearea, $filename, $userid], IGNORE_MULTIPLE)
+            );
+        }
+
+        if (!$file) {
+            $fallbacksql = "SELECT f.contextid,
+                                   f.itemid,
+                                   f.filepath,
+                                   f.filename,
+                                   f.component,
+                                   f.filearea,
+                                   f.mimetype,
+                                   f.contenthash
+                              FROM {files} f
+                             WHERE f.component = 'question'
+                               AND f.filearea = ?
+                               AND f.filename = ?
+                               AND f.filesize > 0
+                          ORDER BY f.timemodified DESC";
+            $file = $filterplaceholder(
+                $DB->get_record_sql($fallbacksql, [$filearea, $filename], IGNORE_MULTIPLE)
+            );
+        }
+    }
+
+    if (!$file && $questionid > 0) {
+        $params = [
+            'userid' => $userid,
+            'questionid' => $questionid,
+            'contextlevel' => CONTEXT_MODULE,
+            'cmid' => $cmid,
+            'filearea' => $filearea,
+        ];
+        $attemptcondition = '';
+        if ($attempttime > 0) {
+            $attemptcondition = ' AND qas.timecreated <= :attempttime
+                                  AND qas.timecreated >= :attemptlowerbound';
+            $params['attempttime'] = $attempttime;
+            $params['attemptlowerbound'] = max(0, $attempttime - 600);
+        }
+
+        $mimetypecondition = '';
+        if ($mimetypeprefix !== '') {
+            $mimetypecondition = ' AND f.mimetype LIKE :mimetypeprefix';
+            $params['mimetypeprefix'] = $mimetypeprefix . '%';
+        }
+
+        $questionfilesql = "SELECT f.contextid,
+                                   f.itemid,
+                                   f.filepath,
+                                   f.filename,
+                                   f.component,
+                                   f.filearea,
+                                                                     f.mimetype,
+                                                                     f.contenthash
+                              FROM {files} f
+                              JOIN {question_attempt_steps} qas
+                                ON qas.id = f.itemid
+                              JOIN {question_attempts} qa
+                                ON qa.id = qas.questionattemptid
+                              JOIN {question_usages} qu
+                                ON qu.id = qa.questionusageid
+                              JOIN {context} c
+                                ON c.id = qu.contextid
+                             WHERE f.component = 'question'
+                                                             AND f.filearea = :filearea
+                               AND f.filesize > 0
+                               AND f.userid = :userid
+                               AND qa.questionid = :questionid
+                               AND c.contextlevel = :contextlevel
+                               AND c.instanceid = :cmid
+                                   $mimetypecondition
+                                   $attemptcondition
+                          ORDER BY f.timemodified DESC";
+        $file = $filterplaceholder(
+            $DB->get_record_sql($questionfilesql, $params, IGNORE_MULTIPLE)
+        );
+    }
+
+    if (!$file && $userid > 0 && $attempttime > 0) {
+        $draftparams = [
+            'userid' => $userid,
+            'timestart' => max(0, $attempttime - 600),
+            'timeend' => $attempttime + 600,
+        ];
+        $draftfilenamecondition = '';
+        if ($filename !== '' && !$placeholderfound) {
+            $draftfilenamecondition = ' AND f.filename = :filename';
+            $draftparams['filename'] = $filename;
+        }
+
+        $draftmimetypecondition = '';
+        if ($mimetypeprefix !== '') {
+            $draftmimetypecondition = ' AND f.mimetype LIKE :mimetypeprefix';
+            $draftparams['mimetypeprefix'] = $mimetypeprefix . '%';
+        }
+
+        $draftsql = "SELECT f.contextid,
+                            f.itemid,
+                            f.filepath,
+                            f.filename,
+                            f.component,
+                            f.filearea,
+                                                        f.mimetype,
+                                                        f.contenthash
+                       FROM {files} f
+                      WHERE f.component = 'user'
+                        AND f.filearea = 'draft'
+                        AND f.userid = :userid
+                        AND f.filesize > 0
+                        AND f.timemodified >= :timestart
+                        AND f.timemodified <= :timeend
+                            $draftfilenamecondition
+                            $draftmimetypecondition
+                   ORDER BY f.timemodified DESC";
+        $file = $filterplaceholder($DB->get_record_sql($draftsql, $draftparams, IGNORE_MULTIPLE));
+    }
+
+    return $file ?: null;
 }
 
 /**
@@ -2017,50 +3068,188 @@ function icontent_extract_poodll_response_filename(string $answertext): string {
  * @param string $filename
  * @param int $userid
  * @param int $cmid
+ * @param int $questionid
+ * @param int $attempttime
  * @return stdClass|null
  */
-function icontent_get_poodll_response_image_file_record(string $filename, int $userid, int $cmid): ?stdClass {
+function icontent_get_poodll_response_image_file_record(
+        string $filename,
+        int $userid,
+        int $cmid,
+    int $questionid = 0,
+    int $attempttime = 0
+): ?stdClass {
     global $DB;
 
-    if ($filename === '') {
-        return null;
+        $file = null;
+
+        if ($filename !== '') {
+                $sql = "SELECT f.contextid,
+                                             f.itemid,
+                                             f.filepath,
+                                             f.filename,
+                                             f.component,
+                                             f.filearea,
+                                             f.mimetype
+                                    FROM {files} f
+                                    JOIN {context} c
+                                        ON c.id = f.contextid
+                                 WHERE f.component = 'question'
+                                     AND f.filearea = 'response_answer'
+                                     AND f.filename = ?
+                                     AND f.userid = ?
+                                     AND c.contextlevel = ?
+                                     AND c.instanceid = ?
+                                     AND f.filesize > 0
+                            ORDER BY f.timemodified DESC";
+                $file = $DB->get_record_sql($sql, [$filename, $userid, CONTEXT_MODULE, $cmid], IGNORE_MULTIPLE);
+
+                if (!$file) {
+                        $fallbacksql = "SELECT f.contextid,
+                                                                     f.itemid,
+                                                                     f.filepath,
+                                                                     f.filename,
+                                                                                            f.component,
+                                                                                            f.filearea,
+                                                                     f.mimetype
+                                                            FROM {files} f
+                                                         WHERE f.component = 'question'
+                                                             AND f.filearea = 'response_answer'
+                                                             AND f.filename = ?
+                                                             AND f.userid = ?
+                                                             AND f.filesize > 0
+                                                    ORDER BY f.timemodified DESC";
+                        $file = $DB->get_record_sql($fallbacksql, [$filename, $userid], IGNORE_MULTIPLE);
+                }
+
+                if (!$file) {
+                        $fallbacksql = "SELECT f.contextid,
+                                                                     f.itemid,
+                                                                     f.filepath,
+                                                                     f.filename,
+                                                                                            f.component,
+                                                                                            f.filearea,
+                                                                     f.mimetype
+                                                            FROM {files} f
+                                                         WHERE f.component = 'question'
+                                                             AND f.filearea = 'response_answer'
+                                                             AND f.filename = ?
+                                                             AND f.filesize > 0
+                                                    ORDER BY f.timemodified DESC";
+                        $file = $DB->get_record_sql($fallbacksql, [$filename], IGNORE_MULTIPLE);
+                }
+        }
+
+        if (!$file && $questionid > 0) {
+                $params = [
+                        'userid' => $userid,
+                        'questionid' => $questionid,
+                        'contextlevel' => CONTEXT_MODULE,
+                        'cmid' => $cmid,
+                ];
+            $attemptcondition = '';
+            if ($attempttime > 0) {
+                $attemptcondition = ' AND qas.timecreated <= :attempttime
+                              AND qas.timecreated >= :attemptlowerbound';
+                $params['attempttime'] = $attempttime;
+                $params['attemptlowerbound'] = max(0, $attempttime - 600);
+            }
+                $questionfilesql = "SELECT f.contextid,
+                                                                     f.itemid,
+                                                                     f.filepath,
+                                                                     f.filename,
+                                                                     f.component,
+                                                                     f.filearea,
+                                                                     f.mimetype
+                                                            FROM {files} f
+                                                            JOIN {question_attempt_steps} qas
+                                                                ON qas.id = f.itemid
+                                                            JOIN {question_attempts} qa
+                                                                ON qa.id = qas.questionattemptid
+                                                            JOIN {question_usages} qu
+                                                                ON qu.id = qa.questionusageid
+                                                            JOIN {context} c
+                                                                ON c.id = qu.contextid
+                                                         WHERE f.component = 'question'
+                                                             AND f.filearea = 'response_answer'
+                                                             AND f.filesize > 0
+                                                             AND f.userid = :userid
+                                                             AND qa.questionid = :questionid
+                                                             AND f.mimetype LIKE 'image/%'
+                                                             AND c.contextlevel = :contextlevel
+                                                             AND c.instanceid = :cmid
+                                                                 $attemptcondition
+                                                    ORDER BY f.timemodified DESC";
+                $file = $DB->get_record_sql($questionfilesql, $params, IGNORE_MULTIPLE);
+
+                if (!$file) {
+                                            $fallbackparams = [
+                                                'userid' => $userid,
+                                                'questionid' => $questionid,
+                                            ];
+                                            $fallbackattemptcondition = '';
+                                            if ($attempttime > 0) {
+                                                $fallbackattemptcondition = ' AND qas.timecreated <= :attempttime
+                                                                  AND qas.timecreated >= :attemptlowerbound';
+                                                $fallbackparams['attempttime'] = $attempttime;
+                                                $fallbackparams['attemptlowerbound'] = max(0, $attempttime - 600);
+                                            }
+                        $questionfallbacksql = "SELECT f.contextid,
+                                                                                     f.itemid,
+                                                                                     f.filepath,
+                                                                                     f.filename,
+                                                                                     f.component,
+                                                                                     f.filearea,
+                                                                                     f.mimetype
+                                                                            FROM {files} f
+                                                                            JOIN {question_attempt_steps} qas
+                                                                                ON qas.id = f.itemid
+                                                                            JOIN {question_attempts} qa
+                                                                                ON qa.id = qas.questionattemptid
+                                                                         WHERE f.component = 'question'
+                                                                             AND f.filearea = 'response_answer'
+                                                                             AND f.filesize > 0
+                                                                             AND f.userid = :userid
+                                                                             AND qa.questionid = :questionid
+                                                                             AND f.mimetype LIKE 'image/%'
+                                                                                 $fallbackattemptcondition
+                                                                    ORDER BY f.timemodified DESC";
+                                                    $file = $DB->get_record_sql($questionfallbacksql, $fallbackparams, IGNORE_MULTIPLE);
+                }
     }
 
-    $sql = "SELECT f.contextid,
-                   f.itemid,
-                   f.filepath,
-                   f.filename,
-                   f.mimetype
-              FROM {files} f
-              JOIN {context} c
-                ON c.id = f.contextid
-             WHERE f.component = 'question'
-               AND f.filearea = 'response_answer'
-               AND f.filename = ?
-               AND f.userid = ?
-               AND c.contextlevel = ?
-               AND c.instanceid = ?
-               AND f.filesize > 0
-          ORDER BY f.timemodified DESC";
-    $file = $DB->get_record_sql($sql, [$filename, $userid, CONTEXT_MODULE, $cmid], IGNORE_MULTIPLE);
+    if (!$file && $userid > 0 && $attempttime > 0) {
+        $draftparams = [
+            'userid' => $userid,
+            'timestart' => max(0, $attempttime - 600),
+            'timeend' => $attempttime + 600,
+        ];
+        $draftfilenamecondition = '';
+        if ($filename !== '') {
+            $draftfilenamecondition = ' AND f.filename = :filename';
+            $draftparams['filename'] = $filename;
+        } else {
+            $draftfilenamecondition = " AND f.filename LIKE 'upfile_drawingboard_%'";
+        }
 
-    if (!$file) {
-        $fallbacksql = "SELECT f.contextid,
-                               f.itemid,
-                               f.filepath,
-                               f.filename,
-                               f.mimetype
-                          FROM {files} f
-                          JOIN {context} c
-                            ON c.id = f.contextid
-                         WHERE f.component = 'question'
-                           AND f.filearea = 'response_answer'
-                           AND f.filename = ?
-                           AND c.contextlevel = ?
-                           AND c.instanceid = ?
-                           AND f.filesize > 0
-                      ORDER BY f.timemodified DESC";
-        $file = $DB->get_record_sql($fallbacksql, [$filename, CONTEXT_MODULE, $cmid], IGNORE_MULTIPLE);
+        $draftsql = "SELECT f.contextid,
+                            f.itemid,
+                            f.filepath,
+                            f.filename,
+                            f.component,
+                            f.filearea,
+                            f.mimetype
+                       FROM {files} f
+                      WHERE f.component = 'user'
+                        AND f.filearea = 'draft'
+                        AND f.userid = :userid
+                        AND f.filesize > 0
+                        AND f.mimetype LIKE 'image/%'
+                        AND f.timemodified >= :timestart
+                        AND f.timemodified <= :timeend
+                        $draftfilenamecondition
+                   ORDER BY f.timemodified DESC";
+        $file = $DB->get_record_sql($draftsql, $draftparams, IGNORE_MULTIPLE);
     }
 
     return $file ?: null;
@@ -2072,35 +3261,73 @@ function icontent_get_poodll_response_image_file_record(string $filename, int $u
  * @param string $filename
  * @param int $userid
  * @param int $cmid
+ * @param int $questionid
+ * @param int $attempttime
  * @return string
  */
-function icontent_get_poodll_response_image_url(string $filename, int $userid, int $cmid): string {
+function icontent_get_poodll_response_image_url(
+    string $filename,
+    int $userid,
+    int $cmid,
+    int $questionid = 0,
+    int $attempttime = 0
+): string {
+    return icontent_get_poodll_response_media_url($filename, $userid, $cmid, $questionid, $attempttime, 'image/');
+}
+
+/**
+ * Locate a stored PoodLL response media file and return a pluginfile URL or data URI.
+ *
+ * @param string $filename
+ * @param int $userid
+ * @param int $cmid
+ * @param int $questionid
+ * @param int $attempttime
+ * @param string $mimetypeprefix Optional mimetype prefix filter (for example 'audio/' or 'video/').
+ * @return string
+ */
+function icontent_get_poodll_response_media_url(
+    string $filename,
+    int $userid,
+    int $cmid,
+    int $questionid = 0,
+    int $attempttime = 0,
+    string $mimetypeprefix = '',
+    string $filearea = 'response_answer'
+): string {
     global $CFG;
 
     require_once($CFG->libdir . '/filelib.php');
     require_once($CFG->libdir . '/filestorage/file_storage.php');
+    $filename = icontent_extract_poodll_response_media_filename($filename);
 
-    $filename = icontent_extract_poodll_response_filename($filename);
-    if ($filename === '') {
-        return '';
-    }
-
-    $file = icontent_get_poodll_response_image_file_record($filename, $userid, $cmid);
+    $file = icontent_get_poodll_response_media_file_record(
+        $filename,
+        $userid,
+        $cmid,
+        $questionid,
+        $attempttime,
+        $mimetypeprefix,
+        $filearea
+    );
 
     if (!$file) {
         return '';
     }
 
     $mimetype = (string)$file->mimetype;
-    if ($mimetype === '' || strpos($mimetype, 'image/') !== 0) {
+    if ($mimetype === '') {
+        return '';
+    }
+    if ($mimetypeprefix !== '' && strpos($mimetype, $mimetypeprefix) !== 0) {
         return '';
     }
 
     $filestorage = get_file_storage();
     $storedfile = $filestorage->get_file(
         (int)$file->contextid,
-        'question',
-        'response_answer',
+        (string)$file->component,
+        (string)$file->filearea,
         (int)$file->itemid,
         (string)$file->filepath,
         (string)$file->filename
@@ -2115,12 +3342,42 @@ function icontent_get_poodll_response_image_url(string $filename, int $userid, i
 
     return moodle_url::make_pluginfile_url(
         (int)$file->contextid,
-        'question',
-        'response_answer',
+        (string)$file->component,
+        (string)$file->filearea,
         (int)$file->itemid,
         (string)$file->filepath,
         (string)$file->filename
     )->out(false);
+}
+
+/**
+ * Locate a stored RecordRTC response media file and return a pluginfile URL or data URI.
+ *
+ * @param string $filename
+ * @param int $userid
+ * @param int $cmid
+ * @param int $questionid
+ * @param int $attempttime
+ * @param string $mimetypeprefix Optional mimetype prefix filter (for example 'audio/' or 'video/').
+ * @return string
+ */
+function icontent_get_recordrtc_response_media_url(
+    string $filename,
+    int $userid,
+    int $cmid,
+    int $questionid = 0,
+    int $attempttime = 0,
+    string $mimetypeprefix = ''
+): string {
+    return icontent_get_poodll_response_media_url(
+        $filename,
+        $userid,
+        $cmid,
+        $questionid,
+        $attempttime,
+        $mimetypeprefix,
+        'response_recording'
+    );
 }
 
 /**
@@ -2132,6 +3389,10 @@ function icontent_get_poodll_response_image_url(string $filename, int $userid, i
  */
 function icontent_get_poodll_sketch_answers_by_attempt_summary_by_page($pageid, $cmid) {
     global $DB, $USER;
+
+    if (!icontent_optional_qtype_table_exists('qtype_poodllrecording_opts')) {
+        return [];
+    }
 
     $latestattempttime = icontent_get_latest_attempt_timecreated_by_page($pageid, $cmid, $USER->id);
     if (empty($latestattempttime)) {
@@ -2179,20 +3440,29 @@ function icontent_get_submitted_answers_by_attempt_summary_by_page($pageid, $cmi
         return [];
     }
 
-    $sql = "SELECT qa.id,
+        $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
+        $hasrecordrtcoptions = icontent_optional_qtype_table_exists('qtype_recordrtc_options');
+
+        $poodllselect = $haspoodlloptions ? 'qpo.responseformat' : "'' AS responseformat";
+        $recordrtcselect = $hasrecordrtcoptions ? 'qro.mediatype' : "'' AS mediatype";
+        $poodlljoin = $haspoodlloptions ? "\n         LEFT JOIN {qtype_poodllrecording_opts} qpo\n                ON qpo.questionid = q.id" : '';
+        $recordrtcjoin = $hasrecordrtcoptions ? "\n             LEFT JOIN {qtype_recordrtc_options} qro\n                ON qro.questionid = q.id" : '';
+
+        $sql = "SELECT qa.id,
                    qa.userid,
                    qa.answertext,
                    qa.questionid,
                    q.name AS questionname,
                    q.qtype,
-                   qpo.responseformat
+               {$poodllselect},
+               {$recordrtcselect}
               FROM {icontent_question_attempts} qa
         INNER JOIN {icontent_pages_questions} pq
                 ON qa.pagesquestionsid = pq.id
         INNER JOIN {question} q
                 ON q.id = qa.questionid
-         LEFT JOIN {qtype_poodllrecording_opts} qpo
-                ON qpo.questionid = q.id
+        {$poodlljoin}
+        {$recordrtcjoin}
              WHERE pq.pageid = ?
                AND pq.cmid = ?
                AND qa.userid = ?
@@ -2349,6 +3619,104 @@ function icontent_add_questionpage($questions, $pageid, $cmid) {
     }
 
     return true;
+}
+
+/**
+ * Save route targets for question mappings on one page.
+ *
+ * @param int $pageid
+ * @param int $cmid
+ * @param array $correctroutes
+ * @param array $incorrectroutes
+ * @param array $manualreviewroutes
+ * @param array $defaultroutes
+ * @return bool
+ */
+function icontent_update_questionpage_routes(
+    int $pageid,
+    int $cmid,
+    array $correctroutes,
+    array $incorrectroutes,
+    array $manualreviewroutes,
+    array $defaultroutes
+): bool {
+    global $DB;
+
+    $questionids = array_unique(array_merge(
+        array_map('intval', array_keys($correctroutes)),
+        array_map('intval', array_keys($incorrectroutes)),
+        array_map('intval', array_keys($manualreviewroutes)),
+        array_map('intval', array_keys($defaultroutes))
+    ));
+    $questionids = array_values(array_filter($questionids));
+    if (empty($questionids)) {
+        return false;
+    }
+
+    $validpageids = $DB->get_records_menu(
+        'icontent_pages',
+        ['cmid' => $cmid, 'hidden' => 0],
+        '',
+        'id, id'
+    );
+
+    [$questionin, $questionparams] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED, 'qid');
+    $params = ['pageid' => $pageid, 'cmid' => $cmid] + $questionparams;
+    $sql = "SELECT id,
+                   questionid,
+                   correctnextpageid,
+                   incorrectnextpageid,
+                   manualreviewnextpageid,
+                   defaultnextpageid
+              FROM {icontent_pages_questions}
+             WHERE pageid = :pageid
+               AND cmid = :cmid
+               AND questionid {$questionin}";
+    $mappings = $DB->get_records_sql($sql, $params);
+    if (empty($mappings)) {
+        return false;
+    }
+
+    $sanitize = static function(array $routes, int $questionid) use ($validpageids): int {
+        if (!array_key_exists($questionid, $routes)) {
+            return 0;
+        }
+
+        $value = (int)$routes[$questionid];
+        if ($value <= 0 || !array_key_exists($value, $validpageids)) {
+            return 0;
+        }
+
+        return $value;
+    };
+
+    $updated = false;
+    foreach ($mappings as $mapping) {
+        $questionid = (int)$mapping->questionid;
+        $newcorrect = $sanitize($correctroutes, $questionid);
+        $newincorrect = $sanitize($incorrectroutes, $questionid);
+        $newmanualreview = $sanitize($manualreviewroutes, $questionid);
+        $newdefault = $sanitize($defaultroutes, $questionid);
+
+        if ((int)$mapping->correctnextpageid === $newcorrect &&
+            (int)$mapping->incorrectnextpageid === $newincorrect &&
+            (int)$mapping->manualreviewnextpageid === $newmanualreview &&
+            (int)$mapping->defaultnextpageid === $newdefault) {
+            continue;
+        }
+
+        $record = (object)[
+            'id' => (int)$mapping->id,
+            'correctnextpageid' => $newcorrect,
+            'incorrectnextpageid' => $newincorrect,
+            'manualreviewnextpageid' => $newmanualreview,
+            'defaultnextpageid' => $newdefault,
+        ];
+        $DB->update_record('icontent_pages_questions', $record);
+        $updated = true;
+    }
+
+    return $updated;
 }
 
 /**
@@ -2914,6 +4282,11 @@ function icontent_make_button_previous_page($button, $tpages, $icon = null) {
     $objpage = new stdClass();
     $objpage->pagenum = $button->startwithpage;
     $objpage->cmid = $button->cmid;
+    $objpage->id = (int)icontent_get_pageid_by_pagenum($button->cmid, $button->startwithpage);
+    $objpage = icontent_get_navigation_page_context($objpage);
+    if ((int)($objpage->prevmode ?? 0) === 1) {
+        return '';
+    }
     $pageprevious = icontent_get_prev_pagenum($objpage);
     $pagepreviousid = icontent_get_pageid_by_pagenum($button->cmid, $pageprevious);
     $attributes = [
@@ -2932,12 +4305,10 @@ function icontent_make_button_previous_page($button, $tpages, $icon = null) {
         $url = new moodle_url('/mod/icontent/view.php', ['id' => $button->cmid, 'pageid' => $pagepreviousid]);
     }
     if (!$pageprevious) {
-        $attributes = $attributes + [
-            'disabled' => 'disabled',
-            'aria-disabled' => 'true',
-            'tabindex' => '-1',
-            'class' => $attributes['class'] . ' disabled',
-        ];
+        $attributes['disabled'] = 'disabled';
+        $attributes['aria-disabled'] = 'true';
+        $attributes['tabindex'] = '-1';
+        $attributes['class'] .= ' disabled';
     }
     return html_writer::link($url, $icon . $button->name, $attributes);
 }
@@ -2956,6 +4327,11 @@ function icontent_make_button_next_page($button, $tpages, $icon = null) {
     $objpage = new stdClass();
     $objpage->pagenum = $button->startwithpage;
     $objpage->cmid = $button->cmid;
+    $objpage->id = (int)icontent_get_pageid_by_pagenum($button->cmid, $button->startwithpage);
+    $objpage = icontent_get_navigation_page_context($objpage);
+    if ((int)($objpage->nextmode ?? 0) === 1) {
+        return '';
+    }
     $nextpage = icontent_get_next_pagenum($objpage);
     $nextpageid = icontent_get_pageid_by_pagenum($button->cmid, $nextpage);
     $attributes = [
@@ -2974,12 +4350,10 @@ function icontent_make_button_next_page($button, $tpages, $icon = null) {
         $url = new moodle_url('/mod/icontent/view.php', ['id' => $button->cmid, 'pageid' => $nextpageid]);
     }
     if (!$nextpage) {
-        $attributes = $attributes + [
-            'disabled' => 'disabled',
-            'aria-disabled' => 'true',
-            'tabindex' => '-1',
-            'class' => $attributes['class'] . ' disabled',
-        ];
+        $attributes['disabled'] = 'disabled';
+        $attributes['aria-disabled'] = 'true';
+        $attributes['tabindex'] = '-1';
+        $attributes['class'] .= ' disabled';
     }
     return html_writer::link($url, $button->name . $icon, $attributes);
 }
@@ -3022,21 +4396,27 @@ function icontent_make_progessbar($objpage, $icontent, $context) {
     }
     global $USER;
     $npages = icontent_count_pages($icontent->id);
+    if ($npages <= 0) {
+        return false;
+    }
+
     $npagesviewd = icontent_count_pageviewedbyuser($USER->id, $objpage->cmid);
-    $percentage = ($npagesviewd * 100) / $npages;
-    $percent = html_writer::span(get_string('labelprogressbar', 'icontent', $percentage), 'sr-only');
+    $percentage = (int)round(($npagesviewd * 100) / $npages);
+    $percentage = max(0, min(100, $percentage));
+    $percentlabel = get_string('labelprogressbar', 'icontent', $percentage);
     $progressbar = html_writer::div(
-        $percent,
+        html_writer::span($percentlabel, 'icontent-progress-label'),
         'progress-bar progress-bar-striped active',
         [
             'role' => 'progressbar',
             'aria-valuenow' => $percentage,
             'aria-valuemin' => '0',
             'aria-valuemax' => '100',
+            'aria-label' => $percentlabel,
             'style' => "width: {$percentage}%;",
         ]
     );
-    $progress = html_writer::div($progressbar, 'progress');
+    $progress = html_writer::div($progressbar, 'progress icontent-progress');
     return $progress;
 }
 
@@ -3891,6 +5271,21 @@ function icontent_make_listnotespage($pagenotes, $icontent, $page) {
             $notepagetitle = html_writer::span($page->title, 'notepagetitle');
             $noteheader = $pagenote->parent ? html_writer::div($linkfirstname . $replyon, 'noteheader') :
                 html_writer::div($linkfirstname . $noteon . $notepagetitle, 'noteheader');
+            if ((string)$pagenote->tab === 'note') {
+                $noteflags = '';
+                if (!empty($pagenote->private)) {
+                    $noteflags .= html_writer::span(get_string('private', 'mod_icontent'), 'badge badge-secondary');
+                }
+                if (!empty($pagenote->featured)) {
+                    $noteflags .= html_writer::span(get_string('featured', 'mod_icontent'), 'badge badge-info');
+                }
+                if (empty($pagenote->private) && empty($pagenote->featured)) {
+                    $noteflags .= html_writer::span(get_string('unmarkednote', 'mod_icontent'), 'badge badge-light');
+                }
+                if ($noteflags !== '') {
+                    $noteheader .= html_writer::span($noteflags, 'noteflags');
+                }
+            }
             // Note comments.
             $notecomment = html_writer::div(
                 $pagenote->comment,
@@ -3967,6 +5362,21 @@ function icontent_make_pagenotereply($pagenote, $icontent) {
         ]
     );
     $noteheader = html_writer::div($linkfirstname . $replyon, 'noteheader');
+    if ((string)$pagenote->tab === 'note') {
+        $noteflags = '';
+        if (!empty($pagenote->private)) {
+            $noteflags .= html_writer::span(get_string('private', 'mod_icontent'), 'badge badge-secondary');
+        }
+        if (!empty($pagenote->featured)) {
+            $noteflags .= html_writer::span(get_string('featured', 'mod_icontent'), 'badge badge-info');
+        }
+        if (empty($pagenote->private) && empty($pagenote->featured)) {
+            $noteflags .= html_writer::span(get_string('unmarkednote', 'mod_icontent'), 'badge badge-light');
+        }
+        if ($noteflags !== '') {
+            $noteheader .= html_writer::span($noteflags, 'noteflags');
+        }
+    }
     // Note comments.
     $notecomment = html_writer::div(
         $pagenote->comment,
@@ -4110,7 +5520,7 @@ function icontent_make_toolbar($page, $icontent) {
         '#idnotesarea',
         '<i class="fa fa-comments fa-lg"></i>',
         [
-            'title' => s(get_string('comments', 'icontent')),
+            'title' => s(get_string('notes', 'icontent')),
             'class' => 'icon icon-comments',
             'data-toggle' => 'tooltip',
             'data-placement' => 'top',
@@ -4422,7 +5832,7 @@ function icontent_make_cover_page($icontent, $objpage, $context) {
  * @param object $context
  * @return object $fullpage
  */
-function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
+function icontent_get_fullpageicontent($pagenum, $icontent, $context, $sourcepageid = 0) {
     global $DB, $CFG;
 
     // Get page.
@@ -4446,6 +5856,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
         $objpage->next = icontent_get_next_pagenum($objpage);
         $objpage->previouspageid = icontent_get_pageid_by_pagenum($objpage->cmid, $objpage->previous);
         $objpage->nextpageid = icontent_get_pageid_by_pagenum($objpage->cmid, $objpage->next);
+        icontent_record_page_navigation($sourcepageid, $objpage->id, $objpage->cmid);
         return $objpage;
     }
     // Add tooltip.
@@ -4490,6 +5901,15 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
     $progbar = icontent_make_progessbar($objpage, $icontent, $context);
     // Go assemble the list of Questions for this slide/page.
     $qtsareas = icontent_make_questionsarea($objpage, $icontent);
+    $recordrtcsettings = icontent_get_recordrtc_ajax_init_settings($context);
+    $recordrtcsettingshtml = '';
+    if (!empty($recordrtcsettings)) {
+        $recordrtcsettingshtml = html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'id' => 'idicontent-recordrtc-settings',
+            'value' => json_encode($recordrtcsettings, JSON_UNESCAPED_SLASHES),
+        ]);
+    }
     // Form notes.
     $notesarea = icontent_make_notesarea($objpage, $icontent);
     $tarea = icontent_make_page_tags_area($objpage);
@@ -4508,6 +5928,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
         $npage .
         $progbar .
         $qtsareas .
+        $recordrtcsettingshtml .
         $notesarea .
         $tarea .
         $script,
@@ -4518,11 +5939,61 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context) {
             'style' => icontent_get_page_style($icontent, $objpage, $context),
         ]
     );
+    icontent_record_page_navigation($sourcepageid, $objpage->id, $objpage->cmid);
     // Set page preview, log event and return page.
     icontent_add_pagedisplayed($objpage->id, $objpage->cmid);
     \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
     unset($objpage->pageicontent);
     return $objpage;
+}
+
+/**
+ * Build RecordRTC JS init settings for iContent AJAX-loaded pages.
+ *
+ * @param context_module $context
+ * @return array
+ */
+function icontent_get_recordrtc_ajax_init_settings($context): array {
+    global $CFG;
+
+    if (!\core_component::get_plugin_directory('qtype', 'recordrtc')) {
+        return [];
+    }
+
+    require_once($CFG->dirroot . '/repository/lib.php');
+
+    $repositories = repository::get_instances([
+        'type' => 'upload',
+        'currentcontext' => $context,
+    ]);
+    if (empty($repositories)) {
+        return [];
+    }
+
+    $uploadrepository = reset($repositories);
+    $coursemaxbytes = 0;
+    [, $course] = get_context_info_array($context->id);
+    if (is_object($course) && !empty($course->maxbytes)) {
+        $coursemaxbytes = (int)$course->maxbytes;
+    }
+
+    $videosize = (string)(get_config('qtype_recordrtc', 'videosize') ?: '640,480');
+    $screensize = (string)(get_config('qtype_recordrtc', 'screensize') ?: '1920,1080');
+    [$videowidth, $videoheight] = array_pad(explode(',', $videosize, 2), 2, '0');
+    [$screenwidth, $screenheight] = array_pad(explode(',', $screensize, 2), 2, '0');
+
+    return [
+        'audioBitRate' => (int)get_config('qtype_recordrtc', 'audiobitrate'),
+        'videoBitRate' => (int)get_config('qtype_recordrtc', 'videobitrate'),
+        'screenBitRate' => (int)get_config('qtype_recordrtc', 'screenbitrate'),
+        'maxUploadSize' => get_user_max_upload_file_size($context, $CFG->maxbytes, $coursemaxbytes),
+        'uploadRepositoryId' => (int)$uploadrepository->id,
+        'contextId' => (int)$context->id,
+        'videoWidth' => (int)$videowidth,
+        'videoHeight' => (int)$videoheight,
+        'screenWidth' => (int)$screenwidth,
+        'screenHeight' => (int)$screenheight,
+    ];
 }
 
 /**
@@ -4548,6 +6019,7 @@ function mod_icontent_get_tagged_pages($tag, $exclusivemode = false, $fromctx = 
     // Build the SQL query.
     $ctxselect = context_helper::get_preload_record_columns_sql('ctx');
     $query = "SELECT ip.id, ip.title, ip.icontentid,
+                     ic.timeopen, ic.timeclose,
                      cm.id AS cmid, c.id AS courseid, c.shortname, c.fullname, $ctxselect
                 FROM {icontent_pages} ip
                 JOIN {icontent} ic ON ip.icontentid = ic.id
@@ -4600,9 +6072,13 @@ function mod_icontent_get_tagged_pages($tag, $exclusivemode = false, $fromctx = 
             if ($taggeditem->courseid == $courseid) {
                 $accessible = false;
                 if (($cm = $modinfo->get_cm($taggeditem->cmid)) && $cm->uservisible) {
-                    // Mode and sub-content data are not needed here.
-                    $icontent = (object)['id' => $taggeditem->icontentid, 'course' => $cm->course];
-                    $accessible = icontent_user_can_view($subicontent, $icontent);
+                    $icontent = (object)[
+                        'id' => $taggeditem->icontentid,
+                        'course' => $cm->course,
+                        'timeopen' => (int)($taggeditem->timeopen ?? 0),
+                        'timeclose' => (int)($taggeditem->timeclose ?? 0),
+                    ];
+                    $accessible = icontent_user_can_view(null, $icontent);
                 }
                 $builder->set_accessible($taggeditem, $accessible);
             }
@@ -4653,4 +6129,36 @@ function mod_icontent_get_tagged_pages($tag, $exclusivemode = false, $fromctx = 
             $totalpages
         );
     }
+}
+
+/**
+ * Check whether the current user can view an iContent activity.
+ *
+ * @param stdClass|null $subicontent Unused legacy placeholder for compatibility.
+ * @param stdClass|null $icontent iContent record-like object with id, course, timeopen, timeclose.
+ * @return bool
+ */
+function icontent_user_can_view($subicontent = null, $icontent = null) {
+    if (empty($icontent) || empty($icontent->id) || empty($icontent->course)) {
+        return false;
+    }
+
+    $modinfo = get_fast_modinfo((int)$icontent->course);
+    if (empty($modinfo->instances['icontent'][(int)$icontent->id])) {
+        return false;
+    }
+
+    $cm = $modinfo->instances['icontent'][(int)$icontent->id];
+    if (!$cm->uservisible) {
+        return false;
+    }
+
+    $context = context_module::instance($cm->id);
+    if (!has_capability('mod/icontent:view', $context)) {
+        return false;
+    }
+
+    $timeopen = (int)($icontent->timeopen ?? 0);
+    $timeclose = (int)($icontent->timeclose ?? 0);
+    return (($timeopen == 0 || time() >= $timeopen) && ($timeclose == 0 || time() < $timeclose));
 }

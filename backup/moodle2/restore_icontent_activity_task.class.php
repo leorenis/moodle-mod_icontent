@@ -61,6 +61,7 @@ class restore_icontent_activity_task extends restore_activity_task {
         $contents = [];
 
         $contents[] = new restore_decode_content('icontent', ['intro'], 'icontent');
+        $contents[] = new restore_decode_content('icontent_pages', ['pageicontent'], 'icontent_page');
 
         return $contents;
     }
@@ -72,6 +73,11 @@ class restore_icontent_activity_task extends restore_activity_task {
     public static function define_decode_rules() {
         $rules = [];
 
+        $rules[] = new restore_decode_rule(
+            'CONTENTVIEWPAGE',
+            '/mod/icontent/view.php?id=$1&pageid=$2',
+            ['course_module', 'icontent_page']
+        );
         $rules[] = new restore_decode_rule('CONTENTVIEWBYID', '/mod/icontent/view.php?id=$1', 'course_module');
         $rules[] = new restore_decode_rule('CONTENTINDEX', '/mod/icontent/index.php?id=$1', 'course');
 

@@ -111,6 +111,58 @@ if ($mform->is_cancelled()) {
     $data->bordercolor = icontent_normalize_hex_colour($data->bordercolor, $icontent->bordercolor);
     $data->titlecolor = icontent_normalize_hex_colour($data->titlecolor, '#000000');
 
+    $data->branchparentpageid = (int)($data->branchparentpageid ?? 0);
+    $data->branchref = trim((string)($data->branchref ?? ''));
+    $data->branchname = trim((string)($data->branchname ?? ''));
+    $data->prevmode = (int)($data->prevmode ?? 0);
+    $data->prevpageid = (int)($data->prevpageid ?? 0);
+    $data->nextmode = (int)($data->nextmode ?? 0);
+    $data->nextpageid = (int)($data->nextpageid ?? 0);
+    if ($data->branchparentpageid > 0) {
+        $validclusterparent = $DB->record_exists(
+            'icontent_pages',
+            [
+                'id' => $data->branchparentpageid,
+                'icontentid' => (int)$icontent->id,
+                'cmid' => (int)$cm->id,
+                'hidden' => 0,
+                'branchparentpageid' => 0,
+            ]
+        );
+        if (!$validclusterparent || (!empty($data->id) && (int)$data->branchparentpageid === (int)$data->id)) {
+            $data->branchparentpageid = 0;
+        }
+    }
+    if ($data->branchparentpageid === 0) {
+        $data->branchref = '';
+        $data->branchname = '';
+    }
+
+    if (!in_array($data->prevmode, [0, 1, 2], true)) {
+        $data->prevmode = 0;
+    }
+    if (!in_array($data->nextmode, [0, 1, 2], true)) {
+        $data->nextmode = 0;
+    }
+
+    if ($data->prevmode !== 2 || !$DB->record_exists('icontent_pages', [
+        'id' => $data->prevpageid,
+        'icontentid' => (int)$icontent->id,
+        'cmid' => (int)$cm->id,
+        'hidden' => 0,
+    ]) || (!empty($data->id) && (int)$data->prevpageid === (int)$data->id)) {
+        $data->prevpageid = 0;
+    }
+
+    if ($data->nextmode !== 2 || !$DB->record_exists('icontent_pages', [
+        'id' => $data->nextpageid,
+        'icontentid' => (int)$icontent->id,
+        'cmid' => (int)$cm->id,
+        'hidden' => 0,
+    ]) || (!empty($data->id) && (int)$data->nextpageid === (int)$data->id)) {
+        $data->nextpageid = 0;
+    }
+
     // 20240920 Added tags to the form.
     core_tag_tag::set_item_tags(
         'mod_icontent',

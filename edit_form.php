@@ -37,7 +37,7 @@ class icontent_pages_edit_form extends moodleform {
      * @throws dml_exception
      */
     public function definition() {
-        global $CFG, $COURSE, $USER;
+        global $CFG, $COURSE, $USER, $DB;
 
         $page = $this->_customdata['page'];
         $pageicontentoptions = $this->_customdata['pageicontentoptions'];
@@ -96,6 +96,100 @@ class icontent_pages_edit_form extends moodleform {
         $mform->addHelpButton('coverpage', 'coverpage', 'icontent');
         $mform->setType('coverpage', PARAM_INT);
         $mform->setDefault('coverpage', 0);
+
+        $branchparentoptions = [0 => get_string('none')];
+        $branchparentpages = $DB->get_records(
+            'icontent_pages',
+            [
+                'icontentid' => (int)$page->icontentid,
+                'cmid' => (int)$page->cmid,
+                'hidden' => 0,
+                'branchparentpageid' => 0,
+            ],
+            'pagenum ASC',
+            'id, pagenum, title'
+        );
+        foreach ($branchparentpages as $branchparentpage) {
+            if (!empty($page->id) && (int)$branchparentpage->id === (int)$page->id) {
+                continue;
+            }
+
+            $branchparams = (object)[
+                'pagenum' => (int)$branchparentpage->pagenum,
+                'title' => format_string((string)$branchparentpage->title),
+            ];
+            $branchparentoptions[(int)$branchparentpage->id] = get_string('pagexwithtitle', 'icontent', $branchparams);
+        }
+
+        $custompageoptions = [0 => get_string('none')];
+        $customtargetpages = $DB->get_records(
+            'icontent_pages',
+            [
+                'icontentid' => (int)$page->icontentid,
+                'cmid' => (int)$page->cmid,
+                'hidden' => 0,
+            ],
+            'pagenum ASC',
+            'id, pagenum, title'
+        );
+        foreach ($customtargetpages as $customtargetpage) {
+            if (!empty($page->id) && (int)$customtargetpage->id === (int)$page->id) {
+                continue;
+            }
+
+            $targetparams = (object)[
+                'pagenum' => (int)$customtargetpage->pagenum,
+                'title' => format_string((string)$customtargetpage->title),
+            ];
+            $custompageoptions[(int)$customtargetpage->id] = get_string('pagexwithtitle', 'icontent', $targetparams);
+        }
+
+        $mform->addElement('header', 'clustering', get_string('clustering', 'icontent'));
+        $mform->addElement('select', 'branchparentpageid', get_string('branchparentpageid', 'icontent'), $branchparentoptions);
+        $mform->addHelpButton('branchparentpageid', 'branchparentpageid', 'icontent');
+        $mform->setType('branchparentpageid', PARAM_INT);
+        $mform->setDefault('branchparentpageid', (int)($page->branchparentpageid ?? 0));
+
+        $mform->addElement('text', 'branchref', get_string('branchref', 'icontent'), ['size' => 32]);
+        $mform->addHelpButton('branchref', 'branchref', 'icontent');
+        $mform->setType('branchref', PARAM_TEXT);
+        $mform->setDefault('branchref', trim((string)($page->branchref ?? '')));
+        $mform->hideIf('branchref', 'branchparentpageid', 'eq', 0);
+
+        $mform->addElement('text', 'branchname', get_string('branchname', 'icontent'), ['size' => 40]);
+        $mform->addHelpButton('branchname', 'branchname', 'icontent');
+        $mform->setType('branchname', PARAM_TEXT);
+        $mform->setDefault('branchname', trim((string)($page->branchname ?? '')));
+        $mform->hideIf('branchname', 'branchparentpageid', 'eq', 0);
+
+        $navigationmodeoptions = [
+            0 => get_string('navmodeauto', 'icontent'),
+            1 => get_string('navmodehide', 'icontent'),
+            2 => get_string('navmodecustom', 'icontent'),
+        ];
+
+        $mform->addElement('header', 'pagebranchingnavigation', get_string('pagebranchingnavigation', 'icontent'));
+        $mform->addElement('select', 'prevmode', get_string('prevmode', 'icontent'), $navigationmodeoptions);
+        $mform->addHelpButton('prevmode', 'prevmode', 'icontent');
+        $mform->setType('prevmode', PARAM_INT);
+        $mform->setDefault('prevmode', (int)($page->prevmode ?? 0));
+
+        $mform->addElement('select', 'prevpageid', get_string('prevpageid', 'icontent'), $custompageoptions);
+        $mform->addHelpButton('prevpageid', 'prevpageid', 'icontent');
+        $mform->setType('prevpageid', PARAM_INT);
+        $mform->setDefault('prevpageid', (int)($page->prevpageid ?? 0));
+        $mform->hideIf('prevpageid', 'prevmode', 'neq', 2);
+
+        $mform->addElement('select', 'nextmode', get_string('nextmode', 'icontent'), $navigationmodeoptions);
+        $mform->addHelpButton('nextmode', 'nextmode', 'icontent');
+        $mform->setType('nextmode', PARAM_INT);
+        $mform->setDefault('nextmode', (int)($page->nextmode ?? 0));
+
+        $mform->addElement('select', 'nextpageid', get_string('nextpageid', 'icontent'), $custompageoptions);
+        $mform->addHelpButton('nextpageid', 'nextpageid', 'icontent');
+        $mform->setType('nextpageid', PARAM_INT);
+        $mform->setDefault('nextpageid', (int)($page->nextpageid ?? 0));
+        $mform->hideIf('nextpageid', 'nextmode', 'neq', 2);
 
         $mform->addElement('editor', 'pageicontent_editor', get_string('icontent', 'mod_icontent'), null, $pageicontentoptions);
         $mform->setType('pageicontent_editor', PARAM_RAW);
@@ -326,5 +420,86 @@ class icontent_pages_edit_form extends moodleform {
             return $default;
         }
         return $raw;
+    }
+
+    /**
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
+    public function validation($data, $files) {
+        global $DB;
+
+        $errors = parent::validation($data, $files);
+        $branchparentpageid = (int)($data['branchparentpageid'] ?? 0);
+        $currentpageid = (int)($data['id'] ?? 0);
+
+        if ($branchparentpageid > 0 && $branchparentpageid === $currentpageid) {
+            $errors['branchparentpageid'] = get_string('errorclusterparentself', 'icontent');
+            return $errors;
+        }
+
+        if ($branchparentpageid > 0) {
+            $validparent = $DB->record_exists(
+                'icontent_pages',
+                [
+                    'id' => $branchparentpageid,
+                    'icontentid' => (int)($data['icontentid'] ?? 0),
+                    'cmid' => (int)($data['cmid'] ?? 0),
+                    'hidden' => 0,
+                    'branchparentpageid' => 0,
+                ]
+            );
+            if (!$validparent) {
+                $errors['branchparentpageid'] = get_string('errorclusterparentinvalid', 'icontent');
+            }
+        }
+
+        $prevmode = (int)($data['prevmode'] ?? 0);
+        $nextmode = (int)($data['nextmode'] ?? 0);
+        $prevpageid = (int)($data['prevpageid'] ?? 0);
+        $nextpageid = (int)($data['nextpageid'] ?? 0);
+        $allowedmodes = [0, 1, 2];
+
+        if (!in_array($prevmode, $allowedmodes, true)) {
+            $errors['prevmode'] = get_string('errorinvalidnavigationmode', 'icontent');
+        }
+        if (!in_array($nextmode, $allowedmodes, true)) {
+            $errors['nextmode'] = get_string('errorinvalidnavigationmode', 'icontent');
+        }
+
+        if ($prevmode === 2) {
+            if (empty($prevpageid)) {
+                $errors['prevpageid'] = get_string('errorcustompreviousrequired', 'icontent');
+            } else if ($prevpageid === $currentpageid) {
+                $errors['prevpageid'] = get_string('errorcustomnavself', 'icontent');
+            } else if (!$DB->record_exists('icontent_pages', [
+                'id' => $prevpageid,
+                'icontentid' => (int)($data['icontentid'] ?? 0),
+                'cmid' => (int)($data['cmid'] ?? 0),
+                'hidden' => 0,
+            ])) {
+                $errors['prevpageid'] = get_string('errorcustomnavinvalid', 'icontent');
+            }
+        }
+
+        if ($nextmode === 2) {
+            if (empty($nextpageid)) {
+                $errors['nextpageid'] = get_string('errorcustomnextrequired', 'icontent');
+            } else if ($nextpageid === $currentpageid) {
+                $errors['nextpageid'] = get_string('errorcustomnavself', 'icontent');
+            } else if (!$DB->record_exists('icontent_pages', [
+                'id' => $nextpageid,
+                'icontentid' => (int)($data['icontentid'] ?? 0),
+                'cmid' => (int)($data['cmid'] ?? 0),
+                'hidden' => 0,
+            ])) {
+                $errors['nextpageid'] = get_string('errorcustomnavinvalid', 'icontent');
+            }
+        }
+
+        return $errors;
     }
 }

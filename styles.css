@@ -28,6 +28,27 @@
     padding-left: 0;
     padding-right: 0;
 }
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-list {
+    border-left: 2px solid #d9d9d9;
+    margin: 0.35em 0 0.35em 1rem;
+    padding-left: 0.75rem;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-group {
+    margin-top: 0.5em;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-label {
+    color: #5a5a5a;
+    display: block;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 0.25em;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-pages {
+    margin-left: 0;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-page {
+    margin-top: 0.35em;
+}
 .path-mod-icontent .block_icontent_toc .icontent_toc li {
     clear: both;
     list-style: none;
@@ -61,6 +82,10 @@
 }
 .path-mod-icontent .simple-paging-buttonbar {
     text-align: center;
+}
+.path-mod-icontent .icontent-buttonbar .btn-previous-page.disabled,
+.path-mod-icontent .icontent-buttonbar .btn-next-page.disabled {
+    display: none;
 }
 .path-mod-icontent .simple-paging-buttonbar button {
     min-width: 120px;
@@ -337,9 +362,21 @@
 }
 /** List of annotations **/
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent {
-    margin-left: 45px;
+    margin-left: 0;
+    flex: 1 1 auto;
+    min-width: 0;
     font-size: 13px;
     line-height: 1.4em;
+}
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteflags {
+    display: inline-flex;
+    gap: .25rem;
 }
 .path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon {
     color: #aaa;
@@ -358,12 +395,20 @@
     color: #555;
 }
 .path-mod-icontent .icontent-page .notesarea .notelist .pagenoterow {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     background-color: #fff;
     border-bottom: 1px solid #eee;
     border-radius: 5px;
     margin-bottom: 10px;
     margin-top: 10px;
     padding: 5px;
+}
+.path-mod-icontent .icontent-page .notesarea .notelist .pagenoterow .img-thumbnail.pull-left {
+    float: none;
+    flex: 0 0 auto;
+    margin-top: 2px;
 }
 
 /* Organization of notes in at levels */
@@ -482,6 +527,26 @@
 
 .path-mod-icontent table.icontentquestions .questionname {
     white-space: normal;
+}
+
+.path-mod-icontent table.icontentquestions .routingtargets {
+    min-width: 250px;
+}
+
+.path-mod-icontent .icontent-route-grid {
+    display: grid;
+    gap: 6px;
+}
+
+.path-mod-icontent .icontent-route-field label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: .75rem;
+    line-height: 1.1;
+}
+
+.path-mod-icontent .icontent-route-field select {
+    max-width: 260px;
 }
 
 .path-mod-icontent table.icontentquestions td {
@@ -680,6 +745,19 @@
 }
 .progress .progress-bar .sr-only {
     position: unset;
+}
+.path-mod-icontent .icontent-progress .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.path-mod-icontent .icontent-progress .icontent-progress-label {
+    font-weight: 600;
+    color: #000;
+    text-shadow: none;
+    pointer-events: none;
+    white-space: nowrap;
 }
 #idicontentpages .text-uppercase {
     text-transform: uppercase;

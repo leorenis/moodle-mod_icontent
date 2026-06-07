@@ -20,6 +20,25 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c) {
+    var recordrtcretrycount = 0;
+
+    /**
+     *
+     * @param {number|string} cmid
+     * @param {number|string} pageid
+     */
+    function getDeepLink(cmid, pageid) {
+        if (!cmid || !pageid) {
+            return '#';
+        }
+
+        var url = new URL(window.location.href);
+        url.searchParams.set('id', cmid);
+        url.searchParams.set('pageid', pageid);
+        url.hash = '';
+        return url.toString();
+    }
+
     // List of the named functions
     // Save note tab type 'note'
     /**
@@ -362,6 +381,167 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
         }
     }
 
+    /**
+     * Trigger a light reflow pass for widgets loaded after AJAX DOM replacement.
+     */
+    function onTriggerRenderRefresh() {
+        var trigger = function() {
+            $(window).trigger('resize');
+        };
+
+        if (window.requestAnimationFrame) {
+            window.requestAnimationFrame(trigger);
+        } else {
+            setTimeout(trigger, 0);
+        }
+
+        setTimeout(trigger, 200);
+        setTimeout(trigger, 600);
+    }
+
+    /**
+     * Notify text filters that the questions area was replaced.
+     */
+    function onNotifyQuestionsAreaUpdated() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $nodes = $('#idquestionsarea');
+        if (!$nodes.length) {
+            return;
+        }
+
+        require(['core_filters/events'], function(filterEvents) {
+            if (filterEvents && typeof filterEvents.notifyFilterContentUpdated === 'function') {
+                filterEvents.notifyFilterContentUpdated($nodes.toArray());
+            }
+        });
+    }
+
+    /**
+     * Re-run PoodLL bootstrap for widgets inside the questions area.
+     */
+    function onEnsurePoodllRecordersReady() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $opts = $('#idquestionsarea input[id^="filter_poodll_amdopts_"], #idquestionsarea input[id^="amdopts_"]');
+        if (!$opts.length) {
+            return;
+        }
+
+        require(['filter_poodll/template_amd'], function(templateamd) {
+            if (!templateamd || typeof templateamd.loadtemplate !== 'function') {
+                return;
+            }
+
+            $opts.each(function() {
+                var autoid = (this.id || '')
+                    .replace(/^filter_poodll_amdopts_/, '')
+                    .replace(/^amdopts_/, '');
+                if (autoid) {
+                    templateamd.loadtemplate({AUTOID: autoid});
+                }
+            });
+        });
+
+        if ($('#idquestionsarea .que.poodllrecording').length) {
+            require(['qtype_poodllrecording/poodllhelper'], function(poodllhelper) {
+                if (poodllhelper && typeof poodllhelper.init === 'function') {
+                    poodllhelper.init({safesave: 0});
+                }
+            });
+        }
+    }
+
+    /**
+     * Re-run RecordRTC bootstrap for widgets inside the questions area.
+     */
+    function onEnsureRecordRtcReady() {
+        if (typeof require !== 'function') {
+            return;
+        }
+
+        var $questions = $('#idquestionsarea .que.recordrtc[id]');
+        var settingsraw = $('.fulltextpage #idicontent-recordrtc-settings').val() || '';
+
+        if (!$questions.length || !settingsraw) {
+            if (recordrtcretrycount < 20) {
+                recordrtcretrycount++;
+                setTimeout(onEnsureRecordRtcReady, 200);
+            }
+            return;
+        }
+        recordrtcretrycount = 0;
+
+        var pagesettings;
+        try {
+            pagesettings = JSON.parse(settingsraw);
+        } catch (e) {
+            return;
+        }
+
+        if (!pagesettings || typeof pagesettings !== 'object') {
+            return;
+        }
+
+        require(['qtype_recordrtc/avrecording'], function(avrecording) {
+            if (!avrecording || typeof avrecording.init !== 'function') {
+                return;
+            }
+
+            $questions.each(function() {
+                var $question = $(this);
+                if ($question.attr('data-icontent-actions-recordrtc-init') === '1') {
+                    return;
+                }
+
+                if ($question.attr('data-recordrtc-initialized') === '1') {
+                    $question.attr('data-icontent-actions-recordrtc-init', '1');
+                    return;
+                }
+
+                var questionid = this.id || '';
+                if (!questionid) {
+                    return;
+                }
+
+                var $draftinput = $question.find('input[type="hidden"][name$="_recording"]').first();
+                var draftitemid = parseInt($draftinput.val(), 10) || 0;
+                if (draftitemid <= 0) {
+                    return;
+                }
+
+                var settings = $.extend({}, pagesettings, {draftItemId: draftitemid});
+                try {
+                    avrecording.init(questionid, settings);
+                    if (typeof avrecording.addPlaybackErrorHandlingToVideoElements === 'function') {
+                        avrecording.addPlaybackErrorHandlingToVideoElements(questionid);
+                    }
+                    $question.attr('data-icontent-actions-recordrtc-init', '1');
+                } catch (e) {
+                    // Ignore so one failed recorder init does not block the rest of the page.
+                }
+            });
+        });
+    }
+
+    /**
+     * Run all post-update initializers for the questions area.
+     */
+    function onAfterQuestionsAreaUpdated() {
+        onNotifyQuestionsAreaUpdated();
+        onEnsurePoodllRecordersReady();
+        onEnsureRecordRtcReady();
+        onTriggerRenderRefresh();
+
+        setTimeout(onEnsurePoodllRecordersReady, 200);
+        setTimeout(onEnsureRecordRtcReady, 300);
+        setTimeout(onTriggerRenderRefresh, 500);
+    }
+
     // Save attemp
     /**
      *
@@ -374,7 +554,8 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
         }
 
         var formdata = $(this).serialize();
-        var cmid = parseInt($("#idhfieldcmid").val());
+        var cmid = parseInt($("#idhfieldcmid").val(), 10);
+        var currentpageid = parseInt($("#idhfieldpageid").val(), 10);
         var sesskey = $("#idhfieldsesskey").val();
         var data = {
             "action": "saveattempt",
@@ -389,7 +570,23 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
             url: "ajax.php",
             data: data,
             success: function(data) {
+                var routednextpageid = parseInt(data.routednextpageid, 10) || 0;
+                if (routednextpageid > 0 && routednextpageid !== currentpageid) {
+                    window.location.assign(getDeepLink(cmid, routednextpageid));
+                    return;
+                }
+
                 $("#idquestionsarea").html(data.grid);
+                onAfterQuestionsAreaUpdated();
+            },
+            error: function(xhr, status) {
+                if (window.console && typeof window.console.error === 'function') {
+                    window.console.error('iContent saveattempt failed', status, xhr && xhr.responseText ? xhr.responseText : '');
+                }
+                window.alert('Unable to submit this answer right now. Please reload and try again.');
+            },
+            complete: function() {
+                $('.btn-sendanswers').prop("disabled", false);
             }
         });// End AJAX
 
@@ -446,6 +643,7 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
             pageid.on('click', '.replynote', onReplyNoteClick);
             pageid.on('click', '.togglehighcontrast', onToggleHightContrastClick);
             pageid.on('submit', '#idformquestions', onSaveAttempAnswers);
+            onAfterQuestionsAreaUpdated();
         }
     };
 });

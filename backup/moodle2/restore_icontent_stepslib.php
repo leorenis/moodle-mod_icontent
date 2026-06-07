@@ -27,6 +27,141 @@
  * Structure step to restore one icontent activity.
  */
 class restore_icontent_activity_structure_step extends restore_questions_activity_structure_step {
+    /** @var array<int,int> Maps old page ids to their original pagenum. */
+    protected $oldpageidtopagenum = [];
+
+    /** @var array<int,int> Maps original pagenum to restored page ids. */
+    protected $pagenumtonewpageid = [];
+
+    /**
+     * Resolve a restored icontent page id from a backup page id.
+     *
+     * @param int $oldpageid
+     * @return int
+     */
+    protected function resolve_pageid($oldpageid) {
+        $oldpageid = (int)$oldpageid;
+        if (empty($oldpageid)) {
+            return 0;
+        }
+
+        $newpageid = (int)$this->get_mappingid('icontent_page', $oldpageid);
+        if (empty($newpageid) && isset($this->oldpageidtopagenum[$oldpageid])) {
+            $pagenum = (int)$this->oldpageidtopagenum[$oldpageid];
+            if (!empty($pagenum) && isset($this->pagenumtonewpageid[$pagenum])) {
+                $newpageid = (int)$this->pagenumtonewpageid[$pagenum];
+            }
+        }
+
+        return !empty($newpageid) ? $newpageid : 0;
+    }
+
+    /**
+     * Rewrite one embedded iContent view URL using restored cmid/page mappings.
+     *
+     * @param string $url
+     * @param int $newcmid
+     * @return string
+     */
+    protected function rewrite_embedded_view_url($url, $newcmid) {
+        global $CFG;
+
+        $decodedurl = html_entity_decode($url, ENT_QUOTES | ENT_HTML5);
+        if (
+            stripos($decodedurl, '/mod/icontent/view.php') === false
+            && stripos($decodedurl, '/mod/icontent/$@CONTENTVIEWBYID*') === false
+        ) {
+            return $url;
+        }
+
+        // Handle tokenized links that can appear before decode pass, e.g.
+        // /mod/icontent/$@CONTENTVIEWBYID*9740@$&pageid=962.
+        if (stripos($decodedurl, '/mod/icontent/$@CONTENTVIEWBYID*') !== false) {
+            if (!preg_match('/(?:\?|&)pageid=(\d+)/i', $decodedurl, $pagematch)) {
+                return $url;
+            }
+
+            $oldpageid = (int)$pagematch[1];
+            $mappedpageid = $this->resolve_pageid($oldpageid);
+            $newpageid = !empty($mappedpageid) ? $mappedpageid : $oldpageid;
+
+            $oldcmid = 0;
+            if (preg_match('/\$@CONTENTVIEWBYID\*(\d+)@\$/i', $decodedurl, $cmidmatch)) {
+                $oldcmid = (int)$cmidmatch[1];
+            }
+
+            $targetcmid = !empty($newcmid) ? (int)$newcmid : $oldcmid;
+            if (empty($targetcmid)) {
+                return $url;
+            }
+
+            $base = rtrim($CFG->wwwroot, '/') . '/mod/icontent/';
+            $rewritten = $base . 'view.php?id=' . $targetcmid . '&pageid=' . $newpageid;
+            if (strpos($url, '&amp;') !== false) {
+                $rewritten = str_replace('&', '&amp;', $rewritten);
+            }
+            return $rewritten;
+        }
+
+        $parts = parse_url($decodedurl);
+        if (empty($parts['query'])) {
+            return $url;
+        }
+
+        $queryparams = [];
+        parse_str($parts['query'], $queryparams);
+        if (empty($queryparams['pageid'])) {
+            return $url;
+        }
+
+        $newpageid = $this->resolve_pageid((int)$queryparams['pageid']);
+        if (empty($newpageid)) {
+            return $url;
+        }
+
+        $queryparams['pageid'] = $newpageid;
+        if (!empty($newcmid)) {
+            $queryparams['id'] = (int)$newcmid;
+        }
+
+        $rewritten = rtrim($CFG->wwwroot, '/') . '/mod/icontent/view.php';
+        $rewrittenquery = http_build_query($queryparams, '', '&');
+        if ($rewrittenquery !== '') {
+            $rewritten .= '?' . $rewrittenquery;
+        }
+        if (!empty($parts['fragment'])) {
+            $rewritten .= '#' . $parts['fragment'];
+        }
+
+        if (strpos($url, '&amp;') !== false) {
+            $rewritten = str_replace('&', '&amp;', $rewritten);
+        }
+
+        return $rewritten;
+    }
+
+    /**
+     * Rewrite embedded iContent view links inside page HTML content.
+     *
+     * @param string $content
+     * @param int $newcmid
+     * @return string
+     */
+    protected function remap_embedded_page_links($content, $newcmid) {
+        if (!is_string($content) || $content === '') {
+            return $content;
+        }
+
+        return preg_replace_callback(
+            '/(href\s*=\s*["\'])([^"\']*\/mod\/icontent\/[^"\']*)(["\'])/i',
+            function($matches) use ($newcmid) {
+                $newurl = $this->rewrite_embedded_view_url($matches[2], (int)$newcmid);
+                return $matches[1] . $newurl . $matches[3];
+            },
+            $content
+        );
+    }
+
     /**
      * iContent restores linked question ids, but does not restore question usage records here.
      *
@@ -194,6 +329,7 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
 
         $data = (object)$data;
         $oldid = $data->id;
+        $oldpagenum = isset($data->pagenum) ? (int)$data->pagenum : 0;
         $data->cmid = $this->get_restored_cmid();
         $data->icontentid = $this->get_new_parentid('icontent');
         $data->timecreated = $this->apply_date_offset($data->timecreated);
@@ -201,6 +337,10 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
 
         $newitemid = $DB->insert_record('icontent_pages', $data);
         $this->set_mapping('icontent_page', $oldid, $newitemid);
+        if (!empty($oldpagenum)) {
+            $this->oldpageidtopagenum[(int)$oldid] = $oldpagenum;
+            $this->pagenumtonewpageid[$oldpagenum] = (int)$newitemid;
+        }
     }
 
     /**
@@ -245,6 +385,12 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
         $data->pageid = $this->get_new_parentid('icontent_page');
         $data->questionid = $newquestionid;
         $data->cmid = $this->get_restored_cmid();
+        // Keep original route target ids for now and remap in after_execute,
+        // when mappings for all icontent pages are guaranteed to exist.
+        $data->correctnextpageid = (int)($data->correctnextpageid ?? 0);
+        $data->incorrectnextpageid = (int)($data->incorrectnextpageid ?? 0);
+        $data->manualreviewnextpageid = (int)($data->manualreviewnextpageid ?? 0);
+        $data->defaultnextpageid = (int)($data->defaultnextpageid ?? 0);
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
 
@@ -349,8 +495,9 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
 
         $data = (object)$data;
         $oldid = $data->id;
-        $oldresponsefileitemid = !empty($data->responsefileitemid) ? (int)$data->responsefileitemid : 0;
-        unset($data->responsefileitemid);
+        $oldresponseansweritemid = !empty($data->responseanswerfileitemid) ? (int)$data->responseanswerfileitemid : 0;
+        $oldresponserecordingitemid = !empty($data->responserecordingfileitemid) ? (int)$data->responserecordingfileitemid : 0;
+        unset($data->responseanswerfileitemid, $data->responserecordingfileitemid);
         $data->pagesquestionsid = $this->get_new_parentid('icontent_page_question');
         if (empty($data->pagesquestionsid)) {
             return;
@@ -380,8 +527,13 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
 
         $newitemid = $DB->insert_record('icontent_question_attempts', $data);
         $this->set_mapping('icontent_question_attempt', $oldid, $newitemid);
-        if (!empty($oldresponsefileitemid)) {
-            $this->set_mapping('icontent_question_attempt_responsefile', $oldresponsefileitemid, $oldresponsefileitemid, true);
+        if (!empty($oldresponseansweritemid)) {
+            $this->set_mapping('icontent_question_attempt_responseanswer_file',
+                $oldresponseansweritemid, $oldresponseansweritemid, true);
+        }
+        if (!empty($oldresponserecordingitemid)) {
+            $this->set_mapping('icontent_question_attempt_responserecording_file',
+                $oldresponserecordingitemid, $oldresponserecordingitemid, true);
         }
     }
 
@@ -409,12 +561,54 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
      * Post-execution actions
      */
     protected function after_execute() {
+        global $DB;
+
+        // Remap page-to-page links after all page mappings are known.
+        $icontentid = (int)$this->get_new_parentid('icontent');
+        if (!empty($icontentid)) {
+            $newcmid = $this->get_restored_cmid();
+            $pages = $DB->get_records('icontent_pages', ['icontentid' => $icontentid], '',
+                'id, branchparentpageid, prevpageid, nextpageid, pageicontent');
+            foreach ($pages as $page) {
+                $updates = new stdClass();
+                $updates->id = (int)$page->id;
+                $updates->branchparentpageid = $this->resolve_pageid((int)$page->branchparentpageid);
+                $updates->prevpageid = $this->resolve_pageid((int)$page->prevpageid);
+                $updates->nextpageid = $this->resolve_pageid((int)$page->nextpageid);
+                $updates->pageicontent = $this->remap_embedded_page_links((string)$page->pageicontent, (int)$newcmid);
+                $DB->update_record('icontent_pages', $updates);
+            }
+
+            // Remap question route targets once all page mappings are known.
+            $pagequestions = $DB->get_records_sql(
+                'SELECT pq.id,
+                        pq.correctnextpageid,
+                        pq.incorrectnextpageid,
+                        pq.manualreviewnextpageid,
+                        pq.defaultnextpageid
+                   FROM {icontent_pages_questions} pq
+                   JOIN {icontent_pages} p ON p.id = pq.pageid
+                  WHERE p.icontentid = ?',
+                [$icontentid]
+            );
+            foreach ($pagequestions as $pq) {
+                $pqupdate = new stdClass();
+                $pqupdate->id = (int)$pq->id;
+                $pqupdate->correctnextpageid = $this->resolve_pageid((int)$pq->correctnextpageid);
+                $pqupdate->incorrectnextpageid = $this->resolve_pageid((int)$pq->incorrectnextpageid);
+                $pqupdate->manualreviewnextpageid = $this->resolve_pageid((int)$pq->manualreviewnextpageid);
+                $pqupdate->defaultnextpageid = $this->resolve_pageid((int)$pq->defaultnextpageid);
+                $DB->update_record('icontent_pages_questions', $pqupdate);
+            }
+        }
+
         // Add icontent related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_icontent', 'intro', null);
 
         // Add page related files, matching by itemname = 'icontent_page'.
         $this->add_related_files('mod_icontent', 'page', 'icontent_page');
         $this->add_related_files('mod_icontent', 'bgpage', 'icontent_page');
-        $this->add_related_files('question', 'response_answer', 'icontent_question_attempt_responsefile');
+        $this->add_related_files('question', 'response_answer', 'icontent_question_attempt_responseanswer_file');
+        $this->add_related_files('question', 'response_recording', 'icontent_question_attempt_responserecording_file');
     }
 }

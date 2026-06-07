@@ -53,7 +53,8 @@ switch ($action) {
     case 'loadpage':
         require_capability('mod/icontent:view', $context);
         $pagenum = required_param('pagenum', PARAM_INT);
-        $return = icontent_ajax_getpage($pagenum, $icontent, $context);
+        $sourcepageid = optional_param('sourcepageid', 0, PARAM_INT);
+        $return = icontent_ajax_getpage($pagenum, $icontent, $context, $sourcepageid);
         break;
         // Save and return records table {pages_notes}.
     case 'savereturnpagenotes':

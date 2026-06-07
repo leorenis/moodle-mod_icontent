@@ -27,7 +27,7 @@ require_once(dirname(__FILE__) . '/locallib.php');
 use mod_icontent\notes\icontent_note_options;
 
 $id = required_param('id', PARAM_INT);      // Course Module ID.
-$action = optional_param('action', 0, PARAM_ALPHA); // Action.
+$action = optional_param('action', 'allnotes', PARAM_ALPHA); // Action.
 $private = optional_param('private', 0, PARAM_INT); // Private.
 $featured = optional_param('featured', 0, PARAM_INT); // Featured.
 $likes = optional_param('likes', 0, PARAM_INT); // Likes.
@@ -45,11 +45,15 @@ require_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:viewnotes', $context);
 $urlparams = ['id' => $cm->id, 'action' => $action];
+$strheading = get_string('notes', 'mod_icontent');
 // Page setting.
 switch ($action) {
+    case 'allnotes':
+        $strheading = get_string('allnotes', 'mod_icontent');
+        break;
     case 'featured':
         $urlparams += ['featured' => $featured];
-        $strheading = get_string('highlighted', 'mod_icontent');
+        $strheading = get_string('featured', 'mod_icontent');
         break;
     case 'likes':
         $urlparams += ['likes' => $likes];
@@ -66,7 +70,11 @@ $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
-echo $OUTPUT->heading(get_string('mylistcomments', 'mod_icontent') . ' ' . strtolower($strheading), 3);
+$listheading = get_string('mylistnotes', 'mod_icontent') . ' ' . strtolower($strheading);
+if ($action === 'allnotes') {
+    $listheading = get_string('mylistallnotes', 'mod_icontent');
+}
+echo $OUTPUT->heading($listheading, 3);
 $url = new moodle_url('/mod/icontent/notes.php', $urlparams + ['page' => $page, 'perpage' => $perpage]);
 // Get sort value.
 $sort = icontent_check_value_sort($sort);
@@ -111,8 +119,18 @@ if ($notesusers) {
             'class' => 'lkfullname',
             ]
         );
+        $notemetadata = '';
+        if (!empty($notesuser->private)) {
+            $notemetadata .= ' ' . html_writer::span(get_string('private', 'mod_icontent'), 'badge badge-secondary');
+        }
+        if (!empty($notesuser->featured)) {
+            $notemetadata .= ' ' . html_writer::span(get_string('featured', 'mod_icontent'), 'badge badge-info');
+        }
+        if (empty($notesuser->private) && empty($notesuser->featured)) {
+            $notemetadata .= ' ' . html_writer::span(get_string('unmarkednote', 'mod_icontent'), 'badge badge-light');
+        }
         // Set data.
-        $table->data[] = [$picture . $linkfirstname, $notesuser->comment];
+        $table->data[] = [$picture . $linkfirstname, $notesuser->comment . $notemetadata];
     }
 } else {
     echo html_writer::div(get_string('norecordsfound', 'mod_icontent'), 'alert alert-warning');

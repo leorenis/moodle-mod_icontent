@@ -60,9 +60,11 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('summaryattempts', 'mod_icontent'), 3);
+$reportoverviewurl = new moodle_url('/mod/icontent/report.php', ['id' => $id, 'group' => $group]);
 $gradesurl = new moodle_url('/mod/icontent/grade.php', ['id' => $id, 'action' => 'overview', 'group' => $group]);
 $manualreviewurl = new moodle_url('/mod/icontent/grading.php', ['id' => $id, 'action' => 'grading', 'group' => $group]);
 $modetoggle = html_writer::div(
+    html_writer::link($reportoverviewurl, get_string('reportoverview', 'mod_icontent'), ['class' => 'btn btn-secondary mr-2']) .
     html_writer::link($gradesurl, get_string('grades'), ['class' => 'btn btn-primary mr-2']) .
     html_writer::link($manualreviewurl, get_string('manualreview', 'mod_icontent'), ['class' => 'btn btn-secondary']),
     'mb-3 icontent-results-mode-toggle'

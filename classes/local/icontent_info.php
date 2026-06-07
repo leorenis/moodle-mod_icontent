@@ -68,6 +68,9 @@ class icontent_info {
             pagenum,
             coverpage,
             title,
+            branchref,
+            branchname,
+            branchparentpageid,
             hidden'
         );
         if (!$pages) {
@@ -113,6 +116,9 @@ class icontent_info {
             pagenum,
             coverpage,
             title,
+            branchref,
+            branchname,
+            branchparentpageid,
             hidden'
         );
 

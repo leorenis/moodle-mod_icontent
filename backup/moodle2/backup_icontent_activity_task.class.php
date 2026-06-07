@@ -69,6 +69,10 @@ class backup_icontent_activity_task extends backup_activity_task {
         $search = '/(' . $base . '\/mod\/icontent\/index.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@CONTENTINDEX*$2@$', $content);
 
+        // Link to icontent view by moduleid + pageid.
+        $search = '/(' . $base . '\/mod\/icontent\/view.php\?id\=)([0-9]+)(&|&amp;)(pageid\=)([0-9]+)/';
+        $content = preg_replace($search, '$@CONTENTVIEWPAGE*$2*$5@$', $content);
+
         // Link to icontent view by moduleid.
         $search = '/(' . $base . '\/mod\/icontent\/view.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@CONTENTVIEWBYID*$2@$', $content);

@@ -225,5 +225,152 @@ function xmldb_icontent_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2026032700, 'icontent');
     }
 
+    if ($oldversion < 2026032801) {
+        $table = new xmldb_table('icontent_pages');
+
+        $field = new xmldb_field('branchref', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'title');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('branchname', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'title');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('branchparentpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'branchname');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('icontent_pages_questions');
+
+        $field = new xmldb_field('correctnextpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'qtype');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('incorrectnextpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'correctnextpageid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('manualreviewnextpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'incorrectnextpageid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('defaultnextpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'manualreviewnextpageid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('icontent_pages_nav');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('cmid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('frompageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('topageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+            $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_index('cmiduseridtime', XMLDB_INDEX_NOTUNIQUE, ['cmid', 'userid', 'timecreated']);
+            $table->add_index('topageid', XMLDB_INDEX_NOTUNIQUE, ['topageid']);
+
+            $dbman->create_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2026032801, 'icontent');
+    }
+
+    if ($oldversion < 2026052403) {
+        // No schema changes in this step; keep forward-only version progression.
+        upgrade_mod_savepoint(true, 2026052403, 'icontent');
+    }
+
+    if ($oldversion < 2026052700) {
+        $table = new xmldb_table('icontent_pages');
+
+        // Rename legacy cluster fields to branch terminology.
+        $oldfield = new xmldb_field('clusterref', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'title');
+        $newfield = new xmldb_field('branchref', XMLDB_TYPE_CHAR, '100', null, null, null, null, 'title');
+        if ($dbman->field_exists($table, $oldfield) && !$dbman->field_exists($table, $newfield)) {
+            $dbman->rename_field($table, $oldfield, 'branchref');
+        } else if (!$dbman->field_exists($table, $newfield)) {
+            $dbman->add_field($table, $newfield);
+        }
+
+        $oldfield = new xmldb_field('clustername', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'branchref');
+        $newfield = new xmldb_field('branchname', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'branchref');
+        if ($dbman->field_exists($table, $oldfield) && !$dbman->field_exists($table, $newfield)) {
+            $dbman->rename_field($table, $oldfield, 'branchname');
+        } else if (!$dbman->field_exists($table, $newfield)) {
+            $dbman->add_field($table, $newfield);
+        }
+
+        $oldfield = new xmldb_field('clusterparentpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'branchname');
+        $newfield = new xmldb_field('branchparentpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'branchname');
+        if ($dbman->field_exists($table, $oldfield) && !$dbman->field_exists($table, $newfield)) {
+            $dbman->rename_field($table, $oldfield, 'branchparentpageid');
+        } else if (!$dbman->field_exists($table, $newfield)) {
+            $dbman->add_field($table, $newfield);
+        }
+
+        $field = new xmldb_field('prevmode', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'attemptsallowed');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('prevpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'prevmode');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('nextmode', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '0', 'prevpageid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('nextpageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'nextmode');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026052700, 'icontent');
+    }
+
+    if ($oldversion < 2026052701) {
+        $table = new xmldb_table('icontent');
+
+        $field = new xmldb_field('showtocmenu', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, '1', 'progressbar');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026052701, 'icontent');
+    }
+
+    if ($oldversion < 2026060201) {
+        $table = new xmldb_table('icontent_question_attempts');
+
+        // Store the Moodle text format for answertext so essay HTML can be rendered correctly.
+        $field = new xmldb_field(
+            'answertextformat',
+            XMLDB_TYPE_INTEGER,
+            '4',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'answertext'
+        );
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026060201, 'icontent');
+    }
+
     return true;
 }

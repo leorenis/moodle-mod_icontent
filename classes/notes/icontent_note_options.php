@@ -237,6 +237,8 @@ class icontent_note_options {
         }
         $sql = "SELECT pn.id,
                        pn.comment,
+                     pn.private,
+                     pn.featured,
                        {$namefields}
                   FROM {icontent_pages_notes} pn
             INNER JOIN {user} u

@@ -31,6 +31,9 @@ require_once(dirname(__FILE__) . '/lib.php');
 require_once(__DIR__ . '/../../lib/questionlib.php');
 use mod_icontent\question\icontent_question_options;
 use core_question\local\statistics\statistics_bulk_loader;
+use qbank_editquestion\output\add_new_question;
+
+global $DB, $PAGE, $OUTPUT;
 
 $id = optional_param('id', 0, PARAM_INT); // Course_module ID, or.
 $n = optional_param('n', 0, PARAM_INT);  // The icontent instance ID.
@@ -65,23 +68,145 @@ $currentpage = $DB->get_record('icontent_pages', [
 
 // Require login.
 require_login($course, true, $cm);
-$context = context_module::instance($cm->id);
-$coursecontext = $context->get_course_context(true)->id;
+$modulecontext = context_module::instance($cm->id);
+/** @var \context_module $modulecontext */
+$context = $modulecontext;
+/** @var \context $context */
+$coursecontext = $modulecontext->get_course_context(true)->id;
 require_capability('mod/icontent:newquestion', $context);
+
+$qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
+$qtscurrentpagebydisplayqid = $qtscurrentpage;
+$questionidremap = [];
+
+if (!empty($qtscurrentpage)) {
+        $mappedquestionids = array_map('intval', array_keys($qtscurrentpage));
+        [$mappedin, $mappedparams] = $DB->get_in_or_equal($mappedquestionids, SQL_PARAMS_NAMED, 'mappedqid');
+
+        $mapsql = "SELECT qv.questionid AS mappedquestionid,
+                                            latest.questionid AS latestquestionid
+                                 FROM {question_versions} qv
+                                 JOIN (
+                                             SELECT v.questionbankentryid,
+                                                            MAX(v.version) AS maxversion
+                                                 FROM {question_versions} v
+                                                WHERE v.status IN ('ready', 'draft')
+                                         GROUP BY v.questionbankentryid
+                                 ) latestversion
+                                     ON latestversion.questionbankentryid = qv.questionbankentryid
+                                 JOIN {question_versions} latest
+                                     ON latest.questionbankentryid = latestversion.questionbankentryid
+                                    AND latest.version = latestversion.maxversion
+                                    AND latest.status IN ('ready', 'draft')
+                                WHERE qv.questionid {$mappedin}";
+        $versionmaps = $DB->get_records_sql($mapsql, $mappedparams);
+
+        foreach ($versionmaps as $versionmap) {
+                $mappedqid = (int)$versionmap->mappedquestionid;
+                $latestqid = (int)$versionmap->latestquestionid;
+                if ($latestqid <= 0 || $mappedqid <= 0 || !isset($qtscurrentpage[$mappedqid])) {
+                        continue;
+                }
+
+                $questionidremap[$latestqid] = $mappedqid;
+                $qtscurrentpagebydisplayqid[$latestqid] = $qtscurrentpage[$mappedqid];
+        }
+}
 
 // Process POST before any page output so redirect() fires in STATE_BEFORE_HEADER.
 if ($action) {
+    require_sesskey();
+
     // Receives values.
-    $questions = optional_param_array('question', [], PARAM_RAW);
-    // Save values.
-    if (icontent_add_questionpage($questions, $pageid, $cm->id)) {
+    $questions = optional_param_array('question', [], PARAM_INT);
+    $displayedquestionids = optional_param_array('displayedquestionids', [], PARAM_INT);
+    $correctroutes = optional_param_array('routecorrect', [], PARAM_INT);
+    $incorrectroutes = optional_param_array('routeincorrect', [], PARAM_INT);
+    $manualreviewroutes = optional_param_array('routemanualreview', [], PARAM_INT);
+    $defaultroutes = optional_param_array('routedefault', [], PARAM_INT);
+
+    $remapquestionids = static function(array $questionids, array $map): array {
+        $result = [];
+        foreach ($questionids as $questionid) {
+            $questionid = (int)$questionid;
+            if ($questionid <= 0) {
+                continue;
+            }
+
+            $result[] = $map[$questionid] ?? $questionid;
+        }
+
+        return array_values(array_unique($result));
+    };
+
+    $remaproutekeys = static function(array $routes, array $map): array {
+        $result = [];
+        foreach ($routes as $questionid => $targetpageid) {
+            $questionid = (int)$questionid;
+            if ($questionid <= 0) {
+                continue;
+            }
+
+            $mappedqid = (int)($map[$questionid] ?? $questionid);
+            if (!array_key_exists($mappedqid, $result)) {
+                $result[$mappedqid] = (int)$targetpageid;
+            }
+        }
+
+        return $result;
+    };
+
+    $questions = $remapquestionids($questions, $questionidremap);
+    $displayedquestionids = $remapquestionids($displayedquestionids, $questionidremap);
+    $correctroutes = $remaproutekeys($correctroutes, $questionidremap);
+    $incorrectroutes = $remaproutekeys($incorrectroutes, $questionidremap);
+    $manualreviewroutes = $remaproutekeys($manualreviewroutes, $questionidremap);
+    $defaultroutes = $remaproutekeys($defaultroutes, $questionidremap);
+
+    $questionsremoved = false;
+    if (!icontent_checks_answers_of_currentpage((int)$pageid, (int)$cm->id) && !empty($displayedquestionids)) {
+        $existingmappings = icontent_get_questions_of_currentpage((int)$pageid, (int)$cm->id);
+        $selectedquestionlookup = array_flip($questions);
+
+        foreach ($displayedquestionids as $displayedquestionid) {
+            if (!isset($existingmappings[$displayedquestionid])) {
+                continue;
+            }
+
+            if (array_key_exists($displayedquestionid, $selectedquestionlookup)) {
+                continue;
+            }
+
+            icontent_remove_questionpagebyid((int)$existingmappings[$displayedquestionid]->id);
+            $questionsremoved = true;
+        }
+    }
+
+    $questionsadded = icontent_add_questionpage($questions, $pageid, $cm->id);
+    $routesupdated = icontent_update_questionpage_routes(
+        (int)$pageid,
+        (int)$cm->id,
+        $correctroutes,
+        $incorrectroutes,
+        $manualreviewroutes,
+        $defaultroutes
+    );
+
+    if ($questionsadded || $questionsremoved || $routesupdated) {
+        if ($questionsadded) {
+            $messagekey = 'msgaddquestionpage';
+        } else if ($questionsremoved) {
+            $messagekey = 'msgsucessexclusion';
+        } else {
+            $messagekey = 'msgsucess';
+        }
         $urlredirect = new moodle_url('/mod/icontent/view.php', ['id' => $cm->id, 'pageid' => $pageid]);
-        redirect($urlredirect, get_string('msgaddquestionpage', 'mod_icontent'));
+        redirect($urlredirect, get_string($messagekey, 'mod_icontent'));
     }
 }
 
 // Log event.
-\mod_icontent\event\question_page_viewed::create_from_question_page($icontent, $context, $pageid)->trigger();
+\mod_icontent\event\question_page_viewed::create_from_question_page($icontent, $modulecontext, $pageid)->trigger();
 
 // Print the page header.
 $PAGE->set_url('/mod/icontent/addquestionpage.php', ['id' => $cm->id, 'pageid' => $pageid]);
@@ -113,6 +238,10 @@ $sort = icontent_check_value_sort($sort);
 // 20260227 Moodle 5+ uses qbank module contexts for categories.
 $questioncategoryname = '';
 $categorycontextids = [];
+
+// Always include this activity context because category-aware create-question flows
+// may target module-context categories.
+$categorycontextids[] = (string)$modulecontext->id;
 
 // Prefer contexts from qbank module instances available in the course.
 $defaultbankmodname = \core_question\local\bank\question_bank_helper::get_default_question_bank_activity_name();
@@ -146,10 +275,29 @@ foreach ($qcids as $qcid) {
     $categorymenu[(int)$qcid->id] = format_string($qcid->name) . ' (ID ' . (int)$qcid->id . ')';
 }
 
+// Preserve an explicitly requested category (for example after creating a question)
+// even when it is outside the precomputed context list.
+if ($questioncategoryid && !array_key_exists($questioncategoryid, $categorymenu)) {
+    $selectedcategory = $DB->get_record('question_categories', ['id' => $questioncategoryid], 'id, name, contextid', IGNORE_MISSING);
+    if ($selectedcategory) {
+        $categorymenu[(int)$selectedcategory->id] =
+            format_string($selectedcategory->name) . ' (ID ' . (int)$selectedcategory->id . ')';
+    }
+}
+
 if (!$questioncategoryid || !array_key_exists($questioncategoryid, $categorymenu)) {
     $questioncategoryid = (int) array_key_first($categorymenu);
 }
 $questioncategoryname = $categorymenu[$questioncategoryid] ?? '';
+$categorycontextbyid = [];
+foreach ($qcids as $qcid) {
+    $categorycontextbyid[(int)$qcid->id] = (int)$qcid->contextid;
+}
+$selectedcategorycontext = $DB->get_record('question_categories', ['id' => $questioncategoryid], 'contextid', IGNORE_MISSING);
+if ($selectedcategorycontext && !array_key_exists($questioncategoryid, $categorycontextbyid)) {
+    $categorycontextbyid[$questioncategoryid] = (int)$selectedcategorycontext->contextid;
+}
+$selectedcategorycontextid = $categorycontextbyid[$questioncategoryid] ?? (int)$coursecontext;
 
 $questions = icontent_question_options::icontent_get_questions_of_questionbank(
     $coursecontext,
@@ -164,8 +312,22 @@ if ($questioncategoryid) {
     $tquestions = icontent_question_options::icontent_count_questions_of_questionbank_filtered($questioncategoryid);
 }
 echo get_string('totalquestioncount', 'icontent', $tquestions);
-$qtscurrentpage = icontent_get_questions_of_currentpage($pageid, $cm->id);
 $answerscurrentpage = icontent_checks_answers_of_currentpage($pageid, $cm->id);
+if (is_object($answerscurrentpage)) {
+    $answerscount = (int)$answerscurrentpage->totalanswers;
+} else {
+    $answerscount = 0;
+}
+$routepageoptions = [0 => get_string('none')];
+$routepages = $DB->get_records('icontent_pages', ['cmid' => $cm->id, 'hidden' => 0], 'pagenum ASC', 'id, pagenum, title');
+foreach ($routepages as $routepage) {
+    $routepagetitle = format_string((string)$routepage->title);
+    $routepageparams = (object)[
+        'pagenum' => (int)$routepage->pagenum,
+        'title' => $routepagetitle,
+    ];
+    $routepageoptions[(int)$routepage->id] = get_string('pagexwithtitle', 'icontent', $routepageparams);
+}
 // Make table questions.
 $table = new html_table();
 $table->id = "categoryquestions";
@@ -179,6 +341,7 @@ $table->colclasses = [
     'version',
     'creatorname',
     'comments',
+    'routingtargets',
     'needschecking',
     'facilityindex',
     'discriminativeefficiency',
@@ -243,16 +406,18 @@ $table->head  = [
     $makeheaderwithmenu(get_string('version')),
     $makeheaderwithmenu(get_string('createdby', 'question')),
     $makeheaderwithmenu('Comments'),
+    $makeheaderwithmenu(get_string('routingtargets', 'icontent')),
     $makeheaderwithmenu('Needs checking?'),
     $makeheaderwithmenu('Facility index'),
     $makeheaderwithmenu('Discriminative efficiency'),
 ];
 
 if ($hasquestions) {
-    $hasstatisticsplugin = \core\plugininfo\qbank::is_plugin_enabled('qbank_statistics');
     $questionids = array_map(static function ($question) {
         return (int) $question->qid;
     }, $questions);
+
+    $hasstatisticsplugin = \core\plugininfo\qbank::is_plugin_enabled('qbank_statistics');
 
     $commentsbyquestionid = [];
     if ($hascommentplugin && !empty($questionids)) {
@@ -281,7 +446,7 @@ if ($hasquestions) {
     }
 
     foreach ($questions as $question) {
-        $checked = isset($qtscurrentpage[$question->qid]) ? ['checked' => 'checked'] : [];
+        $checked = isset($qtscurrentpagebydisplayqid[$question->qid]) ? ['checked' => 'checked'] : [];
         $disabled = $answerscurrentpage ? ['disabled' => 'disabled'] : [];
         $checkbox = html_writer::empty_tag('input', ['type' => 'checkbox',
             'name' => 'question[]',
@@ -371,6 +536,42 @@ if ($hasquestions) {
         // These users must exist or you will get an error.
         $createdby = icontent_get_user_by_id($question->qcreatedby);
 
+        $existingmapping = $qtscurrentpagebydisplayqid[$question->qid] ?? null;
+
+        $routecontrols = html_writer::start_div('icontent-route-grid');
+        $routefields = [
+            'routecorrect' => [
+                'label' => get_string('routecorrect', 'icontent'),
+                'selected' => (int)($existingmapping->correctnextpageid ?? 0),
+            ],
+            'routeincorrect' => [
+                'label' => get_string('routeincorrect', 'icontent'),
+                'selected' => (int)($existingmapping->incorrectnextpageid ?? 0),
+            ],
+            'routemanualreview' => [
+                'label' => get_string('routemanualreview', 'icontent'),
+                'selected' => (int)($existingmapping->manualreviewnextpageid ?? 0),
+            ],
+            'routedefault' => [
+                'label' => get_string('routedefault', 'icontent'),
+                'selected' => (int)($existingmapping->defaultnextpageid ?? 0),
+            ],
+        ];
+        foreach ($routefields as $routename => $routefield) {
+            $routeinputid = 'id_' . $routename . '_' . (int)$question->qid;
+            $routecontrols .= html_writer::start_div('icontent-route-field');
+            $routecontrols .= html_writer::tag('label', $routefield['label'], ['for' => $routeinputid, 'class' => 'small']);
+            $routecontrols .= html_writer::select(
+                $routepageoptions,
+                $routename . '[' . (int)$question->qid . ']',
+                $routefield['selected'],
+                false,
+                ['id' => $routeinputid, 'class' => 'custom-select custom-select-sm'] + $disabled
+            );
+            $routecontrols .= html_writer::end_div();
+        }
+        $routecontrols .= html_writer::end_div();
+
         $table->data[] = [
             $checkbox,
             $qtype,
@@ -381,6 +582,7 @@ if ($hasquestions) {
             $createdby->firstname . ' ' . $createdby->lastname .
                 '<br>' . date(get_config('mod_icontent', 'dateformat'), $question->qtimecreated),
             $commentdisplay,
+            $routecontrols,
             $needschecking,
             $facilitydisplay,
             $discriminativedisplay,
@@ -390,7 +592,16 @@ if ($hasquestions) {
     echo html_writer::div(get_string('emptyquestionbank', 'mod_icontent'), 'alert alert-warning');
 }
 // Show elements HTML.
-echo $answerscurrentpage ? html_writer::div(get_string('msgstatusdisplay', 'mod_icontent'), 'alert alert-warning') : null;
+if ($answerscurrentpage) {
+    $statusmessage = get_string('msgstatusdisplay', 'mod_icontent');
+    if ($answerscount > 0) {
+        $statusmessage .= html_writer::div(
+            get_string('attemptsrecordedcount', 'mod_icontent', $answerscount),
+            'small mt-1'
+        );
+    }
+    echo html_writer::div($statusmessage, 'alert alert-warning');
+}
 echo html_writer::start_tag(
     'form',
     [
@@ -409,6 +620,17 @@ echo html_writer::select($categorymenu, 'questioncategoryid', $questioncategoryi
 echo html_writer::empty_tag('input', ['type' => 'submit', 'class' => 'btn btn-secondary', 'value' => get_string('go')]);
 echo html_writer::end_div();
 echo html_writer::end_tag('form');
+
+echo html_writer::start_tag(
+    'div',
+    ['class' => 'mb-3']
+);
+echo $OUTPUT->render(new add_new_question($questioncategoryid, [
+    'cmid' => $cm->id,
+    'returnurl' => $url->out_as_local_url(false),
+    'appendqnumstring' => 'addquestion',
+], has_capability('moodle/question:add', context::instance_by_id($selectedcategorycontextid))));
+echo html_writer::end_tag('div');
 echo html_writer::start_tag(
     'form',
     ['action' => new moodle_url(
@@ -417,7 +639,17 @@ echo html_writer::start_tag(
     ),
         'method' => 'POST']
 );
+echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'action', 'value' => true]);
+if (!empty($questionids)) {
+    foreach ($questionids as $questionid) {
+        echo html_writer::empty_tag('input', [
+            'type' => 'hidden',
+            'name' => 'displayedquestionids[]',
+            'value' => (int)$questionid,
+        ]);
+    }
+}
 echo html_writer::start_div('categoryquestionscontainer');
 echo html_writer::table($table);
 echo html_writer::script("(function() {
@@ -521,7 +753,7 @@ echo '<input class="btn btn-primary"
     onClick="return clClick()"
     ' . ($hasquestions ? '' : 'disabled="disabled"') . '
     type="submit" value="'
-    . get_string('add')
+    . get_string('savequestionselection', 'mod_icontent')
     . '"> <a href="'
     . $url2
     . '" class="btn btn-secondary"  style="border-radius: 8px">'

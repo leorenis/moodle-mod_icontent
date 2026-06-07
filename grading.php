@@ -63,6 +63,7 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('strmanualgrading', 'mod_icontent'), 3);
+$reportoverviewurl = new moodle_url('/mod/icontent/report.php', ['id' => $id, 'group' => $group]);
 $gradesurl = new moodle_url('/mod/icontent/grade.php', ['id' => $id, 'action' => 'overview', 'group' => $group]);
 $manualreviewurl = new moodle_url('/mod/icontent/grading.php', [
     'id' => $id,
@@ -71,11 +72,39 @@ $manualreviewurl = new moodle_url('/mod/icontent/grading.php', [
     'group' => $group,
 ]);
 $modetoggle = html_writer::div(
+    html_writer::link($reportoverviewurl, get_string('reportoverview', 'mod_icontent'), ['class' => 'btn btn-secondary mr-2']) .
     html_writer::link($gradesurl, get_string('grades'), ['class' => 'btn btn-secondary mr-2']) .
     html_writer::link($manualreviewurl, get_string('manualreview', 'mod_icontent'), ['class' => 'btn btn-primary']),
     'mb-3 icontent-results-mode-toggle'
 );
 echo $modetoggle;
+
+$toevaluateurl = new moodle_url('/mod/icontent/grading.php', [
+    'id' => $id,
+    'action' => 'grading',
+    'status' => ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE,
+    'group' => $group,
+]);
+$valuedurl = new moodle_url('/mod/icontent/grading.php', [
+    'id' => $id,
+    'action' => 'grading',
+    'status' => ICONTENT_QTYPE_ESSAY_STATUS_VALUED,
+    'group' => $group,
+]);
+$statusnav = html_writer::div(
+    html_writer::link(
+        $toevaluateurl,
+        get_string('toevaluate', 'mod_icontent'),
+        ['class' => 'btn ' . ($status === ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE ? 'btn-primary' : 'btn-secondary') . ' mr-2']
+    ) .
+    html_writer::link(
+        $valuedurl,
+        get_string('reassess', 'mod_icontent'),
+        ['class' => 'btn ' . ($status === ICONTENT_QTYPE_ESSAY_STATUS_VALUED ? 'btn-primary' : 'btn-secondary')]
+    ),
+    'mb-3 icontent-manualreview-status-toggle'
+);
+echo $statusnav;
 $currentgroup = 0;
 if (groups_get_activity_groupmode($cm) != NOGROUPS) {
     $currentgroup = groups_get_activity_group($cm, true);

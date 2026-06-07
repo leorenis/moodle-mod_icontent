@@ -50,10 +50,10 @@ final class provider_test extends provider_testcase {
         $u1 = $this->getDataGenerator()->create_user();
         $u2 = $this->getDataGenerator()->create_user();
 
-        $this->seed_user_data_for_cm($cm1, $page1, $qmap1, $u1->id);
-        $this->seed_user_data_for_cm($cm2, $page2, $qmap2, $u2->id);
+        $this->seed_user_data_for_cmid((int) $ctx1->instanceid, $page1, $qmap1, $u1->id);
+        $this->seed_user_data_for_cmid((int) $ctx2->instanceid, $page2, $qmap2, $u2->id);
 
-        $contextidsu1 = provider::get_contexts_for_userid($u1->id)->get_contextids();
+        $contextidsu1 = array_map('intval', provider::get_contexts_for_userid($u1->id)->get_contextids());
         $this->assertContains($ctx1->id, $contextidsu1);
         $this->assertNotContains($ctx2->id, $contextidsu1);
     }
@@ -65,29 +65,30 @@ final class provider_test extends provider_testcase {
         global $DB;
 
         [$cm, $context, $pageid, $qmapid] = $this->create_icontent_page_and_questionmap();
+        $cmid = (int) $context->instanceid;
         $u1 = $this->getDataGenerator()->create_user();
         $u2 = $this->getDataGenerator()->create_user();
 
-        $this->seed_user_data_for_cm($cm, $pageid, $qmapid, $u1->id);
-        $this->seed_user_data_for_cm($cm, $pageid, $qmapid, $u2->id);
+        $this->seed_user_data_for_cmid($cmid, $pageid, $qmapid, $u1->id);
+        $this->seed_user_data_for_cmid($cmid, $pageid, $qmapid, $u2->id);
 
         $approved = new approved_contextlist($u1, 'mod_icontent', [$context->id]);
         provider::delete_data_for_user($approved);
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_notes', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_pages_notes', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_notes', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_pages_notes', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_displayed', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_pages_displayed', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_displayed', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_pages_displayed', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_question_attempts', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_question_attempts', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_question_attempts', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_question_attempts', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_grades', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_grades', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_grades', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_grades', ['cmid' => $cmid, 'userid' => $u2->id]));
     }
 
     /**
@@ -97,19 +98,20 @@ final class provider_test extends provider_testcase {
         global $DB;
 
         [$cm, $context, $pageid, $qmapid] = $this->create_icontent_page_and_questionmap();
+        $cmid = (int) $context->instanceid;
         $u1 = $this->getDataGenerator()->create_user();
         $u2 = $this->getDataGenerator()->create_user();
 
-        $this->seed_user_data_for_cm($cm, $pageid, $qmapid, $u1->id);
-        $this->seed_user_data_for_cm($cm, $pageid, $qmapid, $u2->id);
+        $this->seed_user_data_for_cmid($cmid, $pageid, $qmapid, $u1->id);
+        $this->seed_user_data_for_cmid($cmid, $pageid, $qmapid, $u2->id);
 
         provider::delete_data_for_all_users_in_context($context);
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_notes', ['cmid' => $cm->id]));
-        $this->assertSame(0, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cm->id]));
-        $this->assertSame(0, $DB->count_records('icontent_pages_displayed', ['cmid' => $cm->id]));
-        $this->assertSame(0, $DB->count_records('icontent_question_attempts', ['cmid' => $cm->id]));
-        $this->assertSame(0, $DB->count_records('icontent_grades', ['cmid' => $cm->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_notes', ['cmid' => $cmid]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cmid]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_displayed', ['cmid' => $cmid]));
+        $this->assertSame(0, $DB->count_records('icontent_question_attempts', ['cmid' => $cmid]));
+        $this->assertSame(0, $DB->count_records('icontent_grades', ['cmid' => $cmid]));
     }
 
     /**
@@ -119,29 +121,30 @@ final class provider_test extends provider_testcase {
         global $DB;
 
         [$cm, $context, $pageid, $qmapid] = $this->create_icontent_page_and_questionmap();
+        $cmid = (int) $context->instanceid;
         $u1 = $this->getDataGenerator()->create_user();
         $u2 = $this->getDataGenerator()->create_user();
 
-        $this->seed_user_data_for_cm($cm, $pageid, $qmapid, $u1->id);
-        $this->seed_user_data_for_cm($cm, $pageid, $qmapid, $u2->id);
+        $this->seed_user_data_for_cmid($cmid, $pageid, $qmapid, $u1->id);
+        $this->seed_user_data_for_cmid($cmid, $pageid, $qmapid, $u2->id);
 
         $approved = new approved_userlist($context, 'mod_icontent', [$u1->id]);
         provider::delete_data_for_users($approved);
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_notes', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_pages_notes', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_notes', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_pages_notes', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_pages_notes_like', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_pages_displayed', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_pages_displayed', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_pages_displayed', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_pages_displayed', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_question_attempts', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_question_attempts', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_question_attempts', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_question_attempts', ['cmid' => $cmid, 'userid' => $u2->id]));
 
-        $this->assertSame(0, $DB->count_records('icontent_grades', ['cmid' => $cm->id, 'userid' => $u1->id]));
-        $this->assertSame(1, $DB->count_records('icontent_grades', ['cmid' => $cm->id, 'userid' => $u2->id]));
+        $this->assertSame(0, $DB->count_records('icontent_grades', ['cmid' => $cmid, 'userid' => $u1->id]));
+        $this->assertSame(1, $DB->count_records('icontent_grades', ['cmid' => $cmid, 'userid' => $u2->id]));
     }
 
     /**
@@ -194,19 +197,20 @@ final class provider_test extends provider_testcase {
     /**
      * Seed one user's data in all privacy-relevant iContent user tables.
      *
-     * @param \stdClass $cm
+     * @param int $cmid
      * @param int $pageid
      * @param int $qmapid
      * @param int $userid
      */
-    private function seed_user_data_for_cm(\stdClass $cm, int $pageid, int $qmapid, int $userid): void {
+    private function seed_user_data_for_cmid(int $cmid, int $pageid, int $qmapid, int $userid): void {
         global $DB;
 
+        $icontentid = (int) $DB->get_field('course_modules', 'instance', ['id' => $cmid]);
         $time = time();
         $noteid = (int) $DB->insert_record('icontent_pages_notes', (object) [
             'pageid' => $pageid,
             'userid' => $userid,
-            'cmid' => $cm->id,
+            'cmid' => $cmid,
             'comment' => 'Privacy test note',
             'timecreated' => $time,
             'timemodified' => $time,
@@ -221,7 +225,7 @@ final class provider_test extends provider_testcase {
         $DB->insert_record('icontent_pages_notes_like', (object) [
             'pagenoteid' => $noteid,
             'userid' => $userid,
-            'cmid' => $cm->id,
+            'cmid' => $cmid,
             'timemodified' => $time,
             'visible' => 1,
         ]);
@@ -229,7 +233,7 @@ final class provider_test extends provider_testcase {
         $DB->insert_record('icontent_pages_displayed', (object) [
             'pageid' => $pageid,
             'userid' => $userid,
-            'cmid' => $cm->id,
+            'cmid' => $cmid,
             'timecreated' => $time,
         ]);
 
@@ -237,7 +241,7 @@ final class provider_test extends provider_testcase {
             'pagesquestionsid' => $qmapid,
             'questionid' => 0,
             'userid' => $userid,
-            'cmid' => $cm->id,
+            'cmid' => $cmid,
             'fraction' => 0,
             'rightanswer' => 'right',
             'answertext' => 'answer',
@@ -245,9 +249,9 @@ final class provider_test extends provider_testcase {
         ]);
 
         $DB->insert_record('icontent_grades', (object) [
-            'icontentid' => $cm->instance,
+            'icontentid' => $icontentid,
             'userid' => $userid,
-            'cmid' => $cm->id,
+            'cmid' => $cmid,
             'grade' => 0,
             'timemodified' => $time,
         ]);

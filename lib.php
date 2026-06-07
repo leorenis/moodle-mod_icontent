@@ -32,6 +32,9 @@
 defined('MOODLE_INTERNAL') || die(); // phpcs:ignore
 use mod_icontent\local\icontent_info;
 
+// Ensure legacy question category helpers are available during module creation.
+require_once($CFG->libdir . '/questionlib.php');
+
 /**
  * Constant
  */
@@ -66,8 +69,6 @@ function icontent_supports($feature) {
         case FEATURE_GROUPS:
             return true;
         case FEATURE_GROUPINGS:
-            return true;
-        case FEATURE_GROUPMEMBERSONLY:
             return true;
         case FEATURE_MOD_INTRO:
             return true;
@@ -420,7 +421,11 @@ function icontent_get_recent_mod_activity(&$activities, &$index, $timestart, $co
         return;
     }
 
-    $context = context_module::instance($cmid);
+    $context = context_module::instance($cmid, IGNORE_MISSING);
+    if (!$context) {
+        return;
+    }
+    /** @var context $context */
     if (!has_capability('mod/icontent:view', $context)) {
         return;
     }
@@ -581,7 +586,7 @@ function icontent_cron() {
  * @return array
  */
 function icontent_get_extra_capabilities() {
-    return [];
+    return question_get_all_capabilities();
 }
 
 /* Gradebook API */
@@ -832,13 +837,29 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
 
     if ($filearea === 'questiontextproxy') {
         $questionid = (int)array_shift($args);
-        $itemid = (int)array_shift($args);
-        $filename = clean_param((string)array_pop($args), PARAM_FILE);
+        $itemid = 0;
+        $filename = '';
         $filepath = '/';
+
+        // New shape: .../questiontextproxy/{questionid}/{itemid}/{optionalpath...}/{filename}
+        // Legacy shape fallback: .../questiontextproxy/{questionid}/{filename}
         if (!empty($args)) {
-            $filepath = '/' . implode('/', array_map(function ($part) {
-                return clean_param((string)$part, PARAM_PATH);
-            }, $args)) . '/';
+            $firstsegment = (string)array_shift($args);
+            if (!empty($args)) {
+                $itemid = (int)$firstsegment;
+                $filename = clean_param((string)array_pop($args), PARAM_FILE);
+                if (!empty($args)) {
+                    $filepath = '/' . implode('/', array_map(function ($part) {
+                        return clean_param((string)$part, PARAM_PATH);
+                    }, $args)) . '/';
+                }
+            } else {
+                $filename = clean_param($firstsegment, PARAM_FILE);
+            }
+        }
+
+        if ($itemid <= 0) {
+            $itemid = $questionid;
         }
 
         if (empty($questionid) || empty($itemid) || $filename === '') {
@@ -957,7 +978,8 @@ function mod_icontent_question_pluginfile(
     $relativepath = implode('/', $args);
     $fullpath = "/$context->id/$component/$filearea/$relativepath";
 
-    if (!$file = $fs->get_file_by_hash(sha1($fullpath)) || $file->is_directory()) {
+    $file = $fs->get_file_by_hash(sha1($fullpath));
+    if (!$file || $file->is_directory()) {
         send_file_not_found();
     }
 
@@ -970,10 +992,18 @@ function mod_icontent_question_pluginfile(
  * @param stdClass $icontent
  */
 function icontent_delete_files(stdClass $icontent) {
-
     $fs = get_file_storage();
-    // This is not very efficient!
-    $files = $fs->get_area_files($context->id, 'mod_icontent', 'filearea', 'itemid', 'sortorder DESC, id ASC', false);
+    $cm = get_coursemodule_from_instance('icontent', $icontent->id, 0, false, IGNORE_MISSING);
+    if (!$cm) {
+        return;
+    }
+
+    $context = context_module::instance($cm->id, IGNORE_MISSING);
+    if (!$context) {
+        return;
+    }
+
+    $fs->delete_area_files($context->id, 'mod_icontent');
 }
 
 /* Navigation API */
@@ -1014,12 +1044,20 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, $
     // Check capabilities for students.
     if (has_capability('mod/icontent:viewnotes', $PAGE->cm->context) && $icontent->shownotesarea) {
         // Notes.
-        $resultsnode = $icontentnode->add(get_string('comments', 'mod_icontent'));
+        $resultsnode = $icontentnode->add(
+            get_string('notes', 'mod_icontent'),
+            new moodle_url('/mod/icontent/notes.php', ['id' => $PAGE->cm->id, 'action' => 'allnotes'])
+        );
+        $url = new moodle_url(
+            '/mod/icontent/notes.php',
+            ['id' => $PAGE->cm->id, 'action' => 'allnotes']
+        );
+        $resultsnode->add(get_string('allnotes', 'mod_icontent'), $url);
         $url = new moodle_url(
             '/mod/icontent/notes.php',
             ['id' => $PAGE->cm->id, 'action' => 'featured', 'featured' => 1]
         );
-        $resultsnode->add(get_string('highlighted', 'mod_icontent'), $url);
+        $resultsnode->add(get_string('featured', 'mod_icontent'), $url);
         $url = new moodle_url(
             '/mod/icontent/notes.php',
             ['id' => $PAGE->cm->id, 'action' => 'likes', 'likes' => 1]
@@ -1032,33 +1070,38 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, $
         $resultsnode->add(get_string('privates', 'mod_icontent'), $url);
 
         // Doubts.
-        $resultsnode = $icontentnode->add(get_string('doubts', 'mod_icontent'));
-        $url = new moodle_url(
-            '/mod/icontent/doubts.php',
-            ['id' => $PAGE->cm->id, 'action' => 'doubttutor', 'doubttutor' => 1, 'tab' => 'doubt']
+        $resultsnode = $icontentnode->add(
+            get_string('doubts', 'mod_icontent'),
+            new moodle_url('/mod/icontent/doubts.php', ['id' => $PAGE->cm->id, 'action' => 'alldoubts', 'tab' => 'doubt'])
         );
-        $resultsnode->add(get_string('doubtstotutor', 'mod_icontent'), $url);
         $url = new moodle_url(
             '/mod/icontent/doubts.php',
             ['id' => $PAGE->cm->id, 'action' => 'alldoubts', 'tab' => 'doubt']
         );
         $resultsnode->add(get_string('alldoubts', 'mod_icontent'), $url);
+        $url = new moodle_url(
+            '/mod/icontent/doubts.php',
+            ['id' => $PAGE->cm->id, 'action' => 'doubttutor', 'doubttutor' => 1, 'tab' => 'doubt']
+        );
+        $resultsnode->add(get_string('doubtstotutor', 'mod_icontent'), $url);
     }
 
     // Menu items for manager.
     if (has_capability('mod/icontent:grade', $PAGE->cm->context)) {
         $resultsnode = $icontentnode->add(get_string('results', 'mod_icontent'));
         $url = new moodle_url(
-            '/mod/icontent/grade.php',
-            ['id' => $PAGE->cm->id, 'action' => 'overview']
+            '/mod/icontent/report.php',
+            ['id' => $PAGE->cm->id]
         );
-        $resultsnode->add(get_string('grades'), $url);
+        $resultsnode->add(get_string('reportoverview', 'mod_icontent'), $url);
         $url = new moodle_url(
             '/mod/icontent/grading.php',
             ['id' => $PAGE->cm->id, 'action' => 'grading']
         );
         $resultsnode->add(get_string('manualreview', 'mod_icontent'), $url);
     }
+
+    question_extend_settings_navigation($icontentnode, $PAGE->cm->context)->trim_if_empty();
 }
 
 /* Ajax API */
@@ -1070,9 +1113,9 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, $
  * @param object $context
  * @return array $pageicontent
  */
-function icontent_ajax_getpage($pagenum, $icontent, $context) {
+function icontent_ajax_getpage($pagenum, $icontent, $context, $sourcepageid = 0) {
     require_once(dirname(__FILE__) . '/locallib.php');
-    $objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context);
+    $objpage = icontent_get_fullpageicontent($pagenum, $icontent, $context, $sourcepageid);
     return $objpage;
 }
 
@@ -1278,7 +1321,7 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
         $quba = question_engine::load_questions_usage_by_activity($qubaid);
         $quba->process_all_actions(time(), $postdata);
         question_engine::save_questions_usage_by_activity($quba);
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         return [];
     }
 
@@ -1315,12 +1358,8 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
             $qa = $quba->get_question_attempt($slotbyqid[$qid]);
             $ismanuallyreviewed = ($pagequestion->qtype === ICONTENT_QTYPE_ESSAY);
             if (!$ismanuallyreviewed && $pagequestion->qtype === 'poodllrecording') {
-                static $poodllsketchcache = [];
-                if (!array_key_exists($qid, $poodllsketchcache)) {
-                    $responseformat = $DB->get_field('qtype_poodllrecording_opts', 'responseformat', ['questionid' => $qid]);
-                    $poodllsketchcache[$qid] = ($responseformat === 'picture');
-                }
-                $ismanuallyreviewed = $poodllsketchcache[$qid];
+                // PoodLL recording questions (audio/video/picture) require manual grading.
+                $ismanuallyreviewed = true;
             }
 
             $submittedresponse = null;
@@ -1399,9 +1438,13 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
 
             if ($submittedresponse !== null) {
                 if (method_exists($questiondef, 'summarise_response')) {
-                    $summary = $questiondef->summarise_response($submittedresponse);
-                    if ($summary !== null && $summary !== '') {
-                        $answertext = (string)$summary;
+                    try {
+                        $summary = $questiondef->summarise_response($submittedresponse);
+                        if ($summary !== null && $summary !== '') {
+                            $answertext = (string)$summary;
+                        }
+                    } catch (\Throwable $e) {
+                        // Keep the question engine summary fallback when qtype summariser expects richer file objects.
                     }
                 } else if (array_key_exists('answer', $submittedresponse)) {
                     $answertext = (string)$submittedresponse['answer'];
@@ -1423,19 +1466,32 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
                 }
             }
 
+            $answertextformat = 0;
+
             if ($ismanuallyreviewed) {
                 $fraction = 0;
                 $rightanswer = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
 
-                if ($answertext === '' && method_exists($questiondef, 'summarise_response')) {
-                    $fallbacksummary = $questiondef->summarise_response($lastqtdata);
-                    if ($fallbacksummary !== null && $fallbacksummary !== '') {
-                        $answertext = (string)$fallbacksummary;
+                // For essay questions, preserve the raw HTML so formatting is visible in manual review.
+                $isessaytype = in_array($pagequestion->qtype, [ICONTENT_QTYPE_ESSAY, ICONTENT_QTYPE_ESSAYAUTOGRADE], true);
+                if ($isessaytype && !empty($submittedresponse['answer'])) {
+                    $answertext = (string)$submittedresponse['answer'];
+                    $answertextformat = (int)($submittedresponse['answerformat'] ?? FORMAT_HTML);
+                    if ($answertextformat === 0) {
+                        $answertextformat = FORMAT_HTML;
                     }
-                }
+                } else {
+                    if ($answertext === '' && method_exists($questiondef, 'summarise_response')) {
+                        $fallbacksummary = $questiondef->summarise_response($lastqtdata);
+                        if ($fallbacksummary !== null && $fallbacksummary !== '') {
+                            $answertext = (string)$fallbacksummary;
+                        }
+                    }
 
-                if ($answertext === '' && !empty($submittedresponse['answer'])) {
-                    $answertext = question_utils::to_plain_text((string)$submittedresponse['answer']);
+                    if ($answertext === '' && !empty($submittedresponse['answer'])) {
+                        $answerformat = $submittedresponse['answerformat'] ?? FORMAT_HTML;
+                        $answertext = question_utils::to_plain_text((string)$submittedresponse['answer'], (int)$answerformat);
+                    }
                 }
             }
 
@@ -1453,9 +1509,10 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
                 'fraction' => $fraction,
                 'rightanswer' => $rightanswer,
                 'answertext' => $answertext,
+                'answertextformat' => $answertextformat,
                 'timecreated' => time(),
             ];
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             continue;
         }
     }
@@ -1529,6 +1586,9 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
         }
 
         $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
+        if (!$infoanswer || !is_object($infoanswer)) {
+            continue;
+        }
         $records[$i] = new stdClass();
         $records[$i]->pagesquestionsid = (int) $qpid;
         $records[$i]->questionid = (int) $qid;
@@ -1551,6 +1611,8 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
             $DB->get_record('icontent_pages', ['id' => $pageid], '*', MUST_EXIST),
             $icontent
         );
+        $summary->routednextpageid = 0;
+        $summary->routednextpagenum = 0;
         return $summary;
     }
 
@@ -1567,6 +1629,20 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
     // Create object summary attempt.
     $summary = new stdClass();
     $summary->grid = icontent_make_attempt_summary_by_page($pageid, $cm->id);
+    $summary->routednextpageid = 0;
+    $summary->routednextpagenum = 0;
+
+    $currentpage = $DB->get_record('icontent_pages', ['id' => $pageid, 'cmid' => $cm->id], '*', IGNORE_MISSING);
+    if (!empty($currentpage)) {
+        $routednextpageid = (int)icontent_get_question_routed_next_pageid($currentpage);
+        if (!empty($routednextpageid) && $routednextpageid !== (int)$currentpage->id) {
+            $routednextpage = icontent_get_visible_page_by_id($routednextpageid, (int)$cm->id);
+            if (!empty($routednextpage->pagenum)) {
+                $summary->routednextpageid = (int)$routednextpageid;
+                $summary->routednextpagenum = (int)$routednextpage->pagenum;
+            }
+        }
+    }
 
     return $summary;
 }

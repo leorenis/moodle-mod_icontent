@@ -67,6 +67,7 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
             'evaluative',
             'maxpages',
             'progressbar',
+            'showtocmenu',
             'shownotesarea',
             'maxnotesperpages',
             'copyright',
@@ -90,6 +91,9 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
             ['id'],
             ['coverpage',
             'title',
+            'branchref',
+            'branchname',
+            'branchparentpageid',
             'showtitle',
             'titlecolor',
             'pageicontent',
@@ -105,6 +109,10 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
             'hidden',
             'maxnotesperpages',
             'attemptsallowed',
+            'prevmode',
+            'prevpageid',
+            'nextmode',
+            'nextpageid',
             'expandnotesarea',
             'expandquestionsarea',
             'timecreated',
@@ -161,6 +169,10 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
             'maxmark',
             'remake',
             'qtype',
+            'correctnextpageid',
+            'incorrectnextpageid',
+            'manualreviewnextpageid',
+            'defaultnextpageid',
             ]
         );
 
@@ -181,7 +193,9 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
             'fraction',
             'rightanswer',
             'answertext',
-            'responsefileitemid',
+            'answertextformat',
+            'responseanswerfileitemid',
+            'responserecordingfileitemid',
             'reviewercomment',
             'reviewercommentformat',
             'timecreated',
@@ -246,30 +260,70 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
             $pagesnote->set_source_table('icontent_pages_notes', ['pageid' => backup::VAR_PARENTID]);
             $noteslike->set_source_table('icontent_pages_notes_like', ['pagenoteid' => backup::VAR_PARENTID]);
             $pagesdisplayed->set_source_table('icontent_pages_displayed', ['pageid' => backup::VAR_PARENTID]);
-                        $questionattempt->set_source_sql(
-                                'SELECT qa.*,
-                                                (
-                                                        SELECT MAX(f.itemid)
-                                                            FROM {files} f
-                                                            JOIN {context} c
-                                                                ON c.id = f.contextid
-                                                         WHERE f.component = ?
-                                                             AND f.filearea = ?
-                                                             AND f.filename = qa.answertext
-                                                             AND f.userid = qa.userid
-                                                             AND c.contextlevel = ?
-                                                             AND c.instanceid = qa.cmid
-                                                             AND f.filesize > 0
-                                                ) AS responsefileitemid
-                                     FROM {icontent_question_attempts} qa
-                                    WHERE qa.pagesquestionsid = ?',
-                                [
-                                        backup_helper::is_sqlparam('question'),
-                                        backup_helper::is_sqlparam('response_answer'),
-                                        backup_helper::is_sqlparam(CONTEXT_MODULE),
-                                        backup::VAR_PARENTID,
-                                ]
-                        );
+            $questionattempt->set_source_sql(
+                'SELECT qa.*,
+                        (
+                            SELECT f.itemid
+                              FROM {files} f
+                              JOIN {context} c ON c.id = f.contextid
+                             WHERE f.component = ?
+                               AND f.filearea = ?
+                               AND f.userid = qa.userid
+                               AND c.contextlevel = ?
+                               AND c.instanceid = qa.cmid
+                               AND f.filesize > 0
+                               AND (
+                                   (qa.answertext <> \'\' AND f.filename = qa.answertext)
+                                   OR (
+                                       f.timecreated >= qa.timecreated - 900
+                                       AND f.timecreated <= qa.timecreated + 900
+                                   )
+                               )
+                          ORDER BY CASE
+                                       WHEN qa.answertext <> \'\' AND f.filename = qa.answertext THEN 0
+                                       ELSE 1
+                                   END,
+                                   ABS(f.timecreated - qa.timecreated) ASC,
+                                   f.id DESC
+                             LIMIT 1
+                        ) AS responseanswerfileitemid,
+                        (
+                            SELECT f.itemid
+                              FROM {files} f
+                              JOIN {context} c ON c.id = f.contextid
+                             WHERE f.component = ?
+                               AND f.filearea = ?
+                               AND f.userid = qa.userid
+                               AND c.contextlevel = ?
+                               AND c.instanceid = qa.cmid
+                               AND f.filesize > 0
+                               AND (
+                                   (qa.answertext <> \'\' AND f.filename = qa.answertext)
+                                   OR (
+                                       f.timecreated >= qa.timecreated - 900
+                                       AND f.timecreated <= qa.timecreated + 900
+                                   )
+                               )
+                          ORDER BY CASE
+                                       WHEN qa.answertext <> \'\' AND f.filename = qa.answertext THEN 0
+                                       ELSE 1
+                                   END,
+                                   ABS(f.timecreated - qa.timecreated) ASC,
+                                   f.id DESC
+                             LIMIT 1
+                        ) AS responserecordingfileitemid
+                   FROM {icontent_question_attempts} qa
+                  WHERE qa.pagesquestionsid = ?',
+                [
+                    backup_helper::is_sqlparam('question'),
+                    backup_helper::is_sqlparam('response_answer'),
+                    backup_helper::is_sqlparam(CONTEXT_MODULE),
+                    backup_helper::is_sqlparam('question'),
+                    backup_helper::is_sqlparam('response_recording'),
+                    backup_helper::is_sqlparam(CONTEXT_MODULE),
+                    backup::VAR_PARENTID,
+                ]
+            );
             $grade->set_source_table('icontent_grades', ['icontentid' => backup::VAR_PARENTID]);
         }
 
@@ -287,7 +341,8 @@ class backup_icontent_activity_structure_step extends backup_questions_activity_
         $icontent->annotate_files('mod_icontent', 'intro', null);
         $page->annotate_files('mod_icontent', 'page', 'id');
         $page->annotate_files('mod_icontent', 'bgpage', 'id');
-        $questionattempt->annotate_files('question', 'response_answer', 'responsefileitemid');
+        $questionattempt->annotate_files('question', 'response_answer', 'responseanswerfileitemid');
+        $questionattempt->annotate_files('question', 'response_recording', 'responserecordingfileitemid');
 
         // Return the root element (icontent), wrapped into standard activity structure.
         return $this->prepare_activity_structure($icontent);

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/icontent/db" VERSION="20240827" COMMENT="XMLDB file for Moodle mod/icontent"
+<XMLDB PATH="mod/icontent/db" VERSION="20260328" COMMENT="XMLDB file for Moodle mod/icontent"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -27,6 +27,7 @@
         <FIELD NAME="evaluative" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Says the iContent will be evaluative."/>
         <FIELD NAME="maxpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="progressbar" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Percentage of pages viewed."/>
+        <FIELD NAME="showtocmenu" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Show the side-column table of contents menu for learners."/>
         <FIELD NAME="shownotesarea" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show notes area."/>
         <FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Maximum annotation per page."/>
         <FIELD NAME="copyright" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Copyright."/>
@@ -45,6 +46,9 @@
         <FIELD NAME="cmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="coverpage" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="branchref" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="Internal branch grouping key shared by pages in the same branch."/>
+        <FIELD NAME="branchname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Optional branch label for grouped branch pages."/>
+        <FIELD NAME="branchparentpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Mainline parent page under which this branch page is grouped."/>
         <FIELD NAME="showtitle" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="titlecolor" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="pageicontent" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
@@ -60,6 +64,10 @@
         <FIELD NAME="hidden" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="maxnotesperpages" TYPE="int" LENGTH="5" NOTNULL="true" DEFAULT="10" SEQUENCE="false" COMMENT="Maximum annotation per page."/>
         <FIELD NAME="attemptsallowed" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Attempts allowed."/>
+        <FIELD NAME="prevmode" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Previous button mode: 0 auto, 1 hide, 2 custom target."/>
+        <FIELD NAME="prevpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Custom previous page id when previous mode is custom."/>
+        <FIELD NAME="nextmode" TYPE="int" LENGTH="2" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Next button mode: 0 auto, 1 hide, 2 custom target."/>
+        <FIELD NAME="nextpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Custom next page id when next mode is custom."/>
         <FIELD NAME="expandnotesarea" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show area expanded notes."/>
         <FIELD NAME="expandquestionsarea" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Show area expanded questions."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -122,11 +130,32 @@
         <FIELD NAME="maxmark" TYPE="number" LENGTH="12" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="7" COMMENT="Weight of the matter in relation to other content."/>
         <FIELD NAME="remake" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If true, it allows the User redo the question."/>
         <FIELD NAME="qtype" TYPE="char" LENGTH="50" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="correctnextpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Optional destination page when the latest attempt is fully correct."/>
+        <FIELD NAME="incorrectnextpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Optional destination page when the latest attempt is incorrect or partially correct."/>
+        <FIELD NAME="manualreviewnextpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Optional destination page when the latest attempt needs manual review."/>
+        <FIELD NAME="defaultnextpageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Fallback destination page when no outcome-specific route matches."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="pageid" TYPE="foreign" FIELDS="pageid" REFTABLE="icontent_pages" REFFIELDS="id"/>
       </KEYS>
+    </TABLE>
+    <TABLE NAME="icontent_pages_nav" COMMENT="Actual page-to-page navigation history for branch routing.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="11" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="frompageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="topageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="cmiduseridtime" UNIQUE="false" FIELDS="cmid, userid, timecreated"/>
+        <INDEX NAME="topageid" UNIQUE="false" FIELDS="topageid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="icontent_pages_displayed" COMMENT="Defines icontent_pages_displayed. Says if the page has been viewed.">
       <FIELDS>
@@ -154,6 +183,7 @@
         <FIELD NAME="fraction" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Fraction of the note received on the question submitted."/>
         <FIELD NAME="rightanswer" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Right answer."/>
         <FIELD NAME="answertext" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Texto de resposta."/>
+        <FIELD NAME="answertextformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of answertext (0=plain/stored HTML, FORMAT_HTML=1, etc.)."/>
         <FIELD NAME="reviewercomment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Manual reviewer feedback comment."/>
         <FIELD NAME="reviewercommentformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Format of reviewercomment."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Response submission time."/>

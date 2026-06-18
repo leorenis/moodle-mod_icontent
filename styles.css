@@ -5,19 +5,19 @@
  * @copyright  2016 Leo Santos {@link http://github.com/leorenis}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
- 
+
 /* styles using by icontent */
 .path-mod-icontent .block_icontent_toc .action-list {
-	float: right;
+    float: right;
 }
 .path-mod-icontent .block_icontent_toc .action-list {
-	/* float: left;*/
+    /* float: left;*/
 }
 .path-mod-icontent .block_icontent_toc .action-list img.smallicon {
-	margin: 0 3px;
+    margin: 0 3px;
 }
 
-.path-mod-icontent .icontent_toc{
+.path-mod-icontent .icontent_toc {
     font-size: 0.8em;
 }
 .path-mod-icontent .block_icontent_toc .icontent_toc li {
@@ -28,13 +28,34 @@
     padding-left: 0;
     padding-right: 0;
 }
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-list {
+    border-left: 2px solid #d9d9d9;
+    margin: 0.35em 0 0.35em 1rem;
+    padding-left: 0.75rem;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-group {
+    margin-top: 0.5em;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-label {
+    color: #5a5a5a;
+    display: block;
+    font-size: 0.9em;
+    font-weight: 600;
+    margin-bottom: 0.25em;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-pages {
+    margin-left: 0;
+}
+.path-mod-icontent .block_icontent_toc .icontent_toc .cluster-page {
+    margin-top: 0.35em;
+}
 .path-mod-icontent .block_icontent_toc .icontent_toc li {
     clear: both;
     list-style: none;
     margin-top: 0.5em;
 }
-.path-mod-icontent .block_icontent_toc .icontent_toc ul li .active{
-	cursor: default;
+.path-mod-icontent .block_icontent_toc .icontent_toc ul li .active {
+    cursor: default;
     font-weight: bolder;
     pointer-events: none;
 }
@@ -48,44 +69,48 @@
     margin: 0.4em;
 }
 .path-mod-icontent .icontent-page .row {
-	margin-left: 0;
+    margin-left: 0;
 }
-.path-mod-icontent .icontent-page .previous{
-	text-align: right;
+.path-mod-icontent .icontent-page .previous {
+    text-align: right;
 }
-.path-mod-icontent .icontent-page .pagenum{
-	text-align: right;
+.path-mod-icontent .icontent-page .pagenum {
+    text-align: right;
 }
-.path-mod-icontent .full-paging-buttonbar{
-	text-align: center;
+.path-mod-icontent .full-paging-buttonbar {
+    text-align: center;
 }
-.path-mod-icontent .simple-paging-buttonbar{
-	text-align: center;
+.path-mod-icontent .simple-paging-buttonbar {
+    text-align: center;
 }
-.path-mod-icontent .simple-paging-buttonbar button{
-	min-width: 120px;
+.path-mod-icontent .icontent-buttonbar .btn-previous-page.disabled,
+.path-mod-icontent .icontent-buttonbar .btn-next-page.disabled {
+    display: none;
 }
-.path-mod-icontent .icontent-page .pagenum span{
-	margin-right: 5px;
-	border: 1px solid #E3E3E3;
-	padding: 5px 10px;
-	font-weight: bold;
-	font-size: 12px;
+.path-mod-icontent .simple-paging-buttonbar button {
+    min-width: 120px;
 }
-.path-mod-icontent .icontent-page .pagenum span em{
-	font-style: normal;
-	font-size: 16px;
+.path-mod-icontent .icontent-page .pagenum span {
+    margin-right: 5px;
+    border: 1px solid #e3e3e3;
+    padding: 5px 10px;
+    font-weight: bold;
+    font-size: 12px;
+}
+.path-mod-icontent .icontent-page .pagenum span em {
+    font-style: normal;
+    font-size: 16px;
 }
 
-.path-mod-icontent .icontent-page .fulltextpage{
-	font-size: 16px;
+.path-mod-icontent .icontent-page .fulltextpage {
+    font-size: 16px;
     letter-spacing: 0.1px;
     line-height: 1.5em;
     word-spacing: 0.3px;
     padding: 15px;
 }
-.path-mod-icontent .icontent-page .fulltextpage ul li{
-	line-height: 1.5em;
+.path-mod-icontent .icontent-page .fulltextpage ul li {
+    line-height: 1.5em;
 }
 /*Hightcontrast */
 .path-mod-icontent .icontent-page .highcontrast h1,
@@ -97,28 +122,28 @@
 .path-mod-icontent .icontent-page .highcontrast a,
 .path-mod-icontent .icontent-page .highcontrast a:active,
 .path-mod-icontent .icontent-page .highcontrast a:hover,
-.path-mod-icontent .icontent-page .highcontrast .nav-tabs > .active > a, 
-.path-mod-icontent .icontent-page .highcontrast .nav-tabs > .active > a:hover, 
-.path-mod-icontent .icontent-page .highcontrast .nav-tabs > .active > a:focus{
-  color: #ff0;
+.path-mod-icontent .icontent-page .highcontrast .nav-tabs > .active > a,
+.path-mod-icontent .icontent-page .highcontrast .nav-tabs > .active > a:hover,
+.path-mod-icontent .icontent-page .highcontrast .nav-tabs > .active > a:focus {
+    color: #ff0;
 }
-.path-mod-icontent .icontent-page .highcontrast p, 
+.path-mod-icontent .icontent-page .highcontrast p,
 .path-mod-icontent .icontent-page .highcontrast b,
 .path-mod-icontent .icontent-page .highcontrast strong,
 .path-mod-icontent .icontent-page .highcontrast span,
-.path-mod-icontent .icontent-page .highcontrast{
-  color: #fff;
+.path-mod-icontent .icontent-page .highcontrast {
+    color: #fff;
 }
-.path-mod-icontent .icontent-page .highcontrast .notesarea .notelist .pagenoterow{
-  background-color: #222;
-  border-bottom: 1px solid #555;
+.path-mod-icontent .icontent-page .highcontrast .notesarea .notelist .pagenoterow {
+    background-color: #222;
+    border-bottom: 1px solid #555;
 }
 .path-mod-icontent .icontent-page .highcontrast .questionsarea .titlequestions:hover,
 .path-mod-icontent .icontent-page .highcontrast.highcontrast .notesarea .titlenotes:hover {
-	color: #ffff80;
+    color: #ffff80;
 }
 .path-mod-icontent .highcontrast .questionsarea .question {
-	color: #333;
+    color: #333;
 }
 .path-mod-icontent .icontent-page .highcontrast .questionsarea .titlequestions,
 .path-mod-icontent .icontent-page .highcontrast .notesarea .titlenotes,
@@ -127,53 +152,53 @@
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs .active a:focus,
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs a:hover,
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs a:focus,
-.path-mod-icontent .icontent-page .highcontrast .questionsarea .icontentattemptsummary tbody tr:hover > td, .table-hover tbody tr:hover > th {
-	background-color: #222;
+.path-mod-icontent .icontent-page .highcontrast .questionsarea .icontentattemptsummary tbody tr:hover > td,
+.table-hover tbody tr:hover > th {
+    background-color: #222;
 }
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs a,
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs a:hover,
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs a:focus
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs .active a,
 .path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs .active a:hover,
-.path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs .active a:focus
-{
-	border-bottom: none;
+.path-mod-icontent .icontent-page .highcontrast .notesarea .fulltab .nav-tabs .active a:focus {
+    border-bottom: none;
 }
 /*End Hightcontrast */
-.path-mod-icontent .icontent-page .fulltextpage .toolbarpage{
-	text-align: right;
+.path-mod-icontent .icontent-page .fulltextpage .toolbarpage {
+    text-align: right;
 }
-.path-mod-icontent .icontent-page .fulltextpage h3.pagetitle{
-	font-size: 30px;
+.path-mod-icontent .icontent-page .fulltextpage h3.pagetitle {
+    font-size: 30px;
     line-height: 1.2em;
     margin-bottom: 20px;
 }
-.path-mod-icontent .icontent-page .fulltextpage p{
-	font-size: 16px;
-	text-indent: 0em;
-	line-height: 1.5em;
+.path-mod-icontent .icontent-page .fulltextpage p {
+    font-size: 16px;
+    text-indent: 0;
+    line-height: 1.5em;
 }
-.path-mod-icontent .icontent-page .fulltextpage .toolbarpage a{
-	margin: 0;
+.path-mod-icontent .icontent-page .fulltextpage .toolbarpage a {
+    margin: 0;
 }
-.path-mod-icontent .icontent-page .fulltextpage .toolbarpage .icon{
-  margin-left: 10px;
+.path-mod-icontent .icontent-page .fulltextpage .toolbarpage .icon {
+    margin-left: 10px;
 }
-.path-mod-icontent .icontent-page .fulltextpage .formcomment{
-	margin-top: 15px;
-	text-align: right;
+.path-mod-icontent .icontent-page .fulltextpage .formcomment {
+    margin-top: 15px;
+    text-align: right;
 }
-.path-mod-icontent .icontent-page .fulltextpage img{
-	margin-right: 10px;
+.path-mod-icontent .icontent-page .fulltextpage img {
+    margin-right: 10px;
 }
-.path-mod-icontent .icontent-page .fulltextpage .loading{
-  	position: relative;
+.path-mod-icontent .icontent-page .fulltextpage .loading {
+    position: relative;
 }
-.path-mod-icontent .icontent-page .fulltextpage .loading .img-loading{
-	left: 50%;
-	margin-top: 25%;
-	position: absolute;
-	margin-left: -35px;
+.path-mod-icontent .icontent-page .fulltextpage .loading .img-loading {
+    left: 50%;
+    margin-top: 25%;
+    position: absolute;
+    margin-left: -35px;
 }
 /** BOOTSTRAP IMGs*/
 .path-mod-icontent .img-thumbnail {
@@ -196,43 +221,57 @@
 }
 
 /** NOTES AREA */
-.path-mod-icontent .notesarea #note .fields span{
-	margin-right: 15px;
+.path-mod-icontent .notesarea #note .fields span {
+    margin-right: 15px;
 }
-.path-mod-icontent .notesarea #tabnav #messagenotes{
- 	background: #6DB143 none repeat scroll 0 0;
+.path-mod-icontent .notesarea #idcommentnote,
+.path-mod-icontent .notesarea #idcommentdoubt {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+.path-mod-icontent .notesarea .notecomment .replynotecomment,
+.path-mod-icontent .notesarea .notecomment .textnotecomment {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+.path-mod-icontent .notesarea #tabnav #messagenotes {
+    background: #6db143 none repeat scroll 0 0;
     border-radius: 10px;
     font-size: 0.7em;
     line-height: 0.7em;
     text-align: center;
-    color: #FFFFFF;
+    color: #fff;
     float: right;
     margin-left: 3px;
     margin-top: -5px;
     padding: 3px 6px 3px;
 }
-.path-mod-icontent .notesarea #tabnav #messagedoubt{
- 	background: #238BC7 none repeat scroll 0 0;
+.path-mod-icontent .notesarea #tabnav #messagedoubt {
+    background: #238bc7 none repeat scroll 0 0;
     border-radius: 10px;
     font-size: 0.7em;
     line-height: 0.7em;
     text-align: center;
-    color: #FFFFFF;
+    color: #fff;
     float: right;
     margin-left: 3px;
     margin-top: -5px;
     padding: 3px 6px 3px;
 }
+
 .path-mod-icontent .notesarea #tabnav #messagedoubt:hover,
-.path-mod-icontent .notesarea #tabnav #messagenotes:hover{
-	text-decoration: none;
+.path-mod-icontent .notesarea #tabnav #messagenotes:hover {
+    text-decoration: none;
 }
-.path-mod-icontent .questionsarea{
-	margin-bottom: 2px;
+.path-mod-icontent .questionsarea {
+    margin-bottom: 2px;
 }
-.path-mod-icontent .questionsarea .titlequestions{
-	cursor: pointer;
-	cursor: hand;
+.path-mod-icontent .questionsarea .titlequestions {
+    cursor: hand;
     border-bottom: 1px solid #ddd;
     padding: 12px;
     margin-bottom: 0;
@@ -241,9 +280,9 @@
     border-radius: 5px;
     transition: all 0.8s ease 0s;
 }
-.path-mod-icontent .notesarea .titlenotes{
-	cursor: pointer;
-	border-bottom: 1px solid #dddddd;
+.path-mod-icontent .notesarea .titlenotes {
+    cursor: pointer;
+    border-bottom: 1px solid #ddd;
     padding: 12px;
     margin-top: 0;
     background-color: #f5f5f5;
@@ -252,224 +291,309 @@
     transition: all 1s ease 0s;
 }
 .path-mod-icontent .questionsarea .titlequestions:hover,
-.path-mod-icontent .notesarea .titlenotes:hover{
-	color: #000;
-	border-bottom: 1px solid #aaaaaa;
-	background-color: #f9f9f9;
+.path-mod-icontent .notesarea .titlenotes:hover {
+    color: #000;
+    border-bottom: 1px solid #aaa;
+    background-color: #f9f9f9;
 }
 .path-mod-icontent .questionsarea .question {
-	background-color: #fff;
-    border-bottom: 2px solid #eeeeee;
+    background-color: #fff;
+    border-bottom: 2px solid #eee;
     border-radius: 10px;
     margin-bottom: 10px;
     margin-top: 10px;
     padding: 10px;
     font-size: 14px;
 }
-.path-mod-icontent .questionsarea .question .questiontext{
-	color: #111111;
+.path-mod-icontent .questionsarea .question .questiontext {
+    color: #111;
 }
-.path-mod-icontent .questionsarea .question .optionslist label{
-	font-size: 13px;
+.path-mod-icontent .questionsarea .question .optionslist label {
+    font-size: 13px;
 }
-.path-mod-icontent .questionsarea .question .optionslist td.matchoptions{
-	font-size: 13px;
-	padding-right: 10px;
+.path-mod-icontent .questionsarea .question .optionslist td.matchoptions {
+    font-size: 13px;
+    padding-right: 10px;
+}
+.path-mod-icontent .questionsarea .question.match .optionslist {
+    overflow-x: auto;
+}
+.path-mod-icontent .questionsarea .question.match .optionslist .match-table {
+    width: 100%;
+    table-layout: fixed;
+}
+.path-mod-icontent .questionsarea .question.match .optionslist .match-table td {
+    vertical-align: top;
+    padding-bottom: 8px;
+}
+.path-mod-icontent .questionsarea .question.match .optionslist .match-table td.matchoptions {
+    width: 45%;
+    white-space: normal;
+    word-break: break-word;
+}
+.path-mod-icontent .questionsarea .question.match .optionslist .match-table td.matchanswer {
+    width: 55%;
+}
+.path-mod-icontent .questionsarea .question.match .optionslist .match-table td.matchanswer select.match-select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+.path-mod-icontent .questionsarea .question.match.qengine-render .ablock {
+    overflow-x: auto;
+}
+.path-mod-icontent .questionsarea .question.match.qengine-render table.answer {
+    width: 100%;
+    table-layout: fixed;
+}
+.path-mod-icontent .questionsarea .question.match.qengine-render table.answer td.text {
+    width: 45%;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+.path-mod-icontent .questionsarea .question.match.qengine-render table.answer td.control {
+    width: 55%;
+}
+.path-mod-icontent .questionsarea .question.match.qengine-render table.answer td.control select.form-select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
 }
 /** List of annotations **/
-.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent{
-	margin-left: 45px;
-	font-size: 13px;
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent {
+    margin-left: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 13px;
     line-height: 1.4em;
 }
-.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon{
-	color: #aaa;
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .35rem;
 }
-.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter .notedate, 
-.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a{
-	color: #aaa;
-	font-size: 12px;
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteflags {
+    display: inline-flex;
+    gap: .25rem;
+}
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .noteheader .noteon {
+    color: #aaa;
+}
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter .notedate,
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a {
+    color: #aaa;
+    font-size: 12px;
     margin-right: 4px;
 }
-.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a{
-	cursor: pointer;
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a {
+    cursor: pointer;
 }
-.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a:hover{
-	text-decoration: none;
-	color: #555;
+.path-mod-icontent .icontent-page .notesarea .notelist .noterowicontent .notefooter a:hover {
+    text-decoration: none;
+    color: #555;
 }
-.path-mod-icontent .icontent-page .notesarea .notelist .pagenoterow{
-	background-color: #fff;
+.path-mod-icontent .icontent-page .notesarea .notelist .pagenoterow {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background-color: #fff;
     border-bottom: 1px solid #eee;
     border-radius: 5px;
     margin-bottom: 10px;
     margin-top: 10px;
     padding: 5px;
 }
+.path-mod-icontent .icontent-page .notesarea .notelist .pagenoterow .img-thumbnail.pull-left {
+    float: none;
+    flex: 0 0 auto;
+    margin-top: 2px;
+}
 
 /* Organization of notes in at levels */
-.icontent-page .notelist .level-2{
-	margin-left: 4%;
+.icontent-page .notelist .level-2 {
+    margin-left: 4%;
 }
-.icontent-page .notelist .level-3{
-	margin-left: 8%;
+.icontent-page .notelist .level-3 {
+    margin-left: 8%;
 }
-.icontent-page .notelist .level-4{
-	margin-left: 12%;
+.icontent-page .notelist .level-4 {
+    margin-left: 12%;
 }
-.icontent-page .notelist .level-5{
-	margin-left: 16%;
+.icontent-page .notelist .level-5 {
+    margin-left: 16%;
 }
-.icontent-page .notelist .level-6{
-	margin-left: 20%;
+.icontent-page .notelist .level-6 {
+    margin-left: 20%;
 }
-.icontent-page .notelist .level-7{
-	margin-left: 24%;
+.icontent-page .notelist .level-7 {
+    margin-left: 24%;
 }
-.icontent-page .notelist .level-8{
-	margin-left: 28%;
+.icontent-page .notelist .level-8 {
+    margin-left: 28%;
 }
-.icontent-page .notelist .level-9{
-	margin-left: 32%;
+.icontent-page .notelist .level-9 {
+    margin-left: 32%;
 }
-.icontent-page .notelist .level-10{
-	margin-left: 35%;
+.icontent-page .notelist .level-10 {
+    margin-left: 35%;
 }
-.icontent-page .notelist .level-11{
-	margin-left: 38%;
+.icontent-page .notelist .level-11 {
+    margin-left: 38%;
 }
-.icontent-page .notelist .level-12{
-	margin-left: 40%;
+.icontent-page .notelist .level-12 {
+    margin-left: 40%;
 }
 
 /* Page Layout */
-.path-mod-icontent .icontent-page .fulltextpage .columns-2{
-  -webkit-columns: 2 200px;
-     -moz-columns: 2 200px;
-          columns: 2 200px;
-  -webkit-column-gap: 4em;
-     -moz-column-gap: 4em;
-          column-gap: 4em;
-  -webkit-column-rule: 1px dotted #ddd;
-     -moz-column-rule: 1px dotted #ddd;
-          column-rule: 1px dotted #ddd;
+.path-mod-icontent .icontent-page .fulltextpage .columns-2 {
+    -webkit-columns: 2 200px;
+    -moz-columns: 2 200px;
+    columns: 2 200px;
+    -webkit-column-gap: 4em;
+    -moz-column-gap: 4em;
+    column-gap: 4em;
+    -webkit-column-rule: 1px dotted #ddd;
+    -moz-column-rule: 1px dotted #ddd;
+    column-rule: 1px dotted #ddd;
 }
-.path-mod-icontent .icontent-page .fulltextpage .columns-3{
-  -webkit-columns: 3 200px;
-     -moz-columns: 3 200px;
-          columns: 3 200px;
-  -webkit-column-gap: 4em;
-     -moz-column-gap: 4em;
-          column-gap: 4em;
-  -webkit-column-rule: 1px dotted #ddd;
-     -moz-column-rule: 1px dotted #ddd;
-          column-rule: 1px dotted #ddd;
+.path-mod-icontent .icontent-page .fulltextpage .columns-3 {
+    -webkit-columns: 3 200px;
+    -moz-columns: 3 200px;
+    columns: 3 200px;
+    -webkit-column-gap: 4em;
+    -moz-column-gap: 4em;
+    column-gap: 4em;
+    -webkit-column-rule: 1px dotted #ddd;
+    -moz-column-rule: 1px dotted #ddd;
+    column-rule: 1px dotted #ddd;
 }
-.path-mod-icontent .icontent-page .fulltextpage .columns-4{
-  -webkit-columns: 4 165px;
-     -moz-columns: 4 165px;
-          columns: 4 165px;
-  -webkit-column-gap: 4em;
-     -moz-column-gap: 4em;
-          column-gap: 4em;
-  -webkit-column-rule: 1px dotted #ddd;
-     -moz-column-rule: 1px dotted #ddd;
-          column-rule: 1px dotted #ddd;
+.path-mod-icontent .icontent-page .fulltextpage .columns-4 {
+    -webkit-columns: 4 165px;
+    -moz-columns: 4 165px;
+    columns: 4 165px;
+    -webkit-column-gap: 4em;
+    -moz-column-gap: 4em;
+    column-gap: 4em;
+    -webkit-column-rule: 1px dotted #ddd;
+    -moz-column-rule: 1px dotted #ddd;
+    column-rule: 1px dotted #ddd;
 }
 
-.path-mod-icontent .icontent-page .fulltextpage .columns-5{
-  -webkit-columns: 5 120px;
-     -moz-columns: 5 120px;
-          columns: 5 120px;
-  -webkit-column-gap: 4em;
-     -moz-column-gap: 4em;
-          column-gap: 4em;
-  -webkit-column-rule: 1px dotted #ddd;
-     -moz-column-rule: 1px dotted #ddd;
-          column-rule: 1px dotted #ddd;
+.path-mod-icontent .icontent-page .fulltextpage .columns-5 {
+    -webkit-columns: 5 120px;
+    -moz-columns: 5 120px;
+    columns: 5 120px;
+    -webkit-column-gap: 4em;
+    -moz-column-gap: 4em;
+    column-gap: 4em;
+    -webkit-column-rule: 1px dotted #ddd;
+    -moz-column-rule: 1px dotted #ddd;
+    column-rule: 1px dotted #ddd;
 }
 
 @media (max-width: 990px) {
-	.path-mod-icontent .icontent-page .previous{
-		text-align: center;
-	}
-	.path-mod-icontent .icontent-page .next{
-		text-align: center;
-	}
-	.path-mod-icontent .icontent-page .notesarea .userpicture{
-		display: none;
-	}
+    .path-mod-icontent .icontent-page .previous {
+        text-align: center;
+    }
+    .path-mod-icontent .icontent-page .next {
+        text-align: center;
+    }
+    .path-mod-icontent .icontent-page .notesarea .userpicture {
+        display: none;
+    }
 }
 
-.pull-right{
-	float: right !important;
+.pull-right {
+    float: right;
 }
-.pull-left{
-	float: left;
+.pull-left {
+    float: left;
 }
 
 /*Table addquestionpage */
-.path-mod-icontent table.icontentquestions{
-	margin-bottom: 10px !important;
+.path-mod-icontent table.icontentquestions {
+    margin-bottom: 10px;
 }
-.path-mod-icontent table.icontentquestions .header{
-	text-align: left !important;
+.path-mod-icontent table.icontentquestions .header {
+    text-align: left;
 }
 
-.path-mod-icontent table.icontentquestions .qtype{
-	text-align: left !important;
-	width: 5% !important;
+.path-mod-icontent table.icontentquestions .qtype {
+    text-align: left;
+    width: 5%;
 }
 
 .path-mod-icontent table.icontentquestions .questionname {
-    white-space: normal !important;
+    white-space: normal;
 }
 
-.path-mod-icontent table.icontentquestions td{
-	padding: 5px !important;
+.path-mod-icontent table.icontentquestions .routingtargets {
+    min-width: 250px;
 }
-.path-mod-icontent #idtableattemptsusers .fullname .lkfullname{
-	margin-left: 5px;
+
+.path-mod-icontent .icontent-route-grid {
+    display: grid;
+    gap: 6px;
 }
-.path-mod-icontent #idtableattemptsusers a.btn-primary{
-	color: white;
+
+.path-mod-icontent .icontent-route-field label {
+    display: block;
+    margin-bottom: 2px;
+    font-size: .75rem;
+    line-height: 1.1;
 }
-.path-mod-icontent #idtableattemptsusers a.btn-toevaluate{
-	padding: 4px 10px !important;
+
+.path-mod-icontent .icontent-route-field select {
+    max-width: 260px;
 }
-.path-mod-icontent .labelfieldgrade{
-	font-weight: bolder;
+
+.path-mod-icontent table.icontentquestions td {
+    padding: 5px;
+}
+.path-mod-icontent #idtableattemptsusers .fullname .lkfullname {
+    margin-left: 5px;
+}
+.path-mod-icontent #idtableattemptsusers a.btn-primary {
+    color: white;
+}
+.path-mod-icontent #idtableattemptsusers a.btn-toevaluate {
+    padding: 4px 10px;
+}
+.path-mod-icontent .labelfieldgrade {
+    font-weight: bolder;
 }
 /*Style for readmore*/
 .path-mod-icontent .coverpage .state-readmore .read-more-state-off {
-  display: none;
+    display: none;
 }
-.path-mod-icontent .coverpage .state-readmore{
-	text-align: center;
+.path-mod-icontent .coverpage .state-readmore {
+    text-align: center;
 }
-.path-mod-icontent .fulltextpage .read-more-target{
-	display: none;
+.path-mod-icontent .fulltextpage .read-more-target {
+    display: none;
 }
 /*Cover page*/
-.path-mod-icontent .headercoverpage{
-	background:  rgba(255, 255, 255, 0.7);
-	padding: 2.6em 2.6em 0;
-	width: 80%;
-	margin: 6% auto 0 !important;
+.path-mod-icontent .headercoverpage {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 2.6em 2.6em 0;
+    width: 80%;
+    margin: 6% auto 0;
 }
-.path-mod-icontent .headercoverpage .titlecoverpage{
-	font-size: 250%;
+.path-mod-icontent .headercoverpage .titlecoverpage {
+    font-size: 250%;
     line-height: 1.2em;
     text-align: center;
 }
-.path-mod-icontent .contentcoverpage{
-	background:  rgba(255, 255, 255, 0.7);
-	padding: 1em 2.6em 2.6em;
-	width: 80%;
-	margin: 0 auto;
+.path-mod-icontent .contentcoverpage {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 1em 2.6em 2.6em;
+    width: 80%;
+    margin: 0 auto;
 }
-.path-mod-icontent .contentcoverpage p{
-	 color: #1c1c1c;
+.path-mod-icontent .contentcoverpage p {
+    color: #1c1c1c;
     line-height: 1.5em;
     font-size: 16px;
 }
@@ -491,99 +615,171 @@
 }
 /** Progress bar. Override Twitter Bootstrap */
 .progress {
-  height: 20px;
-  margin-bottom: 20px;
-  margin-top: 20px;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  border-radius: 4px;
-  -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
-          box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+    height: 20px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .1);
 }
 .progress-bar {
-  float: left;
-  width: 0;
-  height: 100%;
-  font-size: 12px;
-  line-height: 20px;
-  color: #fff;
-  text-align: center;
-  background-color: #337ab7;
-  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
-          box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
-  -webkit-transition: width .6s ease;
-       -o-transition: width .6s ease;
-          transition: width .6s ease;
+    float: left;
+    width: 0;
+    height: 100%;
+    font-size: 12px;
+    line-height: 20px;
+    color: #fff;
+    text-align: center;
+    background-color: #337ab7;
+    -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .15);
+    -webkit-transition: width .6s ease;
+    -o-transition: width .6s ease;
+    transition: width .6s ease;
 }
 .progress-striped .progress-bar,
 .progress-bar-striped {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  -webkit-background-size: 40px 40px;
-          background-size: 40px 40px;
+    background-image:
+        linear-gradient(
+            45deg,
+            rgba(255, 255, 255, .15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .15) 50%,
+            rgba(255, 255, 255, .15) 75%,
+            transparent 75%,
+            transparent
+        );
+    -webkit-background-size: 40px 40px;
+    background-size: 40px 40px;
+}
+
+@-webkit-keyframes progress-bar-stripes {
+    0% {
+        background-position: 40px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+@keyframes progress-bar-stripes {
+    0% {
+        background-position: 40px 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
 }
 .progress.active .progress-bar,
 .progress-bar.active {
-  -webkit-animation: progress-bar-stripes 2s linear infinite;
-       -o-animation: progress-bar-stripes 2s linear infinite;
-          animation: progress-bar-stripes 2s linear infinite;
+    -webkit-animation: progress-bar-stripes 2s linear infinite;
+    -o-animation: progress-bar-stripes 2s linear infinite;
+    animation: progress-bar-stripes 2s linear infinite;
 }
 .progress-bar-success {
-  background-color: #5cb85c;
+    background-color: #5cb85c;
 }
 .progress-striped .progress-bar-success {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image:
+        linear-gradient(
+            45deg,
+            rgba(255, 255, 255, .15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .15) 50%,
+            rgba(255, 255, 255, .15) 75%,
+            transparent 75%,
+            transparent
+        );
 }
 .progress-bar-info {
-  background-color: #5bc0de;
+    background-color: #5bc0de;
 }
 .progress-striped .progress-bar-info {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image:
+        linear-gradient(
+            45deg,
+            rgba(255, 255, 255, .15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .15) 50%,
+            rgba(255, 255, 255, .15) 75%,
+            transparent 75%,
+            transparent
+        );
 }
 .progress-bar-warning {
-  background-color: #f0ad4e;
+    background-color: #f0ad4e;
 }
 .progress-striped .progress-bar-warning {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image:
+        linear-gradient(
+            45deg,
+            rgba(255, 255, 255, .15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .15) 50%,
+            rgba(255, 255, 255, .15) 75%,
+            transparent 75%,
+            transparent
+        );
 }
 .progress-bar-danger {
-  background-color: #d9534f;
+    background-color: #d9534f;
 }
 .progress-striped .progress-bar-danger {
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:      -o-linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
-  background-image:         linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .15) 50%, rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+    background-image:
+        linear-gradient(
+            45deg,
+            rgba(255, 255, 255, .15) 25%,
+            transparent 25%,
+            transparent 50%,
+            rgba(255, 255, 255, .15) 50%,
+            rgba(255, 255, 255, .15) 75%,
+            transparent 75%,
+            transparent
+        );
 }
-.progress .progress-bar .sr-only{
-	position: unset;
+.progress .progress-bar .sr-only {
+    position: unset;
 }
-#idicontentpages .text-uppercase{
-	text-transform: uppercase;
+.path-mod-icontent .icontent-progress .progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.path-mod-icontent .icontent-progress .icontent-progress-label {
+    font-weight: 600;
+    color: #000;
+    text-shadow: none;
+    pointer-events: none;
+    white-space: nowrap;
+}
+#idicontentpages .text-uppercase {
+    text-transform: uppercase;
 }
 
-.highcontrast .nav-tabs .nav-link.active, .highcontrast .nav-tabs .nav-item.show .nav-link {
+.highcontrast .nav-tabs .nav-link.active,
+.highcontrast .nav-tabs .nav-item.show .nav-link {
     background-color: inherit;
-    border-bottom: 1px solid black !important;
+    border-bottom: 1px solid black;
 }
 
 /* CHANGING COLOR OF SELECTED TEXT */
 ::-moz-selection {
-	background:#036;
-	color:#FFF;
+    background: #036;
+    color: #fff;
 }
 ::selection {
-	background:#036;
-	color:#FFF;
+    background: #036;
+    color: #fff;
 }
 
 /* Overrides externals css */
 .path-mod-icontent .icontent-page .fulltextpage .userpicture {
-    margin: 0 !important;
+    margin: 0;
 }

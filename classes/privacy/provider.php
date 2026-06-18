@@ -23,11 +23,8 @@
  */
 namespace mod_icontent\privacy;
 
-defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
+defined('MOODLE_INTERNAL') || die(); // phpcs:ignore
 
-use context;
-use context_helper;
-use stdClass;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
@@ -36,6 +33,7 @@ use core_privacy\local\request\helper;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
+
 require_once($CFG->dirroot . '/mod/icontent/lib.php');
 
 /**
@@ -45,10 +43,10 @@ require_once($CFG->dirroot . '/mod/icontent/lib.php');
  * @copyright 2019 AL Rachels <drachels@drachels.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements \core_privacy\local\metadata\provider,
-                          \core_privacy\local\request\plugin\provider,
-                          \core_privacy\local\request\core_userlist_provider {
-
+class provider implements
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Provides meta data that is stored about a user with mod_icontent.
      * The acutal student data is in the, mod_icontent_pages_notes table.
@@ -75,6 +73,56 @@ class provider implements \core_privacy\local\metadata\provider,
             ],
             'privacy:metadata:icontent_pages_notes'
         );
+
+        $collection->add_database_table(
+            'icontent_pages_notes_like',
+            [
+                'pagenoteid' => 'privacy:metadata:icontent_pages_notes_like:pagenoteid',
+                'userid' => 'privacy:metadata:icontent_pages_notes_like:userid',
+                'cmid' => 'privacy:metadata:icontent_pages_notes_like:cmid',
+                'timemodified' => 'privacy:metadata:icontent_pages_notes_like:timemodified',
+            ],
+            'privacy:metadata:icontent_pages_notes_like'
+        );
+
+        $collection->add_database_table(
+            'icontent_pages_displayed',
+            [
+                'pageid' => 'privacy:metadata:icontent_pages_displayed:pageid',
+                'userid' => 'privacy:metadata:icontent_pages_displayed:userid',
+                'cmid' => 'privacy:metadata:icontent_pages_displayed:cmid',
+                'timecreated' => 'privacy:metadata:icontent_pages_displayed:timecreated',
+            ],
+            'privacy:metadata:icontent_pages_displayed'
+        );
+
+        $collection->add_database_table(
+            'icontent_question_attempts',
+            [
+                'pagesquestionsid' => 'privacy:metadata:icontent_question_attempts:pagesquestionsid',
+                'questionid' => 'privacy:metadata:icontent_question_attempts:questionid',
+                'userid' => 'privacy:metadata:icontent_question_attempts:userid',
+                'cmid' => 'privacy:metadata:icontent_question_attempts:cmid',
+                'fraction' => 'privacy:metadata:icontent_question_attempts:fraction',
+                'rightanswer' => 'privacy:metadata:icontent_question_attempts:rightanswer',
+                'answertext' => 'privacy:metadata:icontent_question_attempts:answertext',
+                'timecreated' => 'privacy:metadata:icontent_question_attempts:timecreated',
+            ],
+            'privacy:metadata:icontent_question_attempts'
+        );
+
+        $collection->add_database_table(
+            'icontent_grades',
+            [
+                'icontentid' => 'privacy:metadata:icontent_grades:icontentid',
+                'userid' => 'privacy:metadata:icontent_grades:userid',
+                'cmid' => 'privacy:metadata:icontent_grades:cmid',
+                'grade' => 'privacy:metadata:icontent_grades:grade',
+                'timemodified' => 'privacy:metadata:icontent_grades:timemodified',
+            ],
+            'privacy:metadata:icontent_grades'
+        );
+
         return $collection;
     }
 
@@ -101,33 +149,56 @@ class provider implements \core_privacy\local\metadata\provider,
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
     public static function get_contexts_for_userid(int $userid): contextlist {
+        global $DB;
+
         $contextlist = new contextlist();
         $modid = self::get_modid();
         if (!$modid) {
             return $contextlist; // The icontent module is not installed.
         }
 
-        $params = [
-            'modid' => $modid,
-            'contextlevel' => CONTEXT_MODULE,
-            'userid' => $userid,
-        ];
+                $params = [
+                        'modid' => $modid,
+                        'contextlevel' => CONTEXT_MODULE,
+                        'useridnotes' => $userid,
+                        'useridlikes' => $userid,
+                        'useriddisplayed' => $userid,
+                        'useridattempts' => $userid,
+                        'useridgrades' => $userid,
+                ];
 
-        // User-created icontent entries.
-        $sql = '
-            SELECT c.id
-              FROM {context} c
-              JOIN {course_modules} cm ON cm.id = c.instanceid
-               AND c.contextlevel = :contextlevel
-               AND cm.module = :modid
-              JOIN {icontent} ic ON ic.id = cm.instance
-              JOIN {icontent_pages_notes} icpn ON icpn.icontent = ic.id
-             WHERE icpn.userid = :userid
-        ';
+                $sql = '
+                        SELECT DISTINCT c.id
+                            FROM {context} c
+                            JOIN {course_modules} cm
+                                ON cm.id = c.instanceid
+                             AND c.contextlevel = :contextlevel
+                             AND cm.module = :modid
+                 LEFT JOIN {icontent_pages_notes} n
+                                ON n.cmid = cm.id
+                             AND n.userid = :useridnotes
+                 LEFT JOIN {icontent_pages_notes_like} l
+                                ON l.cmid = cm.id
+                             AND l.userid = :useridlikes
+                 LEFT JOIN {icontent_pages_displayed} d
+                                ON d.cmid = cm.id
+                             AND d.userid = :useriddisplayed
+                 LEFT JOIN {icontent_question_attempts} qa
+                                ON qa.cmid = cm.id
+                             AND qa.userid = :useridattempts
+                 LEFT JOIN {icontent_grades} g
+                                ON g.cmid = cm.id
+                             AND g.userid = :useridgrades
+                         WHERE n.id IS NOT NULL
+                                OR l.id IS NOT NULL
+                                OR d.id IS NOT NULL
+                                OR qa.id IS NOT NULL
+                                OR g.id IS NOT NULL
+                ';
 
-        $contextlist->add_from_sql($sql, $params);
+                $contextlist->add_from_sql($sql, $params);
 
-        return $contextlist;
+                return $contextlist;
     }
 
     /**
@@ -136,6 +207,8 @@ class provider implements \core_privacy\local\metadata\provider,
      * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
+        global $DB;
+
         $context = $userlist->get_context();
 
         if (!is_a($context, \context_module::class)) {
@@ -147,26 +220,24 @@ class provider implements \core_privacy\local\metadata\provider,
             return; // Checklist module not installed.
         }
 
-        $params = [
-            'modid' => $modid,
-            'contextlevel' => CONTEXT_MODULE,
-            'contextid' => $context->id,
-        ];
+        if (!$cm = get_coursemodule_from_id('icontent', $context->instanceid)) {
+                return;
+        }
 
-        // Find users with icontent entries.
-        $sql = '
-            SELECT icpn.userid
-              FROM {icontent_page_notes} icpn
-              JOIN {icontent} ic
-                ON ic.id = icpn.icontent
-              JOIN {course_modules} cm
-                ON cm.instance = ic.id
-               AND cm.module = :modid
-              JOIN {context} ctx
-                ON ctx.instanceid = cm.id
-               AND ctx.contextlevel = :contextlevel
-             WHERE ctx.id = :contextid
-        ';
+                $params = ['cmid' => $cm->id];
+
+                $sql = '
+                        SELECT userid FROM {icontent_pages_notes} WHERE cmid = :cmid
+                        UNION
+                        SELECT userid FROM {icontent_pages_notes_like} WHERE cmid = :cmid
+                        UNION
+                        SELECT userid FROM {icontent_pages_displayed} WHERE cmid = :cmid
+                        UNION
+                        SELECT userid FROM {icontent_question_attempts} WHERE cmid = :cmid
+                        UNION
+                        SELECT userid FROM {icontent_grades} WHERE cmid = :cmid
+                ';
+
         $userlist->add_from_sql('userid', $sql, $params);
     }
 
@@ -182,86 +253,107 @@ class provider implements \core_privacy\local\metadata\provider,
             return;
         }
 
-        $user = $contextlist->get_user();
-        list($contextsql, $contextparams) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        $userid = $contextlist->get_user()->id;
 
-        $sql = "
-            SELECT cm.id AS cmid,
-                   de.*,
-                   dp.id AS promptid,
-                   dp.datestart AS promptdatestart,
-                   dp.datestop AS promptdatestop,
-                   dp.text AS prompttext
-                 FROM {context} c
-                 JOIN {course_modules} cm
-                   ON cm.id = c.instanceid
-                 JOIN {icontent} d
-                   ON d.id = cm.instance
-                 JOIN {icontent_pages_notes} de
-                   ON de.icontent = d.id
-            LEFT JOIN {icontent_prompts} dp
-                   ON dp.id = de.promptid
-                WHERE c.id $contextsql
-                  AND ((de.userid = 0 OR de.userid = :userid1) AND (de.promptid = 0))
-                   OR ((de.userid = 0 OR de.userid = :userid2)
-                          AND (dp.icontentid = de.icontent)
-                          AND (dp.datestart < de.timecreated)
-                          AND (dp.datestop > de.timecreated))
-                ORDER BY cm.id, de.id DESC
-        ";
-
-        $params = ['userid1' => $user->id, 'userid2' => $user->id] + $contextparams;
-        $lastcmid = null;
-        $itemdata = [];
-
-        // Fetch the individual icontents entries.
-        $icontents = $DB->get_recordset_sql($sql, $params);
-        foreach ($icontents as $icontent) {
-            if ($lastcmid !== $icontent->cmid) {
-                if ($itemdata) {
-                    self::export_icontent_data_for_user($itemdata, $lastcmid, $user);
-                }
-                $itemdata = [];
-                $lastcmid = $icontent->cmid;
+        foreach ($contextlist->get_contexts() as $context) {
+            if ($context->contextlevel != CONTEXT_MODULE) {
+                continue;
+            }
+            if (!$cm = get_coursemodule_from_id('icontent', $context->instanceid)) {
+                continue;
             }
 
-            $itemdata[] = (object)[
-                'icontent' => $icontent->icontent,
-                'promptid' => $icontent->promptid,
-                'promptdatestart' => $icontent->promptdatestart ? transform::datetime($icontent->promptdatestart) : '',
-                'promptdatestop' => $icontent->promptdatestop ? transform::datetime($icontent->promptdatestop) : '',
-                'prompttext' => strip_tags($icontent->prompttext),
-                'timecreated' => $icontent->timecreated ? transform::datetime($icontent->timecreated) : '',
-                'timemodified' => $icontent->timemodified ? transform::datetime($icontent->timemodified) : '',
-                'title' => strip_tags($icontent->title),
-                'text' => strip_tags($icontent->text),
-                'rating' => $icontent->rating,
-                'entrycomment' => strip_tags($icontent->entrycomment),
-                'teacher' => $icontent->teacher,
-                'timemarked' => $icontent->timemarked ? transform::datetime($icontent->timemarked) : '',
-                'mailed' => $icontent->mailed,
+            $notes = $DB->get_records(
+                'icontent_pages_notes',
+                ['cmid' => $cm->id, 'userid' => $userid],
+                'timecreated DESC'
+            );
+            $likes = $DB->get_records(
+                'icontent_pages_notes_like',
+                ['cmid' => $cm->id, 'userid' => $userid],
+                'timemodified DESC'
+            );
+            $displayed = $DB->get_records(
+                'icontent_pages_displayed',
+                ['cmid' => $cm->id, 'userid' => $userid],
+                'timecreated DESC'
+            );
+            $attempts = $DB->get_records(
+                'icontent_question_attempts',
+                ['cmid' => $cm->id, 'userid' => $userid],
+                'timecreated DESC'
+            );
+            $grades = $DB->get_records(
+                'icontent_grades',
+                ['cmid' => $cm->id, 'userid' => $userid],
+                'timemodified DESC'
+            );
+
+            $export = (object) [
+                'notes' => array_map(static function ($note) {
+                    return (object) [
+                        'pageid' => $note->pageid,
+                        'comment' => strip_tags($note->comment),
+                        'tab' => $note->tab,
+                        'path' => $note->path,
+                        'parent' => $note->parent,
+                        'private' => (int) $note->private,
+                        'featured' => (int) $note->featured,
+                        'doubttutor' => (int) $note->doubttutor,
+                        'timecreated' => $note->timecreated ? transform::datetime($note->timecreated) : '',
+                        'timemodified' => $note->timemodified ? transform::datetime($note->timemodified) : '',
+                    ];
+                }, array_values($notes)),
+                'likes' => array_map(static function ($like) {
+                    return (object) [
+                        'pagenoteid' => $like->pagenoteid,
+                        'timemodified' => $like->timemodified ? transform::datetime($like->timemodified) : '',
+                        'visible' => (int) $like->visible,
+                    ];
+                }, array_values($likes)),
+                'displayedpages' => array_map(static function ($row) {
+                    return (object) [
+                        'pageid' => $row->pageid,
+                        'timecreated' => $row->timecreated ? transform::datetime($row->timecreated) : '',
+                    ];
+                }, array_values($displayed)),
+                'questionattempts' => array_map(static function ($attempt) {
+                    return (object) [
+                        'pagesquestionsid' => $attempt->pagesquestionsid,
+                        'questionid' => $attempt->questionid,
+                        'fraction' => $attempt->fraction,
+                        'rightanswer' => $attempt->rightanswer,
+                        'answertext' => $attempt->answertext,
+                        'timecreated' => $attempt->timecreated ? transform::datetime($attempt->timecreated) : '',
+                    ];
+                }, array_values($attempts)),
+                'grades' => array_map(static function ($grade) {
+                    return (object) [
+                        'icontentid' => $grade->icontentid,
+                        'grade' => $grade->grade,
+                        'timemodified' => $grade->timemodified ? transform::datetime($grade->timemodified) : '',
+                    ];
+                }, array_values($grades)),
             ];
-        }
-        $icontents->close();
-        if ($itemdata) {
-            self::export_icontent_data_for_user($itemdata, $lastcmid, $user);
+
+            self::export_icontent_data_for_user($export, $cm->id, $contextlist->get_user());
         }
     }
 
     /**
      * Export the supplied personal data for a single icontent activity, along with any generic data or area files.
      *
-     * @param array $items The data for each of the items in the icontent.
+     * @param \stdClass $items The data for the icontent module.
      * @param int $cmid
      * @param \stdClass $user
      */
-    protected static function export_icontent_data_for_user(array $items, int $cmid, \stdClass $user) {
+    protected static function export_icontent_data_for_user(\stdClass $items, int $cmid, \stdClass $user) {
         // Fetch the generic module data for the choice.
         $context = \context_module::instance($cmid);
         $contextdata = helper::get_context_data($context, $user);
 
         // Merge with icontent data and write it.
-        $contextdata = (object)array_merge((array)$contextdata, ['items' => $items]);
+        $contextdata = (object)array_merge((array)$contextdata, (array)$items);
         writer::with_context($context)->export_data([], $contextdata);
 
         // Write generic module intro files.
@@ -289,11 +381,11 @@ class provider implements \core_privacy\local\metadata\provider,
             return;
         }
 
-        // Delete the icontent entries.
-        $itemids = $DB->get_fieldset_select('icontent_pages_notes', 'id', 'icontent = ?', [$cm->instance]);
-        if ($itemids) {
-            $DB->delete_records_select('icontent_pages_notes', 'icontent = ? AND userid <> 0', [$cm->instance]);
-        }
+        $DB->delete_records('icontent_pages_notes', ['cmid' => $cm->id]);
+        $DB->delete_records('icontent_pages_notes_like', ['cmid' => $cm->id]);
+        $DB->delete_records('icontent_pages_displayed', ['cmid' => $cm->id]);
+        $DB->delete_records('icontent_question_attempts', ['cmid' => $cm->id]);
+        $DB->delete_records('icontent_grades', ['cmid' => $cm->id]);
     }
 
     /**
@@ -316,13 +408,11 @@ class provider implements \core_privacy\local\metadata\provider,
             if (!$cm = get_coursemodule_from_id('icontent', $context->instanceid)) {
                 continue;
             }
-            $itemids = $DB->get_fieldset_select('icontent_pages_notes', 'id', 'icontent = ?', [$cm->instance]);
-            if ($itemids) {
-                list($isql, $params) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
-                $params['userid'] = $userid;
-                $params = ['instanceid' => $cm->instance, 'userid' => $userid];
-                $DB->delete_records_select('icontent_pages_notes', 'icontent = :instanceid AND userid = :userid', $params);
-            }
+            $DB->delete_records('icontent_pages_notes', ['cmid' => $cm->id, 'userid' => $userid]);
+            $DB->delete_records('icontent_pages_notes_like', ['cmid' => $cm->id, 'userid' => $userid]);
+            $DB->delete_records('icontent_pages_displayed', ['cmid' => $cm->id, 'userid' => $userid]);
+            $DB->delete_records('icontent_question_attempts', ['cmid' => $cm->id, 'userid' => $userid]);
+            $DB->delete_records('icontent_grades', ['cmid' => $cm->id, 'userid' => $userid]);
         }
     }
 
@@ -345,17 +435,36 @@ class provider implements \core_privacy\local\metadata\provider,
             return;
         }
 
-        // Prepare SQL to gather all completed IDs.
-        $itemids = $DB->get_fieldset_select('icontent_page_notes', 'id', 'icontent = ?', [$cm->instance]);
-        list($itsql, $itparams) = $DB->get_in_or_equal($itemids, SQL_PARAMS_NAMED);
         $userids = $userlist->get_userids();
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        if (empty($userids)) {
+            return;
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
-        // Delete user-created personal icontent note/doubt items.
         $DB->delete_records_select(
-            'icontent_page_notes',
-            "userid $insql AND icontent = :icontentid",
-            array_merge($inparams, ['icontentid' => $cm->instance])
+            'icontent_pages_notes',
+            "userid $insql AND cmid = :cmid",
+            array_merge($inparams, ['cmid' => $cm->id])
+        );
+        $DB->delete_records_select(
+            'icontent_pages_notes_like',
+            "userid $insql AND cmid = :cmid",
+            array_merge($inparams, ['cmid' => $cm->id])
+        );
+        $DB->delete_records_select(
+            'icontent_pages_displayed',
+            "userid $insql AND cmid = :cmid",
+            array_merge($inparams, ['cmid' => $cm->id])
+        );
+        $DB->delete_records_select(
+            'icontent_question_attempts',
+            "userid $insql AND cmid = :cmid",
+            array_merge($inparams, ['cmid' => $cm->id])
+        );
+        $DB->delete_records_select(
+            'icontent_grades',
+            "userid $insql AND cmid = :cmid",
+            array_merge($inparams, ['cmid' => $cm->id])
         );
     }
 }

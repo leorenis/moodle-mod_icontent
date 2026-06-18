@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_icontent\question;
-defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
+defined('MOODLE_INTERNAL') || die(); // phpcs:ignore
 
 /**
  * Utility class for iContent Questions.
@@ -34,7 +34,6 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class icontent_question_options {
-
     /**
      * Get questions of question bank.
      *
@@ -52,11 +51,11 @@ class icontent_question_options {
         $questioncategoryid,
         $sort,
         $page = 0,
-        $perpage = ICONTENT_PER_PAGE) {
+        $perpage = ICONTENT_PER_PAGE
+    ) {
 
         global $DB;
-        $coursecontext = $coursecontext;
-        $sort = 'q.name '.$sort;
+        $sort = 'q.name ' . $sort;
         $page = (int) $page;
         $perpage = (int) $perpage;
         $questioncategoryid = $questioncategoryid;
@@ -113,24 +112,58 @@ class icontent_question_options {
                        qbe.ownerid AS QBEownerid
 
                   FROM {question} q
-                  JOIN {question_categories} qc ON qc.parent = q.parent
                   JOIN {question_versions} qv ON qv.questionid = q.id
                   JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
-                 WHERE qc.contextid = $coursecontext
-                   AND qc.parent = q.parent
-                   AND q.qtype IN (?,?,?,?,?)
-                   AND qv.status = 'ready'
-                   AND qbe.questioncategoryid = $questioncategoryid
+                                    JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                 WHERE qv.status IN (?,?)
+                                     AND qv.version = (
+                                                SELECT MAX(v.version)
+                                                    FROM {question_versions} v
+                                                 WHERE v.questionbankentryid = qv.questionbankentryid
+                                                     AND v.status IN (?,?)
+                                     )
+                                     AND qbe.questioncategoryid = ?
               ORDER BY {$sort}";
-        // 20240720 The number of items in $params array must match the number of question marks in line 120.
+        // 20240720 The number of items in $params array must match the number of question marks in SQL.
         $params = [
-            $coursecontext,
-            ICONTENT_QTYPE_ESSAY,
-            ICONTENT_QTYPE_MATCH,
-            ICONTENT_QTYPE_MULTICHOICE,
-            ICONTENT_QTYPE_TRUEFALSE,
+            'ready',
+            'draft',
+            'ready',
+            'draft',
+            $questioncategoryid,
         ];
         return $DB->get_records_sql($sql, $params, $page * $perpage, $perpage);
+    }
+
+    /**
+     * Count questions for the selected category using the same filters as the listing query.
+     *
+     * @param int $questioncategoryid
+     * @return int
+     */
+    public static function icontent_count_questions_of_questionbank_filtered($questioncategoryid) {
+        global $DB;
+        $sql = "SELECT COUNT(1)
+                  FROM {question} q
+                  JOIN {question_versions} qv ON qv.questionid = q.id
+                  JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+                  JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                 WHERE qv.status IN (?,?)
+                   AND qv.version = (
+                        SELECT MAX(v.version)
+                          FROM {question_versions} v
+                         WHERE v.questionbankentryid = qv.questionbankentryid
+                           AND v.status IN (?,?)
+                   )
+                   AND qbe.questioncategoryid = ?";
+        $params = [
+            'ready',
+            'draft',
+            'ready',
+            'draft',
+            (int) $questioncategoryid,
+        ];
+        return (int) $DB->count_records_sql($sql, $params);
     }
 
     /**
@@ -159,8 +192,8 @@ class icontent_question_options {
                    AND qa.userid = ?;";
         // Get items.
         $idanswers = $DB->get_fieldset_sql($sql, [$pageid, $cmid, $USER->id]);
-        list($in, $values) = $DB->get_in_or_equal($idanswers);
+        [$in, $values] = $DB->get_in_or_equal($idanswers);
         // Delete records.
-        return $DB->delete_records_select('icontent_question_attempts', 'id '. $in, $values);
+        return $DB->delete_records_select('icontent_question_attempts', 'id ' . $in, $values);
     }
 }

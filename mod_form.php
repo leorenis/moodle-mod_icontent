@@ -27,10 +27,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once(dirname(__FILE__).'/locallib.php');
-require_once($CFG->libdir.'/filelib.php');
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jscolor/jscolor.js'));
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
+require_once(dirname(__FILE__) . '/locallib.php');
+require_once($CFG->libdir . '/filelib.php');
+$PAGE->requires->js(new moodle_url($CFG->wwwroot . '/mod/icontent/js/jscolor/jscolor.js'));
 
 /**
  * Module instance settings form
@@ -40,7 +40,6 @@ $PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jscolor/jscol
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_icontent_mod_form extends moodleform_mod {
-
     /**
      * Defines forms elements.
      */
@@ -48,6 +47,8 @@ class mod_icontent_mod_form extends moodleform_mod {
         global $COURSE;
         $mform = $this->_form;
         $icontentconfig = get_config('mod_icontent');
+        $bgcolordefault = self::format_colour_for_picker($icontentconfig->bgcolor ?? '#FCFCFC', '#FCFCFC');
+        $bordercolordefault = self::format_colour_for_picker($icontentconfig->bordercolor ?? '#E4E4E4', '#E4E4E4');
         // Cache the plugin name.
         $plugin = 'mod_icontent';
 
@@ -73,6 +74,17 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->setType('copyright', PARAM_RAW);
         $mform->addHelpButton('copyright', 'copyright', 'icontent');
 
+        // 20240920 Added tags to mod_form page.
+        $mform->addElement(
+            'tags',
+            'tags',
+            get_string('tags'),
+            [
+                'itemtype' => 'icontent_pages',
+                'component' => 'mod_icontent',
+            ]
+        );
+
         // Set up options for the filemanager setting.
         $filemanageroptions = [];
                 $filemanageroptions['subdirs'] = 0;
@@ -85,21 +97,22 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->addElement('filemanager', 'bgimage', get_string('bgimage', 'icontent'), null, $filemanageroptions);
         $mform->setType('bgimage', PARAM_INT);
         $mform->addHelpButton('bgimage', 'bgimagehelp', 'icontent');
-//////////
 
         // Content Pages activity setup, Availability settings.
         $mform->addElement('header', 'availabilityhdr', get_string('availability'));
 
-        $mform->addElement('date_time_selector',
+        $mform->addElement(
+            'date_time_selector',
             'timeopen',
             get_string('icontentopentime', 'icontent'),
             ['optional' => true, 'step' => 1]
-            );
-        $mform->addElement('date_time_selector',
+        );
+        $mform->addElement(
+            'date_time_selector',
             'timeclose',
             get_string('icontentclosetime', 'icontent'),
             ['optional' => true, 'step' => 1]
-            );
+        );
         // Content Pages activity password setup.
         $mform->addElement('selectyesno', 'usepassword', get_string('usepassword', 'icontent'));
         $mform->addHelpButton('usepassword', 'usepassword', 'icontent');
@@ -113,8 +126,6 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->disabledIf('password', 'usepassword', 'eq', 0);
         $mform->disabledIf('passwordunmask', 'usepassword', 'eq', 0);
 
-
-/////////////
         // Appearance.
         $mform->addElement('header', 'appearancehdr', get_string('appearance'));
 
@@ -125,18 +136,13 @@ class mod_icontent_mod_form extends moodleform_mod {
         // ...$mform->addHelpButton('bgcolor', 'bgcolorhelp', 'icontent');.
 
         // 20240216 Modified setting for the overall background color for each page.
-        $attributes = ['class' => "color",
-                       'value' => $icontentconfig->bgcolor,
-                       'size' => "10",
-                      ];
+        $bgattributes = ['id' => 'icontent_bgcolor_picker', 'size' => '10', 'maxlength' => '7'];
         $name = 'bgcolor';
         $label = get_string('bgcolor', 'icontent');
-        $description = get_string('bgcolor', 'icontent');
-        $default = get_string('bgcolor', 'icontent');
-        $mform->setType($name, PARAM_NOTAGS);
-        $mform->addElement('text', $name, $label, $attributes);
+        $mform->setType($name, PARAM_TEXT);
+        $mform->addElement('text', $name, $label, $bgattributes);
         $mform->addHelpButton($name, $name, $plugin);
-        $mform->setDefault($name, $icontentconfig->bgcolor);
+        $mform->setDefault($name, $bgcolordefault);
         // 20240713 Color input experiments.
         // phpcs:ignore
         /*
@@ -157,13 +163,46 @@ class mod_icontent_mod_form extends moodleform_mod {
         */
 
         // 20240619 Modified the setting for the bordercolor.
-        $attributes = ['class' => "color",
-               'value' => $icontentconfig->bordercolor,
-               'size' => "10",
-              ];
-        $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);
+        $borderattributes = ['id' => 'icontent_bordercolor_picker', 'size' => '10', 'maxlength' => '7'];
+        $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), $borderattributes);
         $mform->setType('bordercolor', PARAM_TEXT);
         $mform->addHelpButton('bordercolor', 'bordercolorhelp', 'icontent');
+        $mform->setDefault('bordercolor', $bordercolordefault);
+
+        $mform->addElement('html', "
+            <script>
+                (function() {
+                    var normalizeHex = function(value, fallback) {
+                        var raw = (value || '').toString().trim();
+                        if (raw.charAt(0) !== '#') {
+                            raw = '#' + raw;
+                        }
+                        if (!/^#[0-9a-fA-F]{6}$/.test(raw)) {
+                            return fallback;
+                        }
+                        return raw.toUpperCase();
+                    };
+
+                    var initColorInput = function(id, fallback) {
+                        var input = document.getElementById(id);
+                        if (!input) {
+                            return;
+                        }
+                        input.value = normalizeHex(input.value, fallback);
+                        input.type = 'color';
+                        input.style.width = '60px';
+                        input.style.height = '35px';
+                        input.style.cursor = 'pointer';
+                        input.addEventListener('change', function() {
+                            input.value = normalizeHex(input.value, fallback);
+                        });
+                    };
+
+                    initColorInput('icontent_bgcolor_picker', '#FCFCFC');
+                    initColorInput('icontent_bordercolor_picker', '#E4E4E4');
+                })();
+            </script>
+        ");
 
         // 20240619 Modified the setting for the border width.
         $options = icontent_add_borderwidth_options();
@@ -200,6 +239,11 @@ class mod_icontent_mod_form extends moodleform_mod {
         $mform->setType('progressbar', PARAM_INT);
         $mform->setDefault('progressbar', 1);
 
+        $mform->addElement('selectyesno', 'showtocmenu', get_string('showtocmenu', 'icontent'));
+        $mform->addHelpButton('showtocmenu', 'showtocmenu', 'icontent');
+        $mform->setType('showtocmenu', PARAM_INT);
+        $mform->setDefault('showtocmenu', 1);
+
         // Show the standard Grade elements.
         $this->standard_grading_coursemodule_elements();
 
@@ -218,7 +262,12 @@ class mod_icontent_mod_form extends moodleform_mod {
     public function data_preprocessing(&$defaultvalues) {
         if ($this->current->instance) {
             $draftitemid = file_get_submitted_draft_itemid('bgimage');
-            file_save_draft_area_files($defaultvalues['bgimage'], $this->context->id, 'mod_icontent', 'icontent', 0,
+            file_save_draft_area_files(
+                $defaultvalues['bgimage'],
+                $this->context->id,
+                'mod_icontent',
+                'icontent',
+                0,
                 [
                     'subdirs' => 0,
                     'maxbytes' => 0,
@@ -226,5 +275,29 @@ class mod_icontent_mod_form extends moodleform_mod {
                 ]
             );
         }
+    }
+
+    /**
+     * Normalize a colour value for HTML5 color inputs (#RRGGBB).
+     *
+     * @param string|null $value Raw configured value.
+     * @param string $fallback Fallback hex colour.
+     * @return string
+     */
+    private static function format_colour_for_picker(?string $value, string $fallback): string {
+        $colour = trim((string)$value);
+        if ($colour === '') {
+            return strtoupper($fallback);
+        }
+
+        if ($colour[0] !== '#') {
+            $colour = '#' . $colour;
+        }
+
+        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $colour)) {
+            return strtoupper($fallback);
+        }
+
+        return strtoupper($colour);
     }
 }

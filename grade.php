@@ -22,12 +22,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(dirname(__FILE__).'/../../config.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $pageid = optional_param('pageid', 0, PARAM_INT); // Page note ID.
-$action = optional_param('action', 0, PARAM_ALPHA); // Action.
+$action = optional_param('action', 'overview', PARAM_ALPHA); // Action.
+$group = optional_param('group', 0, PARAM_INT); // Group filter.
 $sort = optional_param('sort', '', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', ICONTENT_PER_PAGE, PARAM_INT);
@@ -41,7 +42,17 @@ require_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 require_capability('mod/icontent:grade', $context);
 // Page setting.
-$PAGE->set_url('/mod/icontent/grade.php', ['id' => $cm->id, 'action' => $action]);
+$PAGE->set_url('/mod/icontent/grade.php', ['id' => $cm->id, 'action' => $action, 'group' => $group]);
+$PAGE->set_pagelayout('incourse');
+
+// Show the iContent TOC block while in Results mode for quick page navigation.
+$pages = \mod_icontent\local\icontent_info::icontent_preload_pages($icontent);
+$currenttocpage = icontent_get_startpagenum($icontent, $context);
+$tocedit = has_capability('mod/icontent:edit', $context);
+if (!empty($pages)) {
+    icontent_add_fake_block($pages, $currenttocpage, $icontent, $cm, $tocedit);
+}
+
 // Header and strings.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
@@ -49,13 +60,37 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);
 echo $OUTPUT->heading(get_string('summaryattempts', 'mod_icontent'), 3);
-$url = new moodle_url('/mod/icontent/grade.php', ['id' => $id, 'action' => $action, 'page' => $page, 'perpage' => $perpage]);
+$reportoverviewurl = new moodle_url('/mod/icontent/report.php', ['id' => $id, 'group' => $group]);
+$gradesurl = new moodle_url('/mod/icontent/grade.php', ['id' => $id, 'action' => 'overview', 'group' => $group]);
+$manualreviewurl = new moodle_url('/mod/icontent/grading.php', ['id' => $id, 'action' => 'grading', 'group' => $group]);
+$modetoggle = html_writer::div(
+    html_writer::link($reportoverviewurl, get_string('reportoverview', 'mod_icontent'), ['class' => 'btn btn-secondary mr-2']) .
+    html_writer::link($gradesurl, get_string('grades'), ['class' => 'btn btn-primary mr-2']) .
+    html_writer::link($manualreviewurl, get_string('manualreview', 'mod_icontent'), ['class' => 'btn btn-secondary']),
+    'mb-3 icontent-results-mode-toggle'
+);
+echo $modetoggle;
+$currentgroup = 0;
+if (groups_get_activity_groupmode($cm) != NOGROUPS) {
+    $currentgroup = groups_get_activity_group($cm, true);
+    if ($currentgroup) {
+        $group = $currentgroup;
+    }
+    $groupmenuurl = new moodle_url('/mod/icontent/grade.php', ['id' => $id, 'action' => $action]);
+    echo groups_print_activity_menu($cm, $groupmenuurl, true);
+}
+
+$url = new moodle_url('/mod/icontent/grade.php', ['id' => $id, 'action' => $action, 'group' => $group,
+    'page' => $page, 'perpage' => $perpage]);
 // Get sort value.
 $sort = icontent_check_value_sort($sort);
 // Get users attempts.
-$attemptsusers = icontent_get_attempts_users($cm->id, $sort, $page, $perpage);
-$tattemtpsusers = icontent_count_attempts_users($cm->id);
-$tquestinstance = icontent_get_totalquestions_by_instance($cm->id);
+$attemptsusers = icontent_get_attempts_users($cm->id, $sort, $page, $perpage, $group);
+$tattemtpsusers = icontent_count_attempts_users($cm->id, $group);
+$tquestinstance = icontent_get_totalmaxfraction_by_instance($cm->id);
+if ($tquestinstance <= 0) {
+    $tquestinstance = (float)icontent_get_totalquestions_by_instance($cm->id);
+}
 // Make table questions.
 $table = new html_table();
 $table->id = "idtableattemptsusers";
@@ -71,33 +106,41 @@ if ($attemptsusers) {
     foreach ($attemptsusers as $attemptuser) {
         // Get picture.
         $picture = $OUTPUT->user_picture($attemptuser, ['size' => 35, 'class' => 'img-thumbnail pull-left']);
-        $linkfirstname = html_writer::link(new moodle_url('/user/view.php',
-            [
+        $linkfirstname = html_writer::link(
+            new moodle_url(
+                '/user/view.php',
+                [
                 'id' => $attemptuser->id,
                 'course' => $course->id,
-            ]
+                ]
             ),
-            $attemptuser->firstname.' '.$attemptuser->lastname,
+            $attemptuser->firstname . ' ' . $attemptuser->lastname,
             [
                 'title' => $attemptuser->firstname,
                 'class' => 'lkfullname',
             ]
         );
         // String open answers for user.
-        $stropenanswer = $attemptuser->totalopenanswers ? get_string('stropenanswer',
+        $stropenanswer = $attemptuser->totalopenanswers ? get_string(
+            'stropenanswer',
             'mod_icontent',
-            $attemptuser->totalopenanswers) : '';
+            $attemptuser->totalopenanswers
+        ) : '';
         // String evaluate.
+        $attemptmaxfraction = (float)($attemptuser->maxfraction ?? 0);
+        if ($attemptmaxfraction <= 0) {
+            $attemptmaxfraction = (float)$attemptuser->totalanswers;
+        }
         $evaluate = new stdClass();
         $evaluate->fraction = number_format($attemptuser->sumfraction, 2);
-        $evaluate->maxfraction = number_format($attemptuser->totalanswers, 2);
-        $evaluate->percentage = round(($attemptuser->sumfraction * 100) / $attemptuser->totalanswers);
+        $evaluate->maxfraction = number_format($attemptmaxfraction, 2);
+        $evaluate->percentage = $attemptmaxfraction > 0 ? round(($attemptuser->sumfraction * 100) / $attemptmaxfraction) : 0;
         $evaluate->openanswer = $stropenanswer;
-        $evaluate->finalgrade = ($attemptuser->sumfraction * $icontent->grade) / $tquestinstance;
+        $evaluate->finalgrade = $tquestinstance > 0 ? ($attemptuser->sumfraction * $icontent->grade) / $tquestinstance : 0;
         $strevaluate = get_string('strtoevaluate', 'mod_icontent', $evaluate);
         // Set data.
         $table->data[] = [
-            $picture.$linkfirstname,
+            $picture . $linkfirstname,
             $attemptuser->totalanswers,
             $strevaluate,
             number_format($evaluate->finalgrade, 2),

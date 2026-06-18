@@ -1,0 +1,4 @@
+# Deprecated language strings for mod_icontent.
+# Format: stringid,component,replacement
+# Use an empty replacement when no direct replacement string is needed.
+infomaxquestionperpage,mod_icontent,

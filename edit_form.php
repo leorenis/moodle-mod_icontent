@@ -24,27 +24,34 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->libdir.'/formslib.php');
-$PAGE->requires->js(new moodle_url($CFG->wwwroot.'/mod/icontent/js/jscolor/jscolor.js'));
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 /**
  * Class mod_icontent_pages_edit_form
  */
 class icontent_pages_edit_form extends moodleform {
-
     /**
      * Define form elements
      * @throws coding_exception
      * @throws dml_exception
      */
     public function definition() {
-        global $CFG, $COURSE, $PAGE;
+        global $CFG, $COURSE, $USER, $DB;
 
         $page = $this->_customdata['page'];
         $pageicontentoptions = $this->_customdata['pageicontentoptions'];
+        $bgimagemaxbytes = $this->_customdata['bgimagemaxbytes'] ?? 0;
 
         $mform = $this->_form;
         $icontentconfig = get_config('mod_icontent');
+
+        $page->bgcolor = self::format_colour_for_picker($page->bgcolor ?? $icontentconfig->bgcolor ?? '#FCFCFC', '#FCFCFC');
+        $page->bordercolor = self::format_colour_for_picker(
+            $page->bordercolor ?? $icontentconfig->bordercolor ?? '#E4E4E4',
+            '#E4E4E4'
+        );
+        $page->titlecolor = self::format_colour_for_picker($page->titlecolor ?? '#000000', '#000000');
 
         if (!empty($page->id)) {
             $mform->addElement('header', 'general', get_string('editingpage', 'icontent'));
@@ -90,9 +97,117 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('coverpage', PARAM_INT);
         $mform->setDefault('coverpage', 0);
 
+        $branchparentoptions = [0 => get_string('none')];
+        $branchparentpages = $DB->get_records(
+            'icontent_pages',
+            [
+                'icontentid' => (int)$page->icontentid,
+                'cmid' => (int)$page->cmid,
+                'hidden' => 0,
+                'branchparentpageid' => 0,
+            ],
+            'pagenum ASC',
+            'id, pagenum, title'
+        );
+        foreach ($branchparentpages as $branchparentpage) {
+            if (!empty($page->id) && (int)$branchparentpage->id === (int)$page->id) {
+                continue;
+            }
+
+            $branchparams = (object)[
+                'pagenum' => (int)$branchparentpage->pagenum,
+                'title' => format_string((string)$branchparentpage->title),
+            ];
+            $branchparentoptions[(int)$branchparentpage->id] = get_string('pagexwithtitle', 'icontent', $branchparams);
+        }
+
+        $custompageoptions = [0 => get_string('none')];
+        $customtargetpages = $DB->get_records(
+            'icontent_pages',
+            [
+                'icontentid' => (int)$page->icontentid,
+                'cmid' => (int)$page->cmid,
+                'hidden' => 0,
+            ],
+            'pagenum ASC',
+            'id, pagenum, title'
+        );
+        foreach ($customtargetpages as $customtargetpage) {
+            if (!empty($page->id) && (int)$customtargetpage->id === (int)$page->id) {
+                continue;
+            }
+
+            $targetparams = (object)[
+                'pagenum' => (int)$customtargetpage->pagenum,
+                'title' => format_string((string)$customtargetpage->title),
+            ];
+            $custompageoptions[(int)$customtargetpage->id] = get_string('pagexwithtitle', 'icontent', $targetparams);
+        }
+
+        $mform->addElement('header', 'clustering', get_string('clustering', 'icontent'));
+        $mform->addElement('select', 'branchparentpageid', get_string('branchparentpageid', 'icontent'), $branchparentoptions);
+        $mform->addHelpButton('branchparentpageid', 'branchparentpageid', 'icontent');
+        $mform->setType('branchparentpageid', PARAM_INT);
+        $mform->setDefault('branchparentpageid', (int)($page->branchparentpageid ?? 0));
+
+        $mform->addElement('text', 'branchref', get_string('branchref', 'icontent'), ['size' => 32]);
+        $mform->addHelpButton('branchref', 'branchref', 'icontent');
+        $mform->setType('branchref', PARAM_TEXT);
+        $mform->setDefault('branchref', trim((string)($page->branchref ?? '')));
+        $mform->hideIf('branchref', 'branchparentpageid', 'eq', 0);
+
+        $mform->addElement('text', 'branchname', get_string('branchname', 'icontent'), ['size' => 40]);
+        $mform->addHelpButton('branchname', 'branchname', 'icontent');
+        $mform->setType('branchname', PARAM_TEXT);
+        $mform->setDefault('branchname', trim((string)($page->branchname ?? '')));
+        $mform->hideIf('branchname', 'branchparentpageid', 'eq', 0);
+
+        $navigationmodeoptions = [
+            0 => get_string('navmodeauto', 'icontent'),
+            1 => get_string('navmodehide', 'icontent'),
+            2 => get_string('navmodecustom', 'icontent'),
+        ];
+
+        $mform->addElement('header', 'pagebranchingnavigation', get_string('pagebranchingnavigation', 'icontent'));
+        $mform->addElement('select', 'prevmode', get_string('prevmode', 'icontent'), $navigationmodeoptions);
+        $mform->addHelpButton('prevmode', 'prevmode', 'icontent');
+        $mform->setType('prevmode', PARAM_INT);
+        $mform->setDefault('prevmode', (int)($page->prevmode ?? 0));
+
+        $mform->addElement('select', 'prevpageid', get_string('prevpageid', 'icontent'), $custompageoptions);
+        $mform->addHelpButton('prevpageid', 'prevpageid', 'icontent');
+        $mform->setType('prevpageid', PARAM_INT);
+        $mform->setDefault('prevpageid', (int)($page->prevpageid ?? 0));
+        $mform->hideIf('prevpageid', 'prevmode', 'neq', 2);
+
+        $mform->addElement('select', 'nextmode', get_string('nextmode', 'icontent'), $navigationmodeoptions);
+        $mform->addHelpButton('nextmode', 'nextmode', 'icontent');
+        $mform->setType('nextmode', PARAM_INT);
+        $mform->setDefault('nextmode', (int)($page->nextmode ?? 0));
+
+        $mform->addElement('select', 'nextpageid', get_string('nextpageid', 'icontent'), $custompageoptions);
+        $mform->addHelpButton('nextpageid', 'nextpageid', 'icontent');
+        $mform->setType('nextpageid', PARAM_INT);
+        $mform->setDefault('nextpageid', (int)($page->nextpageid ?? 0));
+        $mform->hideIf('nextpageid', 'nextmode', 'neq', 2);
+
         $mform->addElement('editor', 'pageicontent_editor', get_string('icontent', 'mod_icontent'), null, $pageicontentoptions);
         $mform->setType('pageicontent_editor', PARAM_RAW);
         $mform->addRule('pageicontent_editor', get_string('required'), 'required', null, 'client');
+
+        // 20240920 Added tags to edit_form page.
+        if (core_tag_tag::is_enabled('mod_icontent', 'icontent_pages')) {
+            $mform->addElement('header', 'tagshdr', get_string('tags', 'tag'));
+        }
+        $mform->addElement(
+            'tags',
+            'tags',
+            get_string('tags'),
+            [
+                'itemtype' => 'icontent_pages',
+                'component' => 'mod_icontent',
+            ]
+        );
 
         $mform->addElement('header', 'appearance', get_string('appearance'));
 
@@ -111,6 +226,12 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setType('showtitle', PARAM_INT);
         $mform->setDefault('showtitle', 1);
 
+        $titleattributes = ['id' => 'icontent_titlecolor_picker', 'size' => '10', 'maxlength' => '7'];
+        $mform->addElement('text', 'titlecolor', get_string('titlecolor', 'icontent'), $titleattributes);
+        $mform->setType('titlecolor', PARAM_TEXT);
+        $mform->addHelpButton('titlecolor', 'titlecolorhelp', 'icontent');
+        $mform->setDefault('titlecolor', $page->titlecolor);
+
         $mform->addElement('advcheckbox', 'showbgimage', get_string('showbgimage', 'icontent'));
         $mform->addHelpButton('showbgimage', 'showbgimage', 'icontent');
         $mform->setType('showbgimage', PARAM_INT);
@@ -118,87 +239,97 @@ class icontent_pages_edit_form extends moodleform {
 
         // Set up options for the filemanager setting.
         $filemanageroptions = [];
-                $filemanageroptions['subdirs'] = 0;
-                $filemanageroptions['maxbytes'] = $COURSE->maxbytes;
-                $filemanageroptions['maxfiles'] = 1;
-                $filemanageroptions['accepted_types'] = ['.jpg', '.png'];
-                $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;
-        $mform->addElement('filemanager', 'bgimage', get_string('bgimage', 'icontent'), null, $filemanageroptions);
-        $mform->setType('bgimage', PARAM_INT);
-        $mform->addHelpButton('bgimage', 'bgimagepagehelp', 'icontent');
+        $filemanageroptions['subdirs'] = 0;
+        $filemanageroptions['maxbytes'] = $bgimagemaxbytes;
+        $filemanageroptions['maxfiles'] = 1;
+        $filemanageroptions['accepted_types'] = ['web_image'];
+        $filemanageroptions['return_types'] = FILE_INTERNAL | FILE_EXTERNAL;
+        $mform->addElement('filemanager', 'bgimage_filemanager', get_string('bgimage', 'icontent'), null, $filemanageroptions);
+        $mform->setType('bgimage_filemanager', PARAM_INT);
+        $mform->addHelpButton('bgimage_filemanager', 'bgimagepagehelp', 'icontent');
 
-        // ...$mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), ['class' => 'color', 'value' => 'FCFCFC']);.
-        // ...$mform->setType('bgcolor', PARAM_TEXT);.
-        // ...$mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');.
+        // Show currently stored page background files even if the JS filemanager UI is not working.
+        $storedfileshtml = '';
+        if (!empty($page->id)) {
+            $modulecontext = context_module::instance((int)$page->cmid);
+            $storedfiles = get_file_storage()->get_area_files(
+                $modulecontext->id,
+                'mod_icontent',
+                'bgpage',
+                (int)$page->id,
+                'id',
+                false
+            );
+            if (!empty($storedfiles)) {
+                $links = [];
+                foreach ($storedfiles as $storedfile) {
+                    $fileurl = moodle_url::make_pluginfile_url(
+                        $modulecontext->id,
+                        'mod_icontent',
+                        'bgpage',
+                        (int)$page->id,
+                        (string)$storedfile->get_filepath(),
+                        (string)$storedfile->get_filename(),
+                        true
+                    );
+                    $links[] = html_writer::link($fileurl, $storedfile->get_filename());
+                }
+                $storedfileshtml = html_writer::alist($links);
+            }
+        }
+        if ($storedfileshtml !== '') {
+            $mform->addElement('static', 'bgimage_current_files', get_string('files'), $storedfileshtml);
+        }
 
-        $PAGE->requires->js( new moodle_url(__FILE__ . '/lib/javascript-static.js'));
+        // Legacy bgcolor field setup comments removed.
 
-        // 20240212 Modified setting for background color.
-        $attributes = ['class' => "color",
-                       'value' => $icontentconfig->bgcolor,
-                       'size' => "10",
-                      ];
-        $mform->setType('bgcolor', PARAM_NOTAGS);
-        // NOTE: When either of the next two lines are uncommented, the Background image file upload part
-        // of the form never finishes loading.
-        // ...$mform->addElement('html', '<div class="admin_colourpicker">');.
-        // ...$PAGE->requires->js_init_call('M.util.init_colour_picker', ['id', 'null']);.
-
-        $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), $attributes);
+        $bgattributes = ['id' => 'icontent_bgcolor_picker', 'size' => '10', 'maxlength' => '7'];
+        $mform->addElement('text', 'bgcolor', get_string('bgcolor', 'icontent'), $bgattributes);
+        $mform->setType('bgcolor', PARAM_TEXT);
         $mform->addHelpButton('bgcolor', 'bgcolorpagehelp', 'icontent');
+        $mform->setDefault('bgcolor', $page->bgcolor);
 
-        $mform->setDefault('bgcolor', $icontentconfig->bgcolor);
-
-        // 20240713 Color input experiments.
-        /*
-        $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
-            <input type="color" id="bgcolor" value="#0000ff">');
-        */
-        /*
-        $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
-            <input type="color" id="'.$icontentconfig->bgcolor.'" value="#0000ff">');
-        */
-
-        /*
-        $mform->addElement('html', '<label for="bgcolor">Color Picker:</label>
-            <input type="text" name="text">
-            <input type="color" name="color">
-            <input type="submit" name="btn_submit" value="Submit">');
-        */
-
-        // ========================================================================================
-        /*
-        $mform->addElement('html', '<label for="'.$icontentconfig->bgcolor.'">Color Picker:</label>
-            <input type="text" name="text">
-            <input type="color" name="color">
-            <input type="submit" name="btn_submit" value="Submit">');
-        */
-        // ========================================================================================
-
-        /*
-        // Background color setting.
-        $settings->add(new icontent_setting_configcolorpicker(
-            'mod_icontent/bgccolor',
-            get_string('bgccolor_title', 'icontent'),
-            get_string('bgccolor_descr', 'icontent'),
-            get_string('bgccolor_colour', 'icontent'),
-            null)
-        );
-        */
-
-        // ...$mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), ['class' => 'color', 'value' => 'E4E4E4']);.
-        // ...$mform->setType('bordercolor', PARAM_TEXT);.
-        // ...$mform->addHelpButton('bordercolor', 'bordercolorpagehelp', 'icontent');.
-
-        // 20240212 Modified setting for bordercolor color.
-        $attributes = ['class' => "color",
-                       'value' => $icontentconfig->bordercolor,
-                       'size' => "10",
-                      ];
-        $mform->setType('bordercolor', PARAM_NOTAGS);
-        $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), $attributes);
+        $borderattributes = ['id' => 'icontent_bordercolor_picker', 'size' => '10', 'maxlength' => '7'];
+        $mform->addElement('text', 'bordercolor', get_string('bordercolor', 'icontent'), $borderattributes);
+        $mform->setType('bordercolor', PARAM_TEXT);
         $mform->addHelpButton('bordercolor', 'bgcolorpagehelp', 'icontent');
-        $mform->setDefault('bordercolor', $icontentconfig->bordercolor);
+        $mform->setDefault('bordercolor', $page->bordercolor);
+
+        $mform->addElement('html', "
+            <script>
+                (function() {
+                    var normalizeHex = function(value, fallback) {
+                        var raw = (value || '').toString().trim();
+                        if (raw.charAt(0) !== '#') {
+                            raw = '#' + raw;
+                        }
+                        if (!/^#[0-9a-fA-F]{6}$/.test(raw)) {
+                            return fallback;
+                        }
+                        return raw.toUpperCase();
+                    };
+
+                    var initColorInput = function(id, fallback) {
+                        var input = document.getElementById(id);
+                        if (!input) {
+                            return;
+                        }
+                        input.value = normalizeHex(input.value, fallback);
+                        input.type = 'color';
+                        input.style.width = '60px';
+                        input.style.height = '35px';
+                        input.style.cursor = 'pointer';
+                        input.addEventListener('change', function() {
+                            input.value = normalizeHex(input.value, fallback);
+                        });
+                    };
+
+                    initColorInput('icontent_bgcolor_picker', '#FCFCFC');
+                    initColorInput('icontent_bordercolor_picker', '#E4E4E4');
+                    initColorInput('icontent_titlecolor_picker', '#000000');
+                })();
+            </script>
+        ");
 
         $opts = icontent_add_borderwidth_options();
         $mform->addElement('select', 'borderwidth', get_string('borderwidth', 'icontent'), $opts);
@@ -229,10 +360,13 @@ class icontent_pages_edit_form extends moodleform {
         $mform->setDefault('expandnotesarea', 0);
 
         $mform->addElement('header', 'grade', get_string('gradenoun'));
-        $mform->addElement('select', 'attemptsallowed', get_string('attemptsallowed', 'icontent'),
+        $mform->addElement(
+            'select',
+            'attemptsallowed',
+            get_string('attemptsallowed', 'icontent'),
             [
                 '0' => get_string('unlimited'),
-                '1' => '1 '.get_string('attempt', 'mod_icontent'),
+                '1' => '1 ' . get_string('attempt', 'mod_icontent'),
             ]
         );
         $mform->addHelpButton('attemptsallowed', 'attemptsallowedhelp', 'icontent');
@@ -263,5 +397,113 @@ class icontent_pages_edit_form extends moodleform {
 
         // Set the defaults.
         $this->set_data($page);
+    }
+
+    /**
+     * Format a color for color picker fields as #RRGGBB.
+     *
+     * @param string|null $value
+     * @param string $fallback
+     * @return string
+     */
+    protected static function format_colour_for_picker($value, $fallback) {
+        $default = strtoupper((string)$fallback);
+        if ($default === '' || $default[0] !== '#') {
+            $default = '#' . ltrim($default, '#');
+        }
+        if (!preg_match('/^#[0-9A-F]{6}$/', $default)) {
+            $default = '#FCFCFC';
+        }
+
+        $raw = '#' . strtoupper(ltrim(trim((string)$value), '#'));
+        if (!preg_match('/^#[0-9A-F]{6}$/', $raw)) {
+            return $default;
+        }
+        return $raw;
+    }
+
+    /**
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
+    public function validation($data, $files) {
+        global $DB;
+
+        $errors = parent::validation($data, $files);
+        $branchparentpageid = (int)($data['branchparentpageid'] ?? 0);
+        $currentpageid = (int)($data['id'] ?? 0);
+
+        if ($branchparentpageid > 0 && $branchparentpageid === $currentpageid) {
+            $errors['branchparentpageid'] = get_string('errorclusterparentself', 'icontent');
+            return $errors;
+        }
+
+        if ($branchparentpageid > 0) {
+            $validparent = $DB->record_exists(
+                'icontent_pages',
+                [
+                    'id' => $branchparentpageid,
+                    'icontentid' => (int)($data['icontentid'] ?? 0),
+                    'cmid' => (int)($data['cmid'] ?? 0),
+                    'hidden' => 0,
+                    'branchparentpageid' => 0,
+                ]
+            );
+            if (!$validparent) {
+                $errors['branchparentpageid'] = get_string('errorclusterparentinvalid', 'icontent');
+            }
+        }
+
+        $prevmode = (int)($data['prevmode'] ?? 0);
+        $nextmode = (int)($data['nextmode'] ?? 0);
+        $prevpageid = (int)($data['prevpageid'] ?? 0);
+        $nextpageid = (int)($data['nextpageid'] ?? 0);
+        $allowedmodes = [0, 1, 2];
+
+        if (!in_array($prevmode, $allowedmodes, true)) {
+            $errors['prevmode'] = get_string('errorinvalidnavigationmode', 'icontent');
+        }
+        if (!in_array($nextmode, $allowedmodes, true)) {
+            $errors['nextmode'] = get_string('errorinvalidnavigationmode', 'icontent');
+        }
+
+        if ($prevmode === 2) {
+            if (empty($prevpageid)) {
+                $errors['prevpageid'] = get_string('errorcustompreviousrequired', 'icontent');
+            } else if ($prevpageid === $currentpageid) {
+                $errors['prevpageid'] = get_string('errorcustomnavself', 'icontent');
+            } else if (
+                !$DB->record_exists('icontent_pages', [
+                'id' => $prevpageid,
+                'icontentid' => (int)($data['icontentid'] ?? 0),
+                'cmid' => (int)($data['cmid'] ?? 0),
+                'hidden' => 0,
+                ])
+            ) {
+                $errors['prevpageid'] = get_string('errorcustomnavinvalid', 'icontent');
+            }
+        }
+
+        if ($nextmode === 2) {
+            if (empty($nextpageid)) {
+                $errors['nextpageid'] = get_string('errorcustomnextrequired', 'icontent');
+            } else if ($nextpageid === $currentpageid) {
+                $errors['nextpageid'] = get_string('errorcustomnavself', 'icontent');
+            } else if (
+                !$DB->record_exists('icontent_pages', [
+                'id' => $nextpageid,
+                'icontentid' => (int)($data['icontentid'] ?? 0),
+                'cmid' => (int)($data['cmid'] ?? 0),
+                'hidden' => 0,
+                ])
+            ) {
+                $errors['nextpageid'] = get_string('errorcustomnavinvalid', 'icontent');
+            }
+        }
+
+        return $errors;
     }
 }

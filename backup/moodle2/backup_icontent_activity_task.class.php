@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/mod/icontent/backup/moodle2/backup_icontent_steps
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_icontent_activity_task extends backup_activity_task {
-
     /**
      * No specific settings for this activity
      */
@@ -48,6 +47,11 @@ class backup_icontent_activity_task extends backup_activity_task {
      */
     protected function define_my_steps() {
         $this->add_step(new backup_icontent_activity_structure_step('icontent_structure', 'icontent.xml'));
+
+        // Activities that annotate question ids must include these steps so
+        // questions.xml is populated and restore mappings can be created.
+        $this->add_step(new backup_calculate_question_categories('activity_question_categories'));
+        $this->add_step(new backup_delete_temp_questions('clean_temp_questions'));
     }
 
     /**
@@ -62,11 +66,15 @@ class backup_icontent_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, '/');
 
         // Link to the list of icontents.
-        $search = '/('.$base.'\/mod\/icontent\/index.php\?id\=)([0-9]+)/';
+        $search = '/(' . $base . '\/mod\/icontent\/index.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@CONTENTINDEX*$2@$', $content);
 
+        // Link to icontent view by moduleid + pageid.
+        $search = '/(' . $base . '\/mod\/icontent\/view.php\?id\=)([0-9]+)(&|&amp;)(pageid\=)([0-9]+)/';
+        $content = preg_replace($search, '$@CONTENTVIEWPAGE*$2*$5@$', $content);
+
         // Link to icontent view by moduleid.
-        $search = '/('.$base.'\/mod\/icontent\/view.php\?id\=)([0-9]+)/';
+        $search = '/(' . $base . '\/mod\/icontent\/view.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@CONTENTVIEWBYID*$2@$', $content);
 
         return $content;

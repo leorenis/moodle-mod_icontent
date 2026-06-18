@@ -47,19 +47,27 @@ if ($id) {
 require_sesskey();
 $context = context_module::instance($cm->id);
 require_login($course, true, $cm);
+
+$pageurlparams = ['id' => $cm->id, 'action' => $action];
+$pageidparam = optional_param('pageid', 0, PARAM_INT);
+if ($pageidparam) {
+    $pageurlparams['pageid'] = $pageidparam;
+}
+$PAGE->set_url('/mod/icontent/ajax.php', $pageurlparams);
 // Check actions.
 $return = false;
 switch ($action) {
     case 'loadpage':
         require_capability('mod/icontent:view', $context);
         $pagenum = required_param('pagenum', PARAM_INT);
-        $return = icontent_ajax_getpage($pagenum, $icontent, $context);
+        $sourcepageid = optional_param('sourcepageid', 0, PARAM_INT);
+        $return = icontent_ajax_getpage($pagenum, $icontent, $context, $sourcepageid);
         break;
         // Save and return records table {pages_notes}.
     case 'savereturnpagenotes':
         require_capability('mod/icontent:viewnotes', $context);
         $pageid = required_param('pageid', PARAM_INT);
-        $note = new stdClass;
+        $note = new stdClass();
         $note->comment = required_param('comment', PARAM_CLEANHTML);
         $note->cmid = required_param('id', PARAM_INT);
         $note->featured = required_param('featured', PARAM_INT);
@@ -71,14 +79,23 @@ switch ($action) {
         break;
     case 'likenote':
         require_capability('mod/icontent:likenotes', $context);
-        $notelike = new stdClass;
+        $notelike = new stdClass();
         $notelike->pagenoteid = required_param('pagenoteid', PARAM_INT);
         $notelike->cmid = required_param('id', PARAM_INT);
+        $targetnote = $DB->get_record(
+            'icontent_pages_notes',
+            ['id' => $notelike->pagenoteid, 'cmid' => $notelike->cmid],
+            'doubttutor',
+            MUST_EXIST
+        );
+        if ($targetnote->doubttutor && !has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $context)) {
+            throw new moodle_exception('nopermissions', 'error');
+        }
         $return = icontent_ajax_likenote($notelike, $icontent);
         break;
     case 'editnote':
         require_capability('mod/icontent:editnotes', $context);
-        $pagenote = new stdClass;
+        $pagenote = new stdClass();
         $pagenote->id = required_param('pagenoteid', PARAM_INT);
         $pagenote->cmid = required_param('id', PARAM_INT);
         $pagenote->comment = required_param('comment', PARAM_CLEANHTML);
@@ -86,7 +103,7 @@ switch ($action) {
         break;
     case 'replynote':
         require_capability('mod/icontent:replynotes', $context);
-        $pagenote = new stdClass;
+        $pagenote = new stdClass();
         $pagenote->parent = required_param('parent', PARAM_INT);
         $pagenote->cmid = required_param('id', PARAM_INT);
         $pagenote->comment = required_param('comment', PARAM_CLEANHTML);

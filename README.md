@@ -23,6 +23,9 @@ O plugin também permite o lançamento de perguntas sobre o conteúdo abordado, 
 * PHP >= 8.0
 * Moodle >= 4.0.10+ (Build: 20230806)
 
+## Question engine parity planning
+See [QUESTION_ENGINE_PARITY_PLAN.md](QUESTION_ENGINE_PARITY_PLAN.md) for the concrete qtype-by-qtype parity checklist and migration sequence.
+
 ## License / Licença
 * The iContent uses the GPL-3.0+ license, to learn more read the link: [GPL license](http://www.gnu.org/copyleft/gpl.html).
 * O iContent utiliza a licença GPL-3.0+, para saber mais leia no link: [GPL license](http://www.gnu.org/copyleft/gpl.html).

@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(dirname(__FILE__).'/../../config.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 use mod_icontent\notes\icontent_note_options;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -57,7 +57,7 @@ if ($confirm) {
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading($icontent->name." : ".get_string('removenotes', 'mod_icontent'));
+echo $OUTPUT->heading($icontent->name . " : " . get_string('removenotes', 'mod_icontent'));
 
 // Operation not confirmed.
 $notes = icontent_get_notes_daughters($pagenote->id);
@@ -67,5 +67,5 @@ $continue = new moodle_url('/mod/icontent/deletenote.php', ['id' => $cm->id, 'pn
 $cancel = new moodle_url('/mod/icontent/view.php', ['id' => $cm->id, 'pageid' => $pagenote->pageid]);
 $listreplies = icontent_make_list_group_notesdaughters($notes);
 
-echo $OUTPUT->confirm("<p>$strconfirm</p><blockquote>$pagenote->comment</blockquote>". $listreplies, $continue, $cancel);
+echo $OUTPUT->confirm("<p>$strconfirm</p><blockquote>$pagenote->comment</blockquote>" . $listreplies, $continue, $cancel);
 echo $OUTPUT->footer();

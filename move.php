@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(dirname(__FILE__).'/../../config.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $pageid = required_param('pageid', PARAM_INT); // Page ID.
@@ -148,4 +148,4 @@ if (!$nothing) {
     }
 }
 
-redirect('view.php?id='.$cm->id.'&pageid='.$page->id);
+redirect('view.php?id=' . $cm->id . '&pageid=' . $page->id);

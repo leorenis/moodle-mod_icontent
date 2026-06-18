@@ -57,8 +57,14 @@ class icontent_setting_configcolorpicker extends admin_setting {
      * @param array $previewconfig
      * @param int $usedefaultwhenempty
      */
-    public function __construct($name, $visiblename, $description, $defaultsetting, array $previewconfig = null,
-            $usedefaultwhenempty = true) {
+    public function __construct(
+        $name,
+        $visiblename,
+        $description,
+        $defaultsetting,
+        $previewconfig = null,
+        $usedefaultwhenempty = true
+    ) {
         $this->previewconfig = $previewconfig;
         $this->usedefaultwhenempty = $usedefaultwhenempty;
         parent::__construct($name, $visiblename, $description, $defaultsetting);
@@ -133,7 +139,7 @@ class icontent_setting_configcolorpicker extends admin_setting {
 
         if (preg_match('/^#?([[:xdigit:]]{3}){1,2}$/', $data)) {
             if (strpos($data, '#') !== 0) {
-                $data = '#'.$data;
+                $data = '#' . $data;
             }
             return $data;
         } else if (in_array(strtolower($data), $colornames)) {
@@ -181,7 +187,15 @@ class icontent_setting_configcolorpicker extends admin_setting {
         $element = $OUTPUT->render_from_template('core_admin/setting_configcolorpicker', $context);
         $PAGE->requires->js_init_call('M.util.init_color_picker', [$this->get_id(), $this->previewconfig]);
 
-        return format_admin_setting($this, $this->visiblename, $element, $this->description, true, '',
-            $this->get_defaultsetting(), $query);
+        return format_admin_setting(
+            $this,
+            $this->visiblename,
+            $element,
+            $this->description,
+            true,
+            '',
+            $this->get_defaultsetting(),
+            $query
+        );
     }
 }

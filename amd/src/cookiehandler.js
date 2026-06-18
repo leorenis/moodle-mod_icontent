@@ -20,13 +20,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery'], function($) {
-    var config = {defaults : {}};
+    var config = {defaults: {}};
     var pluses = /\+/g;
-    function encode(s) { return config.raw ? s : encodeURIComponent(s);}
-    function decode(s) { return config.raw ? s : decodeURIComponent(s);}
+    /**
+     *
+     * @param {string} s
+     */
+    function encode(s) {
+ return config.raw ? s : encodeURIComponent(s);
+}
+    /**
+     *
+     * @param {string} s
+     */
+    function decode(s) {
+ return config.raw ? s : decodeURIComponent(s);
+}
+    /**
+     *
+     * @param {*} value
+     */
     function stringifyCookieValue(value) {
         return encode(config.json ? JSON.stringify(value) : String(value));
     }
+    /**
+     *
+     * @param {string} s
+     */
     function parseCookieValue(s) {
         if (s.indexOf('"') === 0) {
             s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
@@ -34,18 +54,26 @@ define(['jquery'], function($) {
         try {
             s = decodeURIComponent(s.replace(pluses, ' '));
             return config.json ? JSON.parse(s) : s;
-        } catch(e) {}
+        } catch (e) {
+            return null;
+        }
     }
+    /**
+     *
+     * @param {string} s
+     * @param {Function} converter
+     */
     function read(s, converter) {
         var value = config.raw ? s : parseCookieValue(s);
         return $.isFunction(converter) ? converter(value) : value;
     }
     return {
-        cookie: function (key, value, options) {
+        cookie: function(key, value, options) {
             if (arguments.length > 1 && !$.isFunction(value)) {
                 options = $.extend({}, config.defaults, options);
                 if (typeof options.expires === 'number') {
-                    var days = options.expires, t = options.expires = new Date();
+                    var days = options.expires,
+t = options.expires = new Date();
                     t.setMilliseconds(t.getMilliseconds() + days * 864e+5);
                 }
                 return (document.cookie = [

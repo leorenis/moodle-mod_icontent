@@ -24,9 +24,9 @@
 
 use mod_icontent\local\icontent_info;
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once(dirname(__FILE__).'/lib.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
+require_once(dirname(__FILE__) . '/lib.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course.
 
@@ -111,7 +111,7 @@ foreach ($icontents as $icontent) {
         }
         if ($currentsection !== '') {
             $table->data[$i] = 'hr';
-            $i ++;
+            $i++;
         }
         $currentsection = $icontent->section;
     }
@@ -124,11 +124,11 @@ foreach ($icontents as $icontent) {
     if (! $icontent->visible) {
         // Show dimmed if the mod is hidden.
         $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
-        $table->data[$i][] = '<a class="dimmed" href="'.$url->out(false).'">'.$icontentname.'</a>';
+        $table->data[$i][] = '<a class="dimmed" href="' . $url->out(false) . '">' . $icontentname . '</a>';
     } else {
         // Show normal if the mod is visible.
         $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
-        $table->data[$i][] = '<a href="'.$url->out(false).'">'.$icontentname. '</a>';
+        $table->data[$i][] = '<a href="' . $url->out(false) . '">' . $icontentname . '</a>';
     }
 
     // Description.
@@ -143,24 +143,24 @@ foreach ($icontents as $icontent) {
     // ...$questioncount = results::icontent_count_entries($icontent);.
     // ...$questioncount = icontent_count_entries($icontent);.
     $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
-    $table->data[$i][] = '<a href="'.$url->out(false).'">'
-        .get_string('pagecount', 'icontent', $pages).'</a>';
+    $table->data[$i][] = '<a href="' . $url->out(false) . '">'
+        . get_string('pagecount', 'icontent', $pages) . '</a>';
 
     // Need to change this to a Notes count.
     // ...$notescount = results::icontent_count_entries($icontent);.
     // ...$notescount = icontent_count_entries($icontent);.
     $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
-    $table->data[$i][] = '<a href="'.$url->out(false).'">'
-        .get_string('note', 'icontent', $notes).'</a>';
+    $table->data[$i][] = '<a href="' . $url->out(false) . '">'
+        . get_string('note', 'icontent', $notes) . '</a>';
 
     // Need to change this to a Questions(doubts) count.
     // ...$doubtscount = results::icontent_count_entries($icontent);.
     // ...$doubtscount = icontent_count_entries($icontent);.
     $url = new moodle_url('view.php', ['id' => $icontent->coursemodule]);
-    $table->data[$i][] = '<a href="'.$url->out(false).'">'
-        .get_string('doubt', 'icontent', $doubts).'</a>';
+    $table->data[$i][] = '<a href="' . $url->out(false) . '">'
+        . get_string('doubt', 'icontent', $doubts) . '</a>';
 
-    $i ++;
+    $i++;
 }
 
 echo html_writer::table($table);

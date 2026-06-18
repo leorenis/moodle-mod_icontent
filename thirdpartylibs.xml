@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>styles/font-awesome-4.6.2</location>
+    <name>Font Awesome</name>
+    <description>The iconic font and CSS toolkit.</description>
+    <version>4.6.2</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+    <repository>https://github.com/FortAwesome/Font-Awesome</repository>
+    <copyrights>
+      <copyright>2016 Dave Gandy (https://fontawesome.com)</copyright>
+    </copyrights>
+  </library>
+  <library>
+    <location>js/jscolor</location>
+    <name>JSColor</name>
+    <description>JavaScript color picker widget.</description>
+    <version>1.4.4</version>
+    <license>LGPL</license>
+    <licenseversion>2.1</licenseversion>
+    <repository>https://jscolor.com</repository>
+    <copyrights>
+      <copyright>2008-2014 Jan Odvárko (East Desired s.r.o.), http://jscolor.com</copyright>
+    </copyrights>
+  </library>
+</libraries>

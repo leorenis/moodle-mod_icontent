@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require(dirname(__FILE__).'/../../config.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 use mod_icontent\question\icontent_question_options;
 
 $id = required_param('id', PARAM_INT); // Course Module ID.
@@ -48,6 +48,7 @@ $PAGE->set_heading($course->fullname);
 if ($confirm) {
     $delete = icontent_question_options::icontent_remove_answers_attempt_toquestion_by_page($pageid, $cm->id);
     if ($delete) {
+        icontent_question_engine_phase1_reset_page_usage($cm->id, $pageid, $USER->id);
         // Update grade.
         icontent_set_grade_item($icontent, $cm->id, $USER->id);
         // Event log.
@@ -58,7 +59,7 @@ if ($confirm) {
     }
 }
 echo $OUTPUT->header();
-echo $OUTPUT->heading($icontent->name." : ".get_string('confdeleteattempt', 'mod_icontent', $page));
+echo $OUTPUT->heading($icontent->name . " : " . get_string('confdeleteattempt', 'mod_icontent', $page));
 
 // Operation not confirmed.
 $attemptsummary = icontent_get_attempt_summary_by_page($pageid, $cm->id);

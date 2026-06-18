@@ -1,0 +1,73 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_icontent/manual_review_question_card
+
+    Manual review question card shown on toevaluate.php.
+
+    Context variables required for this template:
+    * questionblockid
+    * questionblockclass
+    * attempttitle
+    * questiontexthtml
+    * answerhtml
+    * commentlabel
+    * commentfieldid
+    * commentfieldname
+    * reviewercomment
+    * commentformatname
+    * reviewercommentformat
+    * gradenoun
+    * fieldid
+    * fieldname
+    * fraction
+    * maxgrade
+    * maxgradeformatted
+    * strmaxgrade
+}}
+<div id="{{questionblockid}}" class="{{questionblockclass}}">
+    <strong>{{attempttitle}}</strong>
+    <div class="formulation">
+        <div class="qtext">{{{questiontexthtml}}}</div>
+        <div class="ablock">
+            <div class="answer qtype_essay_editor qtype_essay_response readonly">{{{answerhtml}}}</div>
+        </div>
+        <div class="cblock mt-2">
+            <label for="{{commentfieldid}}" class="labelfieldcomment">{{commentlabel}}</label>
+            <textarea
+                id="{{commentfieldid}}"
+                name="{{commentfieldname}}"
+                rows="6"
+                class="form-control">{{reviewercomment}}</textarea>
+            <input type="hidden" name="{{commentformatname}}" value="{{reviewercommentformat}}">
+        </div>
+        <div class="gblock">
+            <label for="{{fieldid}}" class="labelfieldgrade">{{gradenoun}}<br></label>
+            <input
+                type="number"
+                class="input-mini"
+                value="{{fraction}}"
+                id="{{fieldid}}"
+                name="{{fieldname}}"
+                required="required"
+                step="0.1"
+                min="0"
+                max="{{maxgrade}}">
+            <label>{{strmaxgrade}}: {{maxgradeformatted}}</label>
+        </div>
+    </div>
+</div>

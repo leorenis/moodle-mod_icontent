@@ -24,9 +24,9 @@
 
 use mod_icontent\local\icontent_info;
 
-require(dirname(__FILE__).'/../../config.php');
-require_once(dirname(__FILE__).'/locallib.php');
-require_once(dirname(__FILE__).'/edit_form.php');
+require(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
+require_once(dirname(__FILE__) . '/edit_form.php');
 
 $cmid = required_param('cmid', PARAM_INT);  // Content Course Module ID.
 $pageid = optional_param('id', 0, PARAM_INT); // Page ID.
@@ -52,10 +52,12 @@ $event->add_record_snapshot($PAGE->cm->modname, $icontent);
 $event->trigger();
 
 $PAGE->set_url('/mod/icontent/edit.php', ['cmid' => $cmid, 'id' => $pageid, 'pagenum' => $pagenum]);
-$PAGE->set_pagelayout('admin'); // Not sure just what this does.
+$PAGE->set_pagelayout('incourse');
 
 if ($pageid) {
     $page = $DB->get_record('icontent_pages', ['id' => $pageid, 'icontentid' => $icontent->id], '*', MUST_EXIST);
+    // 20240920 See if there are any tags for this page.
+    $page->tags = core_tag_tag::get_item_tags_array('mod_icontent', 'icontent_pages', $pageid);
 } else {
     $page = new stdClass();
     $page->id = null;
@@ -63,7 +65,23 @@ if ($pageid) {
 }
 $page->icontentid = $icontent->id;
 $page->cmid = $cm->id;
+
+// Mirror view.php TOC behavior while editing so page navigation remains available.
+$pages = icontent_info::icontent_preload_pages($icontent);
+$currenttocpage = !empty($page->pagenum) ? (int)$page->pagenum : icontent_get_startpagenum($icontent, $context);
+if (!empty($pages)) {
+    icontent_add_fake_block($pages, $currenttocpage, $icontent, $cm, true);
+}
+
 $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
+$bgimagemaxbytes = $maxbytes;
+$bgimageoptions = [
+    'subdirs' => 0,
+    'maxbytes' => $bgimagemaxbytes,
+    'maxfiles' => 1,
+    'accepted_types' => ['web_image'],
+];
+
 $pageicontentoptions = [
     'noclean' => true,
     'subdirs' => true,
@@ -72,8 +90,14 @@ $pageicontentoptions = [
     'context' => $context,
 ];
 $page = file_prepare_standard_editor($page, 'pageicontent', $pageicontentoptions, $context, 'mod_icontent', 'page', $page->id);
+$page = file_prepare_standard_filemanager($page, 'bgimage', $bgimageoptions, $context, 'mod_icontent', 'bgpage', $page->id);
 
-$mform = new icontent_pages_edit_form(null, ['page' => $page, 'pageicontentoptions' => $pageicontentoptions]);
+$mform = new icontent_pages_edit_form(null, [
+    'page' => $page,
+    'pageicontentoptions' => $pageicontentoptions,
+    'bgimagemaxbytes' => $bgimagemaxbytes,
+]);
+$mform->set_data($page);
 
 // If data submitted, then process and store.
 if ($mform->is_cancelled()) {
@@ -82,13 +106,82 @@ if ($mform->is_cancelled()) {
     } else {
         redirect("view.php?id=$cm->id&pageid=$page->id");
     }
-
 } else if ($data = $mform->get_data()) {
+    $data->bgcolor = icontent_normalize_hex_colour($data->bgcolor, $icontent->bgcolor);
+    $data->bordercolor = icontent_normalize_hex_colour($data->bordercolor, $icontent->bordercolor);
+    $data->titlecolor = icontent_normalize_hex_colour($data->titlecolor, '#000000');
+
+    $data->branchparentpageid = (int)($data->branchparentpageid ?? 0);
+    $data->branchref = trim((string)($data->branchref ?? ''));
+    $data->branchname = trim((string)($data->branchname ?? ''));
+    $data->prevmode = (int)($data->prevmode ?? 0);
+    $data->prevpageid = (int)($data->prevpageid ?? 0);
+    $data->nextmode = (int)($data->nextmode ?? 0);
+    $data->nextpageid = (int)($data->nextpageid ?? 0);
+    if ($data->branchparentpageid > 0) {
+        $validclusterparent = $DB->record_exists(
+            'icontent_pages',
+            [
+                'id' => $data->branchparentpageid,
+                'icontentid' => (int)$icontent->id,
+                'cmid' => (int)$cm->id,
+                'hidden' => 0,
+                'branchparentpageid' => 0,
+            ]
+        );
+        if (!$validclusterparent || (!empty($data->id) && (int)$data->branchparentpageid === (int)$data->id)) {
+            $data->branchparentpageid = 0;
+        }
+    }
+    if ($data->branchparentpageid === 0) {
+        $data->branchref = '';
+        $data->branchname = '';
+    }
+
+    if (!in_array($data->prevmode, [0, 1, 2], true)) {
+        $data->prevmode = 0;
+    }
+    if (!in_array($data->nextmode, [0, 1, 2], true)) {
+        $data->nextmode = 0;
+    }
+
+    if (
+        $data->prevmode !== 2 || !$DB->record_exists('icontent_pages', [
+        'id' => $data->prevpageid,
+        'icontentid' => (int)$icontent->id,
+        'cmid' => (int)$cm->id,
+        'hidden' => 0,
+        ]) || (!empty($data->id) && (int)$data->prevpageid === (int)$data->id)
+    ) {
+        $data->prevpageid = 0;
+    }
+
+    if (
+        $data->nextmode !== 2 || !$DB->record_exists('icontent_pages', [
+        'id' => $data->nextpageid,
+        'icontentid' => (int)$icontent->id,
+        'cmid' => (int)$cm->id,
+        'hidden' => 0,
+        ]) || (!empty($data->id) && (int)$data->nextpageid === (int)$data->id)
+    ) {
+        $data->nextpageid = 0;
+    }
+
+    // 20240920 Added tags to the form.
+    core_tag_tag::set_item_tags(
+        'mod_icontent',
+        'icontent_pages',
+        $pageid,
+        $context,
+        $data->tags,
+    );
+
     // Update.
     if ($data->id) {
         // Store the files.
         $data->timemodified = time();
-        $data = file_postupdate_standard_editor($data,
+        $data = file_postupdate_standard_editor(
+            $data,
             'pageicontent',
             $pageicontentoptions,
             $context,
@@ -96,17 +189,40 @@ if ($mform->is_cancelled()) {
             'page',
             $data->id
         );
-        $DB->update_record('icontent_pages', $data);
-        // Saving file bgarea in the filemanager.
-        file_save_draft_area_files($data->bgimage, $context->id,
+        // Defensive fallback: preserve existing background image if the submitted
+        // draft area is unexpectedly empty while editing non-file fields.
+        $fs = get_file_storage();
+        $draftbgfiles = $fs->get_area_files(
+            context_user::instance($USER->id)->id,
+            'user',
+            'draft',
+            (int)$data->bgimage_filemanager,
+            'id',
+            false
+        );
+        $existingbgfiles = $fs->get_area_files(
+            $context->id,
             'mod_icontent',
             'bgpage',
-            $data->id,
-            ['subdirs' => 0,
-                'maxbytes' => $maxbytes,
-                'maxfiles' => 1,
-            ]
+            (int)$data->id,
+            'id',
+            false
         );
+        if (!empty($draftbgfiles) || empty($existingbgfiles)) {
+            $data = file_postupdate_standard_filemanager(
+                $data,
+                'bgimage',
+                $bgimageoptions,
+                $context,
+                'mod_icontent',
+                'bgpage',
+                $data->id
+            );
+        } else {
+            $data->bgimage = !empty($existingbgfiles) ? '1' : '';
+        }
+
+        $DB->update_record('icontent_pages', $data);
         // Get page.
         $page = $DB->get_record('icontent_pages', ['id' => $data->id]);
         // Set log.
@@ -117,7 +233,8 @@ if ($mform->is_cancelled()) {
         $data->pageicontent = ''; // Updated later.
         $data->pageicontentformat = FORMAT_HTML; // Updated later.
         $data->id = $DB->insert_record('icontent_pages', $data);
-        $data = file_postupdate_standard_editor($data,
+        $data = file_postupdate_standard_editor(
+            $data,
             'pageicontent',
             $pageicontentoptions,
             $context,
@@ -125,18 +242,17 @@ if ($mform->is_cancelled()) {
             'page',
             $data->id
         );
-        $DB->update_record('icontent_pages', $data);
-        // Saving file bgarea in the filemanager.
-        file_save_draft_area_files($data->bgimage,
-            $context->id,
+        $data = file_postupdate_standard_filemanager(
+            $data,
+            'bgimage',
+            $bgimageoptions,
+            $context,
             'mod_icontent',
             'bgpage',
-            $data->id,
-            ['subdirs' => 0,
-                'maxbytes' => $maxbytes,
-                'maxfiles' => 1,
-            ]
+            $data->id
         );
+
+        $DB->update_record('icontent_pages', $data);
         // Fix structure.
         icontent_info::icontent_preload_pages($icontent);
         // Get page.
@@ -149,6 +265,8 @@ if ($mform->is_cancelled()) {
 // Otherwise fill and print the form.
 $PAGE->set_title($icontent->name);
 $PAGE->set_heading($course->fullname);
+$renderer = $PAGE->get_renderer('mod_icontent');
+$renderer->icontent_requires_css();
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($icontent->name);

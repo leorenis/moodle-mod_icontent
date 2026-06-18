@@ -24,7 +24,7 @@
 
 namespace mod_icontent\event;
 
-defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
+defined('MOODLE_INTERNAL') || die(); // phpcs:ignore
 
 /**
  * The mod_icontent question_toevaluate created event class.
@@ -35,7 +35,6 @@ defined('MOODLE_INTERNAL') || die(); // @codingStandardsIgnoreLine
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_toevaluate_created extends \core\event\base {
-
     /**
      * Init method.
      *
@@ -62,7 +61,7 @@ class question_toevaluate_created extends \core\event\base {
      */
     public function get_description() {
         $useridevaluated = $this->other['useridevaluated'];
-        return "The user with id '$this->userid' evaluated manual question(s) answered by the participant with id ".
+        return "The user with id '$this->userid' evaluated manual question(s) answered by the participant with id " .
             "'$useridevaluated' in activity with course module id '$this->contextinstanceid'.";
     }
 
@@ -72,7 +71,8 @@ class question_toevaluate_created extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/icontent/view.php',
+        return new \moodle_url(
+            '/mod/icontent/view.php',
             [
                 'id' => $this->contextinstanceid,
             ]

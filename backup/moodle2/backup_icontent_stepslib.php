@@ -33,8 +33,7 @@ defined('MOODLE_INTERNAL') || die; // phpcs:ignore
  * @copyright 2015 Leo Renis Santos <leorenis@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_icontent_activity_structure_step extends backup_activity_structure_step {
-
+class backup_icontent_activity_structure_step extends backup_questions_activity_structure_step {
     /**
      * Defines the backup structure of the module
      *
@@ -46,10 +45,19 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $userinfo = $this->get_setting_value('userinfo');
 
         // Define the root element describing the icontent instance.
-        $icontent = new backup_nested_element('icontent', ['id'],
+        $icontent = new backup_nested_element(
+            'icontent',
+            ['id'],
             ['name',
             'intro',
             'introformat',
+            'usepassword',
+            'password',
+            'timecreated',
+            'timemodified',
+            'timeopen',
+            'timeclose',
+            'viewaftertimeclose',
             'grade',
             'scale',
             'bgimage',
@@ -59,17 +67,35 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
             'evaluative',
             'maxpages',
             'progressbar',
+            'showtocmenu',
             'shownotesarea',
-            'copyright',
             'maxnotesperpages',
+            'copyright',
+            ]
+        );
+
+        $grades = new backup_nested_element('grades');
+        $grade = new backup_nested_element(
+            'grade',
+            ['id'],
+            ['userid',
+            'cmid',
+            'grade',
+            'timemodified',
             ]
         );
 
         $pages = new backup_nested_element('pages');
-        $page = new backup_nested_element('page', ['id'],
+        $page = new backup_nested_element(
+            'page',
+            ['id'],
             ['coverpage',
             'title',
+            'branchref',
+            'branchname',
+            'branchparentpageid',
             'showtitle',
+            'titlecolor',
             'pageicontent',
             'pageicontentformat',
             'showbgimage',
@@ -83,6 +109,10 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
             'hidden',
             'maxnotesperpages',
             'attemptsallowed',
+            'prevmode',
+            'prevpageid',
+            'nextmode',
+            'nextpageid',
             'expandnotesarea',
             'expandquestionsarea',
             'timecreated',
@@ -90,18 +120,21 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
             ]
         );
 
-        $pagequestions = new backup_nested_element('page_questions');
-        $pagequestion = new backup_nested_element('page_question', ['id'],
-            ['questionid',
+        $pagesdisplayeds = new backup_nested_element('pages_displayeds');
+        $pagesdisplayed = new backup_nested_element(
+            'pages_displayed',
+            ['id'],
+            ['userid',
             'timecreated',
-            'timemodified',
-            'remake',
             ]
         );
 
         $pagesnotes = new backup_nested_element('pages_notes');
-        $pagesnote = new backup_nested_element('pages_note', ['id'],
+        $pagesnote = new backup_nested_element(
+            'pages_note',
+            ['id'],
             ['userid',
+            'cmid',
             'comment',
             'timecreated',
             'timemodified',
@@ -115,46 +148,69 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         );
 
         $noteslikes = new backup_nested_element('notes_likes');
-        $noteslike = new backup_nested_element('notes_like', ['id'],
+        $noteslike = new backup_nested_element(
+            'notes_like',
+            ['id'],
             ['userid',
             'timemodified',
             'visible',
             ]
         );
 
-        $pagesdisplayeds = new backup_nested_element('pages_displayeds');
-        $pagesdisplayed = new backup_nested_element('pages_displayed', ['id'],
-            ['userid',
+        $pagequestions = new backup_nested_element('page_questions');
+        $pagequestion = new backup_nested_element(
+            'page_question',
+            ['id'],
+            ['questionid',
+            'questionbankentryid',
+            'cmid',
             'timecreated',
+            'timemodified',
+            'maxmark',
+            'remake',
+            'qtype',
+            'correctnextpageid',
+            'incorrectnextpageid',
+            'manualreviewnextpageid',
+            'defaultnextpageid',
             ]
+        );
+
+        $pagetags = new backup_nested_element('page_tags');
+        $pagetag = new backup_nested_element(
+            'page_tag',
+            ['id'],
+            ['rawname']
         );
 
         $questionattempts = new backup_nested_element('question_attempts');
-        $questionattempt = new backup_nested_element('question_attempt', ['id'],
+        $questionattempt = new backup_nested_element(
+            'question_attempt',
+            ['id'],
             ['questionid',
             'userid',
+            'cmid',
             'fraction',
             'rightanswer',
             'answertext',
+            'answertextformat',
+            'responseanswerfileitemid',
+            'responserecordingfileitemid',
+            'reviewercomment',
+            'reviewercommentformat',
             'timecreated',
-            ]
-        );
-
-        $grades = new backup_nested_element('grades');
-        $grade = new backup_nested_element('grade', ['id'],
-            ['userid',
-            'cmid',
-            'grade',
-            'timemodified',
             ]
         );
 
         // Build the tree.
+        $icontent->add_child($grades);
+        $grades->add_child($grade);
+
         $icontent->add_child($pages);
         $pages->add_child($page);
 
-        $page->add_child($pagequestions);
-        $pagequestions->add_child($pagequestion);
+        $page->add_child($pagesdisplayeds);
+        $pagesdisplayeds->add_child($pagesdisplayed);
 
         $page->add_child($pagesnotes);
         $pagesnotes->add_child($pagesnote);
@@ -162,26 +218,112 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $pagesnote->add_child($noteslikes);
         $noteslikes->add_child($noteslike);
 
-        $page->add_child($pagesdisplayeds);
-        $pagesdisplayeds->add_child($pagesdisplayed);
+        $page->add_child($pagequestions);
+        $pagequestions->add_child($pagequestion);
+
+        $page->add_child($pagetags);
+        $pagetags->add_child($pagetag);
 
         $pagequestion->add_child($questionattempts);
         $questionattempts->add_child($questionattempt);
 
-        $icontent->add_child($grades);
-        $grades->add_child($grade);
-
         // Define data sources.
         $icontent->set_source_table('icontent', ['id' => backup::VAR_ACTIVITYID]);
         $page->set_source_table('icontent_pages', ['icontentid' => backup::VAR_PARENTID]);
-        $pagequestion->set_source_table('icontent_pages_questions', ['pageid' => backup::VAR_PARENTID]);
+        $pagequestion->set_source_sql(
+            'SELECT pq.*, qv.questionbankentryid
+               FROM {icontent_pages_questions} pq
+          LEFT JOIN {question_versions} qv ON qv.questionid = pq.questionid
+              WHERE pq.pageid = ?',
+            [backup::VAR_PARENTID]
+        );
+
+        if (core_tag_tag::is_enabled('mod_icontent', 'icontent_pages')) {
+            $pagetag->set_source_sql(
+                'SELECT t.id, t.rawname
+                   FROM {tag} t
+                   JOIN {tag_instance} ti
+                     ON ti.tagid = t.id
+                  WHERE ti.itemtype = ?
+                    AND ti.component = ?
+                    AND ti.itemid = ?',
+                [
+                    backup_helper::is_sqlparam('icontent_pages'),
+                    backup_helper::is_sqlparam('mod_icontent'),
+                    backup::VAR_PARENTID,
+                ]
+            );
+        }
 
         // All these source definitions only happen if we are including user info.
         if ($userinfo) {
             $pagesnote->set_source_table('icontent_pages_notes', ['pageid' => backup::VAR_PARENTID]);
             $noteslike->set_source_table('icontent_pages_notes_like', ['pagenoteid' => backup::VAR_PARENTID]);
             $pagesdisplayed->set_source_table('icontent_pages_displayed', ['pageid' => backup::VAR_PARENTID]);
-            $questionattempt->set_source_table('icontent_question_attempts', ['pagesquestionsid' => backup::VAR_PARENTID]);
+            $questionattempt->set_source_sql(
+                'SELECT qa.*,
+                        (
+                            SELECT f.itemid
+                              FROM {files} f
+                              JOIN {context} c ON c.id = f.contextid
+                             WHERE f.component = ?
+                               AND f.filearea = ?
+                               AND f.userid = qa.userid
+                               AND c.contextlevel = ?
+                               AND c.instanceid = qa.cmid
+                               AND f.filesize > 0
+                               AND (
+                                   (qa.answertext <> \'\' AND f.filename = qa.answertext)
+                                   OR (
+                                       f.timecreated >= qa.timecreated - 900
+                                       AND f.timecreated <= qa.timecreated + 900
+                                   )
+                               )
+                          ORDER BY CASE
+                                       WHEN qa.answertext <> \'\' AND f.filename = qa.answertext THEN 0
+                                       ELSE 1
+                                   END,
+                                   ABS(f.timecreated - qa.timecreated) ASC,
+                                   f.id DESC
+                             LIMIT 1
+                        ) AS responseanswerfileitemid,
+                        (
+                            SELECT f.itemid
+                              FROM {files} f
+                              JOIN {context} c ON c.id = f.contextid
+                             WHERE f.component = ?
+                               AND f.filearea = ?
+                               AND f.userid = qa.userid
+                               AND c.contextlevel = ?
+                               AND c.instanceid = qa.cmid
+                               AND f.filesize > 0
+                               AND (
+                                   (qa.answertext <> \'\' AND f.filename = qa.answertext)
+                                   OR (
+                                       f.timecreated >= qa.timecreated - 900
+                                       AND f.timecreated <= qa.timecreated + 900
+                                   )
+                               )
+                          ORDER BY CASE
+                                       WHEN qa.answertext <> \'\' AND f.filename = qa.answertext THEN 0
+                                       ELSE 1
+                                   END,
+                                   ABS(f.timecreated - qa.timecreated) ASC,
+                                   f.id DESC
+                             LIMIT 1
+                        ) AS responserecordingfileitemid
+                   FROM {icontent_question_attempts} qa
+                  WHERE qa.pagesquestionsid = ?',
+                [
+                    backup_helper::is_sqlparam('question'),
+                    backup_helper::is_sqlparam('response_answer'),
+                    backup_helper::is_sqlparam(CONTEXT_MODULE),
+                    backup_helper::is_sqlparam('question'),
+                    backup_helper::is_sqlparam('response_recording'),
+                    backup_helper::is_sqlparam(CONTEXT_MODULE),
+                    backup::VAR_PARENTID,
+                ]
+            );
             $grade->set_source_table('icontent_grades', ['icontentid' => backup::VAR_PARENTID]);
         }
 
@@ -189,6 +331,7 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         // Define id annotations.
         $pagesnote->annotate_ids('user', 'userid');
         $pagequestion->annotate_ids('question', 'questionid');
+        $pagequestion->annotate_ids('question_bank_entry', 'questionbankentryid');
         $noteslike->annotate_ids('user', 'userid');
         $pagesdisplayed->annotate_ids('user', 'userid');
         $questionattempt->annotate_ids('user', 'userid');
@@ -198,6 +341,8 @@ class backup_icontent_activity_structure_step extends backup_activity_structure_
         $icontent->annotate_files('mod_icontent', 'intro', null);
         $page->annotate_files('mod_icontent', 'page', 'id');
         $page->annotate_files('mod_icontent', 'bgpage', 'id');
+        $questionattempt->annotate_files('question', 'response_answer', 'responseanswerfileitemid');
+        $questionattempt->annotate_files('question', 'response_recording', 'responserecordingfileitemid');
 
         // Return the root element (icontent), wrapped into standard activity structure.
         return $this->prepare_activity_structure($icontent);

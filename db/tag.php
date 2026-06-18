@@ -27,10 +27,11 @@ use mod_icontent\local\icontenttags;
 
 $tagareas = [
     [
-        'itemtype' => 'icontent_entries',
+        // The name of the database table (without prefix).
+        'itemtype' => 'icontent_pages',
+        // The full frankenstyle name of the plugin.
         'component' => 'mod_icontent',
         'callback' => 'mod_icontent_get_tagged_pages',
         'callbackfile' => '/mod/icontent/locallib.php',
     ],
 ];
-

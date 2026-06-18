@@ -28,37 +28,42 @@ use mod_icontent\local\keyboards;
 if ($ADMIN->fulltree) {
     // Changed to this format 03/10/2019.
     require_once(__DIR__ . '/lib.php');
-    require_once(dirname(__FILE__).'/locallib.php');
+    require_once(dirname(__FILE__) . '/locallib.php');
 
     // Availability settings.
     $settings->add(new admin_setting_heading('mod_icontent/availibility', get_string('availability'), ''));
 
     $name = new lang_string('alwaysshowdescription', 'mod_icontent');
     $description = new lang_string('alwaysshowdescription_help', 'mod_icontent');
-    $setting = new admin_setting_configcheckbox('mod_icontent/alwaysshowdescription',
-                                                    $name,
-                                                    $description,
-                                                    1);
+    $setting = new admin_setting_configcheckbox(
+        'mod_icontent/alwaysshowdescription',
+        $name,
+        $description,
+        1
+    );
     $setting->set_advanced_flag_options(admin_setting_flag::ENABLED, false);
     $setting->set_locked_flag_options(admin_setting_flag::ENABLED, false);
     $settings->add($setting);
-    
+
     // 20231230 Recent activity setting.
     $name = new lang_string('showrecentactivity', 'icontent');
     $description = new lang_string('showrecentactivityconfig', 'icontent');
-    $settings->add(new admin_setting_configcheckbox('mod_icontent/showrecentactivity',
-                                                    $name,
-                                                    $description,
-                                                    0));
+    $settings->add(new admin_setting_configcheckbox(
+        'mod_icontent/showrecentactivity',
+        $name,
+        $description,
+        0
+    ));
 
     // Password setting.
-    $settings->add(new admin_setting_configcheckbox_with_advanced('mod_icontent/password',
+    $settings->add(new admin_setting_configcheckbox_with_advanced(
+        'mod_icontent/password',
         get_string('password', 'icontent'),
         get_string('configpassword_desc', 'icontent'),
         ['value' => 0,
         'adv' => true, ]
     ));
-    
+
     // Appearance settings.
     $settings->add(new admin_setting_heading('mod_icontent/appearance', get_string('appearance'), ''));
 
@@ -110,7 +115,11 @@ if ($ADMIN->fulltree) {
     $title = get_string('shownotesarea', 'icontent');
     $description = get_string('shownotesarea_help', 'icontent');
     $default = 1;
-    $settings->add(new admin_setting_configselect($name, $title, $description, $default,
+    $settings->add(new admin_setting_configselect(
+        $name,
+        $title,
+        $description,
+        $default,
         [
             '0' => get_string('no'),
             '1' => get_string('yes'),
@@ -134,7 +143,11 @@ if ($ADMIN->fulltree) {
     $title = get_string('progressbar', 'icontent');
     $description = get_string('progressbar_help', 'icontent');
     $default = 1;
-    $settings->add(new admin_setting_configselect($name, $title, $description, $default,
+    $settings->add(new admin_setting_configselect(
+        $name,
+        $title,
+        $description,
+        $default,
         [
             '0' => get_string('no'),
             '1' => get_string('yes'),
@@ -148,6 +161,6 @@ if ($ADMIN->fulltree) {
         get_string('dateformatconfig', 'icontent'),
         'M d, Y G:i A',
         PARAM_TEXT,
-        25)
-    );
+        25
+    ));
 }

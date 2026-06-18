@@ -1,0 +1,26 @@
+{
+  "varnumeric": {
+    "status": "pass",
+    "notes": "Manual review not reuired, verified."
+  },
+  "essay": {
+    "status": "pass",
+    "notes": "Manual review text rendering verified."
+  },
+  "essayautograde": {
+    "status": "pass",
+    "notes": "Manual review flow available in current iContent setup."
+  },
+  "recordrtc": {
+    "status": "pass",
+    "notes": "Audio/video/screen manual review rendering verified in regular browser."
+  },
+  "poodllrecording": {
+    "status": "pass",
+    "notes": "Picture/audio/video manual review rendering verified."
+  },
+  "filter_embedquestion": {
+    "status": "not tested",
+    "notes": "Integration row added; verify embedded question rendering inside iContent page text."
+  }
+}

@@ -475,12 +475,14 @@ class icontent_pages_edit_form extends moodleform {
                 $errors['prevpageid'] = get_string('errorcustompreviousrequired', 'icontent');
             } else if ($prevpageid === $currentpageid) {
                 $errors['prevpageid'] = get_string('errorcustomnavself', 'icontent');
-            } else if (!$DB->record_exists('icontent_pages', [
+            } else if (
+                !$DB->record_exists('icontent_pages', [
                 'id' => $prevpageid,
                 'icontentid' => (int)($data['icontentid'] ?? 0),
                 'cmid' => (int)($data['cmid'] ?? 0),
                 'hidden' => 0,
-            ])) {
+                ])
+            ) {
                 $errors['prevpageid'] = get_string('errorcustomnavinvalid', 'icontent');
             }
         }
@@ -490,12 +492,14 @@ class icontent_pages_edit_form extends moodleform {
                 $errors['nextpageid'] = get_string('errorcustomnextrequired', 'icontent');
             } else if ($nextpageid === $currentpageid) {
                 $errors['nextpageid'] = get_string('errorcustomnavself', 'icontent');
-            } else if (!$DB->record_exists('icontent_pages', [
+            } else if (
+                !$DB->record_exists('icontent_pages', [
                 'id' => $nextpageid,
                 'icontentid' => (int)($data['icontentid'] ?? 0),
                 'cmid' => (int)($data['cmid'] ?? 0),
                 'hidden' => 0,
-            ])) {
+                ])
+            ) {
                 $errors['nextpageid'] = get_string('errorcustomnavinvalid', 'icontent');
             }
         }

@@ -69,9 +69,7 @@ $currentpage = $DB->get_record('icontent_pages', [
 // Require login.
 require_login($course, true, $cm);
 $modulecontext = context_module::instance($cm->id);
-/** @var \context_module $modulecontext */
 $context = $modulecontext;
-/** @var \context $context */
 $coursecontext = $modulecontext->get_course_context(true)->id;
 require_capability('mod/icontent:newquestion', $context);
 
@@ -101,16 +99,16 @@ if (!empty($qtscurrentpage)) {
                                 WHERE qv.questionid {$mappedin}";
         $versionmaps = $DB->get_records_sql($mapsql, $mappedparams);
 
-        foreach ($versionmaps as $versionmap) {
-                $mappedqid = (int)$versionmap->mappedquestionid;
-                $latestqid = (int)$versionmap->latestquestionid;
-                if ($latestqid <= 0 || $mappedqid <= 0 || !isset($qtscurrentpage[$mappedqid])) {
-                        continue;
-                }
-
-                $questionidremap[$latestqid] = $mappedqid;
-                $qtscurrentpagebydisplayqid[$latestqid] = $qtscurrentpage[$mappedqid];
+    foreach ($versionmaps as $versionmap) {
+            $mappedqid = (int)$versionmap->mappedquestionid;
+            $latestqid = (int)$versionmap->latestquestionid;
+        if ($latestqid <= 0 || $mappedqid <= 0 || !isset($qtscurrentpage[$mappedqid])) {
+                continue;
         }
+
+            $questionidremap[$latestqid] = $mappedqid;
+            $qtscurrentpagebydisplayqid[$latestqid] = $qtscurrentpage[$mappedqid];
+    }
 }
 
 // Process POST before any page output so redirect() fires in STATE_BEFORE_HEADER.
@@ -125,7 +123,7 @@ if ($action) {
     $manualreviewroutes = optional_param_array('routemanualreview', [], PARAM_INT);
     $defaultroutes = optional_param_array('routedefault', [], PARAM_INT);
 
-    $remapquestionids = static function(array $questionids, array $map): array {
+    $remapquestionids = static function (array $questionids, array $map): array {
         $result = [];
         foreach ($questionids as $questionid) {
             $questionid = (int)$questionid;
@@ -139,7 +137,7 @@ if ($action) {
         return array_values(array_unique($result));
     };
 
-    $remaproutekeys = static function(array $routes, array $map): array {
+    $remaproutekeys = static function (array $routes, array $map): array {
         $result = [];
         foreach ($routes as $questionid => $targetpageid) {
             $questionid = (int)$questionid;
@@ -247,8 +245,10 @@ $categorycontextids[] = (string)$modulecontext->id;
 $defaultbankmodname = \core_question\local\bank\question_bank_helper::get_default_question_bank_activity_name();
 $modinfo = get_fast_modinfo($course);
 $banks = $modinfo->get_instances_of($defaultbankmodname);
+$categorymodulecmidbycontextid = [];
 foreach ($banks as $bank) {
     $categorycontextids[] = (string) $bank->context->id;
+    $categorymodulecmidbycontextid[(int)$bank->context->id] = (int)$bank->id;
 }
 
 // Fallback for older setups where categories may still be in course context.
@@ -278,7 +278,12 @@ foreach ($qcids as $qcid) {
 // Preserve an explicitly requested category (for example after creating a question)
 // even when it is outside the precomputed context list.
 if ($questioncategoryid && !array_key_exists($questioncategoryid, $categorymenu)) {
-    $selectedcategory = $DB->get_record('question_categories', ['id' => $questioncategoryid], 'id, name, contextid', IGNORE_MISSING);
+    $selectedcategory = $DB->get_record(
+        'question_categories',
+        ['id' => $questioncategoryid],
+        'id, name, contextid',
+        IGNORE_MISSING
+    );
     if ($selectedcategory) {
         $categorymenu[(int)$selectedcategory->id] =
             format_string($selectedcategory->name) . ' (ID ' . (int)$selectedcategory->id . ')';
@@ -298,6 +303,7 @@ if ($selectedcategorycontext && !array_key_exists($questioncategoryid, $category
     $categorycontextbyid[$questioncategoryid] = (int)$selectedcategorycontext->contextid;
 }
 $selectedcategorycontextid = $categorycontextbyid[$questioncategoryid] ?? (int)$coursecontext;
+$questioneditcmid = (int)($categorymodulecmidbycontextid[$selectedcategorycontextid] ?? $cm->id);
 
 $questions = icontent_question_options::icontent_get_questions_of_questionbank(
     $coursecontext,
@@ -626,7 +632,7 @@ echo html_writer::start_tag(
     ['class' => 'mb-3']
 );
 echo $OUTPUT->render(new add_new_question($questioncategoryid, [
-    'cmid' => $cm->id,
+    'cmid' => $questioneditcmid,
     'returnurl' => $url->out_as_local_url(false),
     'appendqnumstring' => 'addquestion',
 ], has_capability('moodle/question:add', context::instance_by_id($selectedcategorycontextid))));

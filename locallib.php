@@ -89,16 +89,44 @@ function icontent_optional_qtype_table_exists(string $tablename): bool {
  * @return array
  */
 function icontent_question_engine_phase1_supported_qtypes() {
-    $legacyqtypes = [
-        ICONTENT_QTYPE_MATCH,
-        ICONTENT_QTYPE_MULTICHOICE,
-        ICONTENT_QTYPE_TRUEFALSE,
-        ICONTENT_QTYPE_ESSAY,
-        ICONTENT_QTYPE_ESSAYAUTOGRADE,
-    ];
-
     $allqtypes = array_values(array_keys(\core_component::get_plugin_list('qtype')));
-    return array_values(array_diff($allqtypes, $legacyqtypes));
+
+    // Temporary denylist to phase in full engine coverage safely.
+    $denylistraw = trim((string)get_config('mod_icontent', 'qenginedenylistqtypes'));
+    if ($denylistraw === '') {
+        return $allqtypes;
+    }
+
+    $denylist = preg_split('/\s*,\s*/', $denylistraw, -1, PREG_SPLIT_NO_EMPTY);
+    return array_values(array_diff($allqtypes, $denylist));
+}
+
+/**
+ * Whether to allow legacy HTML rendering when question_engine rendering fails.
+ *
+ * @return bool
+ */
+function icontent_question_engine_allow_legacy_render_fallback(): bool {
+    $setting = get_config('mod_icontent', 'qenginelegacyrenderfallback');
+    if ($setting === false || $setting === null || $setting === '') {
+        return true;
+    }
+
+    return (bool)$setting;
+}
+
+/**
+ * Whether to allow legacy answer parsing when question_engine submit processing misses records.
+ *
+ * @return bool
+ */
+function icontent_question_engine_allow_legacy_submit_fallback(): bool {
+    $setting = get_config('mod_icontent', 'qenginelegacysubmitfallback');
+    if ($setting === false || $setting === null || $setting === '') {
+        return true;
+    }
+
+    return (bool)$setting;
 }
 
 /**
@@ -141,6 +169,8 @@ function icontent_question_engine_phase1_reset_page_usage($cmid, $pageid, $useri
         question_engine::delete_questions_usage_by_activity($qubaid);
     } catch (\Throwable $e) {
         // Best-effort cleanup only; session reset above is sufficient for flow recovery.
+        // Intentionally ignored.
+        unset($e);
     }
 }
 
@@ -161,42 +191,80 @@ function icontent_question_engine_phase1_bootstrap_usage($objpage, $questions): 
     if (empty($SESSION->mod_icontent_quba) || !is_array($SESSION->mod_icontent_quba)) {
         $SESSION->mod_icontent_quba = [];
     }
+    if (empty($SESSION->mod_icontent_qengine_issues) || !is_array($SESSION->mod_icontent_qengine_issues)) {
+        $SESSION->mod_icontent_qengine_issues = [];
+    }
+    if (empty($SESSION->mod_icontent_qengine_questionmap) || !is_array($SESSION->mod_icontent_qengine_questionmap)) {
+        $SESSION->mod_icontent_qengine_questionmap = [];
+    }
 
     $sessionkey = icontent_question_engine_phase1_get_session_key($objpage->cmid, $objpage->id, $USER->id);
+
+    $supportedqtypes = icontent_question_engine_phase1_supported_qtypes();
+    $desiredquestionmap = [];
+    foreach ($questions as $question) {
+        if (empty($question->qid) || empty($question->qtype) || !in_array($question->qtype, $supportedqtypes)) {
+            continue;
+        }
+        $sourcequestionid = (int)$question->qid;
+        $desiredquestionmap[$sourcequestionid] = icontent_get_latest_question_version_id($sourcequestionid);
+    }
+
     $existingqubaid = $SESSION->mod_icontent_quba[$sessionkey] ?? 0;
+    $existingquestionmap = $SESSION->mod_icontent_qengine_questionmap[$sessionkey] ?? [];
     if (!empty($existingqubaid)) {
         require_once($CFG->libdir . '/questionlib.php');
         try {
             question_engine::load_questions_usage_by_activity($existingqubaid);
-            return;
+            if ($existingquestionmap === $desiredquestionmap && !empty($existingquestionmap)) {
+                return;
+            }
         } catch (\Throwable $e) {
-            unset($SESSION->mod_icontent_quba[$sessionkey]);
+            // Ignore stale/invalid usage and rebuild below.
+            unset($e);
         }
+
+        unset($SESSION->mod_icontent_quba[$sessionkey]);
     }
+
+    $SESSION->mod_icontent_qengine_issues[$sessionkey] = [];
+    $SESSION->mod_icontent_qengine_questionmap[$sessionkey] = [];
 
     require_once($CFG->libdir . '/questionlib.php');
 
-    $supportedqtypes = icontent_question_engine_phase1_supported_qtypes();
     $context = context_module::instance((int)$objpage->cmid);
     $quba = question_engine::make_questions_usage_by_activity('mod_icontent', $context);
     $quba->set_preferred_behaviour('deferredfeedback');
+    $slotsbyquestionid = [];
 
     foreach ($questions as $question) {
         if (empty($question->qid) || empty($question->qtype) || !in_array($question->qtype, $supportedqtypes)) {
             continue;
         }
 
+        $sourcequestionid = (int)$question->qid;
+        $activequestionid = $desiredquestionmap[$sourcequestionid] ?? $sourcequestionid;
+        $SESSION->mod_icontent_qengine_questionmap[$sessionkey][$sourcequestionid] = $activequestionid;
+
         try {
-            $questiondef = question_bank::load_question((int)$question->qid);
+            $questiondef = question_bank::load_question($activequestionid);
             if (!$questiondef) {
+                continue;
+            }
+            if ((int)$questiondef->get_num_variants() <= 0) {
+                $SESSION->mod_icontent_qengine_issues[$sessionkey][$sourcequestionid] =
+                    icontent_question_engine_dataset_issue_message($activequestionid, $sourcequestionid);
                 continue;
             }
             $maxmark = (float)($question->maxmark ?? $questiondef->defaultmark ?? 0);
             if ($maxmark <= 0) {
                 $maxmark = 1.0;
             }
-            $quba->add_question($questiondef, $maxmark);
+            $slot = $quba->add_question($questiondef, $maxmark);
+            $slotsbyquestionid[$sourcequestionid] = $slot;
         } catch (\Throwable $e) {
+            $SESSION->mod_icontent_qengine_issues[$sessionkey][$sourcequestionid] =
+                icontent_question_engine_generic_issue_message($activequestionid, $e->getMessage(), $sourcequestionid);
             continue;
         }
     }
@@ -205,9 +273,76 @@ function icontent_question_engine_phase1_bootstrap_usage($objpage, $questions): 
         return;
     }
 
-    $quba->start_all_questions();
+    $startedslots = 0;
+    foreach ($slotsbyquestionid as $questionid => $slot) {
+        try {
+            $quba->start_question($slot);
+            $startedslots++;
+        } catch (\Throwable $e) {
+            $SESSION->mod_icontent_qengine_issues[$sessionkey][$questionid] =
+                icontent_question_engine_generic_issue_message($questionid, $e->getMessage());
+        }
+    }
+
+    if ($startedslots === 0) {
+        unset($SESSION->mod_icontent_quba[$sessionkey]);
+        return;
+    }
+
     question_engine::save_questions_usage_by_activity($quba);
     $SESSION->mod_icontent_quba[$sessionkey] = $quba->get_id();
+}
+
+/**
+ * Build a friendly message for incomplete dataset-driven questions.
+ *
+ * @param int $questionid
+ * @return string
+ */
+function icontent_question_engine_dataset_issue_message(int $questionid, int $sourcequestionid = 0): string {
+    $message = 'This question cannot be shown in iContent yet because its dataset items have not been generated '
+        . '(question ' . $questionid . '). Edit the question in the question bank, generate dataset items, and reload the page.';
+    if ($sourcequestionid > 0 && $sourcequestionid !== $questionid) {
+        $message .= ' (Mapped from page question id ' . $sourcequestionid . '.)';
+    }
+    return $message;
+}
+
+/**
+ * Build a generic question-engine issue message.
+ *
+ * @param int $questionid
+ * @param string $details
+ * @return string
+ */
+function icontent_question_engine_generic_issue_message(int $questionid, string $details = '', int $sourcequestionid = 0): string {
+    $message = 'This question could not be initialised in iContent (question ' . $questionid . ').';
+    if ($sourcequestionid > 0 && $sourcequestionid !== $questionid) {
+        $message .= ' (Mapped from page question id ' . $sourcequestionid . '.)';
+    }
+    if ($details !== '') {
+        $message .= ' ' . $details;
+    }
+    return $message;
+}
+
+/**
+ * Render a visible fallback for questions that could not be initialised.
+ *
+ * @param object $question
+ * @param object $objpage
+ * @param string $message
+ * @return string
+ */
+function icontent_question_engine_render_issue($question, $objpage, string $message): string {
+    $questiontools = icontent_make_question_tools($question, $objpage);
+    $questiontext = html_writer::div(strip_tags((string)($question->questiontext ?? ''), '<b><strong>'), 'questiontext');
+    $warning = html_writer::div(s($message), 'alert alert-warning');
+
+    return html_writer::div(
+        $questiontools . $questiontext . $warning,
+        'question ' . s((string)($question->qtype ?? 'unknown')) . ' qengine-render-unavailable'
+    );
 }
 
 /**
@@ -237,6 +372,11 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
     }
 
     $sessionkey = icontent_question_engine_phase1_get_session_key($objpage->cmid, $objpage->id, $USER->id);
+    $mappedquestionid = $SESSION->mod_icontent_qengine_questionmap[$sessionkey][(int)$question->qid] ?? (int)$question->qid;
+    $issue = $SESSION->mod_icontent_qengine_issues[$sessionkey][(int)$question->qid] ?? '';
+    if ($issue !== '') {
+        return icontent_question_engine_render_issue($question, $objpage, $issue);
+    }
     $qubaid = $SESSION->mod_icontent_quba[$sessionkey] ?? 0;
     if (empty($qubaid)) {
         return false;
@@ -254,7 +394,7 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
     foreach ($quba->get_slots() as $candidateslot) {
         try {
             $slotquestion = $quba->get_question($candidateslot);
-            if (!empty($slotquestion->id) && (int)$slotquestion->id === (int)$question->qid) {
+            if (!empty($slotquestion->id) && (int)$slotquestion->id === $mappedquestionid) {
                 $slot = $candidateslot;
                 break;
             }
@@ -271,7 +411,11 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
         $displayoptions = new question_display_options();
         $renderedhtml = $quba->render_question($slot, $displayoptions, (string)$displaynumber);
     } catch (\Throwable $e) {
-        return false;
+        return icontent_question_engine_render_issue(
+            $question,
+            $objpage,
+            icontent_question_engine_generic_issue_message((int)$question->qid, $e->getMessage())
+        );
     }
 
     $renderedhtml = icontent_qengine_rewrite_questiontext_pluginfile_urls(
@@ -295,6 +439,38 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
         $questiontools . $renderedhtml,
         'question ' . s($question->qtype) . ' qengine-render'
     );
+}
+
+/**
+ * Resolve a mapped question id to the latest ready/draft version id.
+ *
+ * @param int $questionid
+ * @return int
+ */
+function icontent_get_latest_question_version_id(int $questionid): int {
+        global $DB;
+
+    if ($questionid <= 0) {
+            return $questionid;
+    }
+
+        $sql = "SELECT latest.questionid
+                            FROM {question_versions} qv
+                            JOIN (
+                                        SELECT questionbankentryid, MAX(version) AS maxversion
+                                            FROM {question_versions}
+                                         WHERE status IN ('ready', 'draft')
+                                    GROUP BY questionbankentryid
+                            ) latestversion
+                                ON latestversion.questionbankentryid = qv.questionbankentryid
+                            JOIN {question_versions} latest
+                                ON latest.questionbankentryid = latestversion.questionbankentryid
+                             AND latest.version = latestversion.maxversion
+                             AND latest.status IN ('ready', 'draft')
+                         WHERE qv.questionid = ?";
+        $latestquestionid = $DB->get_field_sql($sql, [$questionid], IGNORE_MULTIPLE);
+
+        return $latestquestionid ? (int)$latestquestionid : $questionid;
 }
 
 /**
@@ -333,7 +509,7 @@ function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedh
         }
 
         $suffix = substr('/' . $path, $pos + strlen($needle));
-        $segments = array_values(array_filter(explode('/', trim($suffix, '/')), static function($segment) {
+        $segments = array_values(array_filter(explode('/', trim($suffix, '/')), static function ($segment) {
             return $segment !== '';
         }));
         if (empty($segments)) {
@@ -345,7 +521,7 @@ function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedh
             return $matches[0];
         }
 
-        $numericsegments = array_values(array_filter($segments, static function($segment) {
+        $numericsegments = array_values(array_filter($segments, static function ($segment) {
             return ctype_digit((string)$segment);
         }));
         $candidateitemids = [];
@@ -761,7 +937,16 @@ function icontent_render_toc_action_list(stdClass $page, stdClass $cm, $position
  * @param array $classes
  * @return string
  */
-function icontent_render_toc_item(stdClass $page, context_module $context, stdClass $cm, $totalpages, $edit, $position, $pagecount, array $classes = []) {
+function icontent_render_toc_item(
+    stdClass $page,
+    context_module $context,
+    stdClass $cm,
+    $totalpages,
+    $edit,
+    $position,
+    $pagecount,
+    array $classes = []
+) {
     $classes[] = 'clearfix';
     $html = html_writer::start_tag('li', ['class' => implode(' ', array_unique($classes))]);
     $html .= icontent_render_toc_page_link($page, $context, $totalpages);
@@ -890,7 +1075,10 @@ function icontent_add_script_load_tooltip() {
             return;
         }
 
-        var dragDropItems = questionNode.querySelectorAll('span.draghome[class*=group], span.drop[class*=group], input.placeinput[class*=group]');
+        var dragDropItems = questionNode.querySelectorAll(
+            'span.draghome[class*=group], span.drop[class*=group], ' +
+            'input.placeinput[class*=group]'
+        );
         if (!dragDropItems.length) {
             return;
         }
@@ -985,7 +1173,10 @@ function icontent_add_script_load_tooltip() {
             return;
         }
 
-        var textareaNodes = document.querySelectorAll('.fulltextpage textarea.qtype_essay_response, .fulltextpage .qtype_essay_response textarea');
+        var textareaNodes = document.querySelectorAll(
+            '.fulltextpage textarea.qtype_essay_response, ' +
+            '.fulltextpage .qtype_essay_response textarea'
+        );
         if (!textareaNodes.length) {
             return;
         }
@@ -1557,14 +1748,22 @@ function icontent_get_navigation_page_context(stdClass $objpage) {
     }
 
     if (!empty($objpage->id) && !empty($objpage->cmid)) {
-        $fullpage = $DB->get_record('icontent_pages', ['id' => (int)$objpage->id, 'cmid' => (int)$objpage->cmid, 'hidden' => 0], '*');
+        $fullpage = $DB->get_record(
+            'icontent_pages',
+            ['id' => (int)$objpage->id, 'cmid' => (int)$objpage->cmid, 'hidden' => 0],
+            '*'
+        );
         if ($fullpage) {
             return $fullpage;
         }
     }
 
     if (!empty($objpage->pagenum) && !empty($objpage->cmid)) {
-        $fullpage = $DB->get_record('icontent_pages', ['cmid' => (int)$objpage->cmid, 'pagenum' => (int)$objpage->pagenum, 'hidden' => 0], '*');
+        $fullpage = $DB->get_record(
+            'icontent_pages',
+            ['cmid' => (int)$objpage->cmid, 'pagenum' => (int)$objpage->pagenum, 'hidden' => 0],
+            '*'
+        );
         if ($fullpage) {
             return $fullpage;
         }
@@ -1634,7 +1833,10 @@ function icontent_get_question_routed_next_pageid(stdClass $objpage) {
         if (!empty($attempt)) {
             if ($attempt->rightanswer === ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE && !empty($route->manualreviewnextpageid)) {
                 $targetpageid = (int)$route->manualreviewnextpageid;
-            } else if ((float)$attempt->fraction >= ((float)$route->effectivemaxmark - 0.00001) && !empty($route->correctnextpageid)) {
+            } else if (
+                (float)$attempt->fraction >= ((float)$route->effectivemaxmark - 0.00001) &&
+                !empty($route->correctnextpageid)
+            ) {
                 $targetpageid = (int)$route->correctnextpageid;
             } else if (!empty($route->incorrectnextpageid)) {
                 $targetpageid = (int)$route->incorrectnextpageid;
@@ -1958,20 +2160,16 @@ function icontent_count_attempts_users_with_open_answers($cmid, $status = null, 
     if (!isset($status)) {
         $status = ICONTENT_QTYPE_ESSAY_STATUS_TOEVALUATE;
     }
-    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
-    $poodllopenanswerscondition = $haspoodlloptions ? "
+    $poodllopenanswerscondition = "
                                         OR (
                                                 qa.fraction = 0
                                                 AND EXISTS (
                                                         SELECT 1
                                                             FROM {question} q
-                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                ON qpo.questionid = q.id
                                                          WHERE q.id = qa.questionid
-                                                             AND q.qtype = 'poodllrecording'
-                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                             AND q.qtype IN ('poodllrecording', 'cloudpoodll')
                                                 )
-                                        )" : '';
+                                        )";
 
     // SQL Query.
         $sql = "SELECT Count(DISTINCT u.id) AS totalattemptsusers
@@ -2190,20 +2388,16 @@ function icontent_get_attempts_users($cmid, $sort, $page = 0, $perpage = ICONTEN
         $namefields = $userfieldsapi->get_sql('u', false, '', 'id', false)->selects;
     }
 
-    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
-    $poodllopenanswerscondition = $haspoodlloptions ? "
+    $poodllopenanswerscondition = "
                                                         OR (
                                                                 qa2.fraction = 0
                                                                 AND EXISTS (
                                                                         SELECT 1
                                                                             FROM {question} q
-                                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                                ON qpo.questionid = q.id
                                                                          WHERE q.id = qa2.questionid
-                                                                             AND q.qtype = 'poodllrecording'
-                                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                                             AND q.qtype IN ('poodllrecording', 'cloudpoodll')
                                                                 )
-                                                        )" : '';
+                                                        )";
 
         $sql = "SELECT DISTINCT $namefields,
                                      (SELECT Sum(fraction)
@@ -2323,33 +2517,26 @@ function icontent_get_attempts_users_with_open_answers(
         ;
     }
 
-    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
-    $poodllopenanswersconditionqa2 = $haspoodlloptions ? "
-                                                OR (
-                                                        qa2.fraction = 0
-                                                        AND EXISTS (
-                                                                SELECT 1
-                                                                    FROM {question} q
-                                                                    JOIN {qtype_poodllrecording_opts} qpo
-                                                                        ON qpo.questionid = q.id
-                                                                 WHERE q.id = qa2.questionid
-                                                                     AND q.qtype = 'poodllrecording'
-                                                                     AND qpo.responseformat IN ('picture', 'audio', 'video')
-                                                        )
-                                                )" : '';
-    $poodllopenanswersconditionqa = $haspoodlloptions ? "
-                                        OR (
-                                                qa.fraction = 0
-                                                AND EXISTS (
-                                                        SELECT 1
-                                                            FROM {question} q
-                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                ON qpo.questionid = q.id
-                                                         WHERE q.id = qa.questionid
-                                                             AND q.qtype = 'poodllrecording'
-                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
-                                                )
-                                        )" : '';
+        $poodllopenanswersconditionqa2 = "
+                            OR (
+                                qa2.fraction = 0
+                                AND EXISTS (
+                                    SELECT 1
+                                        FROM {question} q
+                                     WHERE q.id = qa2.questionid
+                                                                         AND q.qtype IN ('poodllrecording', 'cloudpoodll')
+                                )
+                            )";
+        $poodllopenanswersconditionqa = "
+                        OR (
+                            qa.fraction = 0
+                            AND EXISTS (
+                                SELECT 1
+                                    FROM {question} q
+                                 WHERE q.id = qa.questionid
+                                                                 AND q.qtype IN ('poodllrecording', 'cloudpoodll')
+                            )
+                        )";
 
         $sql = "SELECT DISTINCT $namefields,
                 (SELECT Count(id)
@@ -2528,20 +2715,16 @@ function icontent_get_open_answers_by_attempt_summary_by_page($pageid, $cmid) {
         return (object)['totalopenanswers' => 0];
     }
 
-    $haspoodlloptions = icontent_optional_qtype_table_exists('qtype_poodllrecording_opts');
-    $poodllopenanswerscondition = $haspoodlloptions ? "
+    $poodllopenanswerscondition = "
                                         OR (
                                                 qa.fraction = 0
                                                 AND EXISTS (
                                                         SELECT 1
                                                             FROM {question} q
-                                                            JOIN {qtype_poodllrecording_opts} qpo
-                                                                ON qpo.questionid = q.id
                                                          WHERE q.id = qa.questionid
-                                                             AND q.qtype = 'poodllrecording'
-                                                             AND qpo.responseformat IN ('picture', 'audio', 'video')
+                                                             AND q.qtype IN ('poodllrecording', 'cloudpoodll')
                                                 )
-                                        )" : '';
+                                        )";
 
         $sql = "SELECT Count(qa.id) AS totalopenanswers
               FROM {icontent_question_attempts} qa
@@ -2606,9 +2789,23 @@ function icontent_get_questions_and_open_answers_by_user($userid, $cmid, $status
 
     $poodllselect = $haspoodlloptions ? 'qpo.responseformat' : "'' AS responseformat";
     $recordrtcselect = $hasrecordrtcoptions ? 'qro.mediatype' : "'' AS mediatype";
-    $poodlljoin = $haspoodlloptions ? "\n        LEFT JOIN {qtype_poodllrecording_opts} qpo\n               ON qpo.questionid = q.id" : '';
-    $recordrtcjoin = $hasrecordrtcoptions ? "\n        LEFT JOIN {qtype_recordrtc_options} qro\n               ON qro.questionid = q.id" : '';
-    $poodllcondition = $haspoodlloptions ? "\n                    OR (\n                        qa.fraction = 0\n                        AND q.qtype = 'poodllrecording'\n                        AND qpo.responseformat IN ('picture', 'audio', 'video')\n                    )" : '';
+    $poodlljoin = $haspoodlloptions
+        ? "\n        LEFT JOIN {qtype_poodllrecording_opts} qpo" .
+            "\n               ON qpo.questionid = q.id"
+        : '';
+    $recordrtcjoin = $hasrecordrtcoptions
+        ? "\n        LEFT JOIN {qtype_recordrtc_options} qro" .
+            "\n               ON qro.questionid = q.id"
+        : '';
+    $poodllcondition = <<<SQL
+                    OR (
+                        qa.fraction = 0
+                        AND q.qtype IN (
+                            'poodllrecording',
+                            'cloudpoodll'
+                        )
+                    )
+SQL;
 
     // SQL query.
     $sql = "SELECT qa.id,
@@ -2662,81 +2859,186 @@ function icontent_render_manual_review_answer(stdClass $qopenanswer, int $cmid):
     $responseformat = (string)($qopenanswer->responseformat ?? '');
     $recordrtcmediatype = (string)($qopenanswer->mediatype ?? '');
 
-    if ($qtype === 'poodllrecording' && $responseformat === 'picture') {
-        $filename = icontent_extract_poodll_response_filename($answertext);
-        $imagesrc = icontent_get_poodll_response_image_url(
-            $filename,
-            (int)$qopenanswer->userid,
-            $cmid,
-            (int)($qopenanswer->questionid ?? 0),
-            (int)($qopenanswer->timecreated ?? 0)
+    if (in_array($qtype, ['poodllrecording', 'cloudpoodll'], true)) {
+        $filename = icontent_extract_poodll_response_media_filename($answertext);
+        $directmediaurl = ($qtype === 'cloudpoodll')
+            ? icontent_extract_poodll_response_media_direct_url($answertext)
+            : '';
+        $userid = (int)$qopenanswer->userid;
+        $questionid = (int)($qopenanswer->questionid ?? 0);
+        $attempttime = (int)($qopenanswer->timecreated ?? 0);
+
+        $isimagecandidate = (
+            $responseformat === 'picture'
+            || preg_match('/\.(?:png|jpe?g|gif|webp)$/i', $filename)
         );
-        if (!empty($imagesrc)) {
-            return html_writer::empty_tag('img', [
-                'src' => $imagesrc,
-                'alt' => s($filename),
-                'class' => 'img-fluid icontent-manualreview-image',
-                'style' => 'max-width: 100%; height: auto;',
+
+        if ($isimagecandidate) {
+            $imagefilename = icontent_extract_poodll_response_filename($answertext);
+            $imagesrc = icontent_get_poodll_response_image_url(
+                $imagefilename,
+                $userid,
+                $cmid,
+                $questionid,
+                $attempttime
+            );
+            if (!empty($imagesrc)) {
+                return html_writer::empty_tag('img', [
+                    'src' => $imagesrc,
+                    'alt' => s($imagefilename),
+                    'class' => 'img-fluid icontent-manualreview-image',
+                    'style' => 'max-width: 100%; height: auto;',
+                ]);
+            }
+        }
+
+        $prefixcandidates = ['audio/', 'video/', ''];
+        if ($responseformat === 'audio') {
+            $prefixcandidates = ['audio/', 'video/', ''];
+        } else if ($responseformat === 'video') {
+            $prefixcandidates = ['video/', 'audio/', ''];
+        }
+
+        $mediasrc = '';
+        $selectedprefix = '';
+        foreach ($prefixcandidates as $prefixcandidate) {
+            $candidate = icontent_get_poodll_response_media_url(
+                $filename,
+                $userid,
+                $cmid,
+                $questionid,
+                $attempttime,
+                $prefixcandidate
+            );
+            if (!empty($candidate)) {
+                $mediasrc = $candidate;
+                $selectedprefix = $prefixcandidate;
+                break;
+            }
+        }
+
+        if (!empty($mediasrc)) {
+            $shouldrendervideo = ($responseformat === 'video' || $selectedprefix === 'video/');
+            if ($shouldrendervideo) {
+                return html_writer::tag('video', html_writer::empty_tag('source', [
+                    'src' => $mediasrc,
+                ]), [
+                    'controls' => 'controls',
+                    'preload' => 'metadata',
+                    'class' => 'w-100',
+                    'style' => 'max-width: 100%; height: auto;',
+                ]);
+            }
+
+            return html_writer::tag('audio', html_writer::empty_tag('source', [
+                'src' => $mediasrc,
+            ]), [
+                'controls' => 'controls',
+                'preload' => 'metadata',
+                'class' => 'w-100',
             ]);
         }
-    }
 
-    if ($qtype === 'poodllrecording' && in_array($responseformat, ['audio', 'video'], true)) {
-        $filename = icontent_extract_poodll_response_media_filename($answertext);
-        $mediaprefix = $responseformat === 'audio' ? 'audio/' : 'video/';
-        $mediasrc = icontent_get_poodll_response_media_url(
-            $filename,
-            (int)$qopenanswer->userid,
-            $cmid,
-            (int)($qopenanswer->questionid ?? 0),
-            (int)($qopenanswer->timecreated ?? 0),
-            $mediaprefix
-        );
-        if (!empty($mediasrc)) {
-            if ($responseformat === 'audio') {
+        if ($directmediaurl !== '') {
+            $isvideo = (
+                $responseformat === 'video'
+                || preg_match('/\.(?:mp4|m4v|mov|webm)(?:[?#].*)?$/i', $directmediaurl)
+            );
+
+            if ($isvideo) {
+                return html_writer::tag('video', html_writer::empty_tag('source', [
+                    'src' => $directmediaurl,
+                ]), [
+                    'controls' => 'controls',
+                    'preload' => 'metadata',
+                    'class' => 'w-100',
+                    'style' => 'max-width: 100%; height: auto;',
+                ]);
+            }
+
+            return html_writer::tag('audio', html_writer::empty_tag('source', [
+                'src' => $directmediaurl,
+            ]), [
+                'controls' => 'controls',
+                'preload' => 'metadata',
+                'class' => 'w-100',
+            ]);
+        }
+
+        if ($qtype === 'cloudpoodll') {
+            $qasmediaurl = icontent_get_cloudpoodll_media_url_from_qattempt_data(
+                $cmid,
+                $questionid,
+                $attempttime,
+                $answertext
+            );
+            if ($qasmediaurl !== '') {
+                $isvideo = (
+                    $responseformat === 'video'
+                    || preg_match('/\.(?:mp4|m4v|mov|webm)(?:[?#].*)?$/i', $qasmediaurl)
+                );
+
+                if ($isvideo) {
+                    return html_writer::tag('video', html_writer::empty_tag('source', [
+                        'src' => $qasmediaurl,
+                    ]), [
+                        'controls' => 'controls',
+                        'preload' => 'metadata',
+                        'class' => 'w-100',
+                        'style' => 'max-width: 100%; height: auto;',
+                    ]);
+                }
+
                 return html_writer::tag('audio', html_writer::empty_tag('source', [
-                    'src' => $mediasrc,
+                    'src' => $qasmediaurl,
                 ]), [
                     'controls' => 'controls',
                     'preload' => 'metadata',
                     'class' => 'w-100',
                 ]);
             }
-
-            return html_writer::tag('video', html_writer::empty_tag('source', [
-                'src' => $mediasrc,
-            ]), [
-                'controls' => 'controls',
-                'preload' => 'metadata',
-                'class' => 'w-100',
-                'style' => 'max-width: 100%; height: auto;',
-            ]);
         }
 
-        // File not yet available (still uploading or converting via PoodLL).
-        // Show a non-confusing placeholder instead of the raw response summary text.
-        return html_writer::tag(
-            'em',
-            get_string('recordingsubmittedprocessing', 'mod_icontent'),
-            ['class' => 'icontent-recording-processing text-muted']
-        );
+        if ($filename !== '' || $responseformat !== '') {
+            // File not yet available (still uploading or converting via PoodLL).
+            // Show a non-confusing placeholder instead of the raw response summary text.
+            return html_writer::tag(
+                'em',
+                get_string('recordingsubmittedprocessing', 'mod_icontent'),
+                ['class' => 'icontent-recording-processing text-muted']
+            );
+        }
     }
 
     if ($qtype === 'recordrtc') {
         $filename = icontent_extract_poodll_response_media_filename($answertext);
-        $mediatype = in_array($recordrtcmediatype, ['audio', 'video'], true) ? $recordrtcmediatype : 'audio';
-        $mediaprefix = $mediatype === 'video' ? 'video/' : 'audio/';
-        $mediasrc = icontent_get_recordrtc_response_media_url(
-            $filename,
-            (int)$qopenanswer->userid,
-            $cmid,
-            (int)($qopenanswer->questionid ?? 0),
-            (int)($qopenanswer->timecreated ?? 0),
-            $mediaprefix
-        );
+        $mediatype = in_array($recordrtcmediatype, ['audio', 'video', 'screen'], true) ? $recordrtcmediatype : 'audio';
+        // RecordRTC screen responses are usually video, but older/inconsistent records may have
+        // missing mediatype or generic mimetype metadata. Try safe fallbacks before giving up.
+        $prefixcandidates = ($mediatype === 'video' || $mediatype === 'screen')
+            ? ['video/', '']
+            : ['audio/', 'video/', ''];
+        $selectedprefix = '';
+        $mediasrc = '';
+        foreach ($prefixcandidates as $prefixcandidate) {
+            $candidate = icontent_get_recordrtc_response_media_url(
+                $filename,
+                (int)$qopenanswer->userid,
+                $cmid,
+                (int)($qopenanswer->questionid ?? 0),
+                (int)($qopenanswer->timecreated ?? 0),
+                $prefixcandidate
+            );
+            if (!empty($candidate)) {
+                $mediasrc = $candidate;
+                $selectedprefix = $prefixcandidate;
+                break;
+            }
+        }
 
         if (!empty($mediasrc)) {
-            if ($mediatype === 'video') {
+            $shouldrendervideo = ($mediatype === 'video' || $mediatype === 'screen' || $selectedprefix === 'video/');
+            if ($shouldrendervideo) {
                 return html_writer::tag('video', html_writer::empty_tag('source', [
                     'src' => $mediasrc,
                 ]), [
@@ -2792,6 +3094,123 @@ function icontent_extract_poodll_response_media_filename(string $answertext): st
     }
 
     return $answertext;
+}
+
+/**
+ * Extract a direct media URL from stored response text when present.
+ *
+ * @param string $answertext
+ * @return string
+ */
+function icontent_extract_poodll_response_media_direct_url(string $answertext): string {
+    $answertext = trim(strip_tags($answertext));
+    if ($answertext === '') {
+        return '';
+    }
+
+    if (preg_match('/https?:\/\/[^\s\"\'<>]+/i', $answertext, $matches)) {
+        $url = trim($matches[0]);
+        if (clean_param($url, PARAM_URL) !== '') {
+            return $url;
+        }
+    }
+
+    if (preg_match('/^https?:\/\//i', $answertext) && clean_param($answertext, PARAM_URL) !== '') {
+        return $answertext;
+    }
+
+    return '';
+}
+
+/**
+ * Recover Cloud PoodLL media URL from question attempt step data.
+ *
+ * @param int $cmid
+ * @param int $questionid
+ * @param int $attempttime
+ * @param string $answertext
+ * @return string
+ */
+function icontent_get_cloudpoodll_media_url_from_qattempt_data(
+    int $cmid,
+    int $questionid,
+    int $attempttime,
+    string $answertext = ''
+): string {
+    global $DB;
+
+    if ($cmid <= 0 || $questionid <= 0) {
+        return '';
+    }
+
+    $params = [
+        'cmid' => $cmid,
+        'questionid' => $questionid,
+        'contextlevel' => CONTEXT_MODULE,
+    ];
+    $timefilter = '';
+    if ($attempttime > 0) {
+        $timefilter = ' AND qas.timecreated BETWEEN :attemptlower AND :attemptupper';
+        $params['attemptlower'] = max(0, $attempttime - 1800);
+        $params['attemptupper'] = $attempttime + 1800;
+    }
+
+    $valuefilter = '';
+    $filename = icontent_extract_poodll_response_media_filename($answertext);
+    if ($filename !== '') {
+        $valuefilter = ' AND qasd.value LIKE :filenamepattern';
+        $params['filenamepattern'] = '%' . $filename . '%';
+    }
+
+        $sql = "SELECT qasd.id,
+                                         qasd.name,
+                                         qasd.value
+              FROM {question_attempt_step_data} qasd
+              JOIN {question_attempt_steps} qas
+                ON qas.id = qasd.attemptstepid
+              JOIN {question_attempts} qa
+                ON qa.id = qas.questionattemptid
+              JOIN {question_usages} qu
+                ON qu.id = qa.questionusageid
+              JOIN {context} c
+                ON c.id = qu.contextid
+             WHERE qa.questionid = :questionid
+               AND c.contextlevel = :contextlevel
+               AND c.instanceid = :cmid
+               AND qasd.name IN ('answermediaurl', 'answer', 'answerdetails')
+               AND qasd.value <> ''
+               AND qasd.value <> ':'
+                                     $valuefilter
+                   $timefilter
+          ORDER BY qas.timecreated DESC";
+
+    $records = $DB->get_records_sql($sql, $params, 0, 30);
+    foreach ($records as $record) {
+        $value = (string)($record->value ?? '');
+
+        if ((string)($record->name ?? '') === 'answerdetails') {
+            $details = json_decode($value);
+            if (json_last_error() === JSON_ERROR_NONE && !empty($details->recevents)) {
+                foreach (array_reverse((array)$details->recevents) as $event) {
+                    foreach (['finalfile', 'targetfile', 'mediaurl'] as $key) {
+                        if (!empty($event->{$key})) {
+                            $direct = icontent_extract_poodll_response_media_direct_url((string)$event->{$key});
+                            if ($direct !== '') {
+                                return $direct;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        $direct = icontent_extract_poodll_response_media_direct_url($value);
+        if ($direct !== '') {
+            return $direct;
+        }
+    }
+
+    return '';
 }
 
 /**
@@ -2889,7 +3308,7 @@ function icontent_get_poodll_response_media_file_record(
     $file = null;
     $placeholderfound = false;
 
-    $filterplaceholder = static function($candidate) use (&$placeholderfound): ?stdClass {
+    $filterplaceholder = static function ($candidate) use (&$placeholderfound): ?stdClass {
         if (!$candidate) {
             return null;
         }
@@ -3073,9 +3492,9 @@ function icontent_get_poodll_response_media_file_record(
  * @return stdClass|null
  */
 function icontent_get_poodll_response_image_file_record(
-        string $filename,
-        int $userid,
-        int $cmid,
+    string $filename,
+    int $userid,
+    int $cmid,
     int $questionid = 0,
     int $attempttime = 0
 ): ?stdClass {
@@ -3083,8 +3502,8 @@ function icontent_get_poodll_response_image_file_record(
 
         $file = null;
 
-        if ($filename !== '') {
-                $sql = "SELECT f.contextid,
+    if ($filename !== '') {
+            $sql = "SELECT f.contextid,
                                              f.itemid,
                                              f.filepath,
                                              f.filename,
@@ -3102,10 +3521,10 @@ function icontent_get_poodll_response_image_file_record(
                                      AND c.instanceid = ?
                                      AND f.filesize > 0
                             ORDER BY f.timemodified DESC";
-                $file = $DB->get_record_sql($sql, [$filename, $userid, CONTEXT_MODULE, $cmid], IGNORE_MULTIPLE);
+            $file = $DB->get_record_sql($sql, [$filename, $userid, CONTEXT_MODULE, $cmid], IGNORE_MULTIPLE);
 
-                if (!$file) {
-                        $fallbacksql = "SELECT f.contextid,
+        if (!$file) {
+                $fallbacksql = "SELECT f.contextid,
                                                                      f.itemid,
                                                                      f.filepath,
                                                                      f.filename,
@@ -3119,11 +3538,11 @@ function icontent_get_poodll_response_image_file_record(
                                                              AND f.userid = ?
                                                              AND f.filesize > 0
                                                     ORDER BY f.timemodified DESC";
-                        $file = $DB->get_record_sql($fallbacksql, [$filename, $userid], IGNORE_MULTIPLE);
-                }
+                $file = $DB->get_record_sql($fallbacksql, [$filename, $userid], IGNORE_MULTIPLE);
+        }
 
-                if (!$file) {
-                        $fallbacksql = "SELECT f.contextid,
+        if (!$file) {
+                $fallbacksql = "SELECT f.contextid,
                                                                      f.itemid,
                                                                      f.filepath,
                                                                      f.filename,
@@ -3136,17 +3555,17 @@ function icontent_get_poodll_response_image_file_record(
                                                              AND f.filename = ?
                                                              AND f.filesize > 0
                                                     ORDER BY f.timemodified DESC";
-                        $file = $DB->get_record_sql($fallbacksql, [$filename], IGNORE_MULTIPLE);
-                }
+                $file = $DB->get_record_sql($fallbacksql, [$filename], IGNORE_MULTIPLE);
         }
+    }
 
-        if (!$file && $questionid > 0) {
-                $params = [
-                        'userid' => $userid,
-                        'questionid' => $questionid,
-                        'contextlevel' => CONTEXT_MODULE,
-                        'cmid' => $cmid,
-                ];
+    if (!$file && $questionid > 0) {
+            $params = [
+                    'userid' => $userid,
+                    'questionid' => $questionid,
+                    'contextlevel' => CONTEXT_MODULE,
+                    'cmid' => $cmid,
+            ];
             $attemptcondition = '';
             if ($attempttime > 0) {
                 $attemptcondition = ' AND qas.timecreated <= :attempttime
@@ -3154,7 +3573,7 @@ function icontent_get_poodll_response_image_file_record(
                 $params['attempttime'] = $attempttime;
                 $params['attemptlowerbound'] = max(0, $attempttime - 600);
             }
-                $questionfilesql = "SELECT f.contextid,
+            $questionfilesql = "SELECT f.contextid,
                                                                      f.itemid,
                                                                      f.filepath,
                                                                      f.filename,
@@ -3180,21 +3599,21 @@ function icontent_get_poodll_response_image_file_record(
                                                              AND c.instanceid = :cmid
                                                                  $attemptcondition
                                                     ORDER BY f.timemodified DESC";
-                $file = $DB->get_record_sql($questionfilesql, $params, IGNORE_MULTIPLE);
+            $file = $DB->get_record_sql($questionfilesql, $params, IGNORE_MULTIPLE);
 
-                if (!$file) {
-                                            $fallbackparams = [
-                                                'userid' => $userid,
-                                                'questionid' => $questionid,
-                                            ];
-                                            $fallbackattemptcondition = '';
-                                            if ($attempttime > 0) {
-                                                $fallbackattemptcondition = ' AND qas.timecreated <= :attempttime
+            if (!$file) {
+                                        $fallbackparams = [
+                                            'userid' => $userid,
+                                            'questionid' => $questionid,
+                                        ];
+                                        $fallbackattemptcondition = '';
+                                        if ($attempttime > 0) {
+                                            $fallbackattemptcondition = ' AND qas.timecreated <= :attempttime
                                                                   AND qas.timecreated >= :attemptlowerbound';
-                                                $fallbackparams['attempttime'] = $attempttime;
-                                                $fallbackparams['attemptlowerbound'] = max(0, $attempttime - 600);
-                                            }
-                        $questionfallbacksql = "SELECT f.contextid,
+                                            $fallbackparams['attempttime'] = $attempttime;
+                                            $fallbackparams['attemptlowerbound'] = max(0, $attempttime - 600);
+                                        }
+                                        $questionfallbacksql = "SELECT f.contextid,
                                                                                      f.itemid,
                                                                                      f.filepath,
                                                                                      f.filename,
@@ -3214,8 +3633,8 @@ function icontent_get_poodll_response_image_file_record(
                                                                              AND f.mimetype LIKE 'image/%'
                                                                                  $fallbackattemptcondition
                                                                     ORDER BY f.timemodified DESC";
-                                                    $file = $DB->get_record_sql($questionfallbacksql, $fallbackparams, IGNORE_MULTIPLE);
-                }
+                                                $file = $DB->get_record_sql($questionfallbacksql, $fallbackparams, IGNORE_MULTIPLE);
+            }
     }
 
     if (!$file && $userid > 0 && $attempttime > 0) {
@@ -3445,8 +3864,14 @@ function icontent_get_submitted_answers_by_attempt_summary_by_page($pageid, $cmi
 
         $poodllselect = $haspoodlloptions ? 'qpo.responseformat' : "'' AS responseformat";
         $recordrtcselect = $hasrecordrtcoptions ? 'qro.mediatype' : "'' AS mediatype";
-        $poodlljoin = $haspoodlloptions ? "\n         LEFT JOIN {qtype_poodllrecording_opts} qpo\n                ON qpo.questionid = q.id" : '';
-        $recordrtcjoin = $hasrecordrtcoptions ? "\n             LEFT JOIN {qtype_recordrtc_options} qro\n                ON qro.questionid = q.id" : '';
+        $poodlljoin = $haspoodlloptions
+            ? "\n         LEFT JOIN {qtype_poodllrecording_opts} qpo" .
+                "\n                ON qpo.questionid = q.id"
+            : '';
+        $recordrtcjoin = $hasrecordrtcoptions
+            ? "\n             LEFT JOIN {qtype_recordrtc_options} qro" .
+                "\n                ON qro.questionid = q.id"
+            : '';
 
         $sql = "SELECT qa.id,
                    qa.userid,
@@ -3677,7 +4102,7 @@ function icontent_update_questionpage_routes(
         return false;
     }
 
-    $sanitize = static function(array $routes, int $questionid) use ($validpageids): int {
+    $sanitize = static function (array $routes, int $questionid) use ($validpageids): int {
         if (!array_key_exists($questionid, $routes)) {
             return 0;
         }
@@ -3698,10 +4123,12 @@ function icontent_update_questionpage_routes(
         $newmanualreview = $sanitize($manualreviewroutes, $questionid);
         $newdefault = $sanitize($defaultroutes, $questionid);
 
-        if ((int)$mapping->correctnextpageid === $newcorrect &&
+        if (
+            (int)$mapping->correctnextpageid === $newcorrect &&
             (int)$mapping->incorrectnextpageid === $newincorrect &&
             (int)$mapping->manualreviewnextpageid === $newmanualreview &&
-            (int)$mapping->defaultnextpageid === $newdefault) {
+            (int)$mapping->defaultnextpageid === $newdefault
+        ) {
             continue;
         }
 
@@ -4593,12 +5020,46 @@ function icontent_make_question_tools($question, $objpage = null) {
  * @return string $answers
  */
 function icontent_make_questions_answers_by_type($question, $objpage = null, $displaynumber = 1) {
-    global $DB;
+    global $DB, $CFG;
+
+    $legacysupportedqtypes = [
+        ICONTENT_QTYPE_MULTICHOICE,
+        ICONTENT_QTYPE_MATCH,
+        ICONTENT_QTYPE_TRUEFALSE,
+        ICONTENT_QTYPE_ESSAY,
+    ];
 
     if (!empty($objpage)) {
         $qenginehtml = icontent_question_engine_phase2_render_question($objpage, $question, $displaynumber);
         if ($qenginehtml !== false) {
             return $qenginehtml;
+        }
+
+        if (!icontent_question_engine_allow_legacy_render_fallback()) {
+            return icontent_question_engine_render_issue(
+                $question,
+                $objpage,
+                'This question could not be rendered by question engine, and legacy fallback rendering is disabled.'
+            );
+        }
+
+        if (!empty($CFG->debug) && ((int)$CFG->debug & DEBUG_DEVELOPER)) {
+            debugging(
+                'mod_icontent: using legacy render fallback for question id '
+                . (int)($question->qid ?? 0)
+                . ' (qtype: '
+                . (string)($question->qtype ?? 'unknown')
+                . ').',
+                DEBUG_DEVELOPER
+            );
+        }
+
+        if (!in_array((string)($question->qtype ?? ''), $legacysupportedqtypes, true)) {
+            return icontent_question_engine_render_issue(
+                $question,
+                $objpage,
+                'This question could not be rendered by question engine, and this qtype has no legacy renderer in iContent.'
+            );
         }
     }
 
@@ -4761,6 +5222,13 @@ function icontent_make_questions_answers_by_type($question, $objpage = null, $di
             return $questionanswers;
             break;
         default:
+            if (!empty($objpage)) {
+                return icontent_question_engine_render_issue(
+                    $question,
+                    $objpage,
+                    'This question type has no legacy renderer in iContent.'
+                );
+            }
             return false;
     }
 }
@@ -5885,6 +6353,7 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context, $sourcepag
         'page',
         $objpage->id
     );
+    $objpage->pageicontent = icontent_replace_dynamic_page_placeholders($objpage->pageicontent, $context);
     $objpage->pageicontent = format_text(
         $objpage->pageicontent,
         $objpage->pageicontentformat,
@@ -5945,6 +6414,372 @@ function icontent_get_fullpageicontent($pagenum, $icontent, $context, $sourcepag
     \mod_icontent\event\page_viewed::create_from_page($icontent, $context, $objpage)->trigger();
     unset($objpage->pageicontent);
     return $objpage;
+}
+
+/**
+ * Replace known dynamic placeholders in page content.
+ *
+ * Supported placeholders:
+ * - [[QTYPE_MATRIX]]
+ *
+ * @param string $content
+ * @param context_module $context
+ * @return string
+ */
+function icontent_replace_dynamic_page_placeholders(string $content, $context): string {
+    if (strpos($content, '[[QTYPE_MATRIX]]') === false) {
+        return $content;
+    }
+
+    $replacement = icontent_render_qtype_matrix_placeholder($context);
+    return str_replace('[[QTYPE_MATRIX]]', $replacement, $content);
+}
+
+/**
+ * Render a table of installed question types for the page placeholder.
+ *
+ * @param context_module $context
+ * @return string
+ */
+function icontent_render_qtype_matrix_placeholder($context): string {
+    global $DB;
+
+    $capcontext = \context::instance_by_id($context->id);
+
+    if (!has_any_capability(['mod/icontent:edit', 'mod/icontent:manage'], $capcontext)) {
+        return html_writer::div(
+            get_string('nopermissions', 'error', get_string('view')),
+            'alert alert-warning'
+        );
+    }
+
+    $installedqtypes = array_keys(\core_component::get_plugin_list('qtype'));
+    sort($installedqtypes, SORT_NATURAL | SORT_FLAG_CASE);
+
+    $questioncounts = $DB->get_records_sql_menu(
+        'SELECT qtype, COUNT(1) AS total FROM {question} GROUP BY qtype'
+    );
+    $statusoverrides = icontent_get_qtype_matrix_status_overrides();
+    $catalogoverrides = icontent_get_qtype_matrix_catalog_overrides();
+
+    $table = new html_table();
+    $table->attributes = ['class' => 'generaltable'];
+    $table->head = [
+        'Question type',
+        'Component',
+        'Grading mode',
+        'Official Moodle support',
+        'Locally verified support',
+        'Plugin sites',
+        'Popular (>=100 sites)',
+        'Test status',
+        'Test notes',
+        'Questions on this site',
+    ];
+
+    foreach ($installedqtypes as $qtype) {
+        $component = 'qtype_' . $qtype;
+        $pluginname = get_string_manager()->string_exists('pluginname', $component)
+            ? get_string('pluginname', $component)
+            : $qtype;
+
+        $override = $statusoverrides[$qtype] ?? ['status' => 'not tested', 'notes' => ''];
+        $catalog = $catalogoverrides[$qtype] ?? [
+            'officialsupport' => '',
+            'verifiedsupport' => '',
+            'pluginsites' => null,
+            'catalognotes' => '',
+        ];
+        $statusbadgeclass = 'badge-secondary';
+        if ($override['status'] === 'pass') {
+            $statusbadgeclass = 'badge-success';
+        } else if ($override['status'] === 'fail') {
+            $statusbadgeclass = 'badge-danger';
+        }
+        $statusbadge = html_writer::span(ucfirst($override['status']), 'badge ' . $statusbadgeclass);
+
+        $pluginsites = $catalog['pluginsites'];
+        $pluginsitesdisplay = is_int($pluginsites) && $pluginsites >= 0 ? (string)$pluginsites : '-';
+        $popularbadge = html_writer::span('Unknown', 'badge badge-secondary');
+        if (is_int($pluginsites) && $pluginsites >= 0) {
+            if ($pluginsites >= 100) {
+                $popularbadge = html_writer::span('Yes', 'badge badge-success');
+            } else {
+                $popularbadge = html_writer::span('No', 'badge badge-warning');
+            }
+        }
+
+        $officialsupport = $catalog['officialsupport'] !== '' ? s($catalog['officialsupport']) : 'Unknown';
+        $verifiedsupport = $catalog['verifiedsupport'] !== '' ? s($catalog['verifiedsupport']) : 'Not verified';
+
+        $notesparts = [];
+        if (!empty($override['notes'])) {
+            $notesparts[] = s($override['notes']);
+        }
+        if (!empty($catalog['catalognotes'])) {
+            $notesparts[] = s($catalog['catalognotes']);
+        }
+        $mergednotes = !empty($notesparts) ? implode(' | ', $notesparts) : '';
+
+        $table->data[] = [
+            format_string($pluginname),
+            s($component),
+            icontent_get_qtype_grading_mode_label($qtype),
+            $officialsupport,
+            $verifiedsupport,
+            $pluginsitesdisplay,
+            $popularbadge,
+            $statusbadge,
+            $mergednotes,
+            (int)($questioncounts[$qtype] ?? 0),
+        ];
+    }
+
+    foreach (icontent_get_matrix_integrations($context) as $integration) {
+        $integrationkey = $integration['key'];
+        $override = $statusoverrides[$integrationkey] ?? ['status' => 'not tested', 'notes' => ''];
+        $catalog = $catalogoverrides[$integrationkey] ?? [
+            'officialsupport' => '',
+            'verifiedsupport' => '',
+            'pluginsites' => null,
+            'catalognotes' => '',
+        ];
+
+        $statusbadgeclass = 'badge-secondary';
+        if ($override['status'] === 'pass') {
+            $statusbadgeclass = 'badge-success';
+        } else if ($override['status'] === 'fail') {
+            $statusbadgeclass = 'badge-danger';
+        }
+        $statusbadge = html_writer::span(ucfirst($override['status']), 'badge ' . $statusbadgeclass);
+
+        $pluginsites = $catalog['pluginsites'];
+        $pluginsitesdisplay = is_int($pluginsites) && $pluginsites >= 0 ? (string)$pluginsites : '-';
+        $popularbadge = html_writer::span('Unknown', 'badge badge-secondary');
+        if (is_int($pluginsites) && $pluginsites >= 0) {
+            if ($pluginsites >= 100) {
+                $popularbadge = html_writer::span('Yes', 'badge badge-success');
+            } else {
+                $popularbadge = html_writer::span('No', 'badge badge-warning');
+            }
+        }
+
+        $officialsupport = $catalog['officialsupport'] !== '' ? s($catalog['officialsupport']) : 'Unknown';
+        $verifiedsupport = $catalog['verifiedsupport'] !== '' ? s($catalog['verifiedsupport']) : 'Not verified';
+
+        $notesparts = [];
+        if (!empty($override['notes'])) {
+            $notesparts[] = s($override['notes']);
+        }
+        if (!empty($catalog['catalognotes'])) {
+            $notesparts[] = s($catalog['catalognotes']);
+        }
+        if (!empty($integration['runtime'])) {
+            $notesparts[] = s($integration['runtime']);
+        }
+        $mergednotes = !empty($notesparts) ? implode(' | ', $notesparts) : '';
+
+        $table->data[] = [
+            format_string($integration['name']),
+            s($integration['component']),
+            s($integration['gradingmode']),
+            $officialsupport,
+            $verifiedsupport,
+            $pluginsitesdisplay,
+            $popularbadge,
+            $statusbadge,
+            $mergednotes,
+            '-',
+        ];
+    }
+
+    $helptext = html_writer::tag(
+        'p',
+        'Update test status in mod/icontent/qtype_matrix_status.json and compatibility/usage ' .
+        'in mod/icontent/qtype_matrix_catalog.json.',
+        ['class' => 'text-muted small mb-2']
+    );
+
+    return html_writer::div(
+        html_writer::tag('h4', 'Installed Question Types Readiness') .
+        $helptext .
+        html_writer::table($table),
+        'icontent-qtype-matrix'
+    );
+}
+
+/**
+ * Return non-qtype integrations to show in the readiness matrix.
+ *
+ * @param context_module $context
+ * @return array<int, array{key:string,name:string,component:string,gradingmode:string,runtime:string}>
+ */
+function icontent_get_matrix_integrations($context): array {
+    global $CFG;
+
+    require_once($CFG->libdir . '/filterlib.php');
+
+    $filtername = 'embedquestion';
+    $installed = (bool)\core_component::get_plugin_directory('filter', $filtername);
+    $activefilters = filter_get_active_in_context($context);
+    $isactivehere = array_key_exists($filtername, $activefilters);
+    $globalstate = filter_get_active_state($filtername, context_system::instance()->id);
+
+    $globallabel = 'disabled';
+    if ($globalstate === TEXTFILTER_ON) {
+        $globallabel = 'on';
+    } else if ($globalstate === TEXTFILTER_OFF) {
+        $globallabel = 'off';
+    } else if ($globalstate === TEXTFILTER_INHERIT) {
+        $globallabel = 'inherit';
+    }
+
+    $runtime = 'Not installed on this site.';
+    if ($installed) {
+        $runtime = 'Installed; global state: ' . $globallabel . '; active in this activity: '
+            . ($isactivehere ? 'yes' : 'no') . '.';
+    }
+
+    return [[
+        'key' => 'filter_embedquestion',
+        'name' => 'Embed questions filter',
+        'component' => 'filter_embedquestion',
+        'gradingmode' => 'N/A (content filter)',
+        'runtime' => $runtime,
+    ]];
+}
+
+/**
+ * Return grading mode label for a question type.
+ *
+ * @param string $qtype
+ * @return string
+ */
+function icontent_get_qtype_grading_mode_label(string $qtype): string {
+    $manualreview = [
+        'essay',
+        'essayautograde',
+        'recordrtc',
+        'poodllrecording',
+        'cloudpoodll',
+    ];
+    $autograded = [
+        'truefalse',
+        'multichoice',
+        'match',
+        'shortanswer',
+        'numerical',
+        'calculated',
+        'calculatedsimple',
+        'calculatedmulti',
+        'multianswer',
+        'ddwtos',
+        'ddimageortext',
+        'ddmarker',
+        'randomsamatch',
+        'selectmissingwords',
+        'ordering',
+    ];
+
+    if (in_array($qtype, $manualreview, true)) {
+        return 'Manual review';
+    }
+    if (in_array($qtype, $autograded, true)) {
+        return 'Auto graded';
+    }
+    if ($qtype === 'description') {
+        return 'Not gradable';
+    }
+
+    return 'Unknown (test required)';
+}
+
+/**
+ * Load qtype test status overrides from local JSON file.
+ *
+ * @return array<string, array{status:string, notes:string}>
+ */
+function icontent_get_qtype_matrix_status_overrides(): array {
+    $path = __DIR__ . '/qtype_matrix_status.json';
+    if (!is_readable($path)) {
+        return [];
+    }
+
+    $json = file_get_contents($path);
+    if ($json === false || trim($json) === '') {
+        return [];
+    }
+
+    $decoded = json_decode($json, true);
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    $result = [];
+    foreach ($decoded as $qtype => $entry) {
+        if (!is_string($qtype) || !is_array($entry)) {
+            continue;
+        }
+
+        $status = strtolower(trim((string)($entry['status'] ?? 'not tested')));
+        if (!in_array($status, ['pass', 'fail', 'not tested'], true)) {
+            $status = 'not tested';
+        }
+
+        $result[strtolower($qtype)] = [
+            'status' => $status,
+            'notes' => trim((string)($entry['notes'] ?? '')),
+        ];
+    }
+
+    return $result;
+}
+
+/**
+ * Load qtype catalog metadata from local JSON file.
+ *
+ * @return array<string, array{officialsupport:string, verifiedsupport:string, pluginsites:?int, catalognotes:string}>
+ */
+function icontent_get_qtype_matrix_catalog_overrides(): array {
+    $path = __DIR__ . '/qtype_matrix_catalog.json';
+    if (!is_readable($path)) {
+        return [];
+    }
+
+    $json = file_get_contents($path);
+    if ($json === false || trim($json) === '') {
+        return [];
+    }
+
+    $decoded = json_decode($json, true);
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    $result = [];
+    foreach ($decoded as $qtype => $entry) {
+        if (!is_string($qtype) || !is_array($entry)) {
+            continue;
+        }
+
+        $pluginsites = null;
+        if (isset($entry['pluginsites']) && is_numeric($entry['pluginsites'])) {
+            $pluginsites = max(0, (int)$entry['pluginsites']);
+        }
+
+        $officialsupport = trim((string)($entry['officialsupport'] ?? ''));
+        $verifiedsupport = trim((string)($entry['verifiedsupport'] ?? ''));
+        $catalognotes = trim((string)($entry['notes'] ?? ''));
+
+        $result[strtolower($qtype)] = [
+            'officialsupport' => $officialsupport,
+            'verifiedsupport' => $verifiedsupport,
+            'pluginsites' => $pluginsites,
+            'catalognotes' => $catalognotes,
+        ];
+    }
+
+    return $result;
 }
 
 /**

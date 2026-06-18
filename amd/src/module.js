@@ -339,21 +339,19 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
         }
 
         var $opts = $('.fulltextpage input[id^="amdopts_"]');
-        if (!$opts.length) {
-            return;
-        }
-
-        require(['filter_poodll/poodllrecorder'], function(poodllrecorder) {
-            if (!poodllrecorder || typeof poodllrecorder.init !== 'function') {
-                return;
-            }
-            $opts.each(function() {
-                var widgetid = (this.id || '').replace(/^amdopts_/, '');
-                if (widgetid) {
-                    poodllrecorder.init({widgetid: widgetid});
+        if ($opts.length) {
+            require(['filter_poodll/poodllrecorder'], function(poodllrecorder) {
+                if (!poodllrecorder || typeof poodllrecorder.init !== 'function') {
+                    return;
                 }
+                $opts.each(function() {
+                    var widgetid = (this.id || '').replace(/^amdopts_/, '');
+                    if (widgetid) {
+                        poodllrecorder.init({widgetid: widgetid});
+                    }
+                });
             });
-        });
+        }
 
         if ($('.fulltextpage .que.poodllrecording').length) {
             require(['qtype_poodllrecording/poodllhelper'], function(poodllhelper) {
@@ -362,6 +360,39 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
                 }
             });
         }
+
+            var $cloudrecorders = $('#idquestionsarea .que.cloudpoodll .qtype_cloudpoodll_audiorec_cont[data-id], ' +
+                '#idquestionsarea .que.cloudpoodll .qtype_cloudpoodll_videorec_cont[data-id]');
+            if ($cloudrecorders.length) {
+                require(['qtype_cloudpoodll/cloudpoodllhelper'], function(cloudhelper) {
+                    if (!cloudhelper || typeof cloudhelper.init !== 'function') {
+                        return;
+                    }
+
+                    $cloudrecorders.each(function() {
+                        var $recorder = $(this);
+                        if ($recorder.attr('data-icontent-cloudpoodll-init') === '1') {
+                            return;
+                        }
+
+                        var dataid = $recorder.attr('data-id') || '';
+                        var inputname = $recorder.attr('data-updatecontrol') || '';
+                        if (!dataid || !inputname) {
+                            return;
+                        }
+
+                        cloudhelper.init({
+                            component: 'qtype_cloudpoodll',
+                            'data_id': dataid,
+                            inputname: inputname,
+                            transcriber: $recorder.attr('data-transcribe') || '',
+                            safesave: 0,
+                        });
+
+                        $recorder.attr('data-icontent-cloudpoodll-init', '1');
+                    });
+                });
+            }
     }
 
     /**
@@ -469,7 +500,7 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
             return;
         }
 
-        // qtype_gapfill uses a page-level single-use toggle in rendered question text.
+            // Qtype_gapfill uses a page-level single-use toggle in rendered question text.
         var singleuse = $('.fulltextpage #gapfill_singleuse').length > 0 ? 1 : 0;
 
         require(['qtype_gapfill/dragdrop'], function(gapfillDragdrop) {
@@ -509,8 +540,8 @@ define(['jquery', 'jqueryui', 'mod_icontent/cookiehandler'], function($, jqui, c
                 return;
             }
 
-            // qtype_ddwtos keeps module-level handler state keyed by container id.
-            // iContent AJAX swaps can reuse ids, so assign fresh per-render ids.
+            // Qtype_ddwtos keeps module-level handler state keyed by container id.
+            // IContent AJAX swaps can reuse ids, so assign fresh per-render ids.
             ddwtosloadcounter++;
             var pageid = $('.fulltextpage').attr('data-pageid') || '0';
             $questions.each(function(index) {

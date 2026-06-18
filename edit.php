@@ -145,21 +145,25 @@ if ($mform->is_cancelled()) {
         $data->nextmode = 0;
     }
 
-    if ($data->prevmode !== 2 || !$DB->record_exists('icontent_pages', [
+    if (
+        $data->prevmode !== 2 || !$DB->record_exists('icontent_pages', [
         'id' => $data->prevpageid,
         'icontentid' => (int)$icontent->id,
         'cmid' => (int)$cm->id,
         'hidden' => 0,
-    ]) || (!empty($data->id) && (int)$data->prevpageid === (int)$data->id)) {
+        ]) || (!empty($data->id) && (int)$data->prevpageid === (int)$data->id)
+    ) {
         $data->prevpageid = 0;
     }
 
-    if ($data->nextmode !== 2 || !$DB->record_exists('icontent_pages', [
+    if (
+        $data->nextmode !== 2 || !$DB->record_exists('icontent_pages', [
         'id' => $data->nextpageid,
         'icontentid' => (int)$icontent->id,
         'cmid' => (int)$cm->id,
         'hidden' => 0,
-    ]) || (!empty($data->id) && (int)$data->nextpageid === (int)$data->id)) {
+        ]) || (!empty($data->id) && (int)$data->nextpageid === (int)$data->id)
+    ) {
         $data->nextpageid = 0;
     }
 

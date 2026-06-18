@@ -42,7 +42,6 @@ $icontent = $DB->get_record('icontent', ['id' => $cm->instance], '*', MUST_EXIST
 require_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
-/** @var \context $context */
 require_capability('mod/icontent:grade', $context);
 
 $PAGE->set_url('/mod/icontent/report.php', [
@@ -194,7 +193,11 @@ $summarycards .= html_writer::div(
     html_writer::div(
         html_writer::tag('div', get_string('questions', 'mod_icontent'), ['class' => 'card-title']) .
         html_writer::tag('div', $totalquestions, ['class' => 'display-6']) .
-        html_writer::tag('div', get_string('gradingscale', 'mod_icontent', $icontent->grade) . ' | ' . $tquestinstance, ['class' => 'text-muted']),
+        html_writer::tag(
+            'div',
+            get_string('gradingscale', 'mod_icontent', $icontent->grade) . ' | ' . $tquestinstance,
+            ['class' => 'text-muted']
+        ),
         'card-body'
     ),
     'card shadow-sm flex-fill'

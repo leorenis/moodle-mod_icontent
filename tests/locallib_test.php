@@ -44,7 +44,7 @@ final class locallib_test extends \advanced_testcase {
     }
 
     /**
-    * Ensure branch TOC output includes an indented default branch label.
+     * Ensure branch TOC output includes an indented default branch label.
      */
     public function test_get_toc_renders_default_branch_label(): void {
         [$course, $module, $icontent, $student] = $this->create_activity_fixture();
@@ -73,7 +73,7 @@ final class locallib_test extends \advanced_testcase {
     }
 
     /**
-    * Ensure routed next/branch traversal/history-aware previous work together.
+     * Ensure routed next/branch traversal/history-aware previous work together.
      */
     public function test_branch_navigation_uses_routes_and_history(): void {
         global $DB;

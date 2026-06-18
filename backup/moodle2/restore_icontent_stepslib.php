@@ -154,7 +154,7 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
 
         return preg_replace_callback(
             '/(href\s*=\s*["\'])([^"\']*\/mod\/icontent\/[^"\']*)(["\'])/i',
-            function($matches) use ($newcmid) {
+            function ($matches) use ($newcmid) {
                 $newurl = $this->rewrite_embedded_view_url($matches[2], (int)$newcmid);
                 return $matches[1] . $newurl . $matches[3];
             },
@@ -528,12 +528,20 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
         $newitemid = $DB->insert_record('icontent_question_attempts', $data);
         $this->set_mapping('icontent_question_attempt', $oldid, $newitemid);
         if (!empty($oldresponseansweritemid)) {
-            $this->set_mapping('icontent_question_attempt_responseanswer_file',
-                $oldresponseansweritemid, $oldresponseansweritemid, true);
+            $this->set_mapping(
+                'icontent_question_attempt_responseanswer_file',
+                $oldresponseansweritemid,
+                $oldresponseansweritemid,
+                true
+            );
         }
         if (!empty($oldresponserecordingitemid)) {
-            $this->set_mapping('icontent_question_attempt_responserecording_file',
-                $oldresponserecordingitemid, $oldresponserecordingitemid, true);
+            $this->set_mapping(
+                'icontent_question_attempt_responserecording_file',
+                $oldresponserecordingitemid,
+                $oldresponserecordingitemid,
+                true
+            );
         }
     }
 
@@ -567,8 +575,12 @@ class restore_icontent_activity_structure_step extends restore_questions_activit
         $icontentid = (int)$this->get_new_parentid('icontent');
         if (!empty($icontentid)) {
             $newcmid = $this->get_restored_cmid();
-            $pages = $DB->get_records('icontent_pages', ['icontentid' => $icontentid], '',
-                'id, branchparentpageid, prevpageid, nextpageid, pageicontent');
+            $pages = $DB->get_records(
+                'icontent_pages',
+                ['icontentid' => $icontentid],
+                '',
+                'id, branchparentpageid, prevpageid, nextpageid, pageicontent'
+            );
             foreach ($pages as $page) {
                 $updates = new stdClass();
                 $updates->id = (int)$page->id;

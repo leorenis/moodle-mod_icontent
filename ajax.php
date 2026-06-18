@@ -47,6 +47,13 @@ if ($id) {
 require_sesskey();
 $context = context_module::instance($cm->id);
 require_login($course, true, $cm);
+
+$pageurlparams = ['id' => $cm->id, 'action' => $action];
+$pageidparam = optional_param('pageid', 0, PARAM_INT);
+if ($pageidparam) {
+    $pageurlparams['pageid'] = $pageidparam;
+}
+$PAGE->set_url('/mod/icontent/ajax.php', $pageurlparams);
 // Check actions.
 $return = false;
 switch ($action) {

@@ -425,7 +425,6 @@ function icontent_get_recent_mod_activity(&$activities, &$index, $timestart, $co
     if (!$context) {
         return;
     }
-    /** @var context $context */
     if (!has_capability('mod/icontent:view', $context)) {
         return;
     }
@@ -841,8 +840,8 @@ function icontent_pluginfile($course, $cm, $context, $filearea, $args, $forcedow
         $filename = '';
         $filepath = '/';
 
-        // New shape: .../questiontextproxy/{questionid}/{itemid}/{optionalpath...}/{filename}
-        // Legacy shape fallback: .../questiontextproxy/{questionid}/{filename}
+        // New shape: .../questiontextproxy/{questionid}/{itemid}/{optionalpath...}/{filename}.
+        // Legacy shape fallback: .../questiontextproxy/{questionid}/{filename}.
         if (!empty($args)) {
             $firstsegment = (string)array_shift($args);
             if (!empty($args)) {
@@ -1337,6 +1336,14 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
         }
     }
 
+    $questionmap = [];
+    if (
+        !empty($SESSION->mod_icontent_qengine_questionmap[$sessionkey]) &&
+            is_array($SESSION->mod_icontent_qengine_questionmap[$sessionkey])
+    ) {
+        $questionmap = $SESSION->mod_icontent_qengine_questionmap[$sessionkey];
+    }
+
     $records = [];
     $supportedqtypes = icontent_question_engine_phase1_supported_qtypes();
     $pagequestions = icontent_get_pagequestions($pageid, $cm->id);
@@ -1349,16 +1356,17 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
             continue;
         }
 
-        $qid = (int)$pagequestion->qid;
-        if (empty($slotbyqid[$qid])) {
+        $sourceqid = (int)$pagequestion->qid;
+        $activeqid = (int)($questionmap[$sourceqid] ?? $sourceqid);
+        if (empty($slotbyqid[$activeqid])) {
             continue;
         }
 
         try {
-            $qa = $quba->get_question_attempt($slotbyqid[$qid]);
+            $qa = $quba->get_question_attempt($slotbyqid[$activeqid]);
             $ismanuallyreviewed = ($pagequestion->qtype === ICONTENT_QTYPE_ESSAY);
-            if (!$ismanuallyreviewed && $pagequestion->qtype === 'poodllrecording') {
-                // PoodLL recording questions (audio/video/picture) require manual grading.
+            if (!$ismanuallyreviewed && in_array($pagequestion->qtype, ['poodllrecording', 'cloudpoodll'], true)) {
+                // PoodLL recording questions (classic/cloud audio/video/picture) require manual grading.
                 $ismanuallyreviewed = true;
             }
 
@@ -1445,6 +1453,8 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
                         }
                     } catch (\Throwable $e) {
                         // Keep the question engine summary fallback when qtype summariser expects richer file objects.
+                        // Intentionally ignored to preserve the existing response summary fallback path.
+                        unset($e);
                     }
                 } else if (array_key_exists('answer', $submittedresponse)) {
                     $answertext = (string)$submittedresponse['answer'];
@@ -1481,6 +1491,33 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
                         $answertextformat = FORMAT_HTML;
                     }
                 } else {
+                    if ($pagequestion->qtype === 'cloudpoodll') {
+                        // Prefer the full Cloud PoodLL media URL when present.
+                        if (!empty($submittedresponse['answermediaurl'])) {
+                            $answertext = (string)$submittedresponse['answermediaurl'];
+                        } else if (
+                            !empty($submittedresponse['answer'])
+                                && preg_match('/^https?:\/\//i', (string)$submittedresponse['answer'])
+                        ) {
+                            $answertext = (string)$submittedresponse['answer'];
+                        } else if (!empty($submittedresponse['answerdetails'])) {
+                            $detailsjson = json_decode((string)$submittedresponse['answerdetails']);
+                            if (json_last_error() === JSON_ERROR_NONE && !empty($detailsjson->recevents)) {
+                                foreach (array_reverse((array)$detailsjson->recevents) as $event) {
+                                    foreach (['finalfile', 'targetfile', 'mediaurl'] as $key) {
+                                        if (
+                                            !empty($event->{$key})
+                                                && preg_match('/^https?:\/\//i', (string)$event->{$key})
+                                        ) {
+                                            $answertext = (string)$event->{$key};
+                                            break 2;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                     if ($answertext === '' && method_exists($questiondef, 'summarise_response')) {
                         $fallbacksummary = $questiondef->summarise_response($lastqtdata);
                         if ($fallbacksummary !== null && $fallbacksummary !== '') {
@@ -1503,7 +1540,7 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
 
             $records[] = (object) [
                 'pagesquestionsid' => (int)$pagequestion->qpid,
-                'questionid' => $qid,
+                'questionid' => $sourceqid,
                 'userid' => (int)$USER->id,
                 'cmid' => (int)$cm->id,
                 'fraction' => $fraction,
@@ -1528,7 +1565,7 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
  * @return string $response
  */
 function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
-    global $USER, $DB;
+    global $USER, $DB, $CFG;
     require_once(dirname(__FILE__) . '/locallib.php');
     // Get form data.
     parse_str($formdata, $data);
@@ -1536,6 +1573,7 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
 
     // Phase 3: process question engine actions for supported qtypes.
     $qenginerecords = icontent_phase3_process_qengine_attempts($data, $cm, (int)$pageid);
+    $allowlegacysubmitfallback = icontent_question_engine_allow_legacy_submit_fallback();
     $qengineqids = [];
     foreach ($qenginerecords as $record) {
         $qengineqids[(int)$record->questionid] = true;
@@ -1573,32 +1611,46 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
     // Create array object for attempt.
     $i = 0;
     $records = [];
-    foreach ($data as $key => $value) {
-        if (!preg_match('/^qpid-\d+_qid-\d+_[a-z0-9]+/i', $key)) {
-            continue;
-        }
-        [$qpage, $question, $qtype] = explode('_', $key);
-        [$strvar, $qpid] = explode('-', $qpage);
-        [$strvar, $qid] = explode('-', $question);
+    if ($allowlegacysubmitfallback) {
+        foreach ($data as $key => $value) {
+            if (!preg_match('/^qpid-\d+_qid-\d+_[a-z0-9]+/i', $key)) {
+                continue;
+            }
+            [$qpage, $question, $qtype] = explode('_', $key);
+            [$strvar, $qpid] = explode('-', $qpage);
+            [$strvar, $qid] = explode('-', $question);
 
-        if (isset($qengineqids[(int)$qid])) {
-            continue;
-        }
+            if (isset($qengineqids[(int)$qid])) {
+                continue;
+            }
 
-        $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
-        if (!$infoanswer || !is_object($infoanswer)) {
-            continue;
+            $infoanswer = icontent_get_infoanswer_by_questionid($qid, $qtype, $value);
+            if (!$infoanswer || !is_object($infoanswer)) {
+                continue;
+            }
+            $records[$i] = new stdClass();
+            $records[$i]->pagesquestionsid = (int) $qpid;
+            $records[$i]->questionid = (int) $qid;
+            $records[$i]->userid = (int) $USER->id;
+            $records[$i]->cmid = (int) $cm->id;
+            $records[$i]->fraction = $infoanswer->fraction * ($maxmarksbyqpid[(int)$qpid] ?? 1.0);
+            $records[$i]->rightanswer = $infoanswer->rightanswer;
+            $records[$i]->answertext = $infoanswer->answertext;
+            $records[$i]->timecreated = time();
+            $i++;
         }
-        $records[$i] = new stdClass();
-        $records[$i]->pagesquestionsid = (int) $qpid;
-        $records[$i]->questionid = (int) $qid;
-        $records[$i]->userid = (int) $USER->id;
-        $records[$i]->cmid = (int) $cm->id;
-        $records[$i]->fraction = $infoanswer->fraction * ($maxmarksbyqpid[(int)$qpid] ?? 1.0);
-        $records[$i]->rightanswer = $infoanswer->rightanswer;
-        $records[$i]->answertext = $infoanswer->answertext;
-        $records[$i]->timecreated = time();
-        $i++;
+    }
+
+    if (!empty($CFG->debug) && ((int)$CFG->debug & DEBUG_DEVELOPER)) {
+        debugging(
+            'mod_icontent: saveattempt source counts for page '
+            . (int)$pageid
+            . ' (engine=' . count($qenginerecords)
+            . ', legacy=' . count($records)
+            . ', legacyfallback=' . ($allowlegacysubmitfallback ? 'on' : 'off')
+            . ').',
+            DEBUG_DEVELOPER
+        );
     }
 
     if (!empty($qenginerecords)) {

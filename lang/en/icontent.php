@@ -43,6 +43,7 @@ $string['attemptsallowed'] = 'Attempts allowed';
 $string['attemptsallowedhelp'] = 'Attempts allowed';
 $string['attemptsallowedhelp_help'] = 'Choose an option to set the allowed attempts.';
 
+$string['attemptsrecordedcount'] = 'Attempts recorded on this page: {$a}';
 $string['bgcolor'] = 'Background color';
 $string['bgcolor_color'] = '#FCFCFC';
 $string['bgcolor_help'] = 'Default color will be as the background on every page.';
@@ -72,6 +73,12 @@ $string['borderwidthhelp_help'] = 'Choose the default width for the edges of eac
 $string['borderwidthpagehelp'] = 'Border width';
 $string['borderwidthpagehelp_help'] = 'Choose the default width to the edges of each page.';
 
+$string['branchname'] = 'Branch label';
+$string['branchname_help'] = 'Optional learner-facing label shown for this branch in the table of contents.';
+$string['branchparentpageid'] = 'Branch parent page';
+$string['branchparentpageid_help'] = 'Select the mainline page this page should belong under as part of a branch.';
+$string['branchref'] = 'Branch key';
+$string['branchref_help'] = 'Use the same key on each page that belongs to one branch, for example remedial-fractions-a. Use letters, numbers, and hyphens. This key is internal and is not shown to learners.';
 $string['calculated'] = 'Calculated';
 $string['calculatedmulti'] = 'Calculated multi';
 $string['calculatedsimple'] = 'Calculated simple';
@@ -81,37 +88,16 @@ $string['choiceone'] = 'Choice a:';
 $string['choiceoneoption'] = 'Choose an option:';
 $string['choiceoneormore'] = 'Choice {$a} options:';
 $string['clickhere'] = 'Click here';
+$string['clusterdefault'] = 'Branch {$a}';
+$string['clustering'] = 'Branching';
 $string['columns2'] = 'Until two columns';
 $string['columns3'] = 'Until three columns';
 $string['columns4'] = 'Until four columns';
 $string['columns5'] = 'Until five columns';
-$string['clusterdefault'] = 'Branch {$a}';
-$string['clustering'] = 'Branching';
-$string['branchparentpageid'] = 'Branch parent page';
-$string['branchparentpageid_help'] = 'Select the mainline page this page should belong under as part of a branch.';
-$string['branchref'] = 'Branch key';
-$string['branchref_help'] = 'Use the same key on each page that belongs to one branch, for example remedial-fractions-a. Use letters, numbers, and hyphens. This key is internal and is not shown to learners.';
-$string['branchname'] = 'Branch label';
-$string['branchname_help'] = 'Optional learner-facing label shown for this branch in the table of contents.';
-$string['pagebranchingnavigation'] = 'Page navigation overrides';
-$string['navmodeauto'] = 'Auto';
-$string['navmodehide'] = 'Hide';
-$string['navmodecustom'] = 'Custom';
-$string['prevmode'] = 'Previous button';
-$string['prevmode_help'] = 'Auto uses the standard branching/history resolver. Hide removes the Previous button on this page. Custom sends learners to the selected page.';
-$string['prevpageid'] = 'Custom previous page';
-$string['prevpageid_help'] = 'Select the page to open when Previous button mode is set to Custom.';
-$string['nextmode'] = 'Next button';
-$string['nextmode_help'] = 'Auto uses question routing and standard branching navigation. Hide removes the Next button on this page. Custom sends learners to the selected page.';
-$string['nextpageid'] = 'Custom next page';
-$string['nextpageid_help'] = 'Select the page to open when Next button mode is set to Custom.';
-$string['showtocmenu'] = 'Show side menu of pages';
-$string['showtocmenu_help'] = 'If enabled, learners can see the Content Pages table of contents in the side column. Disable to hide that menu for learners and guide navigation through teacher-provided links plus Previous/Next buttons.';
 $string['comments'] = 'Comments';
 $string['confdeleteattempt'] = 'Remove attempt the page {$a->pagenum}';
 $string['configpassword_desc'] = 'Whether a password is required in order to access the lesson.';
 $string['confirmremovequestion'] = 'Are you sure you want to remove this question from the page?';
-
 $string['confpagedelete'] = 'Do you want to delete this page along with all files and records related to it?';
 $string['confpagenotedelete'] = '<i class="fa fa-exclamation-triangle"></i> Are you sure you want to delete this note and all replies? <span class="label label-warning">{$a} reply(ies)</span>';
 $string['copyright'] = 'Copyright';
@@ -135,14 +121,14 @@ $string['editcurrentpage'] = ' Edit current page';
 $string['editingpage'] = 'Editing page';
 $string['effects'] = 'Effects';
 $string['emptyquestionbank'] = '<i class="fa fa-exclamation-triangle"></i> Bank question is empty.';
-$string['erroridnotfound'] = ' <i class="fa fa-exclamation-triangle"></i> You must specify the param {$a}';
-$string['errorclusterparentself'] = 'A page cannot be its own branch parent.';
 $string['errorclusterparentinvalid'] = 'Choose a valid visible mainline page as the branch parent.';
-$string['errorinvalidnavigationmode'] = 'Choose a valid navigation mode.';
-$string['errorcustompreviousrequired'] = 'Choose a custom previous page or use Auto/Hide.';
-$string['errorcustomnextrequired'] = 'Choose a custom next page or use Auto/Hide.';
-$string['errorcustomnavself'] = 'A custom navigation target cannot be the same page.';
+$string['errorclusterparentself'] = 'A page cannot be its own branch parent.';
 $string['errorcustomnavinvalid'] = 'Choose a valid visible page as custom navigation target.';
+$string['errorcustomnavself'] = 'A custom navigation target cannot be the same page.';
+$string['errorcustomnextrequired'] = 'Choose a custom next page or use Auto/Hide.';
+$string['errorcustompreviousrequired'] = 'Choose a custom previous page or use Auto/Hide.';
+$string['erroridnotfound'] = ' <i class="fa fa-exclamation-triangle"></i> You must specify the param {$a}';
+$string['errorinvalidnavigationmode'] = 'Choose a valid navigation mode.';
 $string['essay'] = 'Essay';
 $string['evaluate'] = 'Evaluate';
 $string['evaluative'] = 'Evaluative item';
@@ -190,17 +176,15 @@ $string['icontent:replynotes'] = 'Reply note';
 $string['icontent:view'] = 'View interactive icontent';
 $string['icontent:viewnotes'] = 'View notes';
 $string['icontentclosetime'] = 'Close time';
-
 $string['icontentfieldset'] = 'Custom example fieldset';
 $string['icontentmenu'] = 'Content pages menu';
 $string['icontentname'] = 'Content Pages name';
 $string['icontentname_help'] = 'This is the icontent of the help tooltip associated with the icontentname field. Markdown syntax is supported.';
 $string['icontentopen'] = 'These Content Pages will be open on {$a}.';
 $string['icontentopentime'] = 'Open time';
-$string['incorrectmodule'] = 'You must specify a course_module ID or an instance ID';
 $string['incorrectcourseid'] = 'You must specify a valid course module ID.';
+$string['incorrectmodule'] = 'You must specify a course_module ID or an instance ID';
 $string['incorrectpage'] = 'You must specify a page ID';
-
 $string['labelprogressbar'] = '{$a}%';
 $string['lastmodifiedby'] = 'Last modified by';
 $string['layout'] = 'Page layout';
@@ -220,6 +204,7 @@ $string['maxnotesperpageshelp_help'] = 'Enter the maximum number of notes per pa
 $string['maxpages'] = 'Maximum number of pages';
 $string['maxpageshelp'] = 'Maximum number of pages';
 $string['maxpageshelp_help'] = 'Enter the maximum number of pages allowed. Enter only whole numbers. Importantly, in distance education icontent should use a maximum of 35 pages.';
+$string['messageprovider:question_notification'] = 'Question posted notification';
 $string['modulename'] = 'Content Pages';
 $string['modulename_help'] = 'The plugin for Moodle (Content Pages), was designed so that from it, conteudista, tutors, teachers and technicians can add content in courses, following usability and accessibility standards. This tool will be responsible for signaling the good practice of adding text, images, multimedia, among others. In it, the content will be distributed in pages, so that the monitoring of the content does not become something exhausting and tiring. The plugin also has a bookmark, so that the participant can be located, based on last logged furthermore allow the inclusion of public or private notes, which the participant can provide feedback on the content studied on the page and enjoy and reply comments from other colleagues. The plugin also allows the launch of questions about the content addressed, this provides better interaction between the participant and the virtual learning platform, and the feature may become an evaluation item or launch fractional notes on the items available in the course as defined in the plan of action. The described extension is fully responsive and can be accessed by any device.';
 $string['modulenameplural'] = 'Content Pages';
@@ -231,11 +216,18 @@ $string['msgsucessevaluate'] = '{$a} evaluation completed successfully!';
 $string['msgsucessexclusion'] = 'Successfully deleted records!';
 $string['multianswer'] = 'Multi answer';
 $string['multichoice'] = 'Multi choice';
+$string['mylistallnotes'] = 'My list of all notes';
 $string['mylistcomments'] = 'My list of comments';
 $string['mylistnotes'] = 'My list of notes';
-$string['mylistallnotes'] = 'My list of all notes';
+$string['navmodeauto'] = 'Auto';
+$string['navmodecustom'] = 'Custom';
+$string['navmodehide'] = 'Hide';
 $string['next'] = 'Next ';
+$string['nextmode'] = 'Next button';
+$string['nextmode_help'] = 'Auto uses question routing and standard branching navigation. Hide removes the Next button on this page. Custom sends learners to the selected page.';
 $string['nextpage'] = 'Next page';
+$string['nextpageid'] = 'Custom next page';
+$string['nextpageid_help'] = 'Select the page to open when Next button mode is set to Custom.';
 $string['noeffect'] = 'No effect';
 $string['noicontents'] = 'No Content Pages were found in this course.';
 $string['nonotes'] = 'No notes for this page.';
@@ -245,10 +237,10 @@ $string['note'] = 'Notes <span id="messagenotes">{$a}</span>';
 $string['notedon'] = ' noted on ';
 $string['notes'] = 'Notes';
 $string['notopenuntil'] = 'This Content Pages activity won\'t be open until';
-
 $string['numerical'] = 'Numerical';
 $string['options'] = 'Options';
 $string['page'] = '<span>Page <em>{$a}</em></span>';
+$string['pagebranchingnavigation'] = 'Page navigation overrides';
 $string['pagecount'] = '<span>Pages <em>{$a}</em></span>';
 $string['pagenotfound'] = '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> No page found for this instance of iContent.';
 $string['pages'] = '<span>Pages</span>';
@@ -263,6 +255,10 @@ $string['pluginname'] = 'Content Pages';
 $string['preview'] = 'Preview';
 $string['previous'] = ' Previous';
 $string['previouspage'] = 'Page previous';
+$string['prevmode'] = 'Previous button';
+$string['prevmode_help'] = 'Auto uses the standard branching/history resolver. Hide removes the Previous button on this page. Custom sends learners to the selected page.';
+$string['prevpageid'] = 'Custom previous page';
+$string['prevpageid_help'] = 'Select the page to open when Previous button mode is set to Custom.';
 $string['privacy:metadata:icontent_grades'] = 'User grades recorded by iContent.';
 $string['privacy:metadata:icontent_grades:cmid'] = 'ID of the iContent course module.';
 $string['privacy:metadata:icontent_grades:grade'] = 'Recorded grade value for the user.';
@@ -305,7 +301,6 @@ $string['private'] = 'Private';
 $string['privates'] = 'Private';
 $string['progressbar'] = 'Progress bar';
 $string['progressbar_help'] = 'If enabled, a bar is displayed at the bottom of lesson pages showing approximate percentage of completion.';
-$string['messageprovider:question_notification'] = 'Question posted notification';
 $string['questionnotificationbody'] = '{$a->student} posted a new question in {$a->activity}.' . "\n\n" . 'View: {$a->url}';
 $string['questionnotificationsmall'] = '{$a->student} posted a new question in {$a->activity}';
 $string['questionnotificationsubject'] = 'New iContent question in {$a->activity}';
@@ -318,32 +313,26 @@ $string['recentactivityattemptedquestion'] = 'Attempted a question on {$a}';
 $string['recentactivityheader'] = 'Recent iContent activity';
 $string['recentactivityrepliednote'] = 'Replied on {$a}';
 $string['recentactivityviewedpage'] = 'Viewed {$a}';
+$string['recordingsubmittedprocessing'] = 'Recording submitted (processing…)';
 $string['remove'] = ' Remove ';
 $string['removenote'] = ' Remove note';
 $string['removenotes'] = ' Remove notes';
 $string['reply'] = ' Reply ';
+$string['reportoverview'] = 'Report overview';
+$string['reseticontentuserdata'] = 'iContent user data';
 $string['respond'] = ' Responded ';
 $string['result'] = 'Result';
 $string['resultlastattempt'] = 'Result of the last attempt';
-$string['routingtargets'] = 'Routing targets';
+$string['results'] = 'Results';
+$string['reviewercomments'] = 'Teacher comments';
+$string['rightanswers'] = 'Right/Equivalent';
 $string['routecorrect'] = 'On correct';
+$string['routedefault'] = 'Fallback';
 $string['routeincorrect'] = 'On incorrect';
 $string['routemanualreview'] = 'On manual review';
-$string['routedefault'] = 'Fallback';
-$string['results'] = 'Results';
-$string['reseticontentuserdata'] = 'iContent user data';
-$string['reviewercomments'] = 'Teacher comments';
-
-
-
-
-
-
-
-
-
-$string['rightanswers'] = 'Right/Equivalent';
+$string['routingtargets'] = 'Routing targets';
 $string['save'] = 'Save';
+$string['savequestionselection'] = 'Save question selection';
 $string['send'] = 'Send';
 $string['sendallandfinish'] = 'Send all and finish';
 $string['sendanswers'] = 'Send answers';
@@ -359,9 +348,21 @@ $string['showrecentactivity'] = 'Show recent activity';
 $string['showrecentactivityconfig'] = 'Everyone can see notifications in recent activity reports.';
 $string['showtitle'] = 'Show title';
 $string['showtitle_help'] = 'Show / Hide the page title.';
-$string['titlecolor'] = 'Page title color';
-$string['titlecolorhelp'] = 'Page title color';
-$string['titlecolorhelp_help'] = 'Set the page title text color used when the page title is shown.';
+$string['showtocmenu'] = 'Show side menu of pages';
+$string['showtocmenu_help'] = 'If enabled, learners can see the Content Pages table of contents in the side column. Disable to hide that menu for learners and guide navigation through teacher-provided links plus Previous/Next buttons.';
+
+
+
+
+
+
+
+
+
+
+
+
+
 $string['state'] = 'State';
 $string['statusview'] = 'Status view';
 $string['strattempttitle'] = 'Attempt held in page {$a->pagenum} title {$a->title}';
@@ -373,6 +374,9 @@ $string['strtoevaluate'] = '{$a->fraction} out of {$a->maxfraction} ({$a->percen
 $string['summary'] = 'Summary';
 $string['summaryattempts'] = 'Summary attempts';
 $string['tagarea_icontent_pages'] = 'iContent pages';
+$string['titlecolor'] = 'Page title color';
+$string['titlecolorhelp'] = 'Page title color';
+$string['titlecolorhelp_help'] = 'Set the page title text color used when the page title is shown.';
 $string['toevaluate'] = 'To evaluate';
 $string['toreassess'] = 'to reassess';
 $string['totalanswers'] = 'Total answers';
@@ -393,108 +397,3 @@ $string['writedoubt'] = 'Write question';
 $string['writeessay'] = 'Write essay';
 $string['writenotes'] = 'Write note';
 $string['writetag'] = 'Write tags (comma-separated)';
-
-// === Missing language strings added 20260317 (iContent_1346) ===
-// The following 101 strings were identified via code analysis as missing
-// from the language file but used in various parts of the codebase.
-
-$string['action'] = 'Action';
-$string['addafter'] = 'Add after';
-$string['addnewpage'] = 'Add new page';
-$string['addquestion'] = 'Add question';
-$string['advance'] = 'Next';
-$string['alldoubts'] = 'All questions';
-$string['answers'] = 'Answers';
-$string['answersevaluatedinfo'] = 'Evaluated answers';
-$string['answerthequestions'] = 'Answer the questions';
-$string['attempt'] = 'Attempt';
-$string['choiceone'] = 'Choice one';
-$string['choiceoneoption'] = 'Choose an option';
-$string['choiceoneormore'] = 'Choose one or more';
-$string['clickhere'] = 'Click here';
-$string['comments'] = 'Comments';
-$string['confdeleteattempt'] = 'Confirm delete attempt';
-$string['confirmremovequestion'] = 'Are you sure you want to remove this question from the page?';
-$string['confpagedelete'] = 'Confirm delete page';
-$string['confpagenotedelete'] = 'Confirm delete note';
-$string['doubtandnotes'] = 'Questions and notes';
-$string['doubts'] = 'Questions';
-$string['doubtstotutor'] = 'Questions for tutor';
-$string['doubttutor'] = 'Question for tutor';
-$string['editcurrentpage'] = 'Edit current page';
-$string['emptyquestionbank'] = 'Question bank is empty';
-$string['evaluate'] = 'Evaluate';
-$string['eventnotecreated'] = 'Note created';
-$string['eventnotedeleted'] = 'Note deleted';
-$string['eventnotelikecreated'] = 'Note liked';
-$string['eventnotelikedeleted'] = 'Note like removed';
-$string['eventnotereplied'] = 'Note replied';
-$string['eventnoteupdated'] = 'Note updated';
-$string['eventpagecreated'] = 'Page created';
-$string['eventpagedeleted'] = 'Page deleted';
-$string['eventpageupdated'] = 'Page updated';
-$string['eventpageviewed'] = 'Page viewed';
-$string['eventquestionattemptcreated'] = 'Question attempt created';
-$string['eventquestionattemptdeleted'] = 'Question attempt deleted';
-$string['eventquestionpageviewed'] = 'Question page viewed';
-$string['eventquestiontoevaluatecreated'] = 'Question for manual evaluation created';
-$string['featured'] = 'Featured';
-$string['gradingscale'] = 'Grading scale';
-$string['highlighted'] = 'Highlighted';
-$string['icontent'] = 'Content Pages';
-$string['likes'] = 'Likes';
-$string['listdoubts'] = 'List of questions';
-$string['manualreview'] = 'Manual review';
-$string['manualreviewofparticipant'] = 'Manual review of {$a}';
-$string['modulenameplural'] = 'Content Pages';
-$string['msgaddquestionpage'] = 'Questions added successfully';
-$string['attemptsrecordedcount'] = 'Attempts recorded on this page: {$a}';
-$string['msgconfirmdeleteattempt'] = 'Confirm delete attempt';
-$string['msgstatusdisplay'] = 'You cannot add or remove questions because attempts have been recorded.';
-$string['msgsucess'] = 'Success message';
-$string['msgsucessevaluate'] = 'Evaluation successful';
-$string['msgsucessexclusion'] = 'Deletion successful';
-$string['next'] = 'Next';
-$string['nextpage'] = 'Next page';
-$string['noeffect'] = 'No effect';
-$string['norecordsfound'] = 'No records found';
-$string['notagsyet'] = 'No tags yet';
-$string['page'] = 'Page';
-$string['pagenotfound'] = 'Page not found';
-$string['pages'] = 'Pages';
-$string['partialresult'] = 'Partial result';
-$string['pendingreview'] = 'Pending review';
-$string['previous'] = 'Previous';
-$string['previouspage'] = 'Previous page';
-$string['private'] = 'Private';
-$string['savequestionselection'] = 'Save question selection';
-$string['privates'] = 'Private';
-$string['reassess'] = 'Reassess';
-$string['remove'] = 'Remove';
-$string['removenotes'] = 'Remove notes';
-$string['result'] = 'Result';
-$string['resultlastattempt'] = 'Result of last attempt';
-$string['results'] = 'Results';
-$string['reportoverview'] = 'Report overview';
-$string['reviewercomments'] = 'Reviewer comments';
-$string['rightanswers'] = 'Right/Equivalent';
-$string['save'] = 'Save';
-$string['sendanswers'] = 'Send answers';
-$string['showless'] = 'Show less';
-$string['showmore'] = 'Show more';
-$string['state'] = 'State';
-$string['strattempttitle'] = 'Attempt held in page {$a->pagenum} title {$a->title}';
-$string['strmaxgrade'] = 'Maximum grade';
-$string['strmanualgrading'] = 'Manual grading';
-$string['stropenanswer'] = '<span class="label label-info">{$a} response awaiting evaluation.</span>';
-$string['strstate'] = 'State';
-$string['strtoevaluate'] = '{$a->fraction} out of {$a->maxfraction} ({$a->percentage}%). {$a->openanswer}';
-$string['summaryattempts'] = 'Summary of attempts';
-$string['toevaluate'] = 'To evaluate';
-$string['toreassess'] = 'To reassess';
-$string['tryagain'] = 'Try again';
-$string['writedoubt'] = 'Write question';
-$string['writeessay'] = 'Write essay';
-$string['writenotes'] = 'Write notes';
-$string['writetag'] = 'Write tag';
-$string['recordingsubmittedprocessing'] = 'Recording submitted (processing…)';

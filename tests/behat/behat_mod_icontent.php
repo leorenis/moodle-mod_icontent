@@ -149,8 +149,14 @@ class behat_mod_icontent extends behat_base {
         $page = $this->get_icontent_page_by_title($activityname, $pagetitle);
         $state = [
             'pageid' => (int)$page->id,
-            'mappingids' => array_map('intval', $DB->get_fieldset_select('icontent_pages_questions', 'id', 'pageid = ?', [$page->id])),
-            'noteids' => array_map('intval', $DB->get_fieldset_select('icontent_pages_notes', 'id', 'pageid = ?', [$page->id])),
+            'mappingids' => array_map(
+                'intval',
+                $DB->get_fieldset_select('icontent_pages_questions', 'id', 'pageid = ?', [$page->id])
+            ),
+            'noteids' => array_map(
+                'intval',
+                $DB->get_fieldset_select('icontent_pages_notes', 'id', 'pageid = ?', [$page->id])
+            ),
         ];
 
         $this->trackedpagedeletions[$this->get_page_state_key($activityname, $pagetitle)] = $state;
@@ -257,7 +263,7 @@ class behat_mod_icontent extends behat_base {
     /**
      * Add a note plus a like for an iContent page.
      *
-     * @Given /^the icontent "(?P<activity>[^"]*)" page "(?P<pagetitle>[^"]*)" has a note "(?P<comment>[^"]*)" by "(?P<username>[^"]*)" liked by "(?P<likeusername>[^"]*)"$/
+     * @Given /^the icontent "([^"]*)" page "([^"]*)" has a note "([^"]*)" by "([^"]*)" liked by "([^"]*)"$/
      *
      * @param string $activity
      * @param string $pagetitle

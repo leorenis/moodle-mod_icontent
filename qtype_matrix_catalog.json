@@ -1,0 +1,32 @@
+{
+  "recordrtc": {
+    "officialsupport": "5.2 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 0,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "poodllrecording": {
+    "officialsupport": "5.1 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 0,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "essay": {
+    "officialsupport": "Core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Core qtype; plugin-directory site counts are not applicable."
+  },
+  "essayautograde": {
+    "officialsupport": "Local plugin",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Track usage manually if published in plugin directory."
+  },
+  "filter_embedquestion": {
+    "officialsupport": "Filter plugin",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 1291,
+    "notes": "Embeds Moodle questions directly into page text."
+  }
+}

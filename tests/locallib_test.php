@@ -36,6 +36,7 @@ require_once($CFG->dirroot . '/mod/icontent/locallib.php');
  * @covers ::icontent_get_toc
  * @covers ::icontent_get_next_pagenum
  * @covers ::icontent_get_prev_pagenum
+ * @covers ::icontent_duplicate_page
  */
 final class locallib_test extends \advanced_testcase {
     public function setUp(): void {
@@ -134,6 +135,105 @@ final class locallib_test extends \advanced_testcase {
         \icontent_record_page_navigation($branchpage2id, $resumepageid, $module->cmid);
 
         $this->assertSame((int)$branchpage2->pagenum, \icontent_get_prev_pagenum($resumepage));
+    }
+
+    /**
+     * Ensure duplicated pages are inserted after source and reset nav overrides.
+     */
+    public function test_duplicate_page_inserts_after_source_and_resets_nav_overrides(): void {
+        global $DB;
+
+        [$course, $module, $icontent, $student] = $this->create_activity_fixture();
+        $this->setUser($student);
+
+        $firstpageid = $this->create_page($icontent->id, $module->cmid, 1, 'Intro');
+        $sourcepageid = $this->create_page($icontent->id, $module->cmid, 2, 'Source page', [
+            'branchref' => 'branch-a',
+            'branchname' => 'Branch A',
+            'branchparentpageid' => $firstpageid,
+            'prevmode' => 2,
+            'prevpageid' => $firstpageid,
+            'nextmode' => 2,
+            'nextpageid' => $firstpageid,
+            'pageicontent' => '<p>Sample content</p>',
+        ]);
+        $followingpageid = $this->create_page($icontent->id, $module->cmid, 3, 'After source');
+
+        $context = \context_module::instance($module->cmid);
+        $duplicated = \icontent_duplicate_page((int)$icontent->id, (int)$module->cmid, $sourcepageid, $context);
+
+        $source = $DB->get_record('icontent_pages', ['id' => $sourcepageid], '*', MUST_EXIST);
+        $following = $DB->get_record('icontent_pages', ['id' => $followingpageid], '*', MUST_EXIST);
+        $newpage = $DB->get_record('icontent_pages', ['id' => (int)$duplicated->id], '*', MUST_EXIST);
+
+        $this->assertSame((int)$source->pagenum + 1, (int)$newpage->pagenum);
+        $this->assertSame(4, (int)$following->pagenum);
+
+        $this->assertSame('branch-a', (string)$newpage->branchref);
+        $this->assertSame('Branch A', (string)$newpage->branchname);
+        $this->assertSame((int)$source->branchparentpageid, (int)$newpage->branchparentpageid);
+
+        $this->assertSame(0, (int)$newpage->prevmode);
+        $this->assertSame(0, (int)$newpage->prevpageid);
+        $this->assertSame(1, (int)$newpage->nextmode);
+        $this->assertSame(0, (int)$newpage->nextpageid);
+
+        $this->assertSame((string)$source->pageicontent, (string)$newpage->pageicontent);
+        $this->assertStringContainsString('(Copy)', (string)$newpage->title);
+    }
+
+    /**
+     * Ensure duplicate copies files from both page and bgpage fileareas.
+     */
+    public function test_duplicate_page_copies_page_and_bgpage_files(): void {
+        [$course, $module, $icontent, $student] = $this->create_activity_fixture();
+        $this->setUser($student);
+
+        $sourcepageid = $this->create_page($icontent->id, $module->cmid, 1, 'Source with files');
+        $context = \context_module::instance($module->cmid);
+
+        $fs = get_file_storage();
+        $fs->create_file_from_string([
+            'contextid' => (int)$context->id,
+            'component' => 'mod_icontent',
+            'filearea' => 'page',
+            'itemid' => $sourcepageid,
+            'filepath' => '/',
+            'filename' => 'inline.txt',
+        ], 'Inline page content file');
+        $fs->create_file_from_string([
+            'contextid' => (int)$context->id,
+            'component' => 'mod_icontent',
+            'filearea' => 'bgpage',
+            'itemid' => $sourcepageid,
+            'filepath' => '/',
+            'filename' => 'background.png',
+        ], 'PNGDATA');
+
+        $duplicated = \icontent_duplicate_page((int)$icontent->id, (int)$module->cmid, $sourcepageid, $context);
+        $newpageid = (int)$duplicated->id;
+
+        $newpagefiles = $fs->get_area_files(
+            (int)$context->id,
+            'mod_icontent',
+            'page',
+            $newpageid,
+            'filepath, filename',
+            false
+        );
+        $newbgfiles = $fs->get_area_files(
+            (int)$context->id,
+            'mod_icontent',
+            'bgpage',
+            $newpageid,
+            'filepath, filename',
+            false
+        );
+
+        $this->assertCount(1, $newpagefiles);
+        $this->assertCount(1, $newbgfiles);
+        $this->assertSame('inline.txt', reset($newpagefiles)->get_filename());
+        $this->assertSame('background.png', reset($newbgfiles)->get_filename());
     }
 
     /**

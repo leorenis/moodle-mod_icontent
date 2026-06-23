@@ -1,14 +1,22 @@
 {
-  "recordrtc": {
+  "_meta": {
+    "purpose": "Compatibility and usage metadata overrides for the iContent qtype readiness matrix.",
+    "key_rules": [
+      "Use the same qtype/integration key as qtype_matrix_status.json.",
+      "Examples: recordrtc, poodllrecording, cloudpoodll, formulas, gapfill, filter_embedquestion.",
+      "Keys beginning with _ are ignored by the renderer and may be used for documentation."
+    ],
+    "fields": {
+      "officialsupport": "Short label for upstream/offical plugin support status",
+      "verifiedsupport": "Local verification summary such as 5.2, 5.3-dev",
+      "pluginsites": "Integer site count or null when not applicable",
+      "notes": "Short maintenance/catalog note shown in the matrix"
+    }
+  },
+  "cloudpoodll": {
     "officialsupport": "5.2 ready",
     "verifiedsupport": "5.2, 5.3-dev",
-    "pluginsites": 0,
-    "notes": "Update plugin-directory usage count after each audit pass."
-  },
-  "poodllrecording": {
-    "officialsupport": "5.1 ready",
-    "verifiedsupport": "5.2, 5.3-dev",
-    "pluginsites": 0,
+    "pluginsites": 259,
     "notes": "Update plugin-directory usage count after each audit pass."
   },
   "essay": {
@@ -28,5 +36,59 @@
     "verifiedsupport": "5.2, 5.3-dev",
     "pluginsites": 1291,
     "notes": "Embeds Moodle questions directly into page text."
+  },
+  "formulas": {
+    "officialsupport": "5.2 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 2127,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "gapfill": {
+    "officialsupport": "5.2 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 4248,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "poodllrecording": {
+    "officialsupport": "5.2 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 1106,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "recordrtc": {
+    "officialsupport": "5.0 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 1342,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "stack": {
+    "officialsupport": "5.1 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 2234,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "varnumeric": {
+    "officialsupport": "5.0 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 654,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "varnumericset": {
+    "officialsupport": "5.0 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 773,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "varnumunit": {
+    "officialsupport": "5.0 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 227,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "wordselect": {
+    "officialsupport": "5.2 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 1580,
+    "notes": "Update plugin-directory usage count after each audit pass."
   }
 }

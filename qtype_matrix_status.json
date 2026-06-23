@@ -1,7 +1,7 @@
 {
-  "varnumeric": {
+  "cloudpoodll": {
     "status": "pass",
-    "notes": "Manual review not reuired, verified."
+    "notes": "Audio/video manual review rendering verified."
   },
   "essay": {
     "status": "pass",
@@ -11,16 +11,44 @@
     "status": "pass",
     "notes": "Manual review flow available in current iContent setup."
   },
-  "recordrtc": {
+  "filter_embedquestion": {
+    "status": "fail",
+    "notes": "Integration row added; verify embedded question rendering inside iContent page text."
+  },
+  "formulas": {
     "status": "pass",
-    "notes": "Audio/video/screen manual review rendering verified in regular browser."
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "gapfill": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
   },
   "poodllrecording": {
     "status": "pass",
     "notes": "Picture/audio/video manual review rendering verified."
   },
-  "filter_embedquestion": {
-    "status": "not tested",
-    "notes": "Integration row added; verify embedded question rendering inside iContent page text."
+  "recordrtc": {
+    "status": "pass",
+    "notes": "Audio/video/screen manual review rendering verified in regular browser."
+  },
+  "stack": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "varnumeric": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "varnumericset": {
+    "status": "unknown",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "varnumunit": {
+    "status": "unknown",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "wordselect": {
+    "status": "unknown",
+    "notes": "Automatic grade flow available in current iContent setup."
   }
 }

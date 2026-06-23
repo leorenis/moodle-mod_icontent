@@ -870,6 +870,18 @@ function icontent_render_toc_action_list(stdClass $page, stdClass $cm, $position
     );
     $actions .= html_writer::link(
         new moodle_url(
+            'duplicate.php',
+            [
+                'id' => $page->cmid,
+                'pageid' => $page->id,
+                'sesskey' => $USER->sesskey,
+            ]
+        ),
+        $OUTPUT->pix_icon('t/copy', get_string('duplicatepage', 'mod_icontent')),
+        ['title' => get_string('duplicatepage', 'mod_icontent')]
+    );
+    $actions .= html_writer::link(
+        new moodle_url(
             'delete.php',
             [
                 'id' => $page->cmid,
@@ -1375,6 +1387,94 @@ function icontent_get_page_bgimage($context, $page) {
         }
     }
     return false;
+}
+
+/**
+ * Duplicate one iContent page and insert it directly after the source page.
+ *
+ * Branch settings are preserved. Navigation overrides are reset on the new page
+ * to Previous=Auto and Next=Hide.
+ *
+ * @param int $icontentid
+ * @param int $cmid
+ * @param int $sourcepageid
+ * @param context_module $context
+ * @return stdClass
+ */
+function icontent_duplicate_page($icontentid, $cmid, $sourcepageid, context_module $context) {
+    global $DB;
+
+    $sourcepage = $DB->get_record(
+        'icontent_pages',
+        [
+            'id' => $sourcepageid,
+            'icontentid' => (int)$icontentid,
+            'cmid' => (int)$cmid,
+        ],
+        '*',
+        MUST_EXIST
+    );
+
+    $transaction = $DB->start_delegated_transaction();
+
+    $nextpages = $DB->get_records_select(
+        'icontent_pages',
+        'icontentid = ? AND cmid = ? AND pagenum > ?',
+        [(int)$icontentid, (int)$cmid, (int)$sourcepage->pagenum],
+        'pagenum DESC',
+        'id, pagenum'
+    );
+    foreach ($nextpages as $nextpage) {
+        $nextpage->pagenum = (int)$nextpage->pagenum + 1;
+        $DB->update_record('icontent_pages', $nextpage);
+    }
+
+    $newpage = clone $sourcepage;
+    unset($newpage->id);
+
+    $newpage->title = get_string('duplicatepagesuffix', 'mod_icontent', $sourcepage->title);
+    $newpage->pagenum = (int)$sourcepage->pagenum + 1;
+    $newpage->prevmode = 0;
+    $newpage->prevpageid = 0;
+    $newpage->nextmode = 1;
+    $newpage->nextpageid = 0;
+    $newpage->timecreated = time();
+    $newpage->timemodified = time();
+
+    $newpageid = (int)$DB->insert_record('icontent_pages', $newpage);
+
+    $fs = get_file_storage();
+    $copyfilearea = static function ($filearea) use ($fs, $context, $sourcepage, $newpageid): void {
+        $files = $fs->get_area_files(
+            (int)$context->id,
+            'mod_icontent',
+            $filearea,
+            (int)$sourcepage->id,
+            'itemid, filepath, filename',
+            false
+        );
+        foreach ($files as $file) {
+            $filerecord = [
+                'contextid' => (int)$context->id,
+                'component' => 'mod_icontent',
+                'filearea' => $filearea,
+                'itemid' => $newpageid,
+                'filepath' => $file->get_filepath(),
+                'filename' => $file->get_filename(),
+                'timecreated' => time(),
+                'timemodified' => time(),
+            ];
+            $fs->create_file_from_storedfile($filerecord, $file);
+        }
+    };
+
+    $copyfilearea('page');
+    $copyfilearea('bgpage');
+
+    $createdpage = $DB->get_record('icontent_pages', ['id' => $newpageid], '*', MUST_EXIST);
+    $transaction->allow_commit();
+
+    return $createdpage;
 }
 
 /**
@@ -3073,6 +3173,242 @@ function icontent_render_manual_review_answer(stdClass $qopenanswer, int $cmid):
 }
 
 /**
+ * Render learner-facing feedback for one submitted answer when available.
+ *
+ * @param stdClass $submittedanswer
+ * @return string
+ */
+function icontent_render_attempt_feedback(stdClass $submittedanswer): string {
+    $parts = [];
+
+    $generallabel = 'General feedback';
+    if (get_string_manager()->string_exists('generalfeedback', 'question')) {
+        $generallabel = get_string('generalfeedback', 'question');
+    }
+
+    $generalfeedback = trim((string)($submittedanswer->generalfeedback ?? ''));
+    if ($generalfeedback !== '') {
+        $parts[] = html_writer::div(
+            html_writer::tag('strong', s($generallabel) . ': ') .
+            format_text(
+                $generalfeedback,
+                (int)($submittedanswer->generalfeedbackformat ?? FORMAT_HTML),
+                ['noclean' => false, 'para' => false]
+            ),
+            'icontent-question-feedback-item mb-2'
+        );
+    }
+
+    $outcomefeedback = icontent_get_outcome_feedback_for_attempt($submittedanswer);
+    if ($outcomefeedback !== '') {
+        $parts[] = html_writer::div(
+            html_writer::tag('strong', s(get_string('outcomefeedbacklabel', 'mod_icontent')) . ': ') . $outcomefeedback,
+            'icontent-question-feedback-item mb-2'
+        );
+    }
+
+    $selectedanswerfeedback = icontent_get_selected_answer_feedback_for_attempt($submittedanswer);
+    if (!empty($selectedanswerfeedback)) {
+        $feedbackitems = [];
+        foreach ($selectedanswerfeedback as $item) {
+            $feedbackitems[] = html_writer::tag('li', $item, ['class' => 'mb-1']);
+        }
+
+        $parts[] = html_writer::div(
+            html_writer::tag('strong', s(get_string('answerfeedbacklabel', 'mod_icontent')) . ': ') .
+            html_writer::tag('ul', implode('', $feedbackitems), ['class' => 'mb-0']),
+            'icontent-question-feedback-item mb-2'
+        );
+    }
+
+    if (empty($parts)) {
+        return '';
+    }
+
+    return html_writer::div(implode('', $parts), 'icontent-question-feedback mt-2');
+}
+
+/**
+ * Get outcome-level feedback for one submitted answer when available.
+ *
+ * @param stdClass $submittedanswer
+ * @return string
+ */
+function icontent_get_outcome_feedback_for_attempt(stdClass $submittedanswer): string {
+    global $DB;
+
+    $qtype = (string)($submittedanswer->qtype ?? '');
+    if (!in_array($qtype, ['multichoice', 'calculatedmulti'], true)) {
+        return '';
+    }
+
+    if (!$DB->get_manager()->table_exists('qtype_multichoice_options')) {
+        return '';
+    }
+
+    $options = $DB->get_record(
+        'qtype_multichoice_options',
+        ['questionid' => (int)$submittedanswer->questionid],
+        'correctfeedback, correctfeedbackformat, partiallycorrectfeedback, partiallycorrectfeedbackformat, ' .
+            'incorrectfeedback, incorrectfeedbackformat',
+        IGNORE_MISSING
+    );
+    if (empty($options)) {
+        return '';
+    }
+
+    $fraction = (float)($submittedanswer->fraction ?? 0);
+    $maxmark = (float)($submittedanswer->maxmark ?? 0);
+    if ($maxmark <= 0) {
+        $maxmark = 1.0;
+    }
+
+    if ($fraction >= ($maxmark - 0.00001)) {
+        $feedbacktext = (string)($options->correctfeedback ?? '');
+        $feedbackformat = (int)($options->correctfeedbackformat ?? FORMAT_HTML);
+    } else if ($fraction > 0) {
+        $feedbacktext = (string)($options->partiallycorrectfeedback ?? '');
+        $feedbackformat = (int)($options->partiallycorrectfeedbackformat ?? FORMAT_HTML);
+    } else {
+        $feedbacktext = (string)($options->incorrectfeedback ?? '');
+        $feedbackformat = (int)($options->incorrectfeedbackformat ?? FORMAT_HTML);
+    }
+
+    if (trim($feedbacktext) === '') {
+        return '';
+    }
+
+    return format_text($feedbacktext, $feedbackformat, ['noclean' => false, 'para' => false]);
+}
+
+/**
+ * Get selected-answer feedback entries for one submitted answer where available.
+ *
+ * @param stdClass $submittedanswer
+ * @return array
+ */
+function icontent_get_selected_answer_feedback_for_attempt(stdClass $submittedanswer): array {
+    global $DB;
+
+    $qtype = (string)($submittedanswer->qtype ?? '');
+    if (!in_array($qtype, ['multichoice', 'truefalse'], true)) {
+        return [];
+    }
+
+    $answertext = (string)($submittedanswer->answertext ?? '');
+    if (trim($answertext) === '') {
+        return [];
+    }
+
+    $selectedtokens = icontent_extract_answer_tokens_for_feedback($answertext);
+    $selectedanswerids = icontent_extract_answer_ids_for_feedback($answertext);
+    if (empty($selectedtokens) && empty($selectedanswerids)) {
+        return [];
+    }
+
+    $records = $DB->get_records(
+        'question_answers',
+        ['question' => (int)$submittedanswer->questionid],
+        '',
+        'id, answer, feedback, feedbackformat'
+    );
+    if (empty($records)) {
+        return [];
+    }
+
+    $feedbackitems = [];
+    foreach ($records as $record) {
+        $answerid = (int)($record->id ?? 0);
+        if (!empty($selectedanswerids) && in_array($answerid, $selectedanswerids, true)) {
+            $feedbacktext = trim((string)($record->feedback ?? ''));
+            if ($feedbacktext === '') {
+                continue;
+            }
+
+            $feedbackitems[] = format_text(
+                $feedbacktext,
+                (int)($record->feedbackformat ?? FORMAT_HTML),
+                ['noclean' => false, 'para' => false]
+            );
+            continue;
+        }
+
+        $answertoken = icontent_normalize_answer_feedback_token((string)$record->answer);
+        if (!in_array($answertoken, $selectedtokens, true)) {
+            continue;
+        }
+
+        $feedbacktext = trim((string)($record->feedback ?? ''));
+        if ($feedbacktext === '') {
+            continue;
+        }
+
+        $feedbackitems[] = format_text(
+            $feedbacktext,
+            (int)($record->feedbackformat ?? FORMAT_HTML),
+            ['noclean' => false, 'para' => false]
+        );
+    }
+
+    return array_values(array_unique($feedbackitems));
+}
+
+/**
+ * Extract normalized selected answer tokens from a stored answer string.
+ *
+ * @param string $answertext
+ * @return array
+ */
+function icontent_extract_answer_tokens_for_feedback(string $answertext): array {
+    $tokens = preg_split('/[;\n\r]+/', $answertext);
+    if ($tokens === false) {
+        $tokens = [];
+    }
+
+    $tokens = array_filter(array_map('trim', $tokens), static function($token): bool {
+        return $token !== '';
+    });
+
+    if (empty($tokens)) {
+        $tokens = [trim($answertext)];
+    }
+
+    $normalized = array_map('icontent_normalize_answer_feedback_token', $tokens);
+    $normalized = array_values(array_unique(array_filter($normalized, static function($token): bool {
+        return $token !== '';
+    })));
+
+    return $normalized;
+}
+
+/**
+ * Extract selected answer IDs from stored answer text patterns.
+ *
+ * @param string $answertext
+ * @return array
+ */
+function icontent_extract_answer_ids_for_feedback(string $answertext): array {
+    if (!preg_match_all('/answerid-(\d+)/i', $answertext, $matches)) {
+        return [];
+    }
+
+    return array_values(array_unique(array_map('intval', $matches[1])));
+}
+
+/**
+ * Normalize one answer token for matching against question_answers.answer.
+ *
+ * @param string $token
+ * @return string
+ */
+function icontent_normalize_answer_feedback_token(string $token): string {
+    $token = trim(strip_tags($token));
+    $token = html_entity_decode($token, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $token = preg_replace('/\s+/u', ' ', $token);
+    return strtolower(trim((string)$token));
+}
+
+/**
  * Extract a PoodLL response filename (audio/video/image) from stored response text.
  *
  * @param string $answertext
@@ -3876,9 +4212,13 @@ function icontent_get_submitted_answers_by_attempt_summary_by_page($pageid, $cmi
         $sql = "SELECT qa.id,
                    qa.userid,
                    qa.answertext,
+                   qa.fraction,
                    qa.questionid,
                    q.name AS questionname,
                    q.qtype,
+                   q.generalfeedback,
+                   q.generalfeedbackformat,
+                   pq.maxmark,
                {$poodllselect},
                {$recordrtcselect}
               FROM {icontent_question_attempts} qa
@@ -5338,7 +5678,8 @@ function icontent_make_attempt_summary_by_page($pageid, $cmid) {
         foreach ($submittedanswers as $submittedanswer) {
             $questionlabel = html_writer::tag('strong', format_string($submittedanswer->questionname) . ': ');
             $answercontent = icontent_render_manual_review_answer($submittedanswer, $cmid);
-            $answeritems[] = html_writer::tag('li', $questionlabel . $answercontent, ['class' => 'mb-3']);
+            $feedbackcontent = icontent_render_attempt_feedback($submittedanswer);
+            $answeritems[] = html_writer::tag('li', $questionlabel . $answercontent . $feedbackcontent, ['class' => 'mb-3']);
         }
 
         $answershtml = html_writer::div(
@@ -6019,6 +6360,7 @@ function icontent_make_toolbar($page, $icontent) {
     );
     $update = false;
     $new = false;
+    $duplicate = false;
     $addquestion = false;
     $delete = false;
     // Check if editing exists for $USER.
@@ -6081,6 +6423,24 @@ function icontent_make_toolbar($page, $icontent) {
                     'data-placement' => 'top',
                 ]
             );
+            // Duplicate current page.
+            $duplicate = html_writer::link(
+                new moodle_url(
+                    'duplicate.php',
+                    [
+                        'id' => $page->cmid,
+                        'pageid' => $page->id,
+                        'sesskey' => $USER->sesskey,
+                    ]
+                ),
+                '<i class="fa fa-copy fa-lg"></i>',
+                [
+                    'title' => s(get_string('duplicatepage', 'mod_icontent')),
+                    'class' => 'icon icon-duplicatepage',
+                    'data-toggle' => 'tooltip',
+                    'data-placement' => 'top',
+                ]
+            );
             // Delete current page.
             $delete = html_writer::link(
                 new moodle_url(
@@ -6104,7 +6464,7 @@ function icontent_make_toolbar($page, $icontent) {
     // Make toolbar.
     $toolbar = html_writer::tag(
         'div',
-        $highcontrast . $comments . $displayed . $addquestion . $update . $new . $delete,
+        $highcontrast . $comments . $displayed . $addquestion . $update . $new . $duplicate . $delete,
         [
             'class' => 'toolbarpage ',
         ]
@@ -6593,11 +6953,23 @@ function icontent_render_qtype_matrix_placeholder($context): string {
         ];
     }
 
-    $helptext = html_writer::tag(
-        'p',
-        'Update test status in mod/icontent/qtype_matrix_status.json and compatibility/usage ' .
-        'in mod/icontent/qtype_matrix_catalog.json.',
-        ['class' => 'text-muted small mb-2']
+    $helptext = html_writer::div(
+        html_writer::tag(
+            'p',
+            'Maintain this matrix in two JSON files: mod/icontent/qtype_matrix_status.json ' .
+            '(test result + notes) and mod/icontent/qtype_matrix_catalog.json ' .
+            '(support/usage metadata).',
+            ['class' => 'mb-1']
+        ) .
+        html_writer::tag(
+            'p',
+            'Use exact qtype/integration keys shown in the Component column without the ' .
+            'qtype_ prefix, for example varnumeric, formulas, gapfill, cloudpoodll, ' .
+            'recordrtc, or filter_embedquestion. Allowed status values are pass, fail, ' .
+            'or not tested. Keys beginning with _ are documentation-only and ignored by the renderer.',
+            ['class' => 'mb-0']
+        ),
+        'text-muted small mb-2'
     );
 
     return html_writer::div(
@@ -6720,6 +7092,9 @@ function icontent_get_qtype_matrix_status_overrides(): array {
         if (!is_string($qtype) || !is_array($entry)) {
             continue;
         }
+        if ($qtype !== '' && $qtype[0] === '_') {
+            continue;
+        }
 
         $status = strtolower(trim((string)($entry['status'] ?? 'not tested')));
         if (!in_array($status, ['pass', 'fail', 'not tested'], true)) {
@@ -6759,6 +7134,9 @@ function icontent_get_qtype_matrix_catalog_overrides(): array {
     $result = [];
     foreach ($decoded as $qtype => $entry) {
         if (!is_string($qtype) || !is_array($entry)) {
+            continue;
+        }
+        if ($qtype !== '' && $qtype[0] === '_') {
             continue;
         }
 

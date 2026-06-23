@@ -28,10 +28,10 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_icontent';
-$plugin->version = 2026061800; // The current module version (Date: YYYYMMDDXX).
-$plugin->release = '3.0.0 (Build: 2026061800)'; // User-friendly version number.
+$plugin->version = 2026062300; // The current module version (Date: YYYYMMDDXX).
+$plugin->release = '3.0.0 (Build: 2026062300)'; // User-friendly version number.
 $plugin->requires = 2022041900; // Moodle 4.0.
-$plugin->maturity = MATURITY_BETA;
+$plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 0; // Period for cron to check this module (secs).
 $plugin->supported = [405, 502];
 $plugin->dependencies = [];

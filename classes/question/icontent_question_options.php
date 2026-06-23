@@ -192,6 +192,10 @@ class icontent_question_options {
                    AND qa.userid = ?;";
         // Get items.
         $idanswers = $DB->get_fieldset_sql($sql, [$pageid, $cmid, $USER->id]);
+        if (empty($idanswers)) {
+            // Nothing to delete for this user/page; treat as a successful no-op.
+            return true;
+        }
         [$in, $values] = $DB->get_in_or_equal($idanswers);
         // Delete records.
         return $DB->delete_records_select('icontent_question_attempts', 'id ' . $in, $values);

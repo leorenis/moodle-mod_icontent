@@ -40,6 +40,10 @@ Upgrade.txt working notes:
 20240827 iContent_1309 - Need to implement viewaftertimeclose capability.
 20260313 iContent_1440 - Need to implement running code prechecks before a release.
 20260602 iContent_1498 - Feature Request - It would be nice if Content Pages had mobile support.
+20260623 iContent_1508 - Feature Request - It would be nice to include Content Page documentation
+    as an activity.
+20260623 iContent_1509 - Feature Request - It would be nice if the question_matrix was an editable page.
+20260623 iContent_1510 - iContent - Feature Request - Need to see about changing files to classes.
 
 
 
@@ -245,7 +249,29 @@ Upgrade.txt working notes:
         upgrade step 2026060201). icontent_render_manual_review_answer() in locallib.php
         now calls format_text() with the stored answertextformat (falls back to FORMAT_HTML
         for legacy plain-text records).
-
+20260620 iContent_1505 - Feature Request - It would be nice to see actual question feedback.
+    2026062302 - Added learner attempt-summary feedback output for available general,
+        outcome (right/wrong/partial), and selected-answer feedback.
+    2026062303 - Removed developer debugging notice from legacy render fallback path
+        because some setups convert E_USER_NOTICE into exceptions (Whoops), which
+        broke page render for unsupported qtypes such as varnumeric.
+20260620 iContent_1506bt - Feature Request - It would be nice if there were a page duplication tool.
+    2026062002 - Added minimal V1 page duplication via duplicate.php and TOC action icon.
+        Duplicates page settings/content/files while preserving branch settings. Duplicated
+        page navigation overrides are reset to Previous=Auto and Next=Hide (none).
+    2026062003 - Added duplicate icon to the in-page teacher toolbar when edit mode is on
+        and introduced PHPUnit coverage for icontent_duplicate_page() insertion order and
+        navigation override reset behavior.
+20260620 iContent_1507bt - The iContent logo is missing from Moodle My Contributions.
+    2026062001 Used LO Draw and exported icon.png as icon.svg.
+20260623 iContent_1511 - iContent - Feature Request - It would be nice to have an activity reset.
+    2026062301 - Hardened course reset cleanup for iContent activities. Reset now clears
+        branch navigation history, attempt records, and module question-engine usages
+        (QUBA rows under mod_icontent context) so question attempts fully reset for
+        repeat testing and course reset workflows.
+    2026062302 - Fixed Try again/reset crash after restore when a page has no matching
+        attempt rows for the current user: empty attempt list now returns a safe no-op
+        instead of calling get_in_or_equal() with an empty array.
 
 === 2.5.0 === 2026031900
 20231231 iContent_1150r - iContent - Current code does not respect 3 question limit when adding

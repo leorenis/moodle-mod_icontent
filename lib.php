@@ -96,7 +96,7 @@ function icontent_supports($feature) {
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return int The id of the newly inserted icontent record
  */
-function icontent_add_instance($icontent) {
+function icontent_add_instance($icontent, $mform = null) {
     global $DB;
 
     $icontent->timecreated = time();
@@ -134,7 +134,7 @@ function icontent_add_instance($icontent) {
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function icontent_update_instance($icontent) {
+function icontent_update_instance($icontent, $mform = null) {
     global $DB;
 
     $icontent->timemodified = time();
@@ -1110,6 +1110,7 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, $
  * @param int $pagenum
  * @param object $icontent
  * @param object $context
+ * @param object $sourcepageid
  * @return array $pageicontent
  */
 function icontent_ajax_getpage($pagenum, $icontent, $context, $sourcepageid = 0) {
@@ -1641,18 +1642,6 @@ function icontent_ajax_saveattempt($formdata, stdClass $cm, $icontent) {
         }
     }
 
-    if (!empty($CFG->debug) && ((int)$CFG->debug & DEBUG_DEVELOPER)) {
-        debugging(
-            'mod_icontent: saveattempt source counts for page '
-            . (int)$pageid
-            . ' (engine=' . count($qenginerecords)
-            . ', legacy=' . count($records)
-            . ', legacyfallback=' . ($allowlegacysubmitfallback ? 'on' : 'off')
-            . ').',
-            DEBUG_DEVELOPER
-        );
-    }
-
     if (!empty($qenginerecords)) {
         $records = array_merge($records, $qenginerecords);
     }
@@ -1762,10 +1751,45 @@ function icontent_reset_instance($icontentid) {
     $DB->delete_records('icontent_pages_notes_like', ['cmid' => $cm->id]);
     $DB->delete_records('icontent_pages_notes', ['cmid' => $cm->id]);
     $DB->delete_records('icontent_pages_displayed', ['cmid' => $cm->id]);
+    $DB->delete_records('icontent_pages_nav', ['cmid' => $cm->id]);
     $DB->delete_records('icontent_question_attempts', ['cmid' => $cm->id]);
     $DB->delete_records('icontent_grades', ['cmid' => $cm->id]);
+    icontent_reset_question_engine_usages((int)$cm->id);
 
     return true;
+}
+
+/**
+ * Delete all question engine usages created by one iContent activity.
+ *
+ * @param int $cmid
+ * @return void
+ */
+function icontent_reset_question_engine_usages(int $cmid): void {
+    global $DB;
+
+    if ($cmid <= 0) {
+        return;
+    }
+
+    $context = context_module::instance($cmid, IGNORE_MISSING);
+    if (empty($context)) {
+        return;
+    }
+
+    $qubaids = $DB->get_records('question_usages', [
+        'contextid' => (int)$context->id,
+        'component' => 'mod_icontent',
+    ], '', 'id');
+
+    foreach ($qubaids as $qubaid) {
+        try {
+            question_engine::delete_questions_usage_by_activity((int)$qubaid->id);
+        } catch (Throwable $e) {
+            // Ignore broken or already-removed usages and continue reset cleanup.
+            unset($e);
+        }
+    }
 }
 
 /**

@@ -249,7 +249,7 @@ Upgrade.txt working notes:
         upgrade step 2026060201). icontent_render_manual_review_answer() in locallib.php
         now calls format_text() with the stored answertextformat (falls back to FORMAT_HTML
         for legacy plain-text records).
-20260620 iContent_1505 - Feature Request - It would be nice to see actual question feedback.
+20260620 iContent_1505bt - Feature Request - It would be nice to see actual question feedback.
     2026062302 - Added learner attempt-summary feedback output for available general,
         outcome (right/wrong/partial), and selected-answer feedback.
     2026062303 - Removed developer debugging notice from legacy render fallback path
@@ -264,7 +264,7 @@ Upgrade.txt working notes:
         navigation override reset behavior.
 20260620 iContent_1507bt - The iContent logo is missing from Moodle My Contributions.
     2026062001 Used LO Draw and exported icon.png as icon.svg.
-20260623 iContent_1511 - iContent - Feature Request - It would be nice to have an activity reset.
+20260623 iContent_1511bt - iContent - Feature Request - It would be nice to have an activity reset.
     2026062301 - Hardened course reset cleanup for iContent activities. Reset now clears
         branch navigation history, attempt records, and module question-engine usages
         (QUBA rows under mod_icontent context) so question attempts fully reset for

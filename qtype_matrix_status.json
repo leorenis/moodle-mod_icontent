@@ -1,7 +1,27 @@
 {
+  "calculated": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "calculatedmulti": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "calculatedsimple": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
   "cloudpoodll": {
     "status": "pass",
     "notes": "Audio/video manual review rendering verified."
+  },
+  "ddwtos": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "ddimageortext": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
   },
   "essay": {
     "status": "pass",
@@ -23,6 +43,14 @@
     "status": "pass",
     "notes": "Automatic grade flow available in current iContent setup."
   },
+  "multichoice": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "multichoiceset": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
   "poodllrecording": {
     "status": "pass",
     "notes": "Picture/audio/video manual review rendering verified."
@@ -31,7 +59,15 @@
     "status": "pass",
     "notes": "Audio/video/screen manual review rendering verified in regular browser."
   },
+  "shortanswer": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
   "stack": {
+    "status": "pass",
+    "notes": "Automatic grade flow available in current iContent setup."
+  },
+  "truefalse": {
     "status": "pass",
     "notes": "Automatic grade flow available in current iContent setup."
   },

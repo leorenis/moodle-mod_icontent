@@ -1320,11 +1320,8 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
     try {
         $quba = question_engine::load_questions_usage_by_activity($qubaid);
         $quba->process_all_actions(time(), $postdata);
-<<<<<<< Updated upstream
-=======
         // Finalise all slots so review rendering can expose completed-state feedback.
         $quba->finish_all_questions(time());
->>>>>>> Stashed changes
         question_engine::save_questions_usage_by_activity($quba);
     } catch (\Throwable $e) {
         return [];

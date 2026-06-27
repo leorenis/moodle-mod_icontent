@@ -444,8 +444,6 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
 }
 
 /**
-<<<<<<< Updated upstream
-=======
  * Make rendered review HTML visually and functionally non-editable.
  *
  * @param string $html
@@ -628,7 +626,6 @@ function icontent_question_engine_phase2_render_review_question(int $pageid, int
 }
 
 /**
->>>>>>> Stashed changes
  * Resolve a mapped question id to the latest ready/draft version id.
  *
  * @param int $questionid
@@ -780,21 +777,6 @@ function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedh
 function icontent_qengine_embed_dd_background_data_uri(string $renderedhtml, int $questionid, string $qtype, int $cmid): string {
     global $DB;
 
-<<<<<<< Updated upstream
-    $contextid = (int)$DB->get_field('question', 'contextid', ['id' => $questionid]);
-    if (empty($contextid)) {
-        return $renderedhtml;
-    }
-
-    $component = 'qtype_' . $qtype;
-    $fs = get_file_storage();
-    $files = $fs->get_area_files($contextid, $component, 'bgimage', $questionid, 'id ASC', false);
-    if (empty($files)) {
-        return $renderedhtml;
-    }
-
-    $imagefile = reset($files);
-=======
     $component = 'qtype_' . $qtype;
     $fs = get_file_storage();
     $fileid = (int)$DB->get_field_select(
@@ -810,7 +792,6 @@ function icontent_qengine_embed_dd_background_data_uri(string $renderedhtml, int
     }
 
     $imagefile = $fs->get_file_by_id($fileid);
->>>>>>> Stashed changes
     if (!$imagefile) {
         return $renderedhtml;
     }
@@ -3443,13 +3424,6 @@ function icontent_get_outcome_feedback_for_attempt(stdClass $submittedanswer): s
     global $DB;
 
     $qtype = (string)($submittedanswer->qtype ?? '');
-<<<<<<< Updated upstream
-    if (!in_array($qtype, ['multichoice', 'calculatedmulti'], true)) {
-        return '';
-    }
-
-    if (!$DB->get_manager()->table_exists('qtype_multichoice_options')) {
-=======
     $optionstablebyqtype = [
         'multichoice' => 'qtype_multichoice_options',
         'calculatedmulti' => 'qtype_multichoice_options',
@@ -3464,16 +3438,11 @@ function icontent_get_outcome_feedback_for_attempt(stdClass $submittedanswer): s
 
     $optionstable = $optionstablebyqtype[$qtype];
     if (!$DB->get_manager()->table_exists($optionstable)) {
->>>>>>> Stashed changes
         return '';
     }
 
     $options = $DB->get_record(
-<<<<<<< Updated upstream
-        'qtype_multichoice_options',
-=======
         $optionstable,
->>>>>>> Stashed changes
         ['questionid' => (int)$submittedanswer->questionid],
         'correctfeedback, correctfeedbackformat, partiallycorrectfeedback, partiallycorrectfeedbackformat, ' .
             'incorrectfeedback, incorrectfeedbackformat',
@@ -5892,13 +5861,6 @@ function icontent_make_attempt_summary_by_page($pageid, $cmid) {
     $submittedanswers = icontent_get_submitted_answers_by_attempt_summary_by_page($pageid, $cmid);
     if (!empty($submittedanswers)) {
         $answeritems = [];
-<<<<<<< Updated upstream
-        foreach ($submittedanswers as $submittedanswer) {
-            $questionlabel = html_writer::tag('strong', format_string($submittedanswer->questionname) . ': ');
-            $answercontent = icontent_render_manual_review_answer($submittedanswer, $cmid);
-            $feedbackcontent = icontent_render_attempt_feedback($submittedanswer);
-            $answeritems[] = html_writer::tag('li', $questionlabel . $answercontent . $feedbackcontent, ['class' => 'mb-3']);
-=======
         $displaynumber = 1;
         foreach ($submittedanswers as $submittedanswer) {
             $questionlabel = html_writer::tag('strong', format_string($submittedanswer->questionname) . ': ');
@@ -5918,7 +5880,6 @@ function icontent_make_attempt_summary_by_page($pageid, $cmid) {
             }
 
             $displaynumber++;
->>>>>>> Stashed changes
         }
 
         $answershtml = html_writer::div(

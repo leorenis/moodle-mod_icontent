@@ -33,11 +33,8 @@ Upgrade.txt working notes:
     should for the content page text area.
 20240805 iContent_1292 - Would be nice to limit proceeding to new slide/page based on question
     completion on current slide/page.
-<<<<<<< Updated upstream
-=======
     2026062701 - Partial foundation in place: activity-level side TOC hide setting exists; remaining
         objective is no-Prev/Next progression with per-page question/link-controlled next-page routing.
->>>>>>> Stashed changes
 20240805 iContent_1293 - Would be nice if Previous/Next buttons were like those in a Book resource.
 20240824 iContent_1297 - Need to implement icontent_print_recent_activity function in lib.php.
 20240825 iContent_1302 - Need to update the two functions regarding scale_used
@@ -260,14 +257,11 @@ Upgrade.txt working notes:
     2026062303 - Removed developer debugging notice from legacy render fallback path
         because some setups convert E_USER_NOTICE into exceptions (Whoops), which
         broke page render for unsupported qtypes such as varnumeric.
-<<<<<<< Updated upstream
-=======
     2026062701 - Attempt summary now prefers Moodle question-engine review rendering
         per question (QUBA slot output) so qtype-native review UI/feedback paths are used.
     2026062702 - Finalized page QUBA attempts before saveattempt review output and
         hardened summary review markup to be read-only (disabled controls) with
         configured-hint fallback when qtype output omits visible hint blocks.
->>>>>>> Stashed changes
 20260620 iContent_1506bt - Feature Request - It would be nice if there were a page duplication tool.
     2026062002 - Added minimal V1 page duplication via duplicate.php and TOC action icon.
         Duplicates page settings/content/files while preserving branch settings. Duplicated

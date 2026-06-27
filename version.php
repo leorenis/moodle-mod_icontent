@@ -28,8 +28,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'mod_icontent';
+<<<<<<< Updated upstream
 $plugin->version = 2026062300; // The current module version (Date: YYYYMMDDXX).
 $plugin->release = '3.0.0 (Build: 2026062300)'; // User-friendly version number.
+=======
+$plugin->version = 2026062700; // The current module version (Date: YYYYMMDDXX).
+$plugin->release = '3.0.0 (Build: 2026062700)'; // User-friendly version number.
+>>>>>>> Stashed changes
 $plugin->requires = 2022041900; // Moodle 4.0.
 $plugin->maturity = MATURITY_STABLE;
 $plugin->cron = 0; // Period for cron to check this module (secs).

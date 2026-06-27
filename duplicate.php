@@ -27,8 +27,6 @@ use mod_icontent\local\icontent_info;
 require(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
-global $DB;
-
 $id = required_param('id', PARAM_INT); // Course Module ID.
 $pageid = required_param('pageid', PARAM_INT); // Source page ID.
 

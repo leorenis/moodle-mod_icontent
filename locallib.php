@@ -444,6 +444,191 @@ function icontent_question_engine_phase2_render_question($objpage, $question, $d
 }
 
 /**
+<<<<<<< Updated upstream
+=======
+ * Make rendered review HTML visually and functionally non-editable.
+ *
+ * @param string $html
+ * @return string
+ */
+function icontent_qengine_make_review_html_readonly(string $html): string {
+    // Remove behaviour controls row (submit/check buttons) from review output.
+    $html = (string)preg_replace('~<div class="im-controls">.*?</div>~is', '', $html);
+
+    $html = (string)preg_replace_callback(
+        '~<(input|textarea|select|button)\b([^>]*)>~i',
+        static function(array $matches): string {
+            $tag = strtolower((string)$matches[1]);
+            $attrs = (string)$matches[2];
+
+            if ($tag === 'input' && preg_match('~\btype\s*=\s*["\']?hidden["\']?~i', $attrs)) {
+                return $matches[0];
+            }
+            if (preg_match('~\bdisabled\s*=|\bdisabled\b~i', $attrs)) {
+                return $matches[0];
+            }
+
+            $attrs .= ' disabled="disabled"';
+            if ($tag === 'input' || $tag === 'textarea') {
+                $attrs .= ' readonly="readonly"';
+            }
+
+            return '<' . $tag . $attrs . '>';
+        },
+        $html
+    );
+
+    return $html;
+}
+
+/**
+ * Append configured question hints when renderer output does not include them.
+ *
+ * @param string $html
+ * @param question_definition $questiondef
+ * @return string
+ */
+function icontent_qengine_append_configured_hints_if_missing(string $html, question_definition $questiondef): string {
+    if (preg_match('~class\s*=\s*["\'][^"\']*\bhint\b[^"\']*["\']~i', $html)) {
+        return $html;
+    }
+
+    if (empty($questiondef->hints) || !is_iterable($questiondef->hints)) {
+        return $html;
+    }
+
+    $hintitems = [];
+    foreach ($questiondef->hints as $hint) {
+        $hinttext = trim((string)($hint->hint ?? ''));
+        if ($hinttext === '') {
+            continue;
+        }
+
+        $hintitems[] = html_writer::div(
+            format_text(
+                $hinttext,
+                (int)($hint->hintformat ?? FORMAT_HTML),
+                ['noclean' => false, 'para' => false]
+            ),
+            'hint'
+        );
+    }
+
+    if (empty($hintitems)) {
+        return $html;
+    }
+
+    $hintsblock = html_writer::div(
+        implode('', $hintitems),
+        'icontent-question-hints mt-2'
+    );
+
+    return $html . $hintsblock;
+}
+
+/**
+ * Render one question in review mode from the current page QUBA session.
+ *
+ * @param int $pageid
+ * @param int $cmid
+ * @param int $questionid Source question id from page mapping.
+ * @param int $displaynumber
+ * @return string|false
+ */
+function icontent_question_engine_phase2_render_review_question(int $pageid, int $cmid, int $questionid, int $displaynumber = 1) {
+    global $CFG, $SESSION, $USER;
+
+    if (empty($cmid) || empty($pageid) || empty($questionid) || empty($USER->id)) {
+        return false;
+    }
+
+    if (empty($SESSION->mod_icontent_quba) || !is_array($SESSION->mod_icontent_quba)) {
+        return false;
+    }
+
+    $sessionkey = icontent_question_engine_phase1_get_session_key($cmid, $pageid, $USER->id);
+    $mappedquestionid = $SESSION->mod_icontent_qengine_questionmap[$sessionkey][(int)$questionid] ?? (int)$questionid;
+    $qubaid = (int)($SESSION->mod_icontent_quba[$sessionkey] ?? 0);
+    if ($qubaid <= 0) {
+        return false;
+    }
+
+    require_once($CFG->libdir . '/questionlib.php');
+
+    try {
+        $quba = question_engine::load_questions_usage_by_activity($qubaid);
+    } catch (\Throwable $e) {
+        return false;
+    }
+
+    $slot = null;
+    foreach ($quba->get_slots() as $candidateslot) {
+        try {
+            $slotquestion = $quba->get_question($candidateslot);
+            if (!empty($slotquestion->id) && (int)$slotquestion->id === $mappedquestionid) {
+                $slot = $candidateslot;
+                break;
+            }
+        } catch (\Throwable $e) {
+            continue;
+        }
+    }
+
+    if (empty($slot)) {
+        return false;
+    }
+
+    try {
+        $displayoptions = new question_display_options();
+        $displayoptions->readonly = true;
+        $displayoptions->correctness = question_display_options::VISIBLE;
+        $displayoptions->marks = question_display_options::MARK_AND_MAX;
+        $displayoptions->feedback = question_display_options::VISIBLE;
+        $displayoptions->numpartscorrect = question_display_options::VISIBLE;
+        $displayoptions->generalfeedback = question_display_options::VISIBLE;
+        $displayoptions->rightanswer = question_display_options::VISIBLE;
+        $displayoptions->manualcomment = question_display_options::HIDDEN;
+        $displayoptions->flags = question_display_options::HIDDEN;
+
+        $renderedhtml = $quba->render_question($slot, $displayoptions, (string)$displaynumber);
+    } catch (\Throwable $e) {
+        return false;
+    }
+
+    $renderedhtml = icontent_qengine_make_review_html_readonly((string)$renderedhtml);
+
+    $renderedhtml = icontent_qengine_rewrite_questiontext_pluginfile_urls(
+        (string)$renderedhtml,
+        (int)$questionid,
+        (int)$cmid
+    );
+
+    try {
+        $slotquestion = $quba->get_question($slot);
+        $slotqtype = (string)($slotquestion->qtype ?? '');
+    } catch (\Throwable $e) {
+        $slotquestion = null;
+        $slotqtype = '';
+    }
+
+    if ($slotquestion instanceof question_definition) {
+        $renderedhtml = icontent_qengine_append_configured_hints_if_missing((string)$renderedhtml, $slotquestion);
+    }
+
+    if (in_array($slotqtype, ['ddimageortext', 'ddmarker'], true)) {
+        $renderedhtml = icontent_qengine_embed_dd_background_data_uri(
+            (string)$renderedhtml,
+            (int)$questionid,
+            $slotqtype,
+            (int)$cmid
+        );
+    }
+
+    return html_writer::div($renderedhtml, 'question qengine-review');
+}
+
+/**
+>>>>>>> Stashed changes
  * Resolve a mapped question id to the latest ready/draft version id.
  *
  * @param int $questionid
@@ -595,6 +780,7 @@ function icontent_qengine_rewrite_questiontext_pluginfile_urls(string $renderedh
 function icontent_qengine_embed_dd_background_data_uri(string $renderedhtml, int $questionid, string $qtype, int $cmid): string {
     global $DB;
 
+<<<<<<< Updated upstream
     $contextid = (int)$DB->get_field('question', 'contextid', ['id' => $questionid]);
     if (empty($contextid)) {
         return $renderedhtml;
@@ -608,6 +794,23 @@ function icontent_qengine_embed_dd_background_data_uri(string $renderedhtml, int
     }
 
     $imagefile = reset($files);
+=======
+    $component = 'qtype_' . $qtype;
+    $fs = get_file_storage();
+    $fileid = (int)$DB->get_field_select(
+        'files',
+        'id',
+        'component = ? AND filearea = ? AND itemid = ? AND filename <> ? AND filesize > 0',
+        [$component, 'bgimage', $questionid, '.'],
+        IGNORE_MULTIPLE,
+        'id ASC'
+    );
+    if (empty($fileid)) {
+        return $renderedhtml;
+    }
+
+    $imagefile = $fs->get_file_by_id($fileid);
+>>>>>>> Stashed changes
     if (!$imagefile) {
         return $renderedhtml;
     }
@@ -3240,16 +3443,37 @@ function icontent_get_outcome_feedback_for_attempt(stdClass $submittedanswer): s
     global $DB;
 
     $qtype = (string)($submittedanswer->qtype ?? '');
+<<<<<<< Updated upstream
     if (!in_array($qtype, ['multichoice', 'calculatedmulti'], true)) {
         return '';
     }
 
     if (!$DB->get_manager()->table_exists('qtype_multichoice_options')) {
+=======
+    $optionstablebyqtype = [
+        'multichoice' => 'qtype_multichoice_options',
+        'calculatedmulti' => 'qtype_multichoice_options',
+        'ddmarker' => 'qtype_ddmarker',
+        'ddimageortext' => 'qtype_ddimageortext',
+        'ddwtos' => 'question_ddwtos',
+    ];
+
+    if (!array_key_exists($qtype, $optionstablebyqtype)) {
+        return '';
+    }
+
+    $optionstable = $optionstablebyqtype[$qtype];
+    if (!$DB->get_manager()->table_exists($optionstable)) {
+>>>>>>> Stashed changes
         return '';
     }
 
     $options = $DB->get_record(
+<<<<<<< Updated upstream
         'qtype_multichoice_options',
+=======
+        $optionstable,
+>>>>>>> Stashed changes
         ['questionid' => (int)$submittedanswer->questionid],
         'correctfeedback, correctfeedbackformat, partiallycorrectfeedback, partiallycorrectfeedbackformat, ' .
             'incorrectfeedback, incorrectfeedbackformat',
@@ -5668,11 +5892,33 @@ function icontent_make_attempt_summary_by_page($pageid, $cmid) {
     $submittedanswers = icontent_get_submitted_answers_by_attempt_summary_by_page($pageid, $cmid);
     if (!empty($submittedanswers)) {
         $answeritems = [];
+<<<<<<< Updated upstream
         foreach ($submittedanswers as $submittedanswer) {
             $questionlabel = html_writer::tag('strong', format_string($submittedanswer->questionname) . ': ');
             $answercontent = icontent_render_manual_review_answer($submittedanswer, $cmid);
             $feedbackcontent = icontent_render_attempt_feedback($submittedanswer);
             $answeritems[] = html_writer::tag('li', $questionlabel . $answercontent . $feedbackcontent, ['class' => 'mb-3']);
+=======
+        $displaynumber = 1;
+        foreach ($submittedanswers as $submittedanswer) {
+            $questionlabel = html_writer::tag('strong', format_string($submittedanswer->questionname) . ': ');
+            $qenginereview = icontent_question_engine_phase2_render_review_question(
+                (int)$pageid,
+                (int)$cmid,
+                (int)$submittedanswer->questionid,
+                $displaynumber
+            );
+
+            if ($qenginereview !== false) {
+                $answeritems[] = html_writer::tag('li', $questionlabel . $qenginereview, ['class' => 'mb-3']);
+            } else {
+                $answercontent = icontent_render_manual_review_answer($submittedanswer, $cmid);
+                $feedbackcontent = icontent_render_attempt_feedback($submittedanswer);
+                $answeritems[] = html_writer::tag('li', $questionlabel . $answercontent . $feedbackcontent, ['class' => 'mb-3']);
+            }
+
+            $displaynumber++;
+>>>>>>> Stashed changes
         }
 
         $answershtml = html_writer::div(

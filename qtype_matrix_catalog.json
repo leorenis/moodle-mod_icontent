@@ -13,6 +13,36 @@
       "notes": "Short maintenance/catalog note shown in the matrix"
     }
   },
+  "calculated": {
+    "officialsupport": "Core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Core qtype; plugin-directory site counts are not applicable."
+  },
+  "calculatedmulti": {
+    "officialsupport": "Core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Core qtype; plugin-directory site counts are not applicable."
+  },
+  "calculatedsimple": {
+    "officialsupport": "Core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Core qtype; plugin-directory site counts are not applicable."
+  },
+  "ddwtos": {
+    "officialsupport": "2.9 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 38,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "ddimageortext": {
+    "officialsupport": "2.9 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 46,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
   "cloudpoodll": {
     "officialsupport": "5.2 ready",
     "verifiedsupport": "5.2, 5.3-dev",
@@ -28,7 +58,7 @@
   "essayautograde": {
     "officialsupport": "Local plugin",
     "verifiedsupport": "5.2, 5.3-dev",
-    "pluginsites": null,
+    "pluginsites": 1708,
     "notes": "Track usage manually if published in plugin directory."
   },
   "filter_embedquestion": {
@@ -49,6 +79,18 @@
     "pluginsites": 4248,
     "notes": "Update plugin-directory usage count after each audit pass."
   },
+  "multichoice": {
+    "officialsupport": "Core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "multichoiceset": {
+    "officialsupport": "4.0 ready",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": 3905,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
   "poodllrecording": {
     "officialsupport": "5.2 ready",
     "verifiedsupport": "5.2, 5.3-dev",
@@ -61,10 +103,22 @@
     "pluginsites": 1342,
     "notes": "Update plugin-directory usage count after each audit pass."
   },
+  "shortanswer": {
+    "officialsupport": "core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
   "stack": {
     "officialsupport": "5.1 ready",
     "verifiedsupport": "5.2, 5.3-dev",
     "pluginsites": 2234,
+    "notes": "Update plugin-directory usage count after each audit pass."
+  },
+  "truefalse": {
+    "officialsupport": "core",
+    "verifiedsupport": "5.2, 5.3-dev",
+    "pluginsites": null,
     "notes": "Update plugin-directory usage count after each audit pass."
   },
   "varnumeric": {

@@ -96,7 +96,7 @@ function icontent_supports($feature) {
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return int The id of the newly inserted icontent record
  */
-function icontent_add_instance($icontent) {
+function icontent_add_instance($icontent, $mform = null) {
     global $DB;
 
     $icontent->timecreated = time();
@@ -134,7 +134,7 @@ function icontent_add_instance($icontent) {
  * @param mod_icontent_mod_form $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function icontent_update_instance($icontent) {
+function icontent_update_instance($icontent, $mform = null) {
     global $DB;
 
     $icontent->timemodified = time();
@@ -1110,6 +1110,7 @@ function icontent_extend_settings_navigation(settings_navigation $settingsnav, $
  * @param int $pagenum
  * @param object $icontent
  * @param object $context
+ * @param object $sourcepageid
  * @return array $pageicontent
  */
 function icontent_ajax_getpage($pagenum, $icontent, $context, $sourcepageid = 0) {
@@ -1319,6 +1320,8 @@ function icontent_phase3_process_qengine_attempts(array $postdata, stdClass $cm,
     try {
         $quba = question_engine::load_questions_usage_by_activity($qubaid);
         $quba->process_all_actions(time(), $postdata);
+        // Finalise all slots so review rendering can expose completed-state feedback.
+        $quba->finish_all_questions(time());
         question_engine::save_questions_usage_by_activity($quba);
     } catch (\Throwable $e) {
         return [];

@@ -33,6 +33,8 @@ Upgrade.txt working notes:
     should for the content page text area.
 20240805 iContent_1292 - Would be nice to limit proceeding to new slide/page based on question
     completion on current slide/page.
+    2026062701 - Partial foundation in place: activity-level side TOC hide setting exists; remaining
+        objective is no-Prev/Next progression with per-page question/link-controlled next-page routing.
 20240805 iContent_1293 - Would be nice if Previous/Next buttons were like those in a Book resource.
 20240824 iContent_1297 - Need to implement icontent_print_recent_activity function in lib.php.
 20240825 iContent_1302 - Need to update the two functions regarding scale_used
@@ -249,9 +251,17 @@ Upgrade.txt working notes:
         upgrade step 2026060201). icontent_render_manual_review_answer() in locallib.php
         now calls format_text() with the stored answertextformat (falls back to FORMAT_HTML
         for legacy plain-text records).
-20260620 iContent_1505 - Feature Request - It would be nice to see actual question feedback.
+20260620 iContent_1505bt - Feature Request - It would be nice to see actual question feedback.
     2026062302 - Added learner attempt-summary feedback output for available general,
         outcome (right/wrong/partial), and selected-answer feedback.
+    2026062303 - Removed developer debugging notice from legacy render fallback path
+        because some setups convert E_USER_NOTICE into exceptions (Whoops), which
+        broke page render for unsupported qtypes such as varnumeric.
+    2026062701 - Attempt summary now prefers Moodle question-engine review rendering
+        per question (QUBA slot output) so qtype-native review UI/feedback paths are used.
+    2026062702 - Finalized page QUBA attempts before saveattempt review output and
+        hardened summary review markup to be read-only (disabled controls) with
+        configured-hint fallback when qtype output omits visible hint blocks.
 20260620 iContent_1506bt - Feature Request - It would be nice if there were a page duplication tool.
     2026062002 - Added minimal V1 page duplication via duplicate.php and TOC action icon.
         Duplicates page settings/content/files while preserving branch settings. Duplicated
@@ -261,11 +271,14 @@ Upgrade.txt working notes:
         navigation override reset behavior.
 20260620 iContent_1507bt - The iContent logo is missing from Moodle My Contributions.
     2026062001 Used LO Draw and exported icon.png as icon.svg.
-20260623 iContent_1511 - iContent - Feature Request - It would be nice to have an activity reset.
+20260623 iContent_1511bt - iContent - Feature Request - It would be nice to have an activity reset.
     2026062301 - Hardened course reset cleanup for iContent activities. Reset now clears
         branch navigation history, attempt records, and module question-engine usages
         (QUBA rows under mod_icontent context) so question attempts fully reset for
         repeat testing and course reset workflows.
+    2026062302 - Fixed Try again/reset crash after restore when a page has no matching
+        attempt rows for the current user: empty attempt list now returns a safe no-op
+        instead of calling get_in_or_equal() with an empty array.
 
 === 2.5.0 === 2026031900
 20231231 iContent_1150r - iContent - Current code does not respect 3 question limit when adding
